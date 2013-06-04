@@ -1332,8 +1332,9 @@ void PointValueHistory<dim>
 
 
 // explicit instantiations
-#include "point_value_history.inst"
-
+#ifndef PETSC_USE_COMPLEX
+   #include "point_value_history.inst"
+#endif
 
 DEAL_II_NAMESPACE_CLOSE
 
