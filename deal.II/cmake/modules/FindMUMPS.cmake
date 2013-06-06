@@ -62,7 +62,7 @@ FIND_LIBRARY(MUMPS_COMMON_LIBRARY
 # If we can find libport.so (or similiar), link it in as well:
 #
 FIND_LIBRARY(PORD_LIBRARY
-  NAMES port
+  NAMES pord
   HINTS
     ${MUMPS_DIR}
   PATH_SUFFIXES lib${LIB_SUFFIX} lib64 lib
@@ -89,6 +89,7 @@ IF(MUMPS_FOUND)
   SET(MUMPS_LIBRARIES
     ${DMUMPS_LIBRARY}
     ${MUMPS_COMMON_LIBRARY}
+    ${PORD_LIBRARY}
     ${SCALAPACK_LIBRARIES}
     ${MPI_CXX_LIBRARIES} # For good measure
     )
