@@ -2422,16 +2422,21 @@ namespace MatrixTools
         // find such an entry, take one
 #ifndef PETSC_USE_COMPLEX
         PetscScalar average_nonzero_diagonal_entry = 1;
-#else
-        PetscScalar average_nonzero_diagonal_entry = (PetscScalar) std::complex<double> (1,1);
-#endif
-
         for (types::global_dof_index i=local_range.first; i<local_range.second; ++i)
-          if (matrix.diag_element(i) != std::complex<double> (0,0))
+          if (matrix.diag_element(i) != 0)
             {
               average_nonzero_diagonal_entry = std::fabs(matrix.diag_element(i));
               break;
             }
+#else
+        PetscScalar average_nonzero_diagonal_entry = (PetscScalar) std::complex<double> (1,1);
+        for (types::global_dof_index i=local_range.first; i<local_range.second; ++i)
+          if (matrix.diag_element(i) != std::complex<double> (0,0)) // PETSC_NULL?
+            {
+              average_nonzero_diagonal_entry = std::fabs(matrix.diag_element(i));
+              break;
+            }
+#endif
 
         // figure out which rows of the matrix we
         // have to eliminate on this processor
