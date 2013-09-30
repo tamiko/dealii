@@ -1,14 +1,23 @@
-/* $Id$ */
-/* Author: Sven Wetterauer, University of Heidelberg, 2012 */
+/* ---------------------------------------------------------------------
+ * $Id$
+ *
+ * Copyright (C) 2012 - 2013 by the deal.II authors
+ *
+ * This file is part of the deal.II library.
+ *
+ * The deal.II library is free software; you can use it, redistribute
+ * it, and/or modify it under the terms of the GNU Lesser General
+ * Public License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ * The full text of the license can be found in the file LICENSE at
+ * the top level of the deal.II distribution.
+ *
+ * ---------------------------------------------------------------------
 
-/*    $Id$       */
-/*                                                                */
-/*    Copyright (C) 2012 by the deal.II authors */
-/*                                                                */
-/*    This file is subject to QPL and may not be  distributed     */
-/*    without copyright and license information. Please refer     */
-/*    to the file deal.II/doc/license.html for the  text  and     */
-/*    further information on this license.                        */
+ *
+ * Author: Sven Wetterauer, University of Heidelberg, 2012
+ */
+
 
 // @sect3{Include files}
 
@@ -50,14 +59,14 @@
 #include <fstream>
 #include <iostream>
 
-// We will use adaptive mesh refinement between Newton interations. To do so,
+// We will use adaptive mesh refinement between Newton iterations. To do so,
 // we need to be able to work with a solution on the new mesh, although it was
 // computed on the old one. The SolutionTransfer class transfers the solution
 // from the old to the new mesh:
 
 #include <deal.II/numerics/solution_transfer.h>
 
-// We then open a namepsace for this program and import everything from the
+// We then open a namespace for this program and import everything from the
 // dealii namespace into it, as in previous programs:
 namespace Step15
 {
@@ -72,7 +81,7 @@ namespace Step15
   //   $\delta u^n$, and one for the current iterate $u^n$.
   // - The <code>setup_system</code> function takes an argument that denotes whether
   //   this is the first time it is called or not. The difference is that the
-  //   first time around we need to distributed degrees of freedom and set the
+  //   first time around we need to distribute the degrees of freedom and set the
   //   solution vector for $u^n$ to the correct size. The following times, the
   //   function is called after we have already done these steps as part of
   //   refining the mesh in <code>refine_mesh</code>.
@@ -258,12 +267,12 @@ namespace Step15
         // For the assembly of the linear system, we have to obtain the values
         // of the previous solution's gradients at the quadrature
         // points. There is a standard way of doing this: the
-        // FEValues::get_function function takes a vector that represents a
-        // finite element field defined on a DoFHandler, and evaluates the
-        // gradients of this field at the quadrature points of the cell with
-        // which the FEValues object has last been reinitialized. The values
-        // of the gradients at all quadrature points are then written into the
-        // second argument:
+        // FEValues::get_function_gradients function takes a vector that
+        // represents a finite element field defined on a DoFHandler, and
+        // evaluates the gradients of this field at the quadrature points of the
+        // cell with which the FEValues object has last been reinitialized.
+        // The values of the gradients at all quadrature points are then written
+        // into the second argument:
         fe_values.get_function_gradients(present_solution,
                                          old_solution_gradients);
 
@@ -511,7 +520,7 @@ namespace Step15
     const unsigned int           dofs_per_cell = fe.dofs_per_cell;
     const unsigned int           n_q_points    = quadrature_formula.size();
 
-    Vector<double>               cell_rhs (dofs_per_cell);
+    Vector<double>               cell_residual (dofs_per_cell);
     std::vector<Tensor<1, dim> > gradients(n_q_points);
 
     std::vector<types::global_dof_index>    local_dof_indices (dofs_per_cell);
@@ -521,7 +530,7 @@ namespace Step15
     endc = dof_handler.end();
     for (; cell!=endc; ++cell)
       {
-        cell_rhs = 0;
+        cell_residual = 0;
         fe_values.reinit (cell);
 
         // The actual computation is much as in
@@ -540,7 +549,7 @@ namespace Step15
                                              gradients[q_point]);
 
             for (unsigned int i = 0; i < dofs_per_cell; ++i)
-              cell_rhs(i) -= (fe_values.shape_grad(i, q_point)
+              cell_residual(i) -= (fe_values.shape_grad(i, q_point)
                               * coeff
                               * gradients[q_point]
                               * fe_values.JxW(q_point));
@@ -548,7 +557,7 @@ namespace Step15
 
         cell->get_dof_indices (local_dof_indices);
         for (unsigned int i=0; i<dofs_per_cell; ++i)
-          residual(local_dof_indices[i]) += cell_rhs(i);
+          residual(local_dof_indices[i]) += cell_residual(i);
       }
 
     // At the end of this function we also have to deal with the hanging node
@@ -587,7 +596,7 @@ namespace Step15
   // As discussed in the introduction, Newton's method frequently does not
   // converge if we always take full steps, i.e., compute $u^{n+1}=u^n+\delta
   // u^n$. Rather, one needs a damping parameter (step length) $\alpha^n$ and
-  // set $u^{n+1}=u^n+\alpha^n\; delta u^n$. This function is the one called
+  // set $u^{n+1}=u^n+\alpha^n\delta u^n$. This function is the one called
   // to compute $\alpha^n$.
   //
   // Here, we simply always return 0.1. This is of course a sub-optimal

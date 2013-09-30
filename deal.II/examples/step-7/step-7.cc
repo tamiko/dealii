@@ -1,13 +1,23 @@
-/* Author: Wolfgang Bangerth and Ralf Hartmann, University of Heidelberg, 2000 */
+/* ---------------------------------------------------------------------
+ * $Id$
+ *
+ * Copyright (C) 2000 - 2013 by the deal.II authors
+ *
+ * This file is part of the deal.II library.
+ *
+ * The deal.II library is free software; you can use it, redistribute
+ * it, and/or modify it under the terms of the GNU Lesser General
+ * Public License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ * The full text of the license can be found in the file LICENSE at
+ * the top level of the deal.II distribution.
+ *
+ * ---------------------------------------------------------------------
 
-/*    $Id$       */
-/*                                                                */
-/*    Copyright (C) 2000-2004, 2006-2009, 2011-2012 by the deal.II authors */
-/*                                                                */
-/*    This file is subject to QPL and may not be  distributed     */
-/*    without copyright and license information. Please refer     */
-/*    to the file deal.II/doc/license.html for the  text  and     */
-/*    further information on this license.                        */
+ *
+ * Author: Wolfgang Bangerth and Ralf Hartmann, University of Heidelberg, 2000
+ */
+
 
 // @sect3{Include files}
 
@@ -233,7 +243,7 @@ namespace Step7
   // share the same connotation that points have and are only objects in a
   // more abstract space than the one spanned by the coordinate
   // directions. (In fact, gradients live in `reciprocal' space, since the
-  // dimension of their components is not that of a length, but one over
+  // dimension of their components is not that of a length, but of one over
   // length).
   template <int dim>
   Tensor<1,dim> Solution<dim>::gradient (const Point<dim>   &p,
@@ -940,7 +950,7 @@ namespace Step7
   //
   // For this, we will use the following convention: Faces belonging to Gamma1
   // will have the boundary indicator <code>0</code> (which is the default, so
-  // we don't have to set it explicitely), and faces belonging to Gamma2 will
+  // we don't have to set it explicitly), and faces belonging to Gamma2 will
   // use <code>1</code> as boundary indicator.  To set these values, we loop
   // over all cells, then over all faces of a given cell, check whether it is
   // part of the boundary that we want to denote by Gamma2, and if so set its

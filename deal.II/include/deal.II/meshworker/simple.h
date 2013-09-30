@@ -1,14 +1,19 @@
-//---------------------------------------------------------------------------
-//    $Id$
+// ---------------------------------------------------------------------
+// $Id$
 //
-//    Copyright (C) 2010, 2011, 2012, 2013 by the deal.II authors
+// Copyright (C) 2010 - 2013 by the deal.II authors
 //
-//    This file is subject to QPL and may not be  distributed
-//    without copyright and license information. Please refer
-//    to the file deal.II/doc/license.html for the  text  and
-//    further information on this license.
+// This file is part of the deal.II library.
 //
-//---------------------------------------------------------------------------
+// The deal.II library is free software; you can use it, redistribute
+// it, and/or modify it under the terms of the GNU Lesser General
+// Public License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+// The full text of the license can be found in the file LICENSE at
+// the top level of the deal.II distribution.
+//
+// ---------------------------------------------------------------------
+
 
 #ifndef __deal2__mesh_worker_simple_h
 #define __deal2__mesh_worker_simple_h
@@ -115,8 +120,8 @@ namespace MeshWorker
        */
       SmartPointer<const ConstraintMatrix,ResidualSimple<VECTOR> > constraints;
     };
-    
-    
+
+
     /**
      * Assemble local matrices into a single global matrix. If this global
      * matrix has a block structure, this structure is not used, but
@@ -251,29 +256,24 @@ namespace MeshWorker
     {
     public:
       /**
-       * Constructor, initializing
-       * the #threshold, which
-       * limits how small numbers
-       * may be to be entered into
-       * the matrix.
+       * Constructor, initializing the #threshold, which limits how
+       * small numbers may be to be entered into the matrix.
        */
       MGMatrixSimple(double threshold = 1.e-12);
 
       /**
-       * Store the result matrix
-       * for later assembling.
+       * Store the result matrix for later assembling.
        */
       void initialize(MGLevelObject<MATRIX> &m);
 
       /**
-       * Initialize the multilevel
-       * constraints.
+       * Initialize the multilevel constraints.
        */
       void initialize(const MGConstrainedDoFs &mg_constrained_dofs);
 
       /**
-       * @deprecated This function is of no effect. Only the block info
-       * structure in DoFInfo is being used.
+       * @deprecated This function is of no effect. Only the block
+       * info structure in DoFInfo is being used.
        *
        * Store information on the local block structure. If the
        * assembler is inititialized with this function,
@@ -454,6 +454,15 @@ namespace MeshWorker
       void initialize(MATRIX &m, VECTOR &rhs);
 
       /**
+       * Initialize the constraints. After this function has been
+       * called with a valid ConstraintMatrix, the function
+       * ConstraintMatrix::distribute_local_to_global() will be used
+       * by assemble() to distribute the cell and face matrices into a
+       * global sparse matrix.
+       */
+      void initialize(const ConstraintMatrix &constraints);
+
+      /**
        * Initialize the local data
        * in the
        * DoFInfo
@@ -510,8 +519,8 @@ namespace MeshWorker
     inline void
     ResidualSimple<MATRIX>::initialize_local_blocks(const BlockIndices &)
     {}
-    
-    
+
+
     template <class VECTOR>
     template <class DOFINFO>
     inline void
@@ -535,13 +544,13 @@ namespace MeshWorker
             }
           else
             {
-	      if (info.indices_by_block.size() == 0)
-		constraints->distribute_local_to_global(info.vector(k).block(0), info.indices, (*residuals(k)));
-	      else
-		for (unsigned int i=0;i != info.vector(k).n_blocks();++i)
-		  constraints->distribute_local_to_global(info.vector(k).block(i), info.indices_by_block[i], (*residuals(k)));
-	    }
-	}
+              if (info.indices_by_block.size() == 0)
+                constraints->distribute_local_to_global(info.vector(k).block(0), info.indices, (*residuals(k)));
+              else
+                for (unsigned int i=0; i != info.vector(k).n_blocks(); ++i)
+                  constraints->distribute_local_to_global(info.vector(k).block(i), info.indices_by_block[i], (*residuals(k)));
+            }
+        }
     }
 
     template <class VECTOR>
@@ -561,27 +570,27 @@ namespace MeshWorker
             }
           else
             {
-	      if (info1.indices_by_block.size() == 0 && info2.indices_by_block.size() == 0)
-		{
-		  constraints->distribute_local_to_global
-		    (info1.vector(k).block(0), info1.indices, (*residuals(k)));
-		  constraints->distribute_local_to_global
-		    (info2.vector(k).block(0), info2.indices, (*residuals(k)));
-		}
-	      else if (info1.indices_by_block.size() != 0 && info2.indices_by_block.size() != 0)
-		{
-		  for (unsigned int i=0;i<info1.vector(k).n_blocks();++i)
-		    {
-		      constraints->distribute_local_to_global
-			(info1.vector(k).block(i), info1.indices_by_block[i], (*residuals(k)));
-		      constraints->distribute_local_to_global
-			(info2.vector(k).block(i), info2.indices_by_block[i], (*residuals(k)));
-		    }
-		}
-	      else
-		{
-		  Assert(false, ExcNotImplemented());
-		}
+              if (info1.indices_by_block.size() == 0 && info2.indices_by_block.size() == 0)
+                {
+                  constraints->distribute_local_to_global
+                  (info1.vector(k).block(0), info1.indices, (*residuals(k)));
+                  constraints->distribute_local_to_global
+                  (info2.vector(k).block(0), info2.indices, (*residuals(k)));
+                }
+              else if (info1.indices_by_block.size() != 0 && info2.indices_by_block.size() != 0)
+                {
+                  for (unsigned int i=0; i<info1.vector(k).n_blocks(); ++i)
+                    {
+                      constraints->distribute_local_to_global
+                      (info1.vector(k).block(i), info1.indices_by_block[i], (*residuals(k)));
+                      constraints->distribute_local_to_global
+                      (info2.vector(k).block(i), info2.indices_by_block[i], (*residuals(k)));
+                    }
+                }
+              else
+                {
+                  Assert(false, ExcNotImplemented());
+                }
             }
         }
     }
@@ -721,9 +730,9 @@ namespace MeshWorker
                      info2.indices_by_block[row], info1.indices_by_block[column]);
           }
       else
-	{
-	  Assert(false, ExcNotImplemented());
-	}
+        {
+          Assert(false, ExcNotImplemented());
+        }
     }
 
 
@@ -865,15 +874,8 @@ namespace MeshWorker
                   {
                     if (mg_constrained_dofs->set_boundary_values())
                       {
-                        // At the
-                        // boundary,
-                        // only enter
-                        // the term
-                        // on the
-                        // diagonal,
-                        // but not
-                        // the
-                        // coupling terms
+                        // At the boundary, only enter the term on the
+                        // diagonal, but not the coupling terms
                         if ((!mg_constrained_dofs->is_boundary_index(level, i1[j]) &&
                              !mg_constrained_dofs->is_boundary_index(level, i2[k]))
                             ||
@@ -913,8 +915,7 @@ namespace MeshWorker
           for (unsigned int j=0; j<i1.size(); ++j)
             for (unsigned int k=0; k<i2.size(); ++k)
               if (std::fabs(M(k,j)) >= threshold)
-                if (mg_constrained_dofs->at_refinement_edge(level, i1[j]) &&
-                    !mg_constrained_dofs->at_refinement_edge(level, i2[k]))
+		if (!mg_constrained_dofs->at_refinement_edge(level, i2[k]))
                   G.add(i1[j], i2[k], M(k,j));
         }
     }
@@ -943,8 +944,7 @@ namespace MeshWorker
           for (unsigned int j=0; j<i1.size(); ++j)
             for (unsigned int k=0; k<i2.size(); ++k)
               if (std::fabs(M(j,k)) >= threshold)
-                if (mg_constrained_dofs->at_refinement_edge(level, i1[j]) &&
-                    !mg_constrained_dofs->at_refinement_edge(level, i2[k]))
+                if (!mg_constrained_dofs->at_refinement_edge(level, i2[k]))
                   G.add(i1[j], i2[k], M(j,k));
         }
     }
@@ -960,38 +960,41 @@ namespace MeshWorker
     {
       AssertDimension(M.m(), i1.size());
       AssertDimension(M.n(), i2.size());
-
-      if (mg_constrained_dofs == 0)
-        {
-          for (unsigned int j=0; j<i1.size(); ++j)
-            for (unsigned int k=0; k<i2.size(); ++k)
-              if (std::fabs(M(j,k)) >= threshold)
-                G.add(i1[j], i2[k], M(j,k));
-        }
-      else
-        {
-          for (unsigned int j=0; j<i1.size(); ++j)
-            for (unsigned int k=0; k<i2.size(); ++k)
-              if (std::fabs(M(j,k)) >= threshold)
-                if (mg_constrained_dofs->at_refinement_edge(level, i1[j]) &&
-                    !mg_constrained_dofs->at_refinement_edge(level, i2[k]))
-                  {
-                    if (mg_constrained_dofs->set_boundary_values())
-                      {
-                        if ((!mg_constrained_dofs->at_refinement_edge_boundary(level, i1[j]) &&
-                             !mg_constrained_dofs->at_refinement_edge_boundary(level, i2[k]))
-                            ||
-                            (mg_constrained_dofs->at_refinement_edge_boundary(level, i1[j]) &&
-                             mg_constrained_dofs->at_refinement_edge_boundary(level, i2[k]) &&
-                             i1[j] == i2[k]))
-                          G.add(i1[j], i2[k], M(j,k));
-                      }
-                    else
-                      G.add(i1[j], i2[k], M(j,k));
-                  }
-        }
+      Assert(mg_constrained_dofs != 0, ExcInternalError());
+      
+      for (unsigned int j=0; j<i1.size(); ++j)
+	for (unsigned int k=0; k<i2.size(); ++k)
+	  if (std::fabs(M(j,k)) >= threshold)
+					     // Enter values into matrix only if j corresponds to a
+					     // degree of freedom on the refinemenent edge, k does
+					     // not, and both are not on the boundary. This is part
+					     // the difference between the complete matrix with no
+					     // boundary condition at the refinement edge and and
+					     // the matrix assembled above by assemble().
+	    
+					     // Thus the logic is: enter the row if it is
+					     // constrained by hanging node constraints (actually,
+					     // the whole refinement edge), but not if it is
+					     // constrained by a boundary constraint.
+	    if (mg_constrained_dofs->at_refinement_edge(level, i1[j]) &&
+		!mg_constrained_dofs->at_refinement_edge(level, i2[k]))
+	      {
+		if (mg_constrained_dofs->set_boundary_values())
+		  {
+		    if ((!mg_constrained_dofs->at_refinement_edge_boundary(level, i1[j]) &&
+			 !mg_constrained_dofs->at_refinement_edge_boundary(level, i2[k]))
+			||
+			(mg_constrained_dofs->at_refinement_edge_boundary(level, i1[j]) &&
+			 mg_constrained_dofs->at_refinement_edge_boundary(level, i2[k]) &&
+			 i1[j] == i2[k]))
+		      G.add(i1[j], i2[k], M(j,k));
+		  }
+		else
+		  G.add(i1[j], i2[k], M(j,k));
+	      }
     }
-
+    
+    
     template <class MATRIX>
     inline void
     MGMatrixSimple<MATRIX>::assemble_out(
@@ -1003,38 +1006,29 @@ namespace MeshWorker
     {
       AssertDimension(M.n(), i1.size());
       AssertDimension(M.m(), i2.size());
-
-      if (mg_constrained_dofs == 0)
-        {
-          for (unsigned int j=0; j<i1.size(); ++j)
-            for (unsigned int k=0; k<i2.size(); ++k)
-              if (std::fabs(M(k,j)) >= threshold)
-                G.add(i1[j], i2[k], M(k,j));
-        }
-      else
-        {
-          for (unsigned int j=0; j<i1.size(); ++j)
-            for (unsigned int k=0; k<i2.size(); ++k)
-              if (std::fabs(M(k,j)) >= threshold)
-                if (mg_constrained_dofs->at_refinement_edge(level, i1[j]) &&
-                    !mg_constrained_dofs->at_refinement_edge(level, i2[k]))
-                  {
-                    if (mg_constrained_dofs->set_boundary_values())
-                      {
-                        if ((!mg_constrained_dofs->at_refinement_edge_boundary(level, i1[j]) &&
-                             !mg_constrained_dofs->at_refinement_edge_boundary(level, i2[k]))
-                            ||
-                            (mg_constrained_dofs->at_refinement_edge_boundary(level, i1[j]) &&
-                             mg_constrained_dofs->at_refinement_edge_boundary(level, i2[k]) &&
-                             i1[j] == i2[k]))
-                          G.add(i1[j], i2[k], M(k,j));
-                      }
-                    else
-                      G.add(i1[j], i2[k], M(k,j));
-                  }
-        }
+      Assert(mg_constrained_dofs != 0, ExcInternalError());
+      
+      for (unsigned int j=0; j<i1.size(); ++j)
+	for (unsigned int k=0; k<i2.size(); ++k)
+	  if (std::fabs(M(k,j)) >= threshold)
+	    if (mg_constrained_dofs->at_refinement_edge(level, i1[j]) &&
+		!mg_constrained_dofs->at_refinement_edge(level, i2[k]))
+	      {
+		if (mg_constrained_dofs->set_boundary_values())
+		  {
+		    if ((!mg_constrained_dofs->at_refinement_edge_boundary(level, i1[j]) &&
+			 !mg_constrained_dofs->at_refinement_edge_boundary(level, i2[k]))
+			||
+			(mg_constrained_dofs->at_refinement_edge_boundary(level, i1[j]) &&
+			 mg_constrained_dofs->at_refinement_edge_boundary(level, i2[k]) &&
+			 i1[j] == i2[k]))
+		      G.add(i1[j], i2[k], M(k,j));
+		  }
+		else
+		  G.add(i1[j], i2[k], M(k,j));
+	      }
     }
-
+  
 
     template <class MATRIX>
     template <class DOFINFO>
@@ -1180,7 +1174,15 @@ namespace MeshWorker
       ResidualSimple<VECTOR>::initialize(data);
     }
 
+    template <class MATRIX, class VECTOR>
+    inline void
+    SystemSimple<MATRIX,VECTOR>::initialize(const ConstraintMatrix &c)
+    {
+      MatrixSimple<MATRIX>::initialize(c);
+      ResidualSimple<VECTOR>::initialize(c);
+    }
 
+    
     template <class MATRIX, class VECTOR>
     template <class DOFINFO>
     inline void

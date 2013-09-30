@@ -1,28 +1,20 @@
-//---------------------------------------------------------------------------
-//    $Id$
-//    Version: $Name$
+// ---------------------------------------------------------------------
+// $Id$
 //
-//    Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013 by the deal.II authors
+// Copyright (C) 1999 - 2013 by the deal.II authors
 //
-//    This file is subject to QPL and may not be  distributed
-//    without copyright and license information. Please refer
-//    to the file deal.II/doc/license.html for the  text  and
-//    further information on this license.
+// This file is part of the deal.II library.
 //
-//---------------------------------------------------------------------------
+// The deal.II library is free software; you can use it, redistribute
+// it, and/or modify it under the terms of the GNU Lesser General
+// Public License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+// The full text of the license can be found in the file LICENSE at
+// the top level of the deal.II distribution.
+//
+// ---------------------------------------------------------------------
 
-
-#include <deal.II/base/quadrature_lib.h>
 #include <deal.II/base/work_stream.h>
-#include <deal.II/base/memory_consumption.h>
-#include <deal.II/lac/vector.h>
-#include <deal.II/lac/block_vector.h>
-#include <deal.II/lac/parallel_vector.h>
-#include <deal.II/lac/parallel_block_vector.h>
-#include <deal.II/lac/petsc_vector.h>
-#include <deal.II/lac/petsc_block_vector.h>
-#include <deal.II/lac/trilinos_vector.h>
-#include <deal.II/lac/trilinos_block_vector.h>
 #include <deal.II/numerics/data_out.h>
 #include <deal.II/grid/tria.h>
 #include <deal.II/dofs/dof_handler.h>
@@ -30,6 +22,7 @@
 #include <deal.II/hp/dof_handler.h>
 #include <deal.II/grid/tria_iterator.h>
 #include <deal.II/fe/fe.h>
+#include <deal.II/fe/fe_dgq.h>
 #include <deal.II/fe/fe_values.h>
 #include <deal.II/hp/fe_values.h>
 #include <deal.II/fe/mapping_q1.h>
@@ -44,41 +37,30 @@ namespace internal
   namespace DataOut
   {
     template <int dim, int spacedim>
-    template <class FE>
     ParallelData<dim,spacedim>::
-    ParallelData (const Quadrature<dim> &quadrature,
-                  const unsigned int n_components,
-                  const unsigned int n_datasets,
+    ParallelData (const unsigned int n_datasets,
                   const unsigned int n_subdivisions,
                   const std::vector<unsigned int> &n_postprocessor_outputs,
                   const Mapping<dim,spacedim> &mapping,
-                  const std::vector<std::vector<unsigned int> > &cell_to_patch_index_map,
-                  const FE &finite_elements,
-                  const UpdateFlags update_flags)
+                  const std::vector<std_cxx1x::shared_ptr<dealii::hp::FECollection<dim,spacedim> > > &finite_elements,
+                  const UpdateFlags update_flags,
+                  const std::vector<std::vector<unsigned int> > &cell_to_patch_index_map)
       :
-      ParallelDataBase<dim,spacedim> (n_components,
-                                      n_datasets,
+      ParallelDataBase<dim,spacedim> (n_datasets,
                                       n_subdivisions,
-                                      quadrature.size(),
                                       n_postprocessor_outputs,
-                                      finite_elements),
-      q_collection (quadrature),
-      mapping_collection (mapping),
-      x_fe_values (this->mapping_collection,
-                   this->fe_collection,
-                   q_collection,
-                   update_flags),
+                                      mapping,
+                                      finite_elements,
+                                      update_flags,
+                                      false),
       cell_to_patch_index_map (&cell_to_patch_index_map)
     {}
 
 
 
-
     /**
-     * In a WorkStream context, use
-     * this function to append the
-     * patch computed by the parallel
-     * stage to the array of patches.
+     * In a WorkStream context, use this function to append the patch computed
+     * by the parallel stage to the array of patches.
      */
     template <int dim, int spacedim>
     void
@@ -92,722 +74,6 @@ namespace internal
 }
 
 
-namespace internal
-{
-  namespace DataOut
-  {
-    template <class DH>
-    DataEntryBase<DH>::DataEntryBase (const std::vector<std::string> &names_in,
-                                      const std::vector<DataComponentInterpretation::DataComponentInterpretation> &data_component_interpretation)
-      :
-      names(names_in),
-      data_component_interpretation (data_component_interpretation),
-      postprocessor(0, typeid(*this).name()),
-      n_output_variables(names.size())
-    {
-      Assert (names.size() == data_component_interpretation.size(),
-              ExcDimensionMismatch(data_component_interpretation.size(),
-                                   names.size()));
-
-      // check that the names use only allowed
-      // characters
-      // check names for invalid characters
-      for (unsigned int i=0; i<names.size(); ++i)
-        Assert (names[i].find_first_not_of("abcdefghijklmnopqrstuvwxyz"
-                                           "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-                                           "0123456789_<>()") == std::string::npos,
-                typename dealii::DataOut<DH::dimension>::
-                ExcInvalidCharacter (names[i],
-                                     names[i].find_first_not_of("abcdefghijklmnopqrstuvwxyz"
-                                                                "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-                                                                "0123456789_<>()")));
-    }
-
-
-
-    template <class DH>
-    DataEntryBase<DH>::DataEntryBase (const DataPostprocessor<DH::space_dimension> *data_postprocessor)
-      :
-      names(data_postprocessor->get_names()),
-      data_component_interpretation (data_postprocessor->get_data_component_interpretation()),
-      postprocessor(data_postprocessor, typeid(*this).name()),
-      n_output_variables(names.size())
-    {
-      Assert (data_postprocessor->get_names().size()
-              ==
-              data_postprocessor->get_data_component_interpretation().size(),
-              ExcDimensionMismatch (data_postprocessor->get_names().size(),
-                                    data_postprocessor->get_data_component_interpretation().size()));
-
-      // check that the names use only allowed
-      // characters
-      for (unsigned int i=0; i<names.size(); ++i)
-        Assert (names[i].find_first_not_of("abcdefghijklmnopqrstuvwxyz"
-                                           "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-                                           "0123456789_<>()") == std::string::npos,
-                typename dealii::DataOut<DH::dimension>::
-                ExcInvalidCharacter (names[i],
-                                     names[i].find_first_not_of("abcdefghijklmnopqrstuvwxyz"
-                                                                "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-                                                                "0123456789_<>()")));
-    }
-
-
-
-    template <class DH>
-    DataEntryBase<DH>::~DataEntryBase ()
-    {}
-
-
-
-    /**
-     * Class that stores a pointer to a
-     * vector of type equal to the template
-     * argument, and provides the functions
-     * to extract data from it.
-     *
-     * @author Wolfgang Bangerth, 2004
-     */
-    template <class DH, typename VectorType>
-    class DataEntry : public DataEntryBase<DH>
-    {
-    public:
-      /**
-       * Constructor. Give a list of names
-       * for the individual components of
-       * the vector and their
-       * interpretation as scalar or vector
-       * data. This constructor assumes
-       * that no postprocessor is going to
-       * be used.
-       */
-      DataEntry (const VectorType               *data,
-                 const std::vector<std::string> &names,
-                 const std::vector<DataComponentInterpretation::DataComponentInterpretation> &data_component_interpretation);
-
-      /**
-       * Constructor when a data
-       * postprocessor is going to be
-       * used. In that case, the names and
-       * vector declarations are going to
-       * be acquired from the postprocessor.
-       */
-      DataEntry (const VectorType                       *data,
-                 const DataPostprocessor<DH::space_dimension> *data_postprocessor);
-
-      /**
-       * Assuming that the stored vector is
-       * a cell vector, extract the given
-       * element from it.
-       */
-      virtual
-      double
-      get_cell_data_value (const unsigned int cell_number) const;
-
-      /**
-       * Given a FEValuesBase object,
-       * extract the values on the present
-       * cell from the vector we actually
-       * store.
-       */
-      virtual
-      void
-      get_function_values (const FEValuesBase<DH::dimension,DH::space_dimension> &fe_patch_values,
-                           std::vector<double>             &patch_values) const;
-
-      /**
-       * Given a FEValuesBase object,
-       * extract the values on the present
-       * cell from the vector we actually
-       * store. This function does the same
-       * as the one above but for
-       * vector-valued finite elements.
-       */
-      virtual
-      void
-      get_function_values (const FEValuesBase<DH::dimension,DH::space_dimension> &fe_patch_values,
-                           std::vector<dealii::Vector<double> >    &patch_values_system) const;
-
-      /**
-       * Given a FEValuesBase object,
-       * extract the gradients on the present
-       * cell from the vector we actually
-       * store.
-       */
-      virtual
-      void
-      get_function_gradients (const FEValuesBase<DH::dimension,DH::space_dimension> &fe_patch_values,
-                              std::vector<Tensor<1,DH::space_dimension> >       &patch_gradients) const;
-
-      /**
-       * Given a FEValuesBase object,
-       * extract the gradients on the present
-       * cell from the vector we actually
-       * store. This function does the same
-       * as the one above but for
-       * vector-valued finite elements.
-       */
-      virtual
-      void
-      get_function_gradients (const FEValuesBase<DH::dimension,DH::space_dimension> &fe_patch_values,
-                              std::vector<std::vector<Tensor<1,DH::space_dimension> > > &patch_gradients_system) const;
-
-      /**
-       * Given a FEValuesBase object, extract
-       * the second derivatives on the
-       * present cell from the vector we
-       * actually store.
-       */
-      virtual
-      void
-      get_function_hessians (const FEValuesBase<DH::dimension,DH::space_dimension> &fe_patch_values,
-                             std::vector<Tensor<2,DH::space_dimension> >       &patch_hessians) const;
-
-      /**
-       * Given a FEValuesBase object, extract
-       * the second derivatives on the
-       * present cell from the vector we
-       * actually store. This function does
-       * the same as the one above but for
-       * vector-valued finite elements.
-       */
-      virtual
-      void
-      get_function_hessians (const FEValuesBase<DH::dimension,DH::space_dimension> &fe_patch_values,
-                             std::vector<std::vector< Tensor<2,DH::space_dimension> > > &patch_hessians_system) const;
-
-      /**
-       * Clear all references to the
-       * vectors.
-       */
-      virtual void clear ();
-
-      /**
-       * Determine an estimate for
-       * the memory consumption (in
-       * bytes) of this object.
-       */
-      virtual std::size_t memory_consumption () const;
-
-    private:
-      /**
-       * Pointer to the data
-       * vector. Note that
-       * ownership of the vector
-       * pointed to remains with
-       * the caller of this class.
-       */
-      const VectorType *vector;
-    };
-
-
-
-    template <class DH, class VectorType>
-    DataEntry<DH,VectorType>::
-    DataEntry (const VectorType                       *data,
-               const std::vector<std::string>         &names,
-               const std::vector<DataComponentInterpretation::DataComponentInterpretation> &data_component_interpretation)
-      :
-      DataEntryBase<DH> (names, data_component_interpretation),
-      vector (data)
-    {}
-
-
-
-    template <class DH, class VectorType>
-    DataEntry<DH,VectorType>::
-    DataEntry (const VectorType                       *data,
-               const DataPostprocessor<DH::space_dimension> *data_postprocessor)
-      :
-      DataEntryBase<DH> (data_postprocessor),
-      vector (data)
-    {}
-
-
-    namespace
-    {
-      template <class VectorType>
-      double
-      get_vector_element (const VectorType &vector,
-                          const unsigned int cell_number)
-      {
-        return vector[cell_number];
-      }
-
-
-      double
-      get_vector_element (const IndexSet &is,
-                          const unsigned int cell_number)
-      {
-        return (is.is_element(cell_number) ? 1 : 0);
-      }
-    }
-
-
-
-    template <class DH, class VectorType>
-    double
-    DataEntry<DH,VectorType>::
-    get_cell_data_value (const unsigned int cell_number) const
-    {
-      return get_vector_element(*vector, cell_number);
-    }
-
-
-
-    template <class DH, class VectorType>
-    void
-    DataEntry<DH,VectorType>::
-    get_function_values (const FEValuesBase<DH::dimension,DH::space_dimension> &fe_patch_values,
-                         std::vector<dealii::Vector<double> >    &patch_values_system) const
-    {
-      fe_patch_values.get_function_values (*vector, patch_values_system);
-    }
-
-
-
-    template <class DH, typename VectorType>
-    void
-    DataEntry<DH,VectorType>::
-    get_function_values (const FEValuesBase<DH::dimension,DH::space_dimension> &fe_patch_values,
-                         std::vector<double>             &patch_values) const
-    {
-      fe_patch_values.get_function_values (*vector, patch_values);
-    }
-
-
-
-    template <class DH, class VectorType>
-    void
-    DataEntry<DH,VectorType>::
-    get_function_gradients (const FEValuesBase<DH::dimension,DH::space_dimension> &fe_patch_values,
-                            std::vector<std::vector<Tensor<1,DH::space_dimension> > >   &patch_gradients_system) const
-    {
-      fe_patch_values.get_function_gradients (*vector, patch_gradients_system);
-    }
-
-
-
-    template <class DH, typename VectorType>
-    void
-    DataEntry<DH,VectorType>::
-    get_function_gradients (const FEValuesBase<DH::dimension,DH::space_dimension> &fe_patch_values,
-                            std::vector<Tensor<1,DH::space_dimension> >       &patch_gradients) const
-    {
-      fe_patch_values.get_function_gradients (*vector, patch_gradients);
-    }
-
-
-
-    template <class DH, class VectorType>
-    void
-    DataEntry<DH,VectorType>::
-    get_function_hessians (const FEValuesBase<DH::dimension,DH::space_dimension> &fe_patch_values,
-                           std::vector<std::vector<Tensor<2,DH::space_dimension> > >   &patch_hessians_system) const
-    {
-      fe_patch_values.get_function_hessians (*vector, patch_hessians_system);
-    }
-
-
-
-    template <class DH, typename VectorType>
-    void
-    DataEntry<DH,VectorType>::
-    get_function_hessians (const FEValuesBase<DH::dimension,DH::space_dimension> &fe_patch_values,
-                           std::vector<Tensor<2,DH::space_dimension> >       &patch_hessians) const
-    {
-      fe_patch_values.get_function_hessians (*vector, patch_hessians);
-    }
-
-
-
-    template <class DH, typename VectorType>
-    std::size_t
-    DataEntry<DH,VectorType>::memory_consumption () const
-    {
-      return (sizeof (vector) +
-              MemoryConsumption::memory_consumption (this->names));
-    }
-
-
-
-    template <class DH, class VectorType>
-    void
-    DataEntry<DH,VectorType>::clear ()
-    {
-      vector = 0;
-    }
-  }
-}
-
-
-
-template <class DH,
-         int patch_dim, int patch_space_dim>
-DataOut_DoFData<DH,patch_dim,patch_space_dim>::DataOut_DoFData ()
-  :
-  dofs(0,typeid(*this).name())
-{}
-
-
-
-template <class DH, int patch_dim, int patch_space_dim>
-DataOut_DoFData<DH,patch_dim,patch_space_dim>::~DataOut_DoFData ()
-{
-  clear ();
-}
-
-
-
-template <class DH, int patch_dim, int patch_space_dim>
-void
-DataOut_DoFData<DH,patch_dim,patch_space_dim>::
-attach_dof_handler (const DH &d)
-{
-  Assert (dof_data.size() == 0, ExcOldDataStillPresent());
-  Assert (cell_data.size() == 0, ExcOldDataStillPresent());
-
-  dofs = &d;
-}
-
-
-
-
-template <class DH,
-         int patch_dim, int patch_space_dim>
-template <class VECTOR>
-void
-DataOut_DoFData<DH,patch_dim,patch_space_dim>::
-add_data_vector (const VECTOR                             &vec,
-                 const std::string                        &name,
-                 const DataVectorType                      type,
-                 const std::vector<DataComponentInterpretation::DataComponentInterpretation> &data_component_interpretation)
-{
-  Assert (dofs != 0, ExcNoDoFHandlerSelected ());
-  const unsigned int n_components = dofs->get_fe().n_components ();
-
-  std::vector<std::string> names;
-  // if only one component or vector
-  // is cell vector: we only need one
-  // name
-  if ((n_components == 1) ||
-      (vec.size() == dofs->get_tria().n_active_cells()))
-    {
-      names.resize (1, name);
-    }
-  else
-    // otherwise append _i to the
-    // given name
-    {
-      names.resize (n_components);
-      for (unsigned int i=0; i<n_components; ++i)
-        {
-          std::ostringstream namebuf;
-          namebuf << '_' << i;
-          names[i] = name + namebuf.str();
-        }
-    }
-
-  add_data_vector (vec, names, type, data_component_interpretation);
-}
-
-
-
-template <class DH,
-         int patch_dim, int patch_space_dim>
-template <class VECTOR>
-void
-DataOut_DoFData<DH,patch_dim,patch_space_dim>::
-add_data_vector (const VECTOR                             &vec,
-                 const std::vector<std::string>           &names,
-                 const DataVectorType                      type,
-                 const std::vector<DataComponentInterpretation::DataComponentInterpretation> &data_component_interpretation_)
-{
-  Assert (dofs != 0, ExcNoDoFHandlerSelected ());
-
-  const std::vector<DataComponentInterpretation::DataComponentInterpretation> &
-  data_component_interpretation
-    = (data_component_interpretation_.size() != 0
-       ?
-       data_component_interpretation_
-       :
-       std::vector<DataComponentInterpretation::DataComponentInterpretation>
-       (names.size(), DataComponentInterpretation::component_is_scalar));
-
-  // either cell data and one name,
-  // or dof data and n_components names
-  DataVectorType actual_type = type;
-  if (type == type_automatic)
-    {
-      if (vec.size() == dofs->get_tria().n_active_cells())
-        actual_type = type_cell_data;
-      else
-        actual_type = type_dof_data;
-    }
-
-  switch (actual_type)
-    {
-    case type_cell_data:
-      Assert (vec.size() == dofs->get_tria().n_active_cells(),
-              ExcInvalidVectorSize (vec.size(),
-                                    dofs->n_dofs(),
-                                    dofs->get_tria().n_active_cells()));
-      Assert (names.size() == 1,
-              ExcInvalidNumberOfNames (names.size(), 1));
-      break;
-
-    case type_dof_data:
-      Assert (vec.size() == dofs->n_dofs(),
-              ExcInvalidVectorSize (vec.size(),
-                                    dofs->n_dofs(),
-                                    dofs->get_tria().n_active_cells()));
-      Assert (names.size() == dofs->get_fe().n_components(),
-              ExcInvalidNumberOfNames (names.size(), dofs->get_fe().n_components()));
-      break;
-
-    case type_automatic:
-      // this case should have
-      // been handled above...
-      Assert (false, ExcInternalError());
-    }
-
-  internal::DataOut::DataEntryBase<DH> *new_entry
-    = new internal::DataOut::DataEntry<DH,VECTOR>(&vec, names,
-                                                  data_component_interpretation);
-  if (actual_type == type_dof_data)
-    dof_data.push_back (std_cxx1x::shared_ptr<internal::DataOut::DataEntryBase<DH> >(new_entry));
-  else
-    cell_data.push_back (std_cxx1x::shared_ptr<internal::DataOut::DataEntryBase<DH> >(new_entry));
-}
-
-
-
-template <class DH,
-         int patch_dim, int patch_space_dim>
-template <class VECTOR>
-void
-DataOut_DoFData<DH,patch_dim,patch_space_dim>::
-add_data_vector (const VECTOR                           &vec,
-                 const DataPostprocessor<DH::space_dimension> &data_postprocessor)
-{
-  // this is a specialized version of the
-  // other function where we have a
-  // postprocessor. if we do, we know that we
-  // have type_dof_data, which makes things a
-  // bit simpler, we also don't need to deal
-  // with some of the other stuff and use a
-  // different constructor of DataEntry
-
-  Assert (dofs != 0, ExcNoDoFHandlerSelected ());
-
-  Assert (vec.size() == dofs->n_dofs(),
-          ExcInvalidVectorSize (vec.size(),
-                                dofs->n_dofs(),
-                                dofs->get_tria().n_active_cells()));
-
-  internal::DataOut::DataEntryBase<DH> *new_entry
-    = new internal::DataOut::DataEntry<DH,VECTOR>(&vec, &data_postprocessor);
-  dof_data.push_back (std_cxx1x::shared_ptr<internal::DataOut::DataEntryBase<DH> >(new_entry));
-}
-
-
-
-template <class DH,
-         int patch_dim, int patch_space_dim>
-void DataOut_DoFData<DH,patch_dim,patch_space_dim>::clear_data_vectors ()
-{
-  dof_data.erase (dof_data.begin(), dof_data.end());
-  cell_data.erase (cell_data.begin(), cell_data.end());
-
-  // delete patches
-  std::vector<Patch> dummy;
-  patches.swap (dummy);
-}
-
-
-
-template <class DH,
-         int patch_dim, int patch_space_dim>
-void
-DataOut_DoFData<DH,patch_dim,patch_space_dim>::
-clear_input_data_references ()
-{
-  for (unsigned int i=0; i<dof_data.size(); ++i)
-    dof_data[i]->clear ();
-
-  for (unsigned int i=0; i<cell_data.size(); ++i)
-    cell_data[i]->clear ();
-
-  if (dofs != 0)
-    dofs = 0;
-}
-
-
-
-template <class DH,
-         int patch_dim, int patch_space_dim>
-void
-DataOut_DoFData<DH,patch_dim,patch_space_dim>::clear ()
-{
-  dof_data.erase (dof_data.begin(), dof_data.end());
-  cell_data.erase (cell_data.begin(), cell_data.end());
-
-  if (dofs != 0)
-    dofs = 0;
-
-  // delete patches
-  std::vector<Patch> dummy;
-  patches.swap (dummy);
-}
-
-
-
-template <class DH,
-         int patch_dim, int patch_space_dim>
-std::vector<std::string>
-DataOut_DoFData<DH,patch_dim,patch_space_dim>::
-get_dataset_names () const
-{
-  std::vector<std::string> names;
-  // collect the names of dof
-  // and cell data
-  typedef
-  typename std::vector<std_cxx1x::shared_ptr<internal::DataOut::DataEntryBase<DH> > >::const_iterator
-  data_iterator;
-
-  for (data_iterator  d=dof_data.begin();
-       d!=dof_data.end(); ++d)
-    for (unsigned int i=0; i<(*d)->names.size(); ++i)
-      names.push_back ((*d)->names[i]);
-  for (data_iterator d=cell_data.begin(); d!=cell_data.end(); ++d)
-    {
-      Assert ((*d)->names.size() == 1, ExcInternalError());
-      names.push_back ((*d)->names[0]);
-    }
-
-  return names;
-}
-
-
-
-template <class DH,
-         int patch_dim, int patch_space_dim>
-std::vector<std_cxx1x::tuple<unsigned int, unsigned int, std::string> >
-DataOut_DoFData<DH,patch_dim,patch_space_dim>::get_vector_data_ranges () const
-{
-  std::vector<std_cxx1x::tuple<unsigned int, unsigned int, std::string> >
-  ranges;
-
-  // collect the ranges of dof
-  // and cell data
-  typedef
-  typename std::vector<std_cxx1x::shared_ptr<internal::DataOut::DataEntryBase<DH> > >::const_iterator
-  data_iterator;
-
-  unsigned int output_component = 0;
-  for (data_iterator  d=dof_data.begin();
-       d!=dof_data.end(); ++d)
-    for (unsigned int i=0; i<(*d)->n_output_variables;
-         ++i, ++output_component)
-      // see what kind of data we have
-      // here. note that for the purpose of
-      // the current function all we care
-      // about is vector data
-      if ((*d)->data_component_interpretation[i] ==
-          DataComponentInterpretation::component_is_part_of_vector)
-        {
-          // ensure that there is a
-          // continuous number of next
-          // space_dim components that all
-          // deal with vectors
-          Assert (i+patch_space_dim <=
-                  (*d)->n_output_variables,
-                  ExcInvalidVectorDeclaration (i,
-                                               (*d)->names[i]));
-          for (unsigned int dd=1; dd<patch_space_dim; ++dd)
-            Assert ((*d)->data_component_interpretation[i+dd]
-                    ==
-                    DataComponentInterpretation::component_is_part_of_vector,
-                    ExcInvalidVectorDeclaration (i,
-                                                 (*d)->names[i]));
-
-          // all seems alright, so figure out
-          // whether there is a common name
-          // to these components. if not,
-          // leave the name empty and let the
-          // output format writer decide what
-          // to do here
-          std::string name = (*d)->names[i];
-          for (unsigned int dd=1; dd<patch_space_dim; ++dd)
-            if (name != (*d)->names[i+dd])
-              {
-                name = "";
-                break;
-              }
-
-          // finally add a corresponding
-          // range
-          std_cxx1x::tuple<unsigned int, unsigned int, std::string>
-          range (output_component,
-                 output_component+patch_space_dim-1,
-                 name);
-
-          ranges.push_back (range);
-
-          // increase the 'component' counter
-          // by the appropriate amount, same
-          // for 'i', since we have already
-          // dealt with all these components
-          output_component += patch_space_dim-1;
-          i += patch_space_dim-1;
-        }
-
-  // note that we do not have to traverse the
-  // list of cell data here because cell data
-  // is one value per (logical) cell and
-  // therefore cannot be a vector
-
-  // as a final check, the 'component'
-  // counter should be at the total number of
-  // components added up now
-#ifdef DEBUG
-  unsigned int n_output_components = 0;
-  for (data_iterator  d=dof_data.begin();
-       d!=dof_data.end(); ++d)
-    n_output_components += (*d)->n_output_variables;
-  Assert (output_component == n_output_components,
-          ExcInternalError());
-#endif
-
-  return ranges;
-}
-
-
-
-template <class DH,
-         int patch_dim, int patch_space_dim>
-const std::vector< dealii::DataOutBase::Patch<patch_dim, patch_space_dim> > &
-DataOut_DoFData<DH,patch_dim,patch_space_dim>::get_patches () const
-{
-  return patches;
-}
-
-
-
-template <class DH,
-         int patch_dim, int patch_space_dim>
-std::size_t
-DataOut_DoFData<DH,patch_dim,patch_space_dim>::memory_consumption () const
-{
-  return (DataOutInterface<patch_dim,patch_space_dim>::memory_consumption () +
-          MemoryConsumption::memory_consumption (dofs) +
-          MemoryConsumption::memory_consumption (patches));
-}
-
-
-
-/* ---------------------------------------------------------------------- */
-
 
 template <int dim, class DH>
 void
@@ -817,13 +83,10 @@ build_one_patch (const std::pair<cell_iterator, unsigned int> *cell_and_index,
                  DataOutBase::Patch<DH::dimension, DH::space_dimension> &patch,
                  const CurvedCellRegion curved_cell_region)
 {
-  // use ucd_to_deal map as patch vertices
-  // are in the old, unnatural ordering. if
-  // the mapping does not preserve locations
-  // (e.g. MappingQEulerian), we need to
-  // compute the offset of the vertex for the
-  // graphical output. Otherwise, we can just
-  // use the vertex info.
+  // use ucd_to_deal map as patch vertices are in the old, unnatural
+  // ordering. if the mapping does not preserve locations
+  // (e.g. MappingQEulerian), we need to compute the offset of the vertex for
+  // the graphical output. Otherwise, we can just use the vertex info.
   for (unsigned int vertex=0; vertex<GeometryInfo<DH::dimension>::vertices_per_cell; ++vertex)
     if (data.mapping_collection[0].preserves_vertex_locations())
       patch.vertices[vertex] = cell_and_index->first->vertex(vertex);
@@ -834,25 +97,21 @@ build_one_patch (const std::pair<cell_iterator, unsigned int> *cell_and_index,
 
   if (data.n_datasets > 0)
     {
-      data.x_fe_values.reinit (cell_and_index->first);
-      const FEValues<DH::dimension,DH::space_dimension> &fe_patch_values
-        = data.x_fe_values.get_present_fe_values ();
+      // create DH::active_cell_iterator and initialize FEValues
+      data.reinit_all_fe_values(this->dof_data, cell_and_index->first);
+
+      const FEValuesBase<DH::dimension,DH::space_dimension> &fe_patch_values
+        = data.get_present_fe_values (0);
 
       const unsigned int n_q_points = fe_patch_values.n_quadrature_points;
 
-      // depending on the requested output
-      // of curved cells, if necessary
-      // append the quadrature points to
-      // the last rows of the patch.data
-      // member. This is the case if we
-      // want to produce curved cells at
-      // the boundary and this cell
-      // actually is at the boundary, or
-      // else if we want to produce curved
-      // cells everywhere
+      // depending on the requested output of curved cells, if necessary
+      // append the quadrature points to the last rows of the patch.data
+      // member. This is the case if we want to produce curved cells at the
+      // boundary and this cell actually is at the boundary, or else if we
+      // want to produce curved cells everywhere
       //
-      // note: a cell is *always* at
-      // the boundary if dim<spacedim
+      // note: a cell is *always* at the boundary if dim<spacedim
       if (curved_cell_region==curved_inner_cells
           ||
           (curved_cell_region==curved_boundary
@@ -863,13 +122,10 @@ build_one_patch (const std::pair<cell_iterator, unsigned int> *cell_and_index,
         {
           Assert(patch.space_dim==DH::space_dimension, ExcInternalError());
           const std::vector<Point<DH::space_dimension> > &q_points=fe_patch_values.get_quadrature_points();
-          // resize the patch.data member
-          // in order to have enough memory
-          // for the quadrature points as
-          // well
+          // resize the patch.data member in order to have enough memory for
+          // the quadrature points as well
           patch.data.reinit (data.n_datasets+DH::space_dimension, n_q_points);
-          // set the flag indicating that
-          // for this cell the points are
+          // set the flag indicating that for this cell the points are
           // explicitly given
           patch.points_are_available=true;
           // copy points to patch.data
@@ -890,19 +146,22 @@ build_one_patch (const std::pair<cell_iterator, unsigned int> *cell_and_index,
       // first fill dof_data
       for (unsigned int dataset=0; dataset<this->dof_data.size(); ++dataset)
         {
+          const FEValuesBase<DH::dimension,DH::space_dimension> &fe_patch_values
+            = data.get_present_fe_values (dataset);
+          const unsigned int n_components =
+            fe_patch_values.get_fe().n_components();
+
           const DataPostprocessor<DH::space_dimension> *postprocessor=this->dof_data[dataset]->postprocessor;
 
           if (postprocessor != 0)
             {
-              // we have to postprocess the
-              // data, so determine, which
-              // fields have to be updated
+              // we have to postprocess the data, so determine, which fields
+              // have to be updated
               const UpdateFlags update_flags=postprocessor->get_needed_update_flags();
-              if (data.n_components == 1)
+              if (n_components == 1)
                 {
-                  // at each point there is
-                  // only one component of
-                  // value, gradient etc.
+                  // at each point there is only one component of value,
+                  // gradient etc.
                   if (update_flags & update_values)
                     this->dof_data[dataset]->get_function_values (fe_patch_values,
                                                                   data.patch_values);
@@ -928,9 +187,9 @@ build_one_patch (const std::pair<cell_iterator, unsigned int> *cell_and_index,
                 }
               else
                 {
-                  // at each point there is
-                  // a vector valued
-                  // function and its
+                  data.resize_system_vectors (n_components);
+
+                  // at each point there is a vector valued function and its
                   // derivative...
                   if (update_flags & update_values)
                     this->dof_data[dataset]->get_function_values (fe_patch_values,
@@ -964,13 +223,10 @@ build_one_patch (const std::pair<cell_iterator, unsigned int> *cell_and_index,
                     = data.postprocessed_values[dataset][q](component);
             }
           else
-            // now we use the given data
-            // vector without
-            // modifications. again, we
-            // treat single component
-            // functions separately for
-            // efficiency reasons.
-            if (data.n_components == 1)
+            // now we use the given data vector without modifications. again,
+            // we treat single component functions separately for efficiency
+            // reasons.
+            if (n_components == 1)
               {
                 this->dof_data[dataset]->get_function_values (fe_patch_values,
                                                               data.patch_values);
@@ -979,25 +235,22 @@ build_one_patch (const std::pair<cell_iterator, unsigned int> *cell_and_index,
               }
             else
               {
+                data.resize_system_vectors(n_components);
                 this->dof_data[dataset]->get_function_values (fe_patch_values,
                                                               data.patch_values_system);
-                for (unsigned int component=0; component<data.n_components;
+                for (unsigned int component=0; component<n_components;
                      ++component)
                   for (unsigned int q=0; q<n_q_points; ++q)
                     patch.data(offset+component,q) =
                       data.patch_values_system[q](component);
               }
-          // increment the counter for the
-          // actual data record
+          // increment the counter for the actual data record
           offset+=this->dof_data[dataset]->n_output_variables;
         }
 
-      // then do the cell data. only
-      // compute the number of a cell if
-      // needed; also make sure that we
-      // only access cell data if the
-      // first_cell/next_cell functions
-      // only return active cells
+      // then do the cell data. only compute the number of a cell if needed;
+      // also make sure that we only access cell data if the
+      // first_cell/next_cell functions only return active cells
       if (this->cell_data.size() != 0)
         {
           Assert (!cell_and_index->first->has_children(), ExcNotImplemented());
@@ -1015,32 +268,15 @@ build_one_patch (const std::pair<cell_iterator, unsigned int> *cell_and_index,
 
   for (unsigned int f=0; f<GeometryInfo<DH::dimension>::faces_per_cell; ++f)
     {
-      // let's look up whether
-      // the neighbor behind that
-      // face is noted in the
-      // table of cells which we
-      // treat. this can only
-      // happen if the neighbor
-      // exists, and is on the
-      // same level as this cell,
-      // but it may also happen
-      // that the neighbor is not
-      // a member of the range of
-      // cells over which we
-      // loop, in which case the
-      // respective entry in the
-      // cell_to_patch_index_map
-      // will have the value
-      // no_neighbor. (note that
-      // since we allocated only
-      // as much space in this
-      // array as the maximum
-      // index of the cells we
-      // loop over, not every
-      // neighbor may have its
-      // space in it, so we have
-      // to assume that it is
-      // extended by values
+      // let's look up whether the neighbor behind that face is noted in the
+      // table of cells which we treat. this can only happen if the neighbor
+      // exists, and is on the same level as this cell, but it may also happen
+      // that the neighbor is not a member of the range of cells over which we
+      // loop, in which case the respective entry in the
+      // cell_to_patch_index_map will have the value no_neighbor. (note that
+      // since we allocated only as much space in this array as the maximum
+      // index of the cells we loop over, not every neighbor may have its
+      // space in it, so we have to assume that it is extended by values
       // no_neighbor)
       if (cell_and_index->first->at_boundary(f)
           ||
@@ -1065,10 +301,8 @@ build_one_patch (const std::pair<cell_iterator, unsigned int> *cell_and_index,
           continue;
         }
 
-      // now, there is a
-      // neighbor, so get its
-      // patch number and set it
-      // for the neighbor index
+      // now, there is a neighbor, so get its patch number and set it for the
+      // neighbor index
       patch.neighbors[f]
         = (*data.cell_to_patch_index_map)[neighbor->level()][neighbor->index()];
     }
@@ -1084,17 +318,18 @@ void DataOut<dim,DH>::build_patches (const unsigned int n_subdivisions)
 }
 
 
+
 template <int dim, class DH>
 void DataOut<dim,DH>::build_patches (const Mapping<DH::dimension,DH::space_dimension> &mapping,
                                      const unsigned int nnnn_subdivisions,
                                      const CurvedCellRegion curved_region)
 {
-  // Check consistency of redundant
-  // template parameter
+  // Check consistency of redundant template parameter
   Assert (dim==DH::dimension, ExcDimensionMismatch(dim, DH::dimension));
 
   typedef DataOut_DoFData<DH, DH::dimension, DH::space_dimension> BaseClass;
-  Assert (this->dofs != 0, typename BaseClass::ExcNoDoFHandlerSelected());
+  Assert (this->triangulation != 0,
+          typename BaseClass::ExcNoTriangulationSelected());
 
   const unsigned int n_subdivisions = (nnnn_subdivisions != 0)
                                       ? nnnn_subdivisions
@@ -1102,19 +337,15 @@ void DataOut<dim,DH>::build_patches (const Mapping<DH::dimension,DH::space_dimen
   Assert (n_subdivisions >= 1,
           ExcInvalidNumberOfSubdivisions(n_subdivisions));
 
-  // first count the cells we want to
-  // create patches of. also fill the
-  // object that maps the cell
-  // indices to the patch numbers, as
-  // this will be needed for
-  // generation of neighborship
-  // information
+  // first count the cells we want to create patches of. also fill the object
+  // that maps the cell indices to the patch numbers, as this will be needed
+  // for generation of neighborship information
   std::vector<std::vector<unsigned int> > cell_to_patch_index_map;
-  cell_to_patch_index_map.resize (this->dofs->get_tria().n_levels());
-  for (unsigned int l=0; l<this->dofs->get_tria().n_levels(); ++l)
+  cell_to_patch_index_map.resize (this->triangulation->n_levels());
+  for (unsigned int l=0; l<this->triangulation->n_levels(); ++l)
     {
       unsigned int max_index = 0;
-      for (cell_iterator cell=first_locally_owned_cell(); cell != this->dofs->end();
+      for (cell_iterator cell=first_locally_owned_cell(); cell != this->triangulation->end();
            cell = next_locally_owned_cell(cell))
         if (static_cast<unsigned int>(cell->level()) == l)
           max_index = std::max (max_index,
@@ -1126,24 +357,19 @@ void DataOut<dim,DH>::build_patches (const Mapping<DH::dimension,DH::space_dimen
 
   std::vector<std::pair<cell_iterator, unsigned int> > all_cells;
   {
-    // set the index of the first
-    // cell. if
-    // first_locally_owned_cell /
-    // next_locally_owned_cell
-    // returns non-active cells, then
-    // the index is not usable
-    // anyway, but otherwise we
-    // should keep track where we are
+    // set the index of the first cell. if first_locally_owned_cell /
+    // next_locally_owned_cell returns non-active cells, then the index is not
+    // usable anyway, but otherwise we should keep track where we are
     unsigned int index;
-    if ((first_locally_owned_cell() == this->dofs->end())
+    cell_iterator cell = first_locally_owned_cell();
+    if ((cell == this->triangulation->end())
         ||
-        (first_locally_owned_cell()->has_children()))
+        (cell->has_children()))
       index = 0;
     else
-      index = std::distance (this->dofs->begin_active(),
-                             active_cell_iterator(first_locally_owned_cell()));
-    for (cell_iterator cell=first_locally_owned_cell(); cell != this->dofs->end();
-         cell = next_locally_owned_cell(cell))
+      index = std::distance (this->triangulation->begin_active(),
+                             active_cell_iterator(cell));
+    for ( ; cell != this->triangulation->end(); )
       {
         Assert (static_cast<unsigned int>(cell->level()) <
                 cell_to_patch_index_map.size(),
@@ -1156,22 +382,18 @@ void DataOut<dim,DH>::build_patches (const Mapping<DH::dimension,DH::space_dimen
 
         all_cells.push_back (std::make_pair(cell, index));
 
-        // if both this and the next
-        // cell are active, then
-        // increment the index that
-        // keeps track on which
-        // active cell we are sitting
-        // correctly. if one of the
-        // cells is not active, then
-        // this index doesn't mean
-        // anything anyway, so just
-        // ignore it. same if we are
-        // at the end of the range
+        // if both this and the next cell are active, then increment the index
+        // that keeps track on which active cell we are sitting correctly. if
+        // one of the cells is not active, then this index doesn't mean
+        // anything anyway, so just ignore it. same if we are at the end of
+        // the range
+        cell_iterator next = next_locally_owned_cell(cell);
         if (!cell->has_children() &&
-            next_locally_owned_cell(cell) != this->dofs->end() &&
-            !next_locally_owned_cell(cell)->has_children())
+            next != this->triangulation->end() &&
+            !next->has_children())
           index += std::distance (active_cell_iterator(cell),
-                                  active_cell_iterator(next_locally_owned_cell(cell)));
+                                  active_cell_iterator(next));
+        cell = next;
       }
   }
 
@@ -1179,13 +401,7 @@ void DataOut<dim,DH>::build_patches (const Mapping<DH::dimension,DH::space_dimen
   this->patches.reserve (all_cells.size());
   Assert (this->patches.size() == 0, ExcInternalError());
 
-  // now create a default patch and a
-  // default object for the
-  // WorkStream object to work with
-  const QTrapez<1>     q_trapez;
-  const QIterated<DH::dimension> patch_points (q_trapez, n_subdivisions);
-
-  const unsigned int n_components   = this->dofs->get_fe().n_components();
+  // now create a default object for the WorkStream object to work with
   unsigned int n_datasets=this->cell_data.size();
   for (unsigned int i=0; i<this->dof_data.size(); ++i)
     n_datasets += this->dof_data[i]->n_output_variables;
@@ -1207,26 +423,24 @@ void DataOut<dim,DH>::build_patches (const Mapping<DH::dimension,DH::space_dimen
   for (unsigned int i=0; i<this->dof_data.size(); ++i)
     if (this->dof_data[i]->postprocessor)
       update_flags |= this->dof_data[i]->postprocessor->get_needed_update_flags();
-  // perhaps update_normal_vectors is present,
-  // which would only be useful on faces, but
-  // we may not use it here.
+  // perhaps update_normal_vectors is present, which would only be useful on
+  // faces, but we may not use it here.
   Assert (!(update_flags & update_normal_vectors),
           ExcMessage("The update of normal vectors may not be requested for evaluation of "
                      "data on cells via DataPostprocessor."));
 
   internal::DataOut::ParallelData<DH::dimension, DH::space_dimension>
-  thread_data (patch_points,
-               n_components, n_datasets, n_subdivisions,
+  thread_data (n_datasets, n_subdivisions,
                n_postprocessor_outputs,
                mapping,
-               cell_to_patch_index_map,
-               this->dofs->get_fe(),
-               update_flags);
+               this->get_finite_elements(),
+               update_flags,
+               cell_to_patch_index_map);
 
   ::dealii::DataOutBase::Patch<DH::dimension, DH::space_dimension> sample_patch;
   sample_patch.n_subdivisions = n_subdivisions;
-  sample_patch.data.reinit (n_datasets, patch_points.size());
-
+  sample_patch.data.reinit (n_datasets,
+                            Utilities::fixed_power<DH::dimension>(n_subdivisions+1));
 
 
   // now build the patches in parallel
@@ -1248,7 +462,7 @@ template <int dim, class DH>
 typename DataOut<dim,DH>::cell_iterator
 DataOut<dim,DH>::first_cell ()
 {
-  return this->dofs->begin_active ();
+  return this->triangulation->begin_active ();
 }
 
 
@@ -1257,10 +471,10 @@ template <int dim, class DH>
 typename DataOut<dim,DH>::cell_iterator
 DataOut<dim,DH>::next_cell (const typename DataOut<dim,DH>::cell_iterator &cell)
 {
-  // convert the iterator to an
-  // active_iterator and advance
-  // this to the next active cell
-  typename DH::active_cell_iterator active_cell = cell;
+  // convert the iterator to an active_iterator and advance this to the next
+  // active cell
+  typename Triangulation<DH::dimension,DH::space_dimension>::
+    active_cell_iterator active_cell = cell;
   ++active_cell;
   return active_cell;
 }
@@ -1272,12 +486,11 @@ typename DataOut<dim,DH>::cell_iterator
 DataOut<dim,DH>::first_locally_owned_cell ()
 {
   typename DataOut<dim,DH>::cell_iterator
-  cell = this->dofs->begin_active ();
+  cell = this->triangulation->begin_active ();
 
-  // skip cells if the current one
-  // has no children (is active) and
-  // is a ghost or artificial cell
-  while ((cell != this->dofs->end()) &&
+  // skip cells if the current one has no children (is active) and is a ghost
+  // or artificial cell
+  while ((cell != this->triangulation->end()) &&
          (cell->has_children() == false) &&
          !cell->is_locally_owned())
     cell = next_cell(cell);
@@ -1293,7 +506,7 @@ DataOut<dim,DH>::next_locally_owned_cell (const typename DataOut<dim,DH>::cell_i
 {
   typename DataOut<dim,DH>::cell_iterator
   cell = next_cell(old_cell);
-  while ((cell != this->dofs->end()) &&
+  while ((cell != this->triangulation->end()) &&
          (cell->has_children() == false) &&
          !cell->is_locally_owned())
     cell = next_cell(cell);

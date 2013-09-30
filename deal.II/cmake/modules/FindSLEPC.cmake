@@ -1,16 +1,18 @@
-#####
+## ---------------------------------------------------------------------
+## $Id$
 ##
-## Copyright (C) 2012 by the deal.II authors
+## Copyright (C) 2012 - 2013 by the deal.II authors
 ##
 ## This file is part of the deal.II library.
 ##
-## <TODO: Full License information>
-## This file is dual licensed under QPL 1.0 and LGPL 2.1 or any later
-## version of the LGPL license.
+## The deal.II library is free software; you can use it, redistribute
+## it, and/or modify it under the terms of the GNU Lesser General
+## Public License as published by the Free Software Foundation; either
+## version 2.1 of the License, or (at your option) any later version.
+## The full text of the license can be found in the file LICENSE at
+## the top level of the deal.II distribution.
 ##
-## Author: Matthias Maier <matthias.maier@iwr.uni-heidelberg.de>
-##
-#####
+## ---------------------------------------------------------------------
 
 #
 # Try to find the SLEPC library
@@ -75,6 +77,14 @@ FIND_PACKAGE_HANDLE_STANDARD_ARGS(SLEPC DEFAULT_MSG
   PETSC_FOUND
   )
 
+MARK_AS_ADVANCED(
+  SLEPC_DIR
+  SLEPC_INCLUDE_DIR_ARCH
+  SLEPC_INCLUDE_DIR_COMMON
+  SLEPC_INCLUDE_DIRS
+  SLEPC_LIBRARY
+  )
+
 IF(SLEPC_FOUND)
   SET(SLEPC_INCLUDE_DIRS
     ${SLEPC_INCLUDE_DIR_ARCH}
@@ -111,15 +121,11 @@ IF(SLEPC_FOUND)
     SLEPC_VERSION_PATCH "${SLEPC_VERSION_PATCH_STRING}"
     )
 
-  SET(SLEPC_VERSION "${SLEPC_VERSION_MAJOR}.${SLEPC_VERSION_MINOR}.${SLEPC_VERSION_SUBMINOR}")
+  SET(SLEPC_VERSION
+    "${SLEPC_VERSION_MAJOR}.${SLEPC_VERSION_MINOR}.${SLEPC_VERSION_SUBMINOR}.${SLEPC_VERSION_PATCH}"
+    )
 
-  MARK_AS_ADVANCED(
-    SLEPC_DIR
-    SLEPC_INCLUDE_DIR_ARCH
-    SLEPC_INCLUDE_DIR_COMMON
-    SLEPC_INCLUDE_DIRS
-    SLEPC_LIBRARY
-  )
+  MARK_AS_ADVANCED(SLEPC_DIR)
 ELSE()
   SET(SLEPC_DIR "" CACHE PATH
     "An optional hint to a SLEPC directory"

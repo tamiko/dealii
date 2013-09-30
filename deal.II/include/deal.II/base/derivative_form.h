@@ -1,3 +1,19 @@
+// ---------------------------------------------------------------------
+// $Id$
+//
+// Copyright (C) 2013 by the deal.II authors
+//
+// This file is part of the deal.II library.
+//
+// The deal.II library is free software; you can use it, redistribute
+// it, and/or modify it under the terms of the GNU Lesser General
+// Public License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+// The full text of the license can be found in the file LICENSE at
+// the top level of the deal.II distribution.
+//
+// ---------------------------------------------------------------------
+
 #ifndef __deal2__derivative_form_h
 #define __deal2__derivative_form_h
 
@@ -19,11 +35,8 @@ DEAL_II_NAMESPACE_OPEN
    In deal.II we represent these derivaties using objects of
    type DerivativeForm<1,dim,spacedim>, DerivativeForm<2,dim,spacedim> and so on.
 
-
    @author Sebastian Pauletti, 2011
-
 */
-
 template <int order, int dim, int spacedim>
 class DerivativeForm
 {
@@ -344,7 +357,7 @@ DerivativeForm<order,dim,spacedim>::covariant_form() const
 
       Tensor<2,dim> DF_t (dealii::transpose(invert(  (Tensor<2,dim>)(*this)   )));
       DerivativeForm<1,dim, spacedim> result = DF_t;
-      return(result);
+      return (result);
     }
   else
     {

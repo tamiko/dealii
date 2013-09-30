@@ -1,14 +1,19 @@
-//---------------------------------------------------------------------------
-//    $Id$
+// ---------------------------------------------------------------------
+// $Id$
 //
-//    Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013 by the deal.II authors
+// Copyright (C) 1999 - 2013 by the deal.II authors
 //
-//    This file is subject to QPL and may not be  distributed
-//    without copyright and license information. Please refer
-//    to the file deal.II/doc/license.html for the  text  and
-//    further information on this license.
+// This file is part of the deal.II library.
 //
-//---------------------------------------------------------------------------
+// The deal.II library is free software; you can use it, redistribute
+// it, and/or modify it under the terms of the GNU Lesser General
+// Public License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+// The full text of the license can be found in the file LICENSE at
+// the top level of the deal.II distribution.
+//
+// ---------------------------------------------------------------------
+
 #ifndef __deal2__fe_system_h
 #define __deal2__fe_system_h
 
@@ -409,6 +414,48 @@ public:
                            const RefinementCase<dim> &refinement_case=RefinementCase<dim>::isotropic_refinement) const;
 
   /**
+   * Given an index in the natural ordering of indices on a face, return the
+   * index of the same degree of freedom on the cell.
+   *
+   * To explain the concept, consider the case where we would like to know
+   * whether a degree of freedom on a face, for example as part of an FESystem
+   * element, is primitive. Unfortunately, the
+   * is_primitive() function in the FiniteElement class takes a cell index, so
+   * we would need to find the cell index of the shape function that
+   * corresponds to the present face index. This function does that.
+   *
+   * Code implementing this would then look like this:
+   * @code
+   * for (i=0; i<dofs_per_face; ++i)
+   *  if (fe.is_primitive(fe.face_to_equivalent_cell_index(i, some_face_no)))
+   *   ... do whatever
+   * @endcode
+   * The function takes additional arguments that account for the fact that
+   * actual faces can be in their standard ordering with respect to the cell
+   * under consideration, or can be flipped, oriented, etc.
+   *
+   * @param face_dof_index The index of the degree of freedom on a face.
+   *   This index must be between zero and dofs_per_face.
+   * @param face The number of the face this degree of freedom lives on.
+   *   This number must be between zero and GeometryInfo::faces_per_cell.
+   * @param face_orientation One part of the description of the orientation
+   *   of the face. See @ref GlossFaceOrientation .
+   * @param face_flip One part of the description of the orientation
+   *   of the face. See @ref GlossFaceOrientation .
+   * @param face_rotation One part of the description of the orientation
+   *   of the face. See @ref GlossFaceOrientation .
+   * @return The index of this degree of freedom within the set
+   *   of degrees of freedom on the entire cell. The returned value
+   *   will be between zero and dofs_per_cell.
+   */
+  virtual
+  unsigned int face_to_cell_index (const unsigned int face_dof_index,
+                                   const unsigned int face,
+                                   const bool face_orientation = true,
+                                   const bool face_flip        = false,
+                                   const bool face_rotation    = false) const;
+
+  /**
    * Implementation of the respective function in the base class.
    */
   virtual
@@ -799,9 +846,11 @@ private:
   public:
     /**
      * Constructor. Is called by the @p get_data function. Sets the size of
-     * the @p base_fe_datas vector to @p n_base_elements.
+     * the @p base_fe_datas vector to @p n_base_elements and initializes
+     * the compute_hessians field.
      */
-    InternalData (const unsigned int n_base_elements);
+    InternalData (const unsigned int n_base_elements,
+                  const bool         compute_hessians);
 
     /**
      * Destructor. Deletes all @p InternalDatas whose pointers are stored by
@@ -812,7 +861,7 @@ private:
     /**
      * Flag indicating whether second derivatives shall be computed.
      */
-    bool compute_hessians;
+    const bool compute_hessians;
 
     /**
      * Gives write-access to the pointer to a @p InternalData of the @p

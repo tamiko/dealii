@@ -1,13 +1,23 @@
-/* Author: David Neckels, Boulder, Colorado, 2007, 2008 */
+/* ---------------------------------------------------------------------
+ * $Id$
+ *
+ * Copyright (C) 2007 - 2013 by the deal.II authors
+ *
+ * This file is part of the deal.II library.
+ *
+ * The deal.II library is free software; you can use it, redistribute
+ * it, and/or modify it under the terms of the GNU Lesser General
+ * Public License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ * The full text of the license can be found in the file LICENSE at
+ * the top level of the deal.II distribution.
+ *
+ * ---------------------------------------------------------------------
 
-/*    $Id$       */
-/*                                                                */
-/*    Copyright (C) 2007-2012 by the deal.II authors and David Neckels */
-/*                                                                */
-/*    This file is subject to QPL and may not be  distributed     */
-/*    without copyright and license information. Please refer     */
-/*    to the file deal.II/doc/license.html for the  text  and     */
-/*    further information on this license.                        */
+ *
+ * Author: David Neckels, Boulder, Colorado, 2007, 2008
+ */
+
 
 // @sect3{Include files}
 
@@ -425,7 +435,7 @@ namespace Step33
           {
             // We prescribe the velocity (we are dealing with a particular
             // component here so that the average of the velocities is
-            // orthogonal to the surface normal.  This creates sensitivies of
+            // orthogonal to the surface normal.  This creates sensitivities of
             // across the velocity components.
             Sacado::Fad::DFad<double> vdotn = 0;
             for (unsigned int d = 0; d < dim; d++)
@@ -575,12 +585,12 @@ namespace Step33
 
   // This is the only function worth commenting on. When generating graphical
   // output, the DataOut and related classes will call this function on each
-  // cell, with values, gradients, hessians, and normal vectors (in case we're
+  // cell, with values, gradients, Hessians, and normal vectors (in case we're
   // working on faces) at each quadrature point. Note that the data at each
   // quadrature point is itself vector-valued, namely the conserved
   // variables. What we're going to do here is to compute the quantities we're
   // interested in at each quadrature point. Note that for this we can ignore
-  // the hessians ("dduh") and normal vectors; to avoid compiler warnings
+  // the Hessians ("dduh") and normal vectors; to avoid compiler warnings
   // about unused variables, we comment out their names.
   template <int dim>
   void
@@ -1029,7 +1039,7 @@ namespace Step33
     // we allow up to <code>max_n_boundaries</code> boundary indicators to be
     // used in the input file, and each of these boundary indicators can be
     // associated with an inflow, outflow, or pressure boundary condition,
-    // with inhomogenous boundary conditions being specified for each
+    // with homogeneous boundary conditions being specified for each
     // component and each boundary indicator separately.
     //
     // The data structure used to store the boundary indicators is a bit
@@ -1345,7 +1355,7 @@ namespace Step33
     // This final set of member variables (except for the object holding all
     // run-time parameters at the very bottom and a screen output stream that
     // only prints something if verbose output has been requested) deals with
-    // the inteface we have in this program to the Trilinos library that
+    // the interface we have in this program to the Trilinos library that
     // provides us with linear solvers. Similarly to including PETSc matrices
     // in step-17, step-18, and step-19, all we need to do is to create a
     // Trilinos sparse matrix instead of the standard deal.II class. The
@@ -1692,7 +1702,7 @@ namespace Step33
     // whereas all the other ones remain dependent functions. These are
     // precisely the local degrees of freedom just extracted. All calculations
     // that reference them (either directly or indirectly) will accumulate
-    // sensitivies with respect to these variables.
+    // sensitivities with respect to these variables.
     //
     // In order to mark the variables as independent, the following does the
     // trick, marking <code>independent_local_dof_values[i]</code> as the
@@ -1791,7 +1801,7 @@ namespace Step33
     // (\mathbf{z}_i)_{\text{component\_i}})_K$, where integrals are
     // understood to be evaluated through summation over quadrature points.
     //
-    // We initialy sum all contributions of the residual in the positive
+    // We initially sum all contributions of the residual in the positive
     // sense, so that we don't need to negative the Jacobian entries.  Then,
     // when we sum into the <code>right_hand_side</code> vector, we negate
     // this residual.
@@ -2004,7 +2014,7 @@ namespace Step33
     // Now assemble the face term in exactly the same way as for the cell
     // contributions in the previous function. The only difference is that if
     // this is an internal face, we also have to take into account the
-    // sensitivies of the residual contributions to the degrees of freedom on
+    // sensitivities of the residual contributions to the degrees of freedom on
     // the neighboring cell:
     std::vector<double> residual_derivatives (dofs_per_cell);
     for (unsigned int i=0; i<fe_v.dofs_per_cell; ++i)
@@ -2249,7 +2259,7 @@ namespace Step33
   // Note that the number of the output file is determined by keeping a
   // counter in the form of a static variable that is set to zero the first
   // time we come to this function and is incremented by one at the end of
-  // each invokation.
+  // each invocation.
   template <int dim>
   void ConservationLaw<dim>::output_results () const
   {
@@ -2481,7 +2491,7 @@ int main (int argc, char *argv[])
           std::exit(1);
         }
 
-      Utilities::System::MPI_InitFinalize mpi_initialization (argc, argv);
+      Utilities::MPI::MPI_InitFinalize mpi_initialization(argc, argv, dealii::numbers::invalid_unsigned_int);
 
       ConservationLaw<2> cons (argv[1]);
       cons.run ();

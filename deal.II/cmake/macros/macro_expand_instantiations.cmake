@@ -1,16 +1,18 @@
-#####
+## ---------------------------------------------------------------------
+## $Id$
 ##
-## Copyright (C) 2012 by the deal.II authors
+## Copyright (C) 2012 - 2013 by the deal.II authors
 ##
 ## This file is part of the deal.II library.
 ##
-## <TODO: Full License information>
-## This file is dual licensed under QPL 1.0 and LGPL 2.1 or any later
-## version of the LGPL license.
+## The deal.II library is free software; you can use it, redistribute
+## it, and/or modify it under the terms of the GNU Lesser General
+## Public License as published by the Free Software Foundation; either
+## version 2.1 of the License, or (at your option) any later version.
+## The full text of the license can be found in the file LICENSE at
+## the top level of the deal.II distribution.
 ##
-## Author: Matthias Maier <matthias.maier@iwr.uni-heidelberg.de>
-##
-#####
+## ---------------------------------------------------------------------
 
 #
 # A macro for the inst.in file expansion
@@ -33,22 +35,16 @@
 
 MACRO(EXPAND_INSTANTIATIONS _target _inst_in_files)
 
-  IF(CMAKE_CROSSCOMPILING)
-    SET(_ei_exec native-expand_instantiations)
-  ELSE()
-    SET(_ei_exec expand_instantiations)
-  ENDIF()
-
   FOREACH (_inst_in_file ${_inst_in_files})
     STRING(REGEX REPLACE "\\.in$" "" _inst_file "${_inst_in_file}" )
 
     ADD_CUSTOM_COMMAND(
       OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${_inst_file}
-      DEPENDS ${_ei_exec}
-              ${CMAKE_BINARY_DIR}/cmake/config/template-arguments
+      DEPENDS expand_instantiations
+              ${CMAKE_BINARY_DIR}/${DEAL_II_COMMON_RELDIR}/template-arguments
               ${CMAKE_CURRENT_SOURCE_DIR}/${_inst_in_file}
-      COMMAND ${_ei_exec}
-      ARGS ${CMAKE_BINARY_DIR}/cmake/config/template-arguments
+      COMMAND expand_instantiations
+      ARGS ${CMAKE_BINARY_DIR}/${DEAL_II_COMMON_RELDIR}/template-arguments
            < ${CMAKE_CURRENT_SOURCE_DIR}/${_inst_in_file}
            > ${CMAKE_CURRENT_BINARY_DIR}/${_inst_file}
       )

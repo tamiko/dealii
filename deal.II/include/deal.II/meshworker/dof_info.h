@@ -1,14 +1,19 @@
-//---------------------------------------------------------------------------
-//    $Id$
+// ---------------------------------------------------------------------
+// $Id$
 //
-//    Copyright (C) 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013 by the deal.II authors
+// Copyright (C) 2006 - 2013 by the deal.II authors
 //
-//    This file is subject to QPL and may not be  distributed
-//    without copyright and license information. Please refer
-//    to the file deal.II/doc/license.html for the  text  and
-//    further information on this license.
+// This file is part of the deal.II library.
 //
-//---------------------------------------------------------------------------
+// The deal.II library is free software; you can use it, redistribute
+// it, and/or modify it under the terms of the GNU Lesser General
+// Public License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+// The full text of the license can be found in the file LICENSE at
+// the top level of the deal.II distribution.
+//
+// ---------------------------------------------------------------------
+
 
 #ifndef __deal2__mesh_worker_dof_info_h
 #define __deal2__mesh_worker_dof_info_h
@@ -117,7 +122,7 @@ namespace MeshWorker
      * pointer empty, but setting
      * the #aux_local_indices.
      */
-    DoFInfo (const DoFHandler<dim, spacedim>& dof_handler);
+    DoFInfo (const DoFHandler<dim, spacedim> &dof_handler);
 
     /**
      * Set the current cell and
@@ -151,7 +156,7 @@ namespace MeshWorker
     template <class DHFaceIterator>
     void set_face (const DHFaceIterator &f,
                    const unsigned int face_no);
-    
+
     /**
      * Switch to a new subface of the same cell. Does not change @p
      * indices and does not reset data in LocalResults.
@@ -313,7 +318,7 @@ namespace MeshWorker
     get_indices(c);
     level_cell = c->is_level_cell();
 
-    cell = static_cast<typename Triangulation<dim,spacedim>::cell_iterator> (c);
+    cell = typename Triangulation<dim,spacedim>::cell_iterator(*c);
     face_number = deal_II_numbers::invalid_unsigned_int;
     sub_number = deal_II_numbers::invalid_unsigned_int;
     if (block_info)
@@ -345,11 +350,11 @@ namespace MeshWorker
     const unsigned int face_no)
   {
     if ((cell.state() != IteratorState::valid)
-        ||  cell != static_cast<typename Triangulation<dim>::cell_iterator> (c))
+        ||  cell != typename Triangulation<dim>::cell_iterator(*c))
       get_indices(c);
     level_cell = c->is_level_cell();
 
-    cell = static_cast<typename Triangulation<dim>::cell_iterator> (c);
+    cell = typename Triangulation<dim>::cell_iterator(*c);
     set_face(f,face_no);
 
     if (block_info)

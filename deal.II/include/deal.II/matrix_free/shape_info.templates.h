@@ -1,15 +1,19 @@
-//---------------------------------------------------------------------------
-//    $Id$
-//    Version: $Name$
+// ---------------------------------------------------------------------
+// $Id$
 //
-//    Copyright (C) 2011, 2013 by the deal.II authors
+// Copyright (C) 2011 - 2013 by the deal.II authors
 //
-//    This file is subject to QPL and may not be  distributed
-//    without copyright and license information. Please refer
-//    to the file deal.II/doc/license.html for the  text  and
-//    further information on this license.
+// This file is part of the deal.II library.
 //
-//---------------------------------------------------------------------------
+// The deal.II library is free software; you can use it, redistribute
+// it, and/or modify it under the terms of the GNU Lesser General
+// Public License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+// The full text of the license can be found in the file LICENSE at
+// the top level of the deal.II distribution.
+//
+// ---------------------------------------------------------------------
+
 
 #include <deal.II/base/utilities.h>
 #include <deal.II/base/memory_consumption.h>
@@ -61,13 +65,13 @@ namespace internal
         const FE_Poly<TensorProductPolynomials<dim>,dim,dim> *fe_poly =
           dynamic_cast<const FE_Poly<TensorProductPolynomials<dim>,dim,dim>*>(&fe);
         const FE_Poly<TensorProductPolynomials<dim,Polynomials::
-          PiecewisePolynomial<double> >,dim,dim> *fe_poly_piece =
+        PiecewisePolynomial<double> >,dim,dim> *fe_poly_piece =
           dynamic_cast<const FE_Poly<TensorProductPolynomials<dim,
           Polynomials::PiecewisePolynomial<double> >,dim,dim>*> (&fe);
         Assert (fe_poly != 0 || fe_poly_piece, ExcNotImplemented());
         lexicographic = fe_poly != 0 ?
-          fe_poly->get_poly_space_numbering_inverse() :
-          fe_poly_piece->get_poly_space_numbering_inverse();
+                        fe_poly->get_poly_space_numbering_inverse() :
+                        fe_poly_piece->get_poly_space_numbering_inverse();
 
         // to evaluate 1D polynomials, evaluate along the line where y=z=0,
         // assuming that shape_value(0,Point<dim>()) == 1. otherwise, need

@@ -1,36 +1,27 @@
-#####
+## ---------------------------------------------------------------------
+## $Id$
 ##
-## Copyright (C) 2012, 2013 by the deal.II authors
+## Copyright (C) 2012 - 2013 by the deal.II authors
 ##
 ## This file is part of the deal.II library.
 ##
-## <TODO: Full License information>
-## This file is dual licensed under QPL 1.0 and LGPL 2.1 or any later
-## version of the LGPL license.
+## The deal.II library is free software; you can use it, redistribute
+## it, and/or modify it under the terms of the GNU Lesser General
+## Public License as published by the Free Software Foundation; either
+## version 2.1 of the License, or (at your option) any later version.
+## The full text of the license can be found in the file LICENSE at
+## the top level of the deal.II distribution.
 ##
-## Author: Matthias Maier <matthias.maier@iwr.uni-heidelberg.de>
-##
-#####
+## ---------------------------------------------------------------------
 
 #
 # Configuration for the lapack library:
 #
 
 MACRO(FEATURE_LAPACK_FIND_EXTERNAL var)
-  FIND_PACKAGE(LAPACK)
+  FIND_PACKAGE(DEALII_LAPACK)
 
   IF(LAPACK_FOUND)
-    MARK_AS_ADVANCED(
-      atlas_LIBRARY
-      blas_LIBRARY
-      gslcblas_LIBRARY
-      lapack_LIBRARY
-      m_LIBRARY
-      ptf77blas_LIBRARY
-      ptlapack_LIBRARY
-      refblas_LIBRARY
-      reflapack_LIBRARY
-      )
     SET(${var} TRUE)
   ENDIF()
 ENDMACRO()
@@ -51,25 +42,32 @@ SET(DEAL_II_LAPACK_FUNCTIONS
   )
 
 MACRO(CHECK_FOR_LAPACK_FUNCTIONS)
+  #
+  # Clear the test flags because the following test will use a C compiler
+  #
+  CLEAR_CMAKE_REQUIRED()
+  SET(CMAKE_REQUIRED_FLAGS "${LAPACK_LINKER_FLAGS}")
   SET(CMAKE_REQUIRED_LIBRARIES ${LAPACK_LIBRARIES})
   #
-  # For some static lapack versions it is necessary to link with -lm.
-  # So link with it as well if -lm is already present in our link
-  # interface:
+  # Push -pthread as well:
   #
-  IF(NOT m_lib MATCHES "-NOTFOUND")
-    LIST(APPEND CMAKE_REQUIRED_LIBRARIES ${m_lib})
+  ENABLE_IF_SUPPORTED(CMAKE_REQUIRED_FLAGS "-pthread")
+
+  IF(CMAKE_C_COMPILER_WORKS)
+    FOREACH(_func ${DEAL_II_LAPACK_FUNCTIONS})
+      STRING(TOUPPER ${_func} _func_uppercase)
+      CHECK_FUNCTION_EXISTS(${_func} HAVE_${_func_uppercase})
+    ENDFOREACH()
+  ELSE()
+    MESSAGE(STATUS
+      "No suitable C compiler was found! Skipping LAPACK symbol check."
+      )
+    FOREACH(_func ${DEAL_II_LAPACK_FUNCTIONS})
+      SET_IF_EMPTY(HAVE_${_func_uppercase} TRUE)
+    ENDFOREACH()
   ENDIF()
 
-  ADD_FLAGS(CMAKE_REQUIRED_FLAGS "${LAPACK_LINKER_FLAGS}")
-
-  FOREACH(_func ${DEAL_II_LAPACK_FUNCTIONS})
-    STRING(TOUPPER ${_func} _func_uppercase)
-    CHECK_FUNCTION_EXISTS(${_func} HAVE_${_func_uppercase})
-  ENDFOREACH()
-
-  SET(CMAKE_REQUIRED_LIBRARIES)
-  STRIP_FLAG(CMAKE_REQUIRED_FLAGS "${LAPACK_LINKER_FLAGS}")
+  RESET_CMAKE_REQUIRED()
 ENDMACRO()
 
 
@@ -81,28 +79,11 @@ MACRO(RESET_LAPACK_FUNCTIONS_CACHE)
 ENDMACRO()
 
 
+
 MACRO(FEATURE_LAPACK_CONFIGURE_EXTERNAL)
-  #
-  # So, well... LAPACK_LINKER_FLAGS and LAPACK_LIBRARIES should contain the
-  # complete link interface. But for invalid user overrides we include
-  # BLAS_LIBRARIES and BLAS_LINKER_FLAGS as well..
-  #
-  IF(NOT LAPACK_LINKER_FLAGS MATCHES "${BLAS_LINKER_FLAGS}")
-    MESSAGE(STATUS
-      "Manually adding BLAS_LINKER_FLAGS to LAPACK_LINKER_FLAGS"
-      )
-    ADD_FLAGS(LAPACK_LINKER_FLAGS "${BLAS_LINKER_FLAGS}")
-  ENDIF()
-  IF(NOT "${LAPACK_LIBRARIES}" MATCHES "${BLAS_LIBRARIES}")
-    MESSAGE(STATUS
-      "Manually adding BLAS_LIBRARIES to LAPACK_LIBRARIES"
-      )
-    LIST(APPEND LAPACK_LIBRARIES ${BLAS_LIBRARIES})
-  ENDIF()
 
-  ADD_FLAGS(CMAKE_SHARED_LINKER_FLAGS "${LAPACK_LINKER_FLAGS}")
-  LIST(APPEND DEAL_II_EXTERNAL_LIBRARIES ${LAPACK_LIBRARIES})
-
+  ADD_FLAGS(DEAL_II_LINKER_FLAGS "${LAPACK_LINKER_FLAGS}")
+  DEAL_II_APPEND_LIBRARIES(${LAPACK_LIBRARIES})
 
   CHECK_FOR_LAPACK_FUNCTIONS()
 ENDMACRO()

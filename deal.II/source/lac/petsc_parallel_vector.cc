@@ -1,16 +1,18 @@
-//---------------------------------------------------------------------------
-//    $Id$
-//    Version: $Name$
+// ---------------------------------------------------------------------
+// $Id$
 //
-//    Copyright (C) 2004, 2006, 2008, 2009, 2010, 2011, 2012, 2013 by the deal.II authors
+// Copyright (C) 2004 - 2013 by the deal.II authors
 //
-//    This file is subject to QPL and may not be  distributed
-//    without copyright and license information. Please refer
-//    to the file deal.II/doc/license.html for the  text  and
-//    further information on this license.
+// This file is part of the deal.II library.
 //
-//---------------------------------------------------------------------------
-
+// The deal.II library is free software; you can use it, redistribute
+// it, and/or modify it under the terms of the GNU Lesser General
+// Public License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+// The full text of the license can be found in the file LICENSE at
+// the top level of the deal.II distribution.
+//
+// ---------------------------------------------------------------------
 
 #include <deal.II/lac/petsc_parallel_vector.h>
 
@@ -37,6 +39,7 @@ namespace PETScWrappers
       const int ierr
         = VecCreateSeq (PETSC_COMM_SELF, n, &vector);
       AssertThrow (ierr == 0, ExcPETScError(ierr));
+      ghosted = false;
     }
 
 
@@ -79,10 +82,35 @@ namespace PETScWrappers
       Vector::create_vector(local.size(), local.n_elements(), ghost_set);
     }
 
+    Vector::Vector (const IndexSet   &local,
+                    const IndexSet &ghost,
+                    const MPI_Comm     &communicator)
+      :
+      communicator (communicator)
+    {
+      Assert(local.is_contiguous(), ExcNotImplemented());
+
+      IndexSet ghost_set = ghost;
+      ghost_set.subtract_set(local);
+
+      Vector::create_vector(local.size(), local.n_elements(), ghost_set);
+    }
+
+
+    Vector::Vector (const IndexSet   &local,
+                    const MPI_Comm     &communicator)
+      :
+      communicator (communicator)
+    {
+      Assert(local.is_contiguous(), ExcNotImplemented());
+      Vector::create_vector(local.size(), local.n_elements());
+    }
+
+
     Vector::Vector (const MPI_Comm     &communicator,
-                     const IndexSet   &local)
-    :
-          communicator (communicator)
+                    const IndexSet   &local)
+      :
+      communicator (communicator)
     {
       Assert(local.is_contiguous(), ExcNotImplemented());
       Vector::create_vector(local.size(), local.n_elements());
@@ -103,7 +131,7 @@ namespace PETScWrappers
       MPI_Allreduce (&k, &k_global, 1,
                      MPI_INT, MPI_LOR, communicator);
 
-      if (k_global)
+      if (k_global || has_ghost_elements())
         {
           // FIXME: I'd like to use this here,
           // but somehow it leads to odd errors
@@ -138,9 +166,17 @@ namespace PETScWrappers
     Vector::reinit (const Vector &v,
                     const bool    fast)
     {
-      communicator = v.communicator;
-
-      reinit (communicator, v.size(), v.local_size(), fast);
+      if (v.has_ghost_elements())
+        {
+          reinit (v.locally_owned_elements(), v.ghost_indices, v.communicator);
+          if (!fast)
+            {
+              int ierr = VecSet(vector, 0.0);
+              AssertThrow (ierr == 0, ExcPETScError(ierr));
+            }
+        }
+      else
+        reinit (v.communicator, v.size(), v.local_size(), fast);
     }
 
 
@@ -150,6 +186,22 @@ namespace PETScWrappers
                     const IndexSet   &local,
                     const IndexSet &ghost)
     {
+      reinit(local, ghost, comm);
+    }
+
+    void
+    Vector::reinit (const IndexSet   &local,
+                    const IndexSet &ghost,
+                    const MPI_Comm     &comm)
+    {
+      int ierr;
+#if DEAL_II_PETSC_VERSION_LT(3,2,0)
+      ierr = VecDestroy (vector);
+#else
+      ierr = VecDestroy (&vector);
+#endif
+      AssertThrow (ierr == 0, ExcPETScError(ierr));
+
       communicator = comm;
 
       Assert(local.is_contiguous(), ExcNotImplemented());
@@ -162,11 +214,27 @@ namespace PETScWrappers
 
     void
     Vector::reinit (const MPI_Comm     &comm,
-                 const IndexSet   &local)
+                    const IndexSet   &local)
     {
+      reinit(local, comm);
+    }
+
+    void
+    Vector::reinit (const IndexSet &local,
+                    const MPI_Comm &comm)
+    {
+      int ierr;
+#if DEAL_II_PETSC_VERSION_LT(3,2,0)
+      ierr = VecDestroy (vector);
+#else
+      ierr = VecDestroy (&vector);
+#endif
+      AssertThrow (ierr == 0, ExcPETScError(ierr));
+
       communicator = comm;
 
       Assert(local.is_contiguous(), ExcNotImplemented());
+      Assert(local.size()>0, ExcMessage("can not create vector of size 0."));
       create_vector(local.size(), local.n_elements());
     }
 
@@ -175,7 +243,7 @@ namespace PETScWrappers
     Vector::operator = (const PETScWrappers::Vector &v)
     {
       Assert(last_action==VectorOperation::unknown,
-          ExcMessage("Call to compress() required before calling operator=."));
+             ExcMessage("Call to compress() required before calling operator=."));
       //TODO [TH]: can not access v.last_action here. Implement is_compressed()?
       //Assert(v.last_action==VectorOperation::unknown,
       //    ExcMessage("Call to compress() required before calling operator=."));

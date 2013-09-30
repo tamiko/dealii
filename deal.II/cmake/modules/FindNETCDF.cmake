@@ -1,16 +1,18 @@
-#####
+## ---------------------------------------------------------------------
+## $Id$
 ##
-## Copyright (C) 2012, 2013 by the deal.II authors
+## Copyright (C) 2012 - 2013 by the deal.II authors
 ##
 ## This file is part of the deal.II library.
 ##
-## <TODO: Full License information>
-## This file is dual licensed under QPL 1.0 and LGPL 2.1 or any later
-## version of the LGPL license.
+## The deal.II library is free software; you can use it, redistribute
+## it, and/or modify it under the terms of the GNU Lesser General
+## Public License as published by the Free Software Foundation; either
+## version 2.1 of the License, or (at your option) any later version.
+## The full text of the license can be found in the file LICENSE at
+## the top level of the deal.II distribution.
 ##
-## Author: Matthias Maier <matthias.maier@iwr.uni-heidelberg.de>
-##
-#####
+## ---------------------------------------------------------------------
 
 #
 # Try to find the NETCDF C and C++ libraries
@@ -61,6 +63,12 @@ FIND_PACKAGE_HANDLE_STANDARD_ARGS(NETCDF DEFAULT_MSG
   NETCDF_INCLUDE_DIR
   )
 
+MARK_AS_ADVANCED(
+  NETCDF_CPLUSPLUS_LIBRARY
+  NETCDF_C_LIBRARY
+  NETCDF_INCLUDE_DIR
+  )
+
 IF(NETCDF_FOUND)
   SET(NETCDF_INCLUDE_DIRS
     ${NETCDF_INCLUDE_DIR}
@@ -70,12 +78,7 @@ IF(NETCDF_FOUND)
     ${NETCDF_C_LIBRARY}
     )
 
-  MARK_AS_ADVANCED(
-    NETCDF_CPLUSPLUS_LIBRARY
-    NETCDF_C_LIBRARY
-    NETCDF_INCLUDE_DIR
-    NETCDF_DIR
-  )
+  MARK_AS_ADVANCED(NETCDF_DIR)
 ELSE()
   SET(NETCDF_DIR "" CACHE PATH
     "An optional hint to a NETCDF installation"

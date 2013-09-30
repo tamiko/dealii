@@ -1,13 +1,22 @@
-/* Author: Wolfgang Bangerth, University of Heidelberg, 2001, 2002 */
+/* ---------------------------------------------------------------------
+ * $Id$
+ *
+ * Copyright (C) 2001 - 2013 by the deal.II authors
+ *
+ * This file is part of the deal.II library.
+ *
+ * The deal.II library is free software; you can use it, redistribute
+ * it, and/or modify it under the terms of the GNU Lesser General
+ * Public License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ * The full text of the license can be found in the file LICENSE at
+ * the top level of the deal.II distribution.
+ *
+ * ---------------------------------------------------------------------
 
-/*    $Id$       */
-/*                                                                */
-/*    Copyright (C) 2001-2004, 2006-2009, 2011-2013 by the deal.II authors */
-/*                                                                */
-/*    This file is subject to QPL and may not be  distributed     */
-/*    without copyright and license information. Please refer     */
-/*    to the file deal.II/doc/license.html for the  text  and     */
-/*    further information on this license.                        */
+ *
+ * Author: Wolfgang Bangerth, University of Heidelberg, 2001, 2002
+ */
 
 
 // As in all programs, we start with a list of include files from the library,
@@ -161,7 +170,7 @@ namespace Step13
     // macros. We use this mechanism here again.
     //
     // From this, the actual declaration of this class should be evident. Note
-    // that of course even if we do not list a destructor explicitely, an
+    // that of course even if we do not list a destructor explicitly, an
     // implicit destructor is generated from the compiler, and it is virtual
     // just as the one of the base class.
     template <int dim>
@@ -791,7 +800,7 @@ namespace Step13
     // The second of this pair of functions takes a range of cell iterators,
     // and assembles the system matrix on this part of the domain. Since it's
     // actions have all been explained in previous programs, we do not comment
-    // on it any more, except for one pointe below.
+    // on it any more, except for one point below.
     template <int dim>
     void
     Solver<dim>::assemble_matrix (LinearSystem                                         &linear_system,
@@ -839,8 +848,8 @@ namespace Step13
           // lead to deadlocks. A similar situation arises, when one changes
           // the code to have a return statement somewhere in the middle of
           // the locked block, and forgets that before we call
-          // <code>return</code>, we also have to unlock the mutex. This all
-          // is not be a problem here, but we want to show the general
+          // <code>return</code>, we also have to unlock the mutex. All this
+          // is no problem here, but we want to show the general
           // technique to cope with these problems nevertheless: have an
           // object that upon initialization (i.e. in its constructor) locks
           // the mutex, and on running the destructor unlocks it again. This
@@ -852,7 +861,7 @@ namespace Step13
           // will always be unlocked when we exit this part of the program,
           // whether the operation completed successfully or not, whether the
           // exit path was something we implemented willfully or whether the
-          // function was exited by an exception that we did not forsee.
+          // function was exited by an exception that we did not foresee.
           //
           // deal.II implements the scoped locking pattern in the
           // Treads::Mutex::ScopedLock class: it takes the mutex in the
@@ -1111,7 +1120,7 @@ namespace Step13
     // @sect4{Local refinement by the Kelly error indicator}
 
     // The second class implementing refinement strategies uses the Kelly
-    // refinemet indicator used in various example programs before. Since this
+    // refinement indicator used in various example programs before. Since this
     // indicator is already implemented in a class of its own inside the
     // deal.II library, there is not much t do here except cal the function
     // computing the indicator, then using it to select a number of cells for

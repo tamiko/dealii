@@ -1,14 +1,19 @@
-//---------------------------------------------------------------------------
-//    $Id$
+// ---------------------------------------------------------------------
+// $Id$
 //
-//    Copyright (C) 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013 by the deal.II authors
+// Copyright (C) 1998 - 2013 by the deal.II authors
 //
-//    This file is subject to QPL and may not be  distributed
-//    without copyright and license information. Please refer
-//    to the file deal.II/doc/license.html for the  text  and
-//    further information on this license.
+// This file is part of the deal.II library.
 //
-//---------------------------------------------------------------------------
+// The deal.II library is free software; you can use it, redistribute
+// it, and/or modify it under the terms of the GNU Lesser General
+// Public License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+// The full text of the license can be found in the file LICENSE at
+// the top level of the deal.II distribution.
+//
+// ---------------------------------------------------------------------
+
 #ifndef __deal2__tria_h
 #define __deal2__tria_h
 
@@ -1455,7 +1460,7 @@ public:
    *  RefinementListener.
    *
    * @note The use of this class has been
-   * superceded by the signals mechanism.
+   * superseded by the signals mechanism.
    * See the general documentation of the
    * Triangulation class for more information.
    *
@@ -1470,7 +1475,7 @@ public:
      * class also has virtual functions.
      *
      * @note The use of this class has been
-     * superceded by the signals mechanism.
+     * superseded by the signals mechanism.
      * See the general documentation of the
      * Triangulation class for more information.
      *
@@ -1486,7 +1491,7 @@ public:
      * registered with the triangulation.
      *
      * @note The use of this class has been
-     * superceded by the signals mechanism.
+     * superseded by the signals mechanism.
      * See the general documentation of the
      * Triangulation class for more information.
      *
@@ -1504,7 +1509,7 @@ public:
      * registered with the triangulation.
      *
      * @note The use of this class has been
-     * superceded by the signals mechanism.
+     * superseded by the signals mechanism.
      * See the general documentation of the
      * Triangulation class for more information.
      *
@@ -1529,7 +1534,7 @@ public:
      * derived classes.
      *
      * @note The use of this class has been
-     * superceded by the signals mechanism.
+     * superseded by the signals mechanism.
      * See the general documentation of the
      * Triangulation class for more information.
      *
@@ -1552,7 +1557,7 @@ public:
      * implemented in derived classes.
      *
      * @note The use of this class has been
-     * superceded by the signals mechanism.
+     * superseded by the signals mechanism.
      * See the general documentation of the
      * Triangulation class for more information.
      *
@@ -1561,7 +1566,7 @@ public:
     virtual
     void
     create_notification (const Triangulation<dim, spacedim> &tria);
-  } DEAL_II_DEPRECATED;
+  };
 
   /**
    * A structure that is used as an
@@ -2073,7 +2078,7 @@ public:
    * section on signals in the general
    * documentation of this class.
    */
-  void refine_global (const unsigned int times);
+  void refine_global (const unsigned int times = 1);
 
   /**
    * Execute both refinement and
@@ -2203,7 +2208,7 @@ public:
    *  the Triangulation is refined.
    *
    * @note The use of this function has been
-   * superceded by the signals mechanism.
+   * superseded by the signals mechanism.
    * See the general documentation of the
    * Triangulation class for more information.
    *
@@ -2221,7 +2226,7 @@ public:
    *  Triangulation.
    *
    * @note The use of this function has been
-   * superceded by the signals mechanism.
+   * superseded by the signals mechanism.
    * See the general documentation of the
    * Triangulation class for more information.
    *
@@ -2607,8 +2612,16 @@ public:
   cell_iterator        begin       (const unsigned int level = 0) const;
 
   /**
-   *  Iterator to the first active
-   *  cell on level @p level.
+   *  Iterator to the first active cell on level @p level. If the
+   *  given level does not contain any active cells (i.e., all cells
+   *  on this level are further refined, then this function returns
+   *  <code>end_active(level)</code> so that loops of the kind
+   *  @code
+   *    for (cell=tria.begin_active(level); cell!=tria.end_active(level); ++cell)
+   *      ...
+   *  @endcode
+   *  have zero iterations, as may be expected if there are no active
+   *  cells on this level.
    */
   active_cell_iterator begin_active(const unsigned int level = 0) const;
 
@@ -2629,10 +2642,9 @@ public:
   cell_iterator        end (const unsigned int level) const;
 
   /**
-   * Return an active iterator which is the
-   * first iterator not on level. If @p level
-   * is the last level, then this returns
-   * <tt>end()</tt>.
+   * Return an active iterator which is the first active iterator not
+   * on the given level. If @p level is the last level, then this
+   * returns <tt>end()</tt>.
    */
   active_cell_iterator end_active (const unsigned int level) const;
 
@@ -2645,21 +2657,9 @@ public:
 
   /**
    *  Return an iterator pointing to the
-   *  last used cell on level @p level.
-   */
-  cell_iterator        last (const unsigned int level) const;
-
-  /**
-   *  Return an iterator pointing to the
    *  last active cell.
    */
   active_cell_iterator last_active () const;
-
-  /**
-   *  Return an iterator pointing to the
-   *  last active cell on level @p level.
-   */
-  active_cell_iterator last_active (const unsigned int level) const;
   /*@}*/
 
   /*---------------------------------------*/
@@ -3201,7 +3201,7 @@ public:
    */
   DeclException0 (ExcTriangulationNotEmpty);
   /**
-   * Trying to re-read a grid, an error occured.
+   * Trying to re-read a grid, an error occurred.
    *
    * @ingroup Exceptions
    */
@@ -3521,7 +3521,7 @@ private:
    *  this contains nothing, in 2D it contains data
    *  concerning lines and in 3D quads and lines.  All of
    *  these have no level and are therefore treated
-   *  seperately.
+   *  separately.
    */
   dealii::internal::Triangulation::TriaFaces<dim> *faces;
 

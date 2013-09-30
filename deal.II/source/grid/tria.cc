@@ -1,15 +1,19 @@
-//---------------------------------------------------------------------------
-//    $Id$
-//    Version: $Name$
+// ---------------------------------------------------------------------
+// $Id$
 //
-//    Copyright (C) 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013 by the deal.II authors
+// Copyright (C) 1998 - 2013 by the deal.II authors
 //
-//    This file is subject to QPL and may not be  distributed
-//    without copyright and license information. Please refer
-//    to the file deal.II/doc/license.html for the  text  and
-//    further information on this license.
+// This file is part of the deal.II library.
 //
-//---------------------------------------------------------------------------
+// The deal.II library is free software; you can use it, redistribute
+// it, and/or modify it under the terms of the GNU Lesser General
+// Public License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+// The full text of the license can be found in the file LICENSE at
+// the top level of the deal.II distribution.
+//
+// ---------------------------------------------------------------------
+
 
 #include <deal.II/base/memory_consumption.h>
 #include <deal.II/base/table.h>
@@ -2049,7 +2053,7 @@ namespace internal
         // first, we only collect the data
         // now
 
-        // the bool array stores, wether the lines
+        // the bool array stores, whether the lines
         // are in the standard orientation or not
 
         // note that QuadComparator is a
@@ -2565,7 +2569,7 @@ namespace internal
 
             else
               {
-                // look wether it exists in
+                // look whether it exists in
                 // reverse direction
                 std::swap (line_vertices.first, line_vertices.second);
                 if (needed_lines.find(line_vertices) != needed_lines.end())
@@ -2623,7 +2627,7 @@ namespace internal
                 if (needed_lines.find(line_vertices) != needed_lines.end())
                   line[i] = needed_lines[line_vertices];
                 else
-                  // look wether it exists
+                  // look whether it exists
                   // in reverse direction
                   {
                     std::swap (line_vertices.first, line_vertices.second);
@@ -9329,7 +9333,7 @@ namespace internal
 
       /**
        * Helper function for
-       * @p fix_coarsen_flags. Return wether
+       * @p fix_coarsen_flags. Return whether
        * coarsening of this cell is allowed.
        * Coarsening can be forbidden if the
        * neighboring cells are or will be
@@ -9386,7 +9390,7 @@ namespace internal
                   // to the common neighbor cell,
                   // not to its children. what we
                   // really want to know in the
-                  // following is, wether the
+                  // following is, whether the
                   // neighbor cell is refined twice
                   // with reference to our cell.
                   // that only has to be asked, if
@@ -9744,7 +9748,7 @@ create_triangulation (const std::vector<Point<spacedim> >    &v,
       Its entries are indexes by the local indeces of the common face.
       For example if two elements share a face, and this face is
       face 0 for element 0 and face 1 for element 1, then
-      table(0,1) will tell wether the orientation are the same (true) or
+      table(0,1) will tell whether the orientation are the same (true) or
       opposite (false).
 
       Even though there may be a combinatorial/graph theory argument to get
@@ -10995,15 +10999,8 @@ template <int dim, int spacedim>
 typename Triangulation<dim,spacedim>::cell_iterator
 Triangulation<dim,spacedim>::last () const
 {
-  return last (levels.size()-1);
-}
+  const unsigned int level = levels.size()-1;
 
-
-
-template <int dim, int spacedim>
-typename Triangulation<dim,spacedim>::cell_iterator
-Triangulation<dim,spacedim>::last (const unsigned int level) const
-{
   Assert (level<n_global_levels() || level<levels.size(), ExcInvalidLevel(level));
   if (levels[level]->cells.cells.size() ==0)
     return end(level);
@@ -11031,37 +11028,16 @@ Triangulation<dim,spacedim>::last_active () const
 {
   // get the last used cell
   cell_iterator cell = last();
-  
+
   if (cell != end())
     {
       // then move to the last active one
       if (cell->active()==true)
-	return cell;
+        return cell;
       while ((--cell).state() == IteratorState::valid)
-	if (cell->active()==true)
-	  return cell;
+        if (cell->active()==true)
+          return cell;
     }
-  return cell;
-}
-
-
-
-template <int dim, int spacedim>
-typename Triangulation<dim,spacedim>::active_cell_iterator
-Triangulation<dim,spacedim>::last_active (const unsigned int level) const
-{
-  // get the last used cell on this level
-  cell_iterator cell = last(level);
-
- if (cell != end(level))
-   {
-     // then move to the last active one
-     if (cell->active()==true)
-       return cell;
-     while ((--cell).state() == IteratorState::valid)
-       if (cell->active()==true)
-	 return cell;
-   }
   return cell;
 }
 
@@ -11105,7 +11081,8 @@ template <int dim, int spacedim>
 typename Triangulation<dim, spacedim>::active_cell_iterator
 Triangulation<dim, spacedim>::end_active (const unsigned int level) const
 {
-  return (level == levels.size()-1 ?
+  Assert (level<n_global_levels() || level < levels.size(), ExcInvalidLevel(level));
+  return (level >= levels.size()-1 ?
           active_cell_iterator(end()) :
           begin_active (level+1));
 }
@@ -11190,7 +11167,7 @@ Triangulation<dim, spacedim>::begin_raw_line (const unsigned int level) const
     {
     case 1:
       Assert (level<n_global_levels() || level<levels.size(), ExcInvalidLevel(level));
-      
+
       if (level >= levels.size() || levels[level]->cells.cells.size() == 0)
         return end_line();
 
@@ -11350,10 +11327,10 @@ Triangulation<dim,spacedim>::begin_raw_hex (const unsigned int level) const
     case 3:
     {
       Assert (level<n_global_levels() || level<levels.size(), ExcInvalidLevel(level));
-      
+
       if (level >= levels.size() || levels[level]->cells.cells.size() == 0)
         return end_hex();
-      
+
       return raw_hex_iterator (const_cast<Triangulation<dim,spacedim>*>(this),
                                level,
                                0);
@@ -12230,11 +12207,12 @@ void Triangulation<dim, spacedim>::execute_coarsening ()
   // deleted (if the latter are on a
   // higher level for example)
   //
-  // if there is only one level,
-  // there can not be anything to do
+  // since we delete the *children* of cells, we can ignore cells
+  // on the highest level, i.e., level must be less than or equal
+  // to n_levels()-2.
   if (levels.size() >= 2)
-    for (cell = last(levels.size()-2); cell!=endc; --cell)
-      if (cell->user_flag_set())
+    for (cell = last(); cell!=endc; --cell)
+      if (cell->level()<=static_cast<int>(levels.size()-2) && cell->user_flag_set())
         // use a separate function,
         // since this is dimension
         // specific
@@ -13617,7 +13595,7 @@ bool Triangulation<dim,spacedim>::prepare_coarsening_and_refinement ()
       //    next global loop. when this
       //    function terminates, the
       //    requirement will be
-      //    fullfilled. However, it might be
+      //    fulfilled. However, it might be
       //    faster to insert an inner loop
       //    here.
       bool changed = true;

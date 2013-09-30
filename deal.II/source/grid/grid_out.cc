@@ -1,16 +1,18 @@
-//---------------------------------------------------------------------------
-//    $Id$
-//    Version: $Name$
+// ---------------------------------------------------------------------
+// $Id$
 //
-//    Copyright (C) 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2008, 2010, 2011, 2012, 2013 by the deal.II authors
+// Copyright (C) 1999 - 2013 by the deal.II authors
 //
-//    This file is subject to QPL and may not be  distributed
-//    without copyright and license information. Please refer
-//    to the file deal.II/doc/license.html for the  text  and
-//    further information on this license.
+// This file is part of the deal.II library.
 //
-//---------------------------------------------------------------------------
-
+// The deal.II library is free software; you can use it, redistribute
+// it, and/or modify it under the terms of the GNU Lesser General
+// Public License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+// The full text of the license can be found in the file LICENSE at
+// the top level of the deal.II distribution.
+//
+// ---------------------------------------------------------------------
 
 #include <deal.II/grid/grid_out.h>
 #include <deal.II/base/parameter_handler.h>
@@ -486,7 +488,7 @@ GridOut::default_suffix (const OutputFormat output_format)
     default:
       Assert (false, ExcNotImplemented());
       return "";
-    };
+    }
 }
 
 
@@ -575,7 +577,7 @@ GridOut::declare_parameters(ParameterHandler &param)
   GridOutFlags::XFig::declare_parameters(param);
   param.leave_subsection();
 
-  param.enter_subsection("MathGl");
+  param.enter_subsection("MathGL");
   GridOutFlags::MathGL::declare_parameters(param);
   param.leave_subsection();
 }
@@ -684,9 +686,7 @@ void GridOut::write_dx (const Triangulation<dim> &tria,
 
   for (unsigned int i=0; i<vertices.size(); ++i)
     if (vertex_used[i])
-      {
         out << '\t' << vertices[i] << '\n';
-      };
 
   // write cells or faces
   const bool write_cells = dx_flags.write_cells;
@@ -929,7 +929,7 @@ void GridOut::write_msh (const Triangulation<dim, spacedim> &tria,
         for (unsigned int d=spacedim+1; d<=3; ++d)
           out << " 0";             // fill with zeroes
         out << std::endl;
-      };
+      }
 
   // Write cells preamble
   out << "$ENDNOD" << std::endl
@@ -1006,7 +1006,7 @@ void GridOut::write_msh (const Triangulation<dim, spacedim> &tria,
            ++vertex)
         out << cell->vertex_index(GeometryInfo<dim>::ucd_to_deal[vertex])+1 << ' ';
       out << std::endl;
-    };
+    }
 
   // write faces and lines with
   // non-zero boundary indicator
@@ -1063,7 +1063,7 @@ void GridOut::write_ucd (const Triangulation<dim,spacedim> &tria,
           << "# For a description of the UCD format see the AVS Developer's guide."
           << '\n'
           << "#" << '\n';
-    };
+    }
 
   // start with ucd data
   out << n_vertices << ' '
@@ -1086,7 +1086,7 @@ void GridOut::write_ucd (const Triangulation<dim,spacedim> &tria,
         for (unsigned int d=spacedim+1; d<=3; ++d)
           out << " 0";             // fill with zeroes
         out << '\n';
-      };
+      }
 
   // write cells. Enumerate cells
   // consecutively, starting with 1
@@ -1110,7 +1110,7 @@ void GridOut::write_ucd (const Triangulation<dim,spacedim> &tria,
           break;
         default:
           Assert (false, ExcNotImplemented());
-        };
+        }
 
       // it follows a list of the
       // vertices of each cell. in 1d
@@ -1131,7 +1131,7 @@ void GridOut::write_ucd (const Triangulation<dim,spacedim> &tria,
            ++vertex)
         out << cell->vertex_index(GeometryInfo<dim>::ucd_to_deal[vertex])+1 << ' ';
       out << '\n';
-    };
+    }
 
   // write faces and lines with
   // non-zero boundary indicator
@@ -1363,7 +1363,7 @@ void GridOut::write_svg(const Triangulation<2,2> &tria, std::ostream &out) const
   unsigned int n_levels = 0;
   unsigned int n_subdomains = 0;
   unsigned int n_level_subdomains = 0;
-  
+
   unsigned int n = 0;
 
   unsigned int min_level, max_level;
@@ -1437,7 +1437,7 @@ void GridOut::write_svg(const Triangulation<2,2> &tria, std::ostream &out) const
 
   // auxiliary array for the level subdomains being used
   int level_subdomains[256];
-  for(int level_subdomain_index = 0; level_subdomain_index < 256; level_subdomain_index++)
+  for (int level_subdomain_index = 0; level_subdomain_index < 256; level_subdomain_index++)
     level_subdomains[level_subdomain_index] = 0;
 
   // We use an active cell iterator to determine the
@@ -1458,10 +1458,10 @@ void GridOut::write_svg(const Triangulation<2,2> &tria, std::ostream &out) const
       if ((unsigned int)cell->level() < min_level) min_level = cell->level();
       if ((unsigned int)cell->level() > max_level) max_level = cell->level();
 
-      materials[(unsigned int)cell->material_id()] = 1;      
+      materials[(unsigned int)cell->material_id()] = 1;
       levels[(unsigned int)cell->level()] = 1;
       if (cell->active())
-	subdomains[cell->subdomain_id()+2] = 1;
+        subdomains[cell->subdomain_id()+2] = 1;
       level_subdomains[cell->level_subdomain_id()+2] = 1;
     }
 
@@ -1487,14 +1487,14 @@ void GridOut::write_svg(const Triangulation<2,2> &tria, std::ostream &out) const
     }
 
   // count the level subdomains being used
-  for(int level_subdomain_index = 0; level_subdomain_index < 256; level_subdomain_index++)
-  {
-    if(level_subdomains[level_subdomain_index]) n_level_subdomains++;
-  }
+  for (int level_subdomain_index = 0; level_subdomain_index < 256; level_subdomain_index++)
+    {
+      if (level_subdomains[level_subdomain_index]) n_level_subdomains++;
+    }
 
   switch (svg_flags.coloring)
     {
-      case GridOutFlags::Svg::material_id:
+    case GridOutFlags::Svg::material_id:
       n = n_materials;
       break;
     case GridOutFlags::Svg::level_number:
@@ -1503,7 +1503,8 @@ void GridOut::write_svg(const Triangulation<2,2> &tria, std::ostream &out) const
     case GridOutFlags::Svg::subdomain_id:
       n = n_subdomains;
       break;
-    case GridOutFlags::Svg::level_subdomain_id: n = n_level_subdomains;
+    case GridOutFlags::Svg::level_subdomain_id:
+      n = n_level_subdomains;
       break;
     default:
       break;
@@ -1657,7 +1658,7 @@ void GridOut::write_svg(const Triangulation<2,2> &tria, std::ostream &out) const
   x_dimension_perspective = x_max_perspective - x_min_perspective;
   y_dimension_perspective = y_max_perspective - y_min_perspective;
 
-  cell_label_font_size = static_cast<unsigned int>(.5 + (height/100.) * 2.75) * 9. * (min_level_min_vertex_distance / std::min(x_dimension, y_dimension));
+  cell_label_font_size = static_cast<unsigned int>((int)(.5 + (height/100.) * 2.75) * 9. * (min_level_min_vertex_distance / std::min(x_dimension, y_dimension)));
 
 
 // create the svg file with an internal style sheet
@@ -1768,9 +1769,9 @@ void GridOut::write_svg(const Triangulation<2,2> &tria, std::ostream &out) const
             case GridOutFlags::Svg::subdomain_id:
               while (!subdomains[labeling_index]) labeling_index++;
               break;
-	    case GridOutFlags::Svg::level_subdomain_id:
-	      while(!level_subdomains[labeling_index]) labeling_index++;
-	      break;
+            case GridOutFlags::Svg::level_subdomain_id:
+              while (!level_subdomains[labeling_index]) labeling_index++;
+              break;
             default:
               break;
             }
@@ -1847,11 +1848,14 @@ void GridOut::write_svg(const Triangulation<2,2> &tria, std::ostream &out) const
                   out << (unsigned int)cell->level();
                   break;
                 case GridOutFlags::Svg::subdomain_id:
-                  out << cell->subdomain_id() + 2;
+                  if (cell->active())
+                    out << cell->subdomain_id() + 2;
+                  else
+                    out << 'X';
                   break;
-		case GridOutFlags::Svg::level_subdomain_id:
-		  out << cell->level_subdomain_id() + 2;
-		  break;
+                case GridOutFlags::Svg::level_subdomain_id:
+                  out << cell->level_subdomain_id() + 2;
+                  break;
                 default:
                   break;
                 }
@@ -1959,19 +1963,25 @@ void GridOut::write_svg(const Triangulation<2,2> &tria, std::ostream &out) const
 
               if (svg_flags.label_subdomain_id)
                 {
-                  if (svg_flags.label_level_number || svg_flags.label_cell_index || svg_flags.label_material_id) out << ',';
-                  out << static_cast<int>(cell->subdomain_id());
+                  if (svg_flags.label_level_number
+                      || svg_flags.label_cell_index
+                      || svg_flags.label_material_id)
+                    out << ',';
+                  if (cell->active())
+                    out << static_cast<int>(cell->subdomain_id());
+                  else
+                    out << 'X';
                 }
 
-	      if(svg_flags.label_level_subdomain_id)
-		{
-		  if(svg_flags.label_level_number
-		     || svg_flags.label_cell_index
-		     || svg_flags.label_material_id
-		     || svg_flags.label_subdomain_id)
-		    out << ',';
-		  out << static_cast<int>(cell->level_subdomain_id());
-		}
+              if (svg_flags.label_level_subdomain_id)
+                {
+                  if (svg_flags.label_level_number
+                      || svg_flags.label_cell_index
+                      || svg_flags.label_material_id
+                      || svg_flags.label_subdomain_id)
+                    out << ',';
+                  out << static_cast<int>(cell->level_subdomain_id());
+                }
 
               out << "</text>" << '\n';
             }
@@ -2092,21 +2102,21 @@ void GridOut::write_svg(const Triangulation<2,2> &tria, std::ostream &out) const
               << "\">"
               << "subdomain_id";
 
-	  if(svg_flags.label_level_subdomain_id)
-	    out << ',';
+          if (svg_flags.label_level_subdomain_id)
+            out << ',';
 
           out << "</text>" << '\n';
         }
 
-      if(svg_flags.label_level_subdomain_id)
-	{
-	  out << "  <text x= \"" << width + additional_width + static_cast<unsigned int>(.5 + (height/100.) * 2.)
-	      << "\" y=\""       << static_cast<unsigned int>(.5 + (height/100.) * margin_in_percent + (++line_offset) * 1.5 * font_size )
-	      << "\" style=\"text-anchor:start; font-style:oblique; font-size:" << font_size
-	      << "\">"
-	      << "level_subdomain_id"
-	      << "</text>" << '\n';
-	}
+      if (svg_flags.label_level_subdomain_id)
+        {
+          out << "  <text x= \"" << width + additional_width + static_cast<unsigned int>(.5 + (height/100.) * 2.)
+              << "\" y=\""       << static_cast<unsigned int>(.5 + (height/100.) * margin_in_percent + (++line_offset) * 1.5 * font_size )
+              << "\" style=\"text-anchor:start; font-style:oblique; font-size:" << font_size
+              << "\">"
+              << "level_subdomain_id"
+              << "</text>" << '\n';
+        }
     }
 
   // show azimuth angle and polar angle as text below the explanation of the cell labeling
@@ -2139,8 +2149,9 @@ void GridOut::write_svg(const Triangulation<2,2> &tria, std::ostream &out) const
         case 3:
           out << "subdomain_id";
           break;
-	case 4: out << "level_subdomain_id";
-	  break;
+        case 4:
+          out << "level_subdomain_id";
+          break;
         default:
           break;
         }
@@ -2165,8 +2176,9 @@ void GridOut::write_svg(const Triangulation<2,2> &tria, std::ostream &out) const
             case GridOutFlags::Svg::subdomain_id:
               while (!subdomains[labeling_index]) labeling_index++;
               break;
-	    case GridOutFlags::Svg::level_subdomain_id: while(!level_subdomains[labeling_index]) labeling_index++;
-	      break;
+            case GridOutFlags::Svg::level_subdomain_id:
+              while (!level_subdomains[labeling_index]) labeling_index++;
+              break;
             default:
               break;
             }
@@ -2270,7 +2282,7 @@ void GridOut::write_mathgl (const Triangulation<dim> &tria,
       break;
     default:
       Assert (false, ExcNotImplemented ());
-    };
+    }
   out << "\n";
 
   // (iii) write vertex ordering
@@ -2286,15 +2298,15 @@ void GridOut::write_mathgl (const Triangulation<dim> &tria,
     {
     case 2:
       out << "\nlist f 0 1 2 3"
-	  << "\n";
+          << "\n";
       break;
     case 3:
       out << "\nlist f 0 2 4 6 | 1 3 5 7 | 0 4 1 5 | 2 6 3 7 | 0 1 2 3 | 4 5 6 7"
-	  << "\n";
+          << "\n";
       break;
     default:
       Assert (false, ExcNotImplemented ());
-    };
+    }
 
   // (iv) write a list of vertices of cells
   out << "\n#"
@@ -2539,7 +2551,7 @@ void GridOut::write_msh_faces (const Triangulation<dim,spacedim> &tria,
             break;
           default:
             Assert (false, ExcNotImplemented());
-          };
+          }
         out << static_cast<unsigned int>(face->boundary_indicator())
             << ' '
             << static_cast<unsigned int>(face->boundary_indicator())
@@ -2551,7 +2563,7 @@ void GridOut::write_msh_faces (const Triangulation<dim,spacedim> &tria,
         out << '\n';
 
         ++index;
-      };
+      }
 }
 
 
@@ -2695,14 +2707,14 @@ void GridOut::write_ucd_faces (const Triangulation<dim, spacedim> &tria,
             break;
           default:
             Assert (false, ExcNotImplemented());
-          };
+          }
         // note: vertex numbers are 1-base
         for (unsigned int vertex=0; vertex<GeometryInfo<dim>::vertices_per_face; ++vertex)
           out << face->vertex_index(GeometryInfo<dim-1>::ucd_to_deal[vertex])+1 << ' ';
         out << '\n';
 
         ++index;
-      };
+      }
 }
 
 
@@ -3258,7 +3270,7 @@ namespace internal
         {
           Assert(false, ExcInternalError());
           break;
-        };
+        }
 
         case 2:
         {
@@ -3376,12 +3388,12 @@ namespace internal
                         line_list.push_back (LineEntry(p0, p1,
                                                        face->user_flag_set(),
                                                        cell->level()));
-                      };
-                  };
-            };
+                      }
+                  }
+            }
 
           break;
-        };
+        }
 
         case 3:
         {
@@ -3484,7 +3496,7 @@ namespace internal
           y_max = std::max (y_max, line->second(1));
 
           max_level = std::max (max_level,  line->level);
-        };
+        }
 
       // scale in x-direction such that
       // in the output 0 <= x <= 300.
@@ -3571,14 +3583,14 @@ namespace internal
                       "/MCshow { currentpoint stroke m\n"
                       "exch dup MFwidth -2 div 3 -1 roll R MFshow } def\n")
                   << '\n';
-            };
+            }
 
           out << "%%EndProlog" << '\n'
               << '\n';
 
           // set fine lines
           out << eps_flags_base.line_width << " setlinewidth" << '\n';
-        };
+        }
 
       // now write the lines
       const Point<2> offset(x_min, y_min);
@@ -3623,8 +3635,8 @@ namespace internal
               out << ")] "
                   << "] -6 MCshow"
                   << '\n';
-            };
-        };
+            }
+        }
 
       // and the vertex numbers
       if ((dim == 2) && (eps_flags_2.write_vertex_numbers == true))
@@ -3658,8 +3670,8 @@ namespace internal
                       << ")] "
                       << "] -6 MCshow"
                       << '\n';
-                };
-        };
+                }
+        }
 
       out << "showpage" << '\n';
 

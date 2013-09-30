@@ -1,16 +1,19 @@
+// ---------------------------------------------------------------------
+// $Id$
+//
+// Copyright (C) 2005 - 2013 by the deal.II authors
+//
+// This file is part of the deal.II library.
+//
+// The deal.II library is free software; you can use it, redistribute
+// it, and/or modify it under the terms of the GNU Lesser General
+// Public License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+// The full text of the license can be found in the file LICENSE at
+// the top level of the deal.II distribution.
+//
+// ---------------------------------------------------------------------
 
-//-------------------------------------------------------------------------
-//    $Id$
-//    Version: $Name$
-//
-//    Copyright (C) 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013 by the deal.II authors
-//
-//    This file is subject to QPL and may not be  distributed
-//    without copyright and license information. Please refer
-//    to the file deal.II/doc/license.html for the  text  and
-//    further information on this license.
-//
-//-------------------------------------------------------------------------
 
 /**
  * @page DEALGlossary Glossary
@@ -366,6 +369,11 @@
  * faces and edges. In this case, the boundary object associated with a particular
  * boundary indicator is also used to move the new center points of cells back
  * onto the manifold that the triangulation describes whenever a cell is refined.
+ *
+ * @note For parallel triangulations of type parallel::distributed::Triangulation,
+ * it is not enough to set boundary indicators only once at the beginning. See
+ * the long discussion on this topic in the class documentation of
+ * parallel::distributed::Triangulation .
  * </dd>
  *
  * @see @ref boundary "The module on boundaries"
@@ -541,7 +549,7 @@
  * to adding elements or setting them.  In some cases, not all processors may
  * be adding elements, for example if a processor does not own any cells when
  * using a very coarse (initial) mesh.  For this reason, compress() takes an
- * argument of type VectorOperation, which can be either ::add, or ::insert.
+ * argument of type VectorOperation, which can be either ::%add, or ::%insert.
  * This argument is required for vectors and matrices starting with the 7.3
  * release.
  *
@@ -829,7 +837,10 @@
  * is pointing the other direction. There are not very many places in
  * application programs where you need this information actually, but
  * a few places in the library make use of this. Note that in 2d, the
- * result is always @p true.
+ * result is always @p true. However, while every face in 2d is always
+ * in standard orientation, you can sometimes specify something to
+ * assume that this is not so; an example is the function
+ * DoFTools::make_periodicity_constraints().
  *
  * There are two other flags that describe the orientation of a face:
  * face_flip and face_rotation. Some documentation for these
@@ -1207,7 +1218,7 @@ Article{JK10,
  *      // in 3d
  *      for (cell=dof_handler.begin_active();
  *           cell!=dof_handler.end(); ++cell)
- *        for (unsigned int line=0; line<GeometryInfo<dim>::lines_per_cell; ++l)
+ *        for (unsigned int l=0; l<GeometryInfo<dim>::lines_per_cell; ++l)
  *          if (cell->line(l)->at_boundary())
  *            {
  *               do something with this line
@@ -1263,7 +1274,7 @@ Article{JK10,
  *   @code
  *      for (cell=dof_handler.begin_active();
  *           cell!=dof_handler.end(); ++cell)
- *        for (unsigned int line=0; line<GeometryInfo<dim>::lines_per_cell; ++l)
+ *        for (unsigned int l=0; l<GeometryInfo<dim>::lines_per_cell; ++l)
  *          if (cell->line(l)->at_boundary())
  *            {
  *              cell->line(l)->set_user_index(42);

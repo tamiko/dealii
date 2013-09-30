@@ -1,22 +1,20 @@
-#####
+## ---------------------------------------------------------------------
+## $Id$
 ##
-## Copyright (C) 2012, 2013 by the deal.II authors
+## Copyright (C) 2012 - 2013 by the deal.II authors
 ##
 ## This file is part of the deal.II library.
 ##
-## <TODO: Full License information>
-## This file is dual licensed under QPL 1.0 and LGPL 2.1 or any later
-## version of the LGPL license.
+## The deal.II library is free software; you can use it, redistribute
+## it, and/or modify it under the terms of the GNU Lesser General
+## Public License as published by the Free Software Foundation; either
+## version 2.1 of the License, or (at your option) any later version.
+## The full text of the license can be found in the file LICENSE at
+## the top level of the deal.II distribution.
 ##
-## Author: Matthias Maier <matthias.maier@iwr.uni-heidelberg.de>
-##
-#####
+## ---------------------------------------------------------------------
 
 INCLUDE_DIRECTORIES(BEFORE ${CMAKE_CURRENT_BINARY_DIR})
-
-FILE(GLOB _header
-  ${CMAKE_SOURCE_DIR}/include/deal.II/base/*.h
-  )
 
 SET(_src
   auto_derivative_function.cc
@@ -24,7 +22,6 @@ SET(_src
   config.cc
   convergence_table.cc
   data_out_base.cc
-  # do NOT include dummy.cc
   event.cc
   exceptions.cc
   flow_function.cc
@@ -51,9 +48,9 @@ SET(_src
   polynomials_adini.cc
   polynomials_bdm.cc
   polynomials_nedelec.cc
-  polynomials_piecewise.cc
   polynomial_space.cc
   polynomials_p.cc
+  polynomials_piecewise.cc
   polynomials_raviart_thomas.cc
   quadrature.cc
   quadrature_lib.cc
@@ -69,7 +66,10 @@ SET(_src
   utilities.cc
   )
 
+FILE(GLOB _header
+  ${CMAKE_SOURCE_DIR}/include/deal.II/base/*.h
+  )
+
 DEAL_II_ADD_LIBRARY(obj_base OBJECT ${_src} ${_header}
   ${CMAKE_BINARY_DIR}/include/deal.II/base/config.h
   )
-

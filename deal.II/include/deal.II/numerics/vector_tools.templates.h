@@ -1,14 +1,19 @@
-//---------------------------------------------------------------------------
-//    $Id$
+// ---------------------------------------------------------------------
+// $Id$
 //
-//    Copyright (C) 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013 by the deal.II authors
+// Copyright (C) 2005 - 2013 by the deal.II authors
 //
-//    This file is subject to QPL and may not be  distributed
-//    without copyright and license information. Please refer
-//    to the file deal.II/doc/license.html for the  text  and
-//    further information on this license.
+// This file is part of the deal.II library.
 //
-//---------------------------------------------------------------------------
+// The deal.II library is free software; you can use it, redistribute
+// it, and/or modify it under the terms of the GNU Lesser General
+// Public License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+// The full text of the license can be found in the file LICENSE at
+// the top level of the deal.II distribution.
+//
+// ---------------------------------------------------------------------
+
 
 #ifndef _deal2__vector_tools_templates_h
 #define _deal2__vector_tools_templates_h
@@ -55,6 +60,7 @@
 #include <deal.II/numerics/vector_tools.h>
 #include <deal.II/numerics/matrix_tools.h>
 
+#include <deal.II/base/std_cxx1x/array.h>
 #include <numeric>
 #include <algorithm>
 #include <vector>
@@ -329,57 +335,17 @@ namespace VectorTools
 
   namespace internal
   {
+    /**
+     * Interpolate zero boundary values. We don't need to worry about a mapping
+     * here because the function we evaluate for the DoFs is zero in the mapped
+     * locations as well as in the original, unmapped locations
+     */
+    template <class DH>
     void
-    interpolate_zero_boundary_values (const dealii::DoFHandler<1>   &dof_handler,
+    interpolate_zero_boundary_values (const DH                                 &dof_handler,
                                       std::map<types::global_dof_index,double> &boundary_values)
     {
-      // we only need to find the
-      // left-most and right-most
-      // vertex and query its vertex
-      // dof indices. that's easy :-)
-      for (unsigned int direction=0; direction<2; ++direction)
-        {
-          dealii::DoFHandler<1>::cell_iterator
-          cell = dof_handler.begin(0);
-          while (!cell->at_boundary(direction))
-            cell = cell->neighbor(direction);
-
-          for (unsigned int i=0; i<dof_handler.get_fe().dofs_per_vertex; ++i)
-            boundary_values[cell->vertex_dof_index (direction, i)] = 0.;
-        }
-    }
-
-
-
-    // codimension 1
-    void
-    interpolate_zero_boundary_values (const dealii::DoFHandler<1,2> &dof_handler,
-                                      std::map<types::global_dof_index,double> &boundary_values)
-    {
-      // we only need to find the
-      // left-most and right-most
-      // vertex and query its vertex
-      // dof indices. that's easy :-)
-      for (unsigned int direction=0; direction<2; ++direction)
-        {
-          dealii::DoFHandler<1,2>::cell_iterator
-          cell = dof_handler.begin(0);
-          while (!cell->at_boundary(direction))
-            cell = cell->neighbor(direction);
-
-          for (unsigned int i=0; i<dof_handler.get_fe().dofs_per_vertex; ++i)
-            boundary_values[cell->vertex_dof_index (direction, i)] = 0.;
-        }
-    }
-
-
-
-    template <int dim, int spacedim>
-    void
-    interpolate_zero_boundary_values (const dealii::DoFHandler<dim,spacedim>       &dof_handler,
-                                      std::map<types::global_dof_index,double> &boundary_values)
-    {
-      const FiniteElement<dim,spacedim> &fe = dof_handler.get_fe();
+      const unsigned int dim      = DH::dimension;
 
       // loop over all boundary faces
       // to get all dof indices of
@@ -402,16 +368,18 @@ namespace VectorTools
       // that is actually wholly on
       // the boundary, not only by
       // one line or one vertex
-      typename dealii::DoFHandler<dim,spacedim>::active_cell_iterator
+      typename DH::active_cell_iterator
       cell = dof_handler.begin_active(),
       endc = dof_handler.end();
-      std::vector<types::global_dof_index> face_dof_indices (fe.dofs_per_face);
+      std::vector<types::global_dof_index> face_dof_indices;
       for (; cell!=endc; ++cell)
         for (unsigned int f=0; f<GeometryInfo<dim>::faces_per_cell; ++f)
           if (cell->at_boundary(f))
             {
-              cell->face(f)->get_dof_indices (face_dof_indices);
-              for (unsigned int i=0; i<fe.dofs_per_face; ++i)
+              face_dof_indices.resize (cell->get_fe().dofs_per_face);
+              cell->face(f)->get_dof_indices (face_dof_indices,
+                                              cell->active_fe_index());
+              for (unsigned int i=0; i<cell->get_fe().dofs_per_face; ++i)
                 // enter zero boundary values
                 // for all boundary nodes
                 //
@@ -531,6 +499,169 @@ namespace VectorTools
   }
 
 
+  namespace
+  {
+    /**
+     * Compute the boundary values to be used in the project() functions.
+     */
+    template <int dim, int spacedim,
+              template <int,int> class DH,
+              template <int,int> class M_or_MC,
+              template <int> class Q_or_QC>
+    void project_compute_b_v (const M_or_MC<dim, spacedim>   &mapping,
+                  const DH<dim,spacedim> &dof,
+                  const Function<spacedim> &function,
+                  const bool                enforce_zero_boundary,
+                  const Q_or_QC<dim-1>  &q_boundary,
+                  const bool                project_to_boundary_first,
+                  std::map<types::global_dof_index,double> &boundary_values)
+    {
+      if (enforce_zero_boundary == true)
+        // no need to project boundary
+        // values, but enforce
+        // homogeneous boundary values
+        // anyway
+        internal::
+        interpolate_zero_boundary_values (dof, boundary_values);
+
+      else
+        // no homogeneous boundary values
+        if (project_to_boundary_first == true)
+          // boundary projection required
+          {
+            // set up a list of boundary
+            // functions for the
+            // different boundary
+            // parts. We want the
+            // function to hold on
+            // all parts of the boundary
+            const std::vector<types::boundary_id>
+            used_boundary_indicators = dof.get_tria().get_boundary_indicators();
+
+            typename FunctionMap<spacedim>::type boundary_functions;
+            for (unsigned int i=0; i<used_boundary_indicators.size(); ++i)
+              boundary_functions[used_boundary_indicators[i]] = &function;
+            project_boundary_values (mapping, dof, boundary_functions, q_boundary,
+                                     boundary_values);
+          }
+    }
+
+
+    /**
+     * Return whether the boundary values try to constrain a degree of
+     * freedom that is already constrained to something else
+     */
+    bool constraints_and_b_v_are_compatible (const ConstraintMatrix   &constraints,
+                                             std::map<types::global_dof_index,double> &boundary_values)
+    {
+      for (std::map<types::global_dof_index,double>::iterator it=boundary_values.begin();
+           it != boundary_values.end(); ++it)
+        if (constraints.is_constrained(it->first))
+//TODO: This looks wrong -- shouldn't it be ==0 in the first condition and && ?
+          if (!(constraints.get_constraint_entries(it->first)->size() > 0
+                ||
+                (constraints.get_inhomogeneity(it->first) == it->second)))
+            return false;
+
+      return true;
+    }
+
+
+    /**
+     * Generic implementation of the project() function
+     */
+    template <int dim, int spacedim,
+              class Vector,
+              template <int,int> class DH,
+              template <int,int> class M_or_MC,
+              template <int> class Q_or_QC>
+    void do_project (const M_or_MC<dim, spacedim>   &mapping,
+                  const DH<dim,spacedim> &dof,
+                  const ConstraintMatrix   &constraints,
+                  const Q_or_QC<dim>       &quadrature,
+                  const Function<spacedim> &function,
+                  Vector                   &vec_result,
+                  const bool                enforce_zero_boundary,
+                  const Q_or_QC<dim-1>  &q_boundary,
+                  const bool                project_to_boundary_first)
+    {
+      Assert (dof.get_fe().n_components() == function.n_components,
+              ExcDimensionMismatch(dof.get_fe().n_components(),
+                                   function.n_components));
+      Assert (vec_result.size() == dof.n_dofs(),
+              ExcDimensionMismatch (vec_result.size(), dof.n_dofs()));
+
+      // make up boundary values
+      std::map<types::global_dof_index,double> boundary_values;
+      project_compute_b_v(mapping, dof, function, enforce_zero_boundary,
+                          q_boundary, project_to_boundary_first, boundary_values);
+
+      // check if constraints are compatible (see below)
+      const bool constraints_are_compatible =
+        constraints_and_b_v_are_compatible(constraints, boundary_values);
+
+      // set up mass matrix and right hand side
+      dealii::Vector<double> vec (dof.n_dofs());
+      SparsityPattern sparsity;
+      {
+        CompressedSimpleSparsityPattern csp (dof.n_dofs(), dof.n_dofs());
+        DoFTools::make_sparsity_pattern (dof, csp, constraints,
+                                         !constraints_are_compatible);
+
+        sparsity.copy_from (csp);
+      }
+      SparseMatrix<double> mass_matrix (sparsity);
+      dealii::Vector<double> tmp (mass_matrix.n());
+
+      // If the constraint matrix does not conflict with the given boundary
+      // values (i.e., it either does not contain boundary values or it contains
+      // the same as boundary_values), we can let it call
+      // distribute_local_to_global straight away, otherwise we need to first
+      // interpolate the boundary values and then condense the matrix and vector
+      if (constraints_are_compatible)
+        {
+          const Function<spacedim> *dummy = 0;
+          MatrixCreator::create_mass_matrix (mapping, dof, quadrature,
+                                             mass_matrix, function, tmp,
+                                             dummy, constraints);
+          if (boundary_values.size() > 0)
+            MatrixTools::apply_boundary_values (boundary_values,
+                                                mass_matrix, vec, tmp,
+                                                true);
+        }
+      else
+        {
+          // create mass matrix and rhs at once, which is faster.
+          MatrixCreator::create_mass_matrix (mapping, dof, quadrature,
+                                             mass_matrix, function, tmp);
+          MatrixTools::apply_boundary_values (boundary_values,
+                                              mass_matrix, vec, tmp,
+                                              true);
+          constraints.condense(mass_matrix, tmp);
+        }
+
+      // Allow for a maximum of 5*n steps to reduce the residual by 10^-12. n
+      // steps may not be sufficient, since roundoff errors may accumulate for
+      // badly conditioned matrices
+      ReductionControl      control(5*tmp.size(), 0., 1e-12, false, false);
+      GrowingVectorMemory<> memory;
+      SolverCG<>            cg(control,memory);
+
+      PreconditionSSOR<> prec;
+      prec.initialize(mass_matrix, 1.2);
+
+      cg.solve (mass_matrix, vec, tmp, prec);
+
+      constraints.distribute (vec);
+
+      // copy vec into vec_result. we can't use vec_result itself above, since
+      // it may be of another type than Vector<double> and that wouldn't
+      // necessarily go together with the matrix and other functions
+      for (unsigned int i=0; i<vec.size(); ++i)
+        vec_result(i) = vec(i);
+    }
+  }
+
 
   template <int dim, class VECTOR, int spacedim>
   void project (const Mapping<dim, spacedim>   &mapping,
@@ -543,120 +674,10 @@ namespace VectorTools
                 const Quadrature<dim-1>  &q_boundary,
                 const bool                project_to_boundary_first)
   {
-    Assert (dof.get_fe().n_components() == function.n_components,
-            ExcDimensionMismatch(dof.get_fe().n_components(),
-                                 function.n_components));
-
-    Assert (vec_result.size() == dof.n_dofs(),
-            ExcDimensionMismatch (vec_result.size(), dof.n_dofs()));
-
-    // make up boundary values
-    std::map<types::global_dof_index,double> boundary_values;
-
-    if (enforce_zero_boundary == true)
-      // no need to project boundary
-      // values, but enforce
-      // homogeneous boundary values
-      // anyway
-      internal::
-      interpolate_zero_boundary_values (dof, boundary_values);
-
-    else
-      // no homogeneous boundary values
-      if (project_to_boundary_first == true)
-        // boundary projection required
-        {
-          // set up a list of boundary
-          // functions for the
-          // different boundary
-          // parts. We want the
-          // function to hold on
-          // all parts of the boundary
-          typename FunctionMap<spacedim>::type boundary_functions;
-          for (types::boundary_id c=0; c<numbers::internal_face_boundary_id; ++c)
-            boundary_functions[c] = &function;
-          project_boundary_values (dof, boundary_functions, q_boundary,
-                                   boundary_values);
-        }
-
-    // set up mass matrix and right hand side
-    Vector<double> vec (dof.n_dofs());
-    SparsityPattern sparsity;
-
-    // check if constraints are compatible (see below)
-    bool constraints_are_compatible = true;
-    {
-      for (std::map<types::global_dof_index,double>::iterator it=boundary_values.begin();
-           it != boundary_values.end(); ++it)
-        if (constraints.is_constrained(it->first))
-          if (!(constraints.get_constraint_entries(it->first)->size() > 0
-                ||
-                (constraints.get_inhomogeneity(it->first) == it->second)))
-            {
-              constraints_are_compatible = false;
-              break;
-            }
-    }
-
-    // use csp to consume less memory and to
-    // still be fast
-    {
-      CompressedSimpleSparsityPattern csp (dof.n_dofs(), dof.n_dofs());
-      DoFTools::make_sparsity_pattern (dof, csp, constraints,
-                                       !constraints_are_compatible);
-
-      sparsity.copy_from (csp);
-    }
-
-    SparseMatrix<double> mass_matrix (sparsity);
-    Vector<double> tmp (mass_matrix.n());
-
-    // If the constraint matrix does not conflict with the given boundary
-    // values (i.e., it either does not contain boundary values or it contains
-    // the same as boundary_values), we can let it call
-    // distribute_local_to_global straight away, otherwise we need to first
-    // interpolate the boundary values and then condense the matrix and vector
-    if (constraints_are_compatible)
-      {
-        const Function<spacedim>* dummy = 0;
-        MatrixCreator::create_mass_matrix (mapping, dof, quadrature,
-                                           mass_matrix, function, tmp,
-                                           dummy, constraints);
-        if (boundary_values.size() > 0)
-          MatrixTools::apply_boundary_values (boundary_values,
-                                              mass_matrix, vec, tmp,
-                                              true);
-      }
-    else
-      {
-        // create mass matrix and rhs at once, which is faster.
-        MatrixCreator::create_mass_matrix (mapping, dof, quadrature,
-                                           mass_matrix, function, tmp);
-        MatrixTools::apply_boundary_values (boundary_values,
-                                            mass_matrix, vec, tmp,
-                                            true);
-        constraints.condense(mass_matrix, tmp);
-      }
-
-    // Allow for a maximum of 5*n steps to reduce the residual by 10^-12. n
-    // steps may not be sufficient, since roundoff errors may accumulate for
-    // badly conditioned matrices
-    ReductionControl      control(5*tmp.size(), 0., 1e-12, false, false);
-    GrowingVectorMemory<> memory;
-    SolverCG<>            cg(control,memory);
-
-    PreconditionSSOR<> prec;
-    prec.initialize(mass_matrix, 1.2);
-
-    cg.solve (mass_matrix, vec, tmp, prec);
-
-    constraints.distribute (vec);
-
-    // copy vec into vec_result. we can't use vec_result itself above, since
-    // it may be of another type than Vector<double> and that wouldn't
-    // necessarily go together with the matrix and other functions
-    for (unsigned int i=0; i<vec.size(); ++i)
-      vec_result(i) = vec(i);
+    do_project (mapping, dof, constraints, quadrature,
+        function, vec_result,
+        enforce_zero_boundary, q_boundary,
+        project_to_boundary_first);
   }
 
 
@@ -675,6 +696,39 @@ namespace VectorTools
   }
 
 
+
+  template <int dim, class VECTOR, int spacedim>
+  void project (const hp::MappingCollection<dim, spacedim>   &mapping,
+                const hp::DoFHandler<dim,spacedim> &dof,
+                const ConstraintMatrix   &constraints,
+                const hp::QCollection<dim>    &quadrature,
+                const Function<spacedim> &function,
+                VECTOR                   &vec_result,
+                const bool                enforce_zero_boundary,
+                const hp::QCollection<dim-1>  &q_boundary,
+                const bool                project_to_boundary_first)
+  {
+    do_project (mapping, dof, constraints, quadrature,
+        function, vec_result,
+        enforce_zero_boundary, q_boundary,
+        project_to_boundary_first);
+  }
+
+
+  template <int dim, class VECTOR, int spacedim>
+  void project (const hp::DoFHandler<dim,spacedim> &dof,
+                const ConstraintMatrix   &constraints,
+                const hp::QCollection<dim>    &quadrature,
+                const Function<spacedim> &function,
+                VECTOR                   &vec,
+                const bool                enforce_zero_boundary,
+                const hp::QCollection<dim-1>  &q_boundary,
+                const bool                project_to_boundary_first)
+  {
+    project(hp::StaticMappingQ1<dim,spacedim>::mapping_collection,
+            dof, constraints, quadrature, function, vec,
+            enforce_zero_boundary, q_boundary, project_to_boundary_first);
+  }
 
 
   template <int dim, int spacedim>
@@ -1127,36 +1181,6 @@ namespace VectorTools
 
 
 
-// separate implementation for 1D because otherwise we get linker errors since
-// FEFaceValues<1> is not compiled
-  template <>
-  void
-  create_boundary_right_hand_side (const Mapping<1,1> &,
-                                   const DoFHandler<1,1> &,
-                                   const Quadrature<0> &,
-                                   const Function<1> &,
-                                   Vector<double> &,
-                                   const std::set<types::boundary_id> &)
-  {
-    Assert (false, ExcImpossibleInDim(1));
-  }
-
-
-
-  template <>
-  void
-  create_boundary_right_hand_side (const Mapping<1,2> &,
-                                   const DoFHandler<1,2> &,
-                                   const Quadrature<0> &,
-                                   const Function<2> &,
-                                   Vector<double> &,
-                                   const std::set<types::boundary_id> &)
-  {
-    Assert (false, ExcImpossibleInDim(1));
-  }
-
-
-
   template <int dim, int spacedim>
   void
   create_boundary_right_hand_side (const Mapping<dim, spacedim>      &mapping,
@@ -1292,36 +1316,6 @@ namespace VectorTools
                                     quadrature,
                                     rhs_function, rhs_vector,
                                     boundary_indicators);
-  }
-
-
-
-// separate implementation for 1D because otherwise we get linker errors since
-// hp::FEFaceValues<1> is not compiled
-  template <>
-  void
-  create_boundary_right_hand_side (const hp::MappingCollection<1,1> &,
-                                   const hp::DoFHandler<1,1> &,
-                                   const hp::QCollection<0> &,
-                                   const Function<1> &,
-                                   Vector<double> &,
-                                   const std::set<types::boundary_id> &)
-  {
-    Assert (false, ExcImpossibleInDim(1));
-  }
-
-
-
-  template <>
-  void
-  create_boundary_right_hand_side (const hp::MappingCollection<1,2> &,
-                                   const hp::DoFHandler<1,2> &,
-                                   const hp::QCollection<0> &,
-                                   const Function<2> &,
-                                   Vector<double> &,
-                                   const std::set<types::boundary_id> &)
-  {
-    Assert (false, ExcImpossibleInDim(1));
   }
 
 
@@ -1479,7 +1473,7 @@ namespace VectorTools
 
 // ----------- interpolate_boundary_values for std::map --------------------
 
-  namespace internal
+  namespace
   {
     // interpolate boundary values in
     // 1d. in higher dimensions, we
@@ -1488,9 +1482,10 @@ namespace VectorTools
     // faces are points and it is far
     // easier to simply work on
     // individual vertices
-    template <class DH>
+    template <class DH,
+              template <int,int> class M_or_MC>
     static inline
-    void interpolate_boundary_values (const Mapping<DH::dimension, DH::space_dimension> &,
+    void do_interpolate_boundary_values (const M_or_MC<DH::dimension, DH::space_dimension> &,
                                       const DH                 &dof,
                                       const typename FunctionMap<DH::space_dimension>::type &function_map,
                                       std::map<types::global_dof_index,double> &boundary_values,
@@ -1530,7 +1525,7 @@ namespace VectorTools
                                            boundary_function.n_components));
 
               Assert (component_mask.n_selected_components(fe.n_components()) > 0,
-                      ExcNoComponentSelected());
+                      ComponentMask::ExcNoComponentSelected());
 
               // now set the value of
               // the vertex degree of
@@ -1566,10 +1561,11 @@ namespace VectorTools
 
 
 
-    template <class DH>
+    template <class DH,
+              template <int,int> class M_or_MC>
     static inline
     void
-    interpolate_boundary_values (const Mapping<DH::dimension, DH::space_dimension> &mapping,
+    do_interpolate_boundary_values (const M_or_MC<DH::dimension, DH::space_dimension> &mapping,
                                  const DH                 &dof,
                                  const typename FunctionMap<DH::space_dimension>::type &function_map,
                                  std::map<types::global_dof_index,double> &boundary_values,
@@ -1920,8 +1916,7 @@ namespace VectorTools
                                std::map<types::global_dof_index,double> &boundary_values,
                                const ComponentMask       &component_mask_)
   {
-    internal::
-    interpolate_boundary_values (mapping, dof, function_map, boundary_values,
+    do_interpolate_boundary_values (mapping, dof, function_map, boundary_values,
                                  component_mask_,
                                  dealii::internal::int2type<DH::dimension>());
   }
@@ -1941,6 +1936,20 @@ namespace VectorTools
     function_map[boundary_component] = &boundary_function;
     interpolate_boundary_values (mapping, dof, function_map, boundary_values,
                                  component_mask);
+  }
+
+
+  template <int dim, int spacedim>
+  void
+  interpolate_boundary_values (const hp::MappingCollection<dim,spacedim>            &mapping,
+                               const hp::DoFHandler<dim,spacedim>                 &dof,
+                               const typename FunctionMap<spacedim>::type &function_map,
+                               std::map<types::global_dof_index,double> &boundary_values,
+                               const ComponentMask       &component_mask_)
+  {
+    do_interpolate_boundary_values (mapping, dof, function_map, boundary_values,
+                                 component_mask_,
+                                 dealii::internal::int2type<dim>());
   }
 
 
@@ -2060,44 +2069,189 @@ namespace VectorTools
 
 // -------- implementation for project_boundary_values with std::map --------
 
-// separate implementations for 1D because otherwise we get linking errors
-// because create_boundary_mass_matrix is not compiled for 1D
-  template <>
-  void
-  project_boundary_values (const Mapping<1,1>         &mapping,
-                           const DoFHandler<1,1>      &dof,
-                           const FunctionMap<1>::type &boundary_functions,
-                           const Quadrature<0> &,
-                           std::map<types::global_dof_index,double> &boundary_values,
-                           std::vector<unsigned int>   component_mapping)
+
+  namespace
   {
-    Assert (component_mapping.size() == 0, ExcNotImplemented());
-    // projection in 1d is equivalent
-    // to interpolation
-    interpolate_boundary_values (mapping, dof, boundary_functions,
-                                 boundary_values, ComponentMask());
+    template <int dim, int spacedim,
+              template <int,int> class DH,
+              template <int,int> class M_or_MC,
+              template <int> class Q_or_QC>
+    void
+    do_project_boundary_values (const M_or_MC<dim, spacedim>   &mapping,
+                             const DH<dim, spacedim> &dof,
+                             const typename FunctionMap<spacedim>::type &boundary_functions,
+                             const Q_or_QC<dim-1>        &q,
+                             std::map<types::global_dof_index,double>  &boundary_values,
+                             std::vector<unsigned int>       component_mapping)
+    {
+      // in 1d, projection onto the 0d end points == interpolation
+      if (dim == 1)
+        {
+          Assert (component_mapping.size() == 0, ExcNotImplemented());
+          interpolate_boundary_values (mapping, dof, boundary_functions,
+                                       boundary_values, ComponentMask());
+          return;
+        }
+
+  //TODO:[?] In project_boundary_values, no condensation of sparsity
+  //    structures, matrices and right hand sides or distribution of
+  //    solution vectors is performed. This is ok for dim<3 because then
+  //    there are no constrained nodes on the boundary, but is not
+  //    acceptable for higher dimensions. Fix this.
+
+      if (component_mapping.size() == 0)
+        {
+          AssertDimension (dof.get_fe().n_components(), boundary_functions.begin()->second->n_components);
+          // I still do not see why i
+          // should create another copy
+          // here
+          component_mapping.resize(dof.get_fe().n_components());
+          for (unsigned int i= 0 ; i < component_mapping.size() ; ++i)
+            component_mapping[i] = i;
+        }
+      else
+        AssertDimension (dof.get_fe().n_components(), component_mapping.size());
+
+      std::vector<types::global_dof_index> dof_to_boundary_mapping;
+      std::set<types::boundary_id> selected_boundary_components;
+      for (typename FunctionMap<spacedim>::type::const_iterator i=boundary_functions.begin();
+           i!=boundary_functions.end(); ++i)
+        selected_boundary_components.insert (i->first);
+
+      DoFTools::map_dof_to_boundary_indices (dof, selected_boundary_components,
+                                             dof_to_boundary_mapping);
+
+      // Done if no degrees of freedom on the boundary
+      if (dof.n_boundary_dofs (boundary_functions) == 0)
+        return;
+
+      // set up sparsity structure
+      CompressedSparsityPattern c_sparsity(dof.n_boundary_dofs (boundary_functions),
+                                           dof.n_boundary_dofs (boundary_functions));
+      DoFTools::make_boundary_sparsity_pattern (dof,
+                                                boundary_functions,
+                                                dof_to_boundary_mapping,
+                                                c_sparsity);
+      SparsityPattern sparsity;
+      sparsity.copy_from(c_sparsity);
+
+
+
+      // note: for three or more dimensions, there
+      // may be constrained nodes on the boundary
+      // in this case the boundary mass matrix has
+      // to be condensed and the solution is to
+      // be distributed afterwards, which is not
+      // yet implemented. The reason for this is
+      // that we cannot simply use the condense
+      // family of functions, since the matrices
+      // and vectors do not use the global
+      // numbering but rather the boundary
+      // numbering, i.e. the condense function
+      // needs to use another indirection. There
+      // should be not many technical problems,
+      // but it needs to be implemented
+      if (dim>=3)
+        {
+  #ifdef DEBUG
+  // Assert that there are no hanging nodes at the boundary
+          int level = -1;
+          for (typename DH<dim,spacedim>::active_cell_iterator cell = dof.begin_active();
+               cell != dof.end(); ++cell)
+            for (unsigned int f=0; f<GeometryInfo<dim>::faces_per_cell; ++f)
+              {
+                if (cell->at_boundary(f))
+                  {
+                    if (level == -1)
+                      level = cell->level();
+                    else
+                      {
+                        Assert (level == cell->level(), ExcNotImplemented());
+                      }
+                  }
+              }
+  #endif
+        }
+      sparsity.compress();
+
+
+      // make mass matrix and right hand side
+      SparseMatrix<double> mass_matrix(sparsity);
+      Vector<double>       rhs(sparsity.n_rows());
+
+
+      MatrixCreator::create_boundary_mass_matrix (mapping, dof, q,
+                                                  mass_matrix, boundary_functions,
+                                                  rhs, dof_to_boundary_mapping, (const Function<spacedim> *) 0,
+                                                  component_mapping);
+
+      // For certain weird elements,
+      // there might be degrees of
+      // freedom on the boundary, but
+      // their shape functions do not
+      // have support there. Let's
+      // eliminate them here.
+
+      // The Bogner-Fox-Schmidt element
+      // is an example for those.
+
+//TODO: Maybe we should figure out if the element really needs this
+
+      FilteredMatrix<Vector<double> > filtered_mass_matrix(mass_matrix, true);
+      FilteredMatrix<Vector<double> > filtered_precondition;
+      std::vector<bool> excluded_dofs(mass_matrix.m(), false);
+
+      double max_element = 0.;
+      for (unsigned int i=0; i<mass_matrix.m(); ++i)
+        if (mass_matrix.diag_element(i) > max_element)
+          max_element = mass_matrix.diag_element(i);
+
+      for (unsigned int i=0; i<mass_matrix.m(); ++i)
+        if (mass_matrix.diag_element(i) < 1.e-8 * max_element)
+          {
+            filtered_mass_matrix.add_constraint(i, 0.);
+            filtered_precondition.add_constraint(i, 0.);
+            mass_matrix.diag_element(i) = 1.;
+            excluded_dofs[i] = true;
+          }
+
+      Vector<double> boundary_projection (rhs.size());
+
+      // Allow for a maximum of 5*n
+      // steps to reduce the residual by
+      // 10^-12. n steps may not be
+      // sufficient, since roundoff
+      // errors may accumulate for badly
+      // conditioned matrices
+      ReductionControl        control(5*rhs.size(), 0., 1.e-12, false, false);
+      GrowingVectorMemory<> memory;
+      SolverCG<>              cg(control,memory);
+
+      PreconditionSSOR<> prec;
+      prec.initialize(mass_matrix, 1.2);
+      filtered_precondition.initialize(prec, true);
+      // solve
+      cg.solve (filtered_mass_matrix, boundary_projection, rhs, filtered_precondition);
+      filtered_precondition.apply_constraints(boundary_projection, true);
+      filtered_precondition.clear();
+      // fill in boundary values
+      for (unsigned int i=0; i<dof_to_boundary_mapping.size(); ++i)
+        if (dof_to_boundary_mapping[i] != DoFHandler<dim,spacedim>::invalid_dof_index
+            && ! excluded_dofs[dof_to_boundary_mapping[i]])
+          {
+            Assert(numbers::is_finite(boundary_projection(dof_to_boundary_mapping[i])), ExcNumberNotFinite());
+
+            // this dof is on one of the
+            // interesting boundary parts
+            //
+            // remember: i is the global dof
+            // number, dof_to_boundary_mapping[i]
+            // is the number on the boundary and
+            // thus in the solution vector
+            boundary_values[i] = boundary_projection(dof_to_boundary_mapping[i]);
+          }
+    }
   }
-
-
-
-  template <>
-  void
-  project_boundary_values (const Mapping<1,2>         &mapping,
-                           const DoFHandler<1,2>      &dof,
-                           const FunctionMap<2>::type &boundary_functions,
-                           const Quadrature<0> &,
-                           std::map<types::global_dof_index,double> &boundary_values,
-                           std::vector<unsigned int>   component_mapping)
-  {
-    Assert (component_mapping.size() == 0, ExcNotImplemented());
-    // projection in 1d is equivalent
-    // to interpolation
-    interpolate_boundary_values (mapping, dof, boundary_functions,
-                                 boundary_values, ComponentMask());
-  }
-
-
-
 
   template <int dim, int spacedim>
   void
@@ -2108,163 +2262,8 @@ namespace VectorTools
                            std::map<types::global_dof_index,double>  &boundary_values,
                            std::vector<unsigned int>       component_mapping)
   {
-//TODO:[?] In project_boundary_values, no condensation of sparsity
-//    structures, matrices and right hand sides or distribution of
-//    solution vectors is performed. This is ok for dim<3 because then
-//    there are no constrained nodes on the boundary, but is not
-//    acceptable for higher dimensions. Fix this.
-
-    if (component_mapping.size() == 0)
-      {
-        AssertDimension (dof.get_fe().n_components(), boundary_functions.begin()->second->n_components);
-        // I still do not see why i
-        // should create another copy
-        // here
-        component_mapping.resize(dof.get_fe().n_components());
-        for (unsigned int i= 0 ; i < component_mapping.size() ; ++i)
-          component_mapping[i] = i;
-      }
-    else
-      AssertDimension (dof.get_fe().n_components(), component_mapping.size());
-
-    std::vector<types::global_dof_index> dof_to_boundary_mapping;
-    std::set<types::boundary_id> selected_boundary_components;
-    for (typename FunctionMap<spacedim>::type::const_iterator i=boundary_functions.begin();
-         i!=boundary_functions.end(); ++i)
-      selected_boundary_components.insert (i->first);
-
-    DoFTools::map_dof_to_boundary_indices (dof, selected_boundary_components,
-                                           dof_to_boundary_mapping);
-
-    // Done if no degrees of freedom on the boundary
-    if (dof.n_boundary_dofs (boundary_functions) == 0)
-      return;
-
-    // set up sparsity structure
-    CompressedSparsityPattern c_sparsity(dof.n_boundary_dofs (boundary_functions),
-                                         dof.n_boundary_dofs (boundary_functions));
-    DoFTools::make_boundary_sparsity_pattern (dof,
-                                              boundary_functions,
-                                              dof_to_boundary_mapping,
-                                              c_sparsity);
-    SparsityPattern sparsity;
-    sparsity.copy_from(c_sparsity);
-
-
-
-    // note: for three or more dimensions, there
-    // may be constrained nodes on the boundary
-    // in this case the boundary mass matrix has
-    // to be condensed and the solution is to
-    // be distributed afterwards, which is not
-    // yet implemented. The reason for this is
-    // that we cannot simply use the condense
-    // family of functions, since the matrices
-    // and vectors do not use the global
-    // numbering but rather the boundary
-    // numbering, i.e. the condense function
-    // needs to use another indirection. There
-    // should be not many technical problems,
-    // but it needs to be implemented
-    if (dim>=3)
-      {
-#ifdef DEBUG
-// Assert that there are no hanging nodes at the boundary
-        int level = -1;
-        for (typename DoFHandler<dim,spacedim>::active_cell_iterator cell = dof.begin_active();
-             cell != dof.end(); ++cell)
-          for (unsigned int f=0; f<GeometryInfo<dim>::faces_per_cell; ++f)
-            {
-              if (cell->at_boundary(f))
-                {
-                  if (level == -1)
-                    level = cell->level();
-                  else
-                    {
-                      Assert (level == cell->level(), ExcNotImplemented());
-                    }
-                }
-            }
-#endif
-      }
-    sparsity.compress();
-
-
-    // make mass matrix and right hand side
-    SparseMatrix<double> mass_matrix(sparsity);
-    Vector<double>       rhs(sparsity.n_rows());
-
-
-    MatrixCreator::create_boundary_mass_matrix (mapping, dof, q,
-                                                mass_matrix, boundary_functions,
-                                                rhs, dof_to_boundary_mapping, (const Function<spacedim> *) 0,
-                                                component_mapping);
-
-    // For certain weird elements,
-    // there might be degrees of
-    // freedom on the boundary, but
-    // their shape functions do not
-    // have support there. Let's
-    // eliminate them here.
-
-    // The Bogner-Fox-Schmidt element
-    // is an example for those.
-
-//TODO: Maybe we should figure out if the element really needs this
-
-    FilteredMatrix<Vector<double> > filtered_mass_matrix(mass_matrix, true);
-    FilteredMatrix<Vector<double> > filtered_precondition;
-    std::vector<bool> excluded_dofs(mass_matrix.m(), false);
-
-    double max_element = 0.;
-    for (unsigned int i=0; i<mass_matrix.m(); ++i)
-      if (mass_matrix.diag_element(i) > max_element)
-        max_element = mass_matrix.diag_element(i);
-
-    for (unsigned int i=0; i<mass_matrix.m(); ++i)
-      if (mass_matrix.diag_element(i) < 1.e-8 * max_element)
-        {
-          filtered_mass_matrix.add_constraint(i, 0.);
-          filtered_precondition.add_constraint(i, 0.);
-          mass_matrix.diag_element(i) = 1.;
-          excluded_dofs[i] = true;
-        }
-
-    Vector<double> boundary_projection (rhs.size());
-
-    // Allow for a maximum of 5*n
-    // steps to reduce the residual by
-    // 10^-12. n steps may not be
-    // sufficient, since roundoff
-    // errors may accumulate for badly
-    // conditioned matrices
-    ReductionControl        control(5*rhs.size(), 0., 1.e-12, false, false);
-    GrowingVectorMemory<> memory;
-    SolverCG<>              cg(control,memory);
-
-    PreconditionSSOR<> prec;
-    prec.initialize(mass_matrix, 1.2);
-    filtered_precondition.initialize(prec, true);
-    // solve
-    cg.solve (filtered_mass_matrix, boundary_projection, rhs, filtered_precondition);
-    filtered_precondition.apply_constraints(boundary_projection, true);
-    filtered_precondition.clear();
-    // fill in boundary values
-    for (unsigned int i=0; i<dof_to_boundary_mapping.size(); ++i)
-      if (dof_to_boundary_mapping[i] != DoFHandler<dim,spacedim>::invalid_dof_index
-          && ! excluded_dofs[dof_to_boundary_mapping[i]])
-        {
-          Assert(numbers::is_finite(boundary_projection(dof_to_boundary_mapping[i])), ExcNumberNotFinite());
-
-          // this dof is on one of the
-          // interesting boundary parts
-          //
-          // remember: i is the global dof
-          // number, dof_to_boundary_mapping[i]
-          // is the number on the boundary and
-          // thus in the solution vector
-          boundary_values[i] = boundary_projection(dof_to_boundary_mapping[i]);
-        }
+    do_project_boundary_values(mapping, dof, boundary_functions, q,
+                               boundary_values, component_mapping);
   }
 
 
@@ -2283,7 +2282,37 @@ namespace VectorTools
 
 
 
-// ----- implementation for project_boundary_values with ConstraintMatrix -----
+  template <int dim, int spacedim>
+  void project_boundary_values (const hp::MappingCollection<dim, spacedim>       &mapping,
+                                const hp::DoFHandler<dim,spacedim>    &dof,
+                                const typename FunctionMap<spacedim>::type &boundary_functions,
+                                const hp::QCollection<dim-1>  &q,
+                                std::map<types::global_dof_index,double> &boundary_values,
+                                std::vector<unsigned int> component_mapping)
+  {
+    do_project_boundary_values (mapping, dof,
+        boundary_functions,
+        q, boundary_values,
+        component_mapping);
+  }
+
+
+
+  template <int dim, int spacedim>
+  void project_boundary_values (const hp::DoFHandler<dim,spacedim>    &dof,
+                                const typename FunctionMap<spacedim>::type &boundary_function,
+                                const hp::QCollection<dim-1>  &q,
+                                std::map<types::global_dof_index,double> &boundary_values,
+                                std::vector<unsigned int> component_mapping)
+  {
+    project_boundary_values (hp::StaticMappingQ1<dim,spacedim>::mapping_collection, dof,
+        boundary_function,
+        q, boundary_values,
+        component_mapping);
+  }
+
+
+  // ----- implementation for project_boundary_values with ConstraintMatrix -----
 
 
 
@@ -2758,7 +2787,7 @@ namespace VectorTools
                              std::vector<double> &dof_values,
                              std::vector<bool> &dofs_processed)
     {
-      const double tol = 0.5 * cell->get_fe ().degree * 1e-13 / cell->face (face)->line (line)->diameter ();
+      const double tol = 0.5 * cell->face (face)->line (line)->diameter () / cell->get_fe ().degree;
       const unsigned int dim = 3;
       const unsigned int spacedim = 3;
 
@@ -2962,6 +2991,7 @@ namespace VectorTools
         {
         case 2:
         {
+          const double tol = 0.5 * cell->face (face)->diameter () / cell->get_fe ().degree;
           std::vector<Point<dim> >
           tangentials (fe_values.n_quadrature_points);
 
@@ -2995,18 +3025,18 @@ namespace VectorTools
                 = reference_quadrature_points[q_point];
 
               shifted_reference_point_1 (face_coordinate_direction[face])
-              += 1e-13;
+              += tol;
               shifted_reference_point_2 (face_coordinate_direction[face])
-              -= 1e-13;
+              -= tol;
               tangentials[q_point]
-                = 2e13
-                  * (fe_values.get_mapping ()
+                = (fe_values.get_mapping ()
                      .transform_unit_to_real_cell (cell,
                                                    shifted_reference_point_1)
                      -
                      fe_values.get_mapping ()
                      .transform_unit_to_real_cell (cell,
-                                                   shifted_reference_point_2));
+                                                   shifted_reference_point_2))
+                  / tol;
               tangentials[q_point]
               /= std::sqrt (tangentials[q_point].square ());
               // Compute the degrees
@@ -3155,19 +3185,10 @@ namespace VectorTools
                   }
             }
 
-          // Create the system
-          // matrix by
-          // multiplying the
-          // assembling matrix
-          // with its transposed
-          // and the right
-          // hand side vector
-          // by mutliplying
-          // the assembling
-          // matrix with the
-          // assembling vector.
-          // Invert the system
-          // matrix.
+          // Create the system matrix by multiplying the assembling matrix
+          // with its transposed and the right hand side vector by mutliplying
+          // the assembling matrix with the assembling vector.  Invert the
+          // system matrix.
           assembling_matrix.mTmult (cell_matrix, assembling_matrix);
           cell_matrix_inv.invert (cell_matrix);
           assembling_matrix.vmult (cell_rhs, assembling_vector);
@@ -3197,12 +3218,8 @@ namespace VectorTools
                 }
           }
 
-          // Now we do the
-          // same as above
-          // with the vertical
-          // shape functions
-          // instead of the
-          // horizontal ones.
+          // Now we do the same as above with the vertical shape functions
+          // instead of the horizontal ones.
           for (unsigned int q_point = 0;
                q_point < fe_values.n_quadrature_points; ++q_point)
             {
@@ -3307,32 +3324,18 @@ namespace VectorTools
                                            ConstraintMatrix &constraints,
                                            const Mapping<dim> &mapping)
   {
-    // Projection-based interpolation
-    // is performed in two (in 2D)
-    // respectively three (in 3D)
-    // steps. First the tangential
-    // component of the function is
-    // interpolated on each edge.  This
-    // gives the values for the degrees
-    // of freedom corresponding to the
-    // edge shape functions. Now we are
-    // done for 2D, but in 3D we possibly
-    // have also degrees of freedom, which
-    // are located in the interior of
-    // the faces. Therefore we compute
-    // the residual of the function
-    // describing the boundary values
-    // and the interpolated part, which
-    // we have computed in the last
-    // step. On the faces there are
-    // two kinds of shape functions,
-    // the horizontal and the vertical
-    // ones. Thus we have to solve two
-    // linear systems of equations of
-    // size <tt>degree * (degree +
-    // 1)<tt> to obtain the values for
-    // the  corresponding degrees of
-    // freedom.
+    // Projection-based interpolation is performed in two (in 2D) respectively
+    // three (in 3D) steps. First the tangential component of the function is
+    // interpolated on each edge.  This gives the values for the degrees of
+    // freedom corresponding to the edge shape functions. Now we are done for
+    // 2D, but in 3D we possibly have also degrees of freedom, which are
+    // located in the interior of the faces. Therefore we compute the residual
+    // of the function describing the boundary values and the interpolated
+    // part, which we have computed in the last step. On the faces there are
+    // two kinds of shape functions, the horizontal and the vertical
+    // ones. Thus we have to solve two linear systems of equations of size
+    // <tt>degree * (degree + 1)<tt> to obtain the values for the
+    // corresponding degrees of freedom.
     const unsigned int superdegree = dof_handler.get_fe ().degree;
     const QGauss<dim - 1> reference_face_quadrature (2 * superdegree);
     const unsigned int dofs_per_face = dof_handler.get_fe ().dofs_per_face;
@@ -3410,15 +3413,13 @@ namespace VectorTools
                   // if the degree of
                   // freedom is not
                   // already constrained.
-                  const double tol = 0.5 * cell->get_fe ().degree * 1e-13  / cell->face (face)->diameter ();
-
                   for (unsigned int dof = 0; dof < dofs_per_face; ++dof)
                     if (dofs_processed[dof] && constraints.can_store_line (face_dof_indices[dof])
                         && !(constraints.is_constrained (face_dof_indices[dof])))
                       {
                         constraints.add_line (face_dof_indices[dof]);
 
-                        if (std::abs (dof_values[dof]) > tol)
+                        if (std::abs (dof_values[dof]) > 1e-13)
                           constraints.set_inhomogeneity (face_dof_indices[dof], dof_values[dof]);
                       }
                 }
@@ -3505,11 +3506,8 @@ namespace VectorTools
                   // Store the computed
                   // values in the global
                   // vector.
-
                   cell->face (face)->get_dof_indices (face_dof_indices,
                                                       cell->active_fe_index ());
-
-                  const double tol = 0.5 * superdegree * 1e-13 / cell->face (face)->diameter ();
 
                   for (unsigned int dof = 0; dof < dofs_per_face; ++dof)
                     if (dofs_processed[dof] && constraints.can_store_line (face_dof_indices[dof])
@@ -3517,7 +3515,7 @@ namespace VectorTools
                       {
                         constraints.add_line (face_dof_indices[dof]);
 
-                        if (std::abs (dof_values[dof]) > tol)
+                        if (std::abs (dof_values[dof]) > 1e-13)
                           constraints.set_inhomogeneity (face_dof_indices[dof], dof_values[dof]);
                       }
                 }
@@ -3575,19 +3573,12 @@ namespace VectorTools
             for (unsigned int face = 0; face < GeometryInfo<dim>::faces_per_cell; ++face)
               if (cell->face (face)->boundary_indicator () == boundary_component)
                 {
-                  // if the FE is a
-                  // FE_Nothing object
-                  // there is no work to
-                  // do
+                  // if the FE is a FE_Nothing object there is no work to do
                   if (dynamic_cast<const FE_Nothing<dim>*> (&cell->get_fe ()) != 0)
                     return;
 
-                  // This is only
-                  // implemented, if the
-                  // FE is a Nedelec
-                  // element. If the FE is
-                  // a FESystem we cannot
-                  // check this.
+                  // This is only implemented, if the FE is a Nedelec
+                  // element. If the FE is a FESystem we cannot check this.
                   if (dynamic_cast<const FESystem<dim>*> (&cell->get_fe ()) == 0)
                     {
                       typedef FiniteElement<dim> FEL;
@@ -3616,15 +3607,13 @@ namespace VectorTools
                   cell->face (face)->get_dof_indices (face_dof_indices,
                                                       cell->active_fe_index ());
 
-                  const double tol = 0.5 * cell->get_fe ().degree * 1e-13  / cell->face (face)->diameter ();
-
                   for (unsigned int dof = 0; dof < dofs_per_face; ++dof)
                     if (dofs_processed[dof] && constraints.can_store_line (face_dof_indices[dof])
                         && !(constraints.is_constrained (face_dof_indices[dof])))
                       {
                         constraints.add_line (face_dof_indices[dof]);
 
-                        if (std::abs (dof_values[dof]) > tol)
+                        if (std::abs (dof_values[dof]) > 1e-13)
                           constraints.set_inhomogeneity (face_dof_indices[dof], dof_values[dof]);
                       }
                 }
@@ -3661,19 +3650,12 @@ namespace VectorTools
             for (unsigned int face = 0; face < GeometryInfo<dim>::faces_per_cell; ++face)
               if (cell->face (face)->boundary_indicator () == boundary_component)
                 {
-                  // if the FE is a
-                  // FE_Nothing object
-                  // there is no work to
-                  // do
+                  // if the FE is a FE_Nothing object there is no work to do
                   if (dynamic_cast<const FE_Nothing<dim>*> (&cell->get_fe ()) != 0)
                     return;
 
-                  // This is only
-                  // implemented, if the
-                  // FE is a Nedelec
-                  // element. If the FE is
-                  // a FESystem we cannot
-                  // check this.
+                  // This is only implemented, if the FE is a Nedelec
+                  // element. If the FE is a FESystem we cannot check this.
                   if (dynamic_cast<const FESystem<dim>*> (&cell->get_fe ()) == 0)
                     {
                       typedef FiniteElement<dim> FEL;
@@ -3703,11 +3685,8 @@ namespace VectorTools
                                                first_vector_component,
                                                dof_values, dofs_processed);
 
-                  // If there are higher
-                  // order shape
-                  // functions, there is
-                  // still some work
-                  // left.
+                  // If there are higher order shape functions, there is still
+                  // some work left.
                   if (degree > 0)
                     internals
                     ::compute_face_projection_curl_conforming (cell, face, fe_face_values,
@@ -3720,15 +3699,13 @@ namespace VectorTools
                   cell->face (face)->get_dof_indices (face_dof_indices,
                                                       cell->active_fe_index ());
 
-                  const double tol = 0.5 * superdegree * 1e-13  / cell->face (face)->diameter ();
-
                   for (unsigned int dof = 0; dof < dofs_per_face; ++dof)
                     if (dofs_processed[dof] && constraints.can_store_line (face_dof_indices[dof])
                         && !(constraints.is_constrained (face_dof_indices[dof])))
                       {
                         constraints.add_line (face_dof_indices[dof]);
 
-                        if (std::abs (dof_values[dof]) > tol)
+                        if (std::abs (dof_values[dof]) > 1e-13)
                           constraints.set_inhomogeneity (face_dof_indices[dof], dof_values[dof]);
                       }
                 }
@@ -3744,10 +3721,8 @@ namespace VectorTools
 
   namespace internals
   {
-    // This function computes the
-    // projection of the boundary
-    // function on the boundary
-    // in 2d.
+    // This function computes the projection of the boundary function on the
+    // boundary in 2d.
     template <typename cell_iterator>
     void
     compute_face_projection_div_conforming (const cell_iterator &cell,
@@ -3758,13 +3733,9 @@ namespace VectorTools
                                             const std::vector<DerivativeForm<1,2,2> > &jacobians,
                                             ConstraintMatrix &constraints)
     {
-      // Compute the intergral over
-      // the product of the normal
-      // components of the boundary
-      // function times the normal
-      // components of the shape
-      // functions supported on the
-      // boundary.
+      // Compute the intergral over the product of the normal components of
+      // the boundary function times the normal components of the shape
+      // functions supported on the boundary.
       const FEValuesExtractors::Vector vec (first_vector_component);
       const FiniteElement<2> &fe = cell->get_fe ();
       const std::vector<Point<2> > &normals = fe_values.get_normal_vectors ();
@@ -3774,9 +3745,7 @@ namespace VectorTools
       values (fe_values.n_quadrature_points, Vector<double> (2));
       Vector<double> dof_values (fe.dofs_per_face);
 
-      // Get the values of the
-      // boundary function at the
-      // quadrature points.
+      // Get the values of the boundary function at the quadrature points.
       {
         const std::vector<Point<2> > &
         quadrature_points = fe_values.get_quadrature_points ();
@@ -3806,10 +3775,8 @@ namespace VectorTools
 
       cell->face (face)->get_dof_indices (face_dof_indices, cell->active_fe_index ());
 
-      // Copy the computed values
-      // in the ConstraintMatrix only,
-      // if the degree of freedom is
-      // not already constrained.
+      // Copy the computed values in the ConstraintMatrix only, if the degree
+      // of freedom is not already constrained.
       for (unsigned int i = 0; i < fe.dofs_per_face; ++i)
         if (!(constraints.is_constrained (face_dof_indices[i])))
           {
@@ -3820,9 +3787,7 @@ namespace VectorTools
           }
     }
 
-    // dummy implementation of above
-    // function for all other
-    // dimensions
+    // dummy implementation of above function for all other dimensions
     template<int dim, typename cell_iterator>
     void
     compute_face_projection_div_conforming (const cell_iterator &,
@@ -3836,10 +3801,8 @@ namespace VectorTools
       Assert (false, ExcNotImplemented ());
     }
 
-    // This function computes the
-    // projection of the boundary
-    // function on the boundary
-    // in 3d.
+    // This function computes the projection of the boundary function on the
+    // boundary in 3d.
     template<typename cell_iterator>
     void
     compute_face_projection_div_conforming (const cell_iterator &cell,
@@ -3851,13 +3814,9 @@ namespace VectorTools
                                             std::vector<double> &dof_values,
                                             std::vector<types::global_dof_index> &projected_dofs)
     {
-      // Compute the intergral over
-      // the product of the normal
-      // components of the boundary
-      // function times the normal
-      // components of the shape
-      // functions supported on the
-      // boundary.
+      // Compute the intergral over the product of the normal components of
+      // the boundary function times the normal components of the shape
+      // functions supported on the boundary.
       const FEValuesExtractors::Vector vec (first_vector_component);
       const FiniteElement<3> &fe = cell->get_fe ();
       const std::vector<Point<3> > &normals = fe_values.get_normal_vectors ();
@@ -4283,7 +4242,8 @@ namespace VectorTools
     hp::FEFaceValues<dim,spacedim> x_fe_face_values (mapping_collection,
                                                      fe_collection,
                                                      face_quadrature_collection,
-                                                     update_q_points);
+                                                     update_q_points |
+						     update_normal_vectors);
 
     // have a map that stores normal vectors for each vector-dof tuple we want
     // to constrain. since we can get at the same vector dof tuple more than
@@ -4380,17 +4340,38 @@ namespace VectorTools
                     // to check that they are small *relative to something
                     // else*). we do this and then normalize the length of the
                     // vector back to one, just to be on the safe side
+		    //
+		    // one more point: we would like to use the "real" normal
+		    // vector here, as provided by the boundary description
+		    // and as opposed to what we get from the FEValues object.
+		    // we do this in the immediately next line, but as is
+		    // obvious, the boundary only has a vague idea which side
+		    // of a cell it is on -- indicated by the face number. in
+		    // other words, it may provide the inner or outer normal.
+		    // by and large, there is no harm from this, since the
+		    // tangential vector we compute is still the same. however,
+		    // we do average over normal vectors from adjacent cells
+		    // and if they have recorded normal vectors from the inside
+		    // once and from the outside the other time, then this
+		    // averaging is going to run into trouble. as a consequence
+		    // we ask the mapping after all for its normal vector,
+		    // but we only ask it so that we can possibly correct the
+		    // sign of the normal vector provided by the boundary
+		    // if they should point in different directions. this is the
+		    // case in tests/deal.II/no_flux_11.
                     Point<dim> normal_vector
                       = (cell->face(face_no)->get_boundary()
                          .normal_vector (cell->face(face_no),
                                          fe_values.quadrature_point(i)));
+		    if (normal_vector * fe_values.normal_vector(i) < 0)
+		      normal_vector *= -1;
                     Assert (std::fabs(normal_vector.norm() - 1) < 1e-14,
                             ExcInternalError());
                     for (unsigned int d=0; d<dim; ++d)
                       if (std::fabs(normal_vector[d]) < 1e-13)
                         normal_vector[d] = 0;
                     normal_vector /= normal_vector.norm();
-
+		    
                     // now enter the (dofs,(normal_vector,cell)) entry into
                     // the map
                     dof_to_normals_map
@@ -4683,12 +4664,453 @@ namespace VectorTools
 
 
 
+  namespace
+  {
+    template <int dim>
+    struct PointComparator
+    {
+      bool operator ()(const std_cxx1x::array<types::global_dof_index,dim> &p1,
+                       const std_cxx1x::array<types::global_dof_index,dim> &p2)
+      {
+        for (unsigned int d=0; d<dim; ++d)
+          if (p1[d] < p2[d])
+            return true;
+        return false;
+      }
+    };
+  }
+
+
+
+  template <int dim, template <int, int> class DH, int spacedim>
+  void
+  compute_normal_flux_constraints (const DH<dim,spacedim>&dof_handler,
+                                   const unsigned int     first_vector_component,
+                                   const std::set<types::boundary_id> &boundary_ids,
+                                   ConstraintMatrix      &constraints,
+                                   const Mapping<dim, spacedim> &mapping)
+  {
+    ConstraintMatrix no_normal_flux_constraints(constraints.get_local_lines());
+    compute_no_normal_flux_constraints (dof_handler,
+                                        first_vector_component,
+                                        boundary_ids,
+                                        no_normal_flux_constraints,
+                                        mapping);
+
+    // Extract a list that collects all vector components that belong to the
+    // same node (scalar basis function). When creating that list, we use an
+    // array of dim components that stores the global degree of freedom.
+    std::set<std_cxx1x::array<types::global_dof_index,dim>, PointComparator<dim> > vector_dofs;
+    std::vector<types::global_dof_index> face_dofs;
+
+    std::vector<std_cxx1x::array<types::global_dof_index,dim> > cell_vector_dofs;
+    for (typename DH<dim,spacedim>::active_cell_iterator cell =
+           dof_handler.begin_active(); cell != dof_handler.end(); ++cell)
+      if (!cell->is_artificial())
+        for (unsigned int face_no=0; face_no < GeometryInfo<dim>::faces_per_cell;
+             ++face_no)
+          if (boundary_ids.find(cell->face(face_no)->boundary_indicator())
+              != boundary_ids.end())
+            {
+              const FiniteElement<dim> &fe = cell->get_fe();
+              typename DH<dim,spacedim>::face_iterator face=cell->face(face_no);
+
+              // get the indices of the dofs on this cell...
+              face_dofs.resize (fe.dofs_per_face);
+              face->get_dof_indices (face_dofs, cell->active_fe_index());
+
+              unsigned int n_scalar_indices = 0;
+              cell_vector_dofs.resize(fe.dofs_per_face);
+              for (unsigned int i=0; i<fe.dofs_per_face; ++i)
+                if (fe.face_system_to_component_index(i).first >= first_vector_component &&
+                    fe.face_system_to_component_index(i).first < first_vector_component + dim)
+                  {
+                    n_scalar_indices =
+                      std::max(n_scalar_indices,
+                               fe.face_system_to_component_index(i).second+1);
+                    cell_vector_dofs[fe.face_system_to_component_index(i).second]
+                      [fe.face_system_to_component_index(i).first-first_vector_component]
+                      = face_dofs[i];
+                  }
+
+              // now we identified the vector indices on the cell, so next
+              // insert them into the set (it would be expensive to directly
+              // insert incomplete points into the set)
+              for (unsigned int i=0; i<n_scalar_indices; ++i)
+                vector_dofs.insert(cell_vector_dofs[i]);
+            }
+
+    // iterate over the list of all vector components we found and see if we
+    // can find constrained ones
+    unsigned int n_total_constraints_found = 0;
+    for (typename std::set<std_cxx1x::array<types::global_dof_index,dim>,
+           PointComparator<dim> >::const_iterator it=vector_dofs.begin(); 
+           it!=vector_dofs.end(); ++it)
+      {
+        unsigned int n_constraints = 0;
+        bool is_constrained[dim];
+        for (unsigned int d=0; d<dim; ++d)
+          if (no_normal_flux_constraints.is_constrained((*it)[d]))
+            {
+              is_constrained[d] = true;
+              ++n_constraints;
+              ++n_total_constraints_found;
+            }
+          else
+            is_constrained[d] = false;
+        if (n_constraints > 0)
+          {
+            // if more than one no-flux constraint is present, we need to
+            // constrain all vector degrees of freedom (we are in a corner
+            // where several faces meet and to get a continuous FE solution we
+            // need to set all conditions to zero).
+            if (n_constraints > 1)
+              {
+                for (unsigned int d=0; d<dim; ++d)
+                  constraints.add_line((*it)[d]);
+                continue;
+              }
+
+            // ok, this is a no-flux constraint, so get the index of the dof
+            // that is currently constrained and make it unconstrained. The
+            // constraint indices will get the normal that contain the other
+            // indices.
+            Tensor<1,dim> normal;
+            unsigned constrained_index = -1;
+            for (unsigned int d=0; d<dim; ++d)
+              if (is_constrained[d])
+                {
+                  constrained_index = d;
+                  normal[d] = 1.;
+                }
+            AssertIndexRange(constrained_index, dim);
+            const std::vector<std::pair<types::global_dof_index, double> >* constrained
+              = no_normal_flux_constraints.get_constraint_entries((*it)[constrained_index]);
+            // find components to which this index is constrained to
+            Assert(constrained != 0, ExcInternalError());
+            Assert(constrained->size() < dim, ExcInternalError());
+            for (unsigned int c=0; c<constrained->size(); ++c)
+              {
+                int index = -1;
+                for (unsigned int d=0; d<dim; ++d)
+                  if ((*constrained)[c].first == (*it)[d])
+                    index = d;
+                Assert (index != -1, ExcInternalError());
+                normal[index] = (*constrained)[c].second;
+              }
+            for (unsigned int d=0; d<dim; ++d)
+              {
+                if (is_constrained[d])
+                  continue;
+                const unsigned int new_index = (*it)[d];
+                if (!constraints.is_constrained(new_index))
+                  {
+                    constraints.add_line(new_index);
+                    if (std::abs(normal[d]) > 1e-13)
+                      constraints.add_entry(new_index, (*it)[constrained_index],
+                                            -normal[d]);
+                  }
+              }
+          }
+      }
+    AssertDimension(n_total_constraints_found,
+                    no_normal_flux_constraints.n_constraints());
+  }
+
+
+
   namespace internal
   {
+    template <int dim, int spacedim>
+    struct IDScratchData
+    {
+      IDScratchData (const dealii::hp::MappingCollection<dim,spacedim> &mapping,
+                     const dealii::hp::FECollection<dim,spacedim> &fe,
+                     const dealii::hp::QCollection<dim> &q,
+                     const UpdateFlags update_flags);
+
+      IDScratchData (const IDScratchData &data);
+
+      void resize_vectors (const unsigned int n_q_points,
+                           const unsigned int n_components);
+
+      std::vector<dealii::Vector<double> > function_values;
+      std::vector<std::vector<Tensor<1,spacedim> > > function_grads;
+      std::vector<double> weight_values;
+      std::vector<dealii::Vector<double> > weight_vectors;
+
+      std::vector<dealii::Vector<double> > psi_values;
+      std::vector<std::vector<Tensor<1,spacedim> > > psi_grads;
+      std::vector<double> psi_scalar;
+
+      std::vector<double>         tmp_values;
+      std::vector<Tensor<1,spacedim> > tmp_gradients;
+
+      dealii::hp::FEValues<dim,spacedim> x_fe_values;
+    };
+
+
+    template <int dim, int spacedim>
+    IDScratchData<dim,spacedim>
+    ::IDScratchData(const dealii::hp::MappingCollection<dim,spacedim> &mapping,
+                    const dealii::hp::FECollection<dim,spacedim> &fe,
+                    const dealii::hp::QCollection<dim> &q,
+                    const UpdateFlags update_flags)
+      :
+      x_fe_values(mapping, fe, q, update_flags)
+    {}
+
+    template <int dim, int spacedim>
+    IDScratchData<dim,spacedim>::IDScratchData (const IDScratchData &data)
+      :
+      x_fe_values(data.x_fe_values.get_mapping_collection(),
+                  data.x_fe_values.get_fe_collection(),
+                  data.x_fe_values.get_quadrature_collection(),
+                  data.x_fe_values.get_update_flags())
+    {}
+
+    template <int dim, int spacedim>
+    void
+    IDScratchData<dim,spacedim>::resize_vectors (const unsigned int n_q_points,
+                                                 const unsigned int n_components)
+    {
+      function_values.resize (n_q_points,
+                              dealii::Vector<double>(n_components));
+      function_grads.resize (n_q_points,
+                             std::vector<Tensor<1,spacedim> >(n_components));
+
+      weight_values.resize (n_q_points);
+      weight_vectors.resize (n_q_points,
+                             dealii::Vector<double>(n_components));
+
+      psi_values.resize (n_q_points,
+                         dealii::Vector<double>(n_components));
+      psi_grads.resize (n_q_points,
+                        std::vector<Tensor<1,spacedim> >(n_components));
+      psi_scalar.resize (n_q_points);
+
+      tmp_values.resize (n_q_points);
+      tmp_gradients.resize (n_q_points);
+    }
+
+
+    // avoid compiling inner function for many vector types when we always
+    // really do the same thing by putting the main work into this helper
+    // function
+    template <int dim, int spacedim>
+    double
+    integrate_difference_inner (const Function<spacedim>   &exact_solution,
+                                const NormType              &norm,
+                                const Function<spacedim>    *weight,
+                                const UpdateFlags            update_flags,
+                                const double                 exponent,
+                                const unsigned int           n_components,
+                                IDScratchData<dim,spacedim> &data)
+    {
+      const bool fe_is_system = (n_components != 1);
+      const dealii::FEValues<dim, spacedim> &fe_values  = data.x_fe_values.get_present_fe_values ();
+      const unsigned int n_q_points = fe_values.n_quadrature_points;
+
+      if (weight!=0)
+        {
+          if (weight->n_components>1)
+            weight->vector_value_list (fe_values.get_quadrature_points(),
+                                       data.weight_vectors);
+          else
+            {
+              weight->value_list (fe_values.get_quadrature_points(),
+                                  data.weight_values);
+              for (unsigned int k=0; k<n_q_points; ++k)
+                data.weight_vectors[k] = data.weight_values[k];
+            }
+        }
+      else
+        {
+          for (unsigned int k=0; k<n_q_points; ++k)
+            data.weight_vectors[k] = 1.;
+        }
+
+
+      if (update_flags & update_values)
+        {
+          // first compute the exact solution (vectors) at the quadrature
+          // points try to do this as efficient as possible by avoiding a
+          // second virtual function call in case the function really has only
+          // one component
+          if (fe_is_system)
+            exact_solution.vector_value_list (fe_values.get_quadrature_points(),
+                                              data.psi_values);
+          else
+            {
+              exact_solution.value_list (fe_values.get_quadrature_points(),
+                                         data.tmp_values);
+              for (unsigned int i=0; i<n_q_points; ++i)
+                data.psi_values[i](0) = data.tmp_values[i];
+            }
+
+          // then subtract finite element fe_function
+          for (unsigned int q=0; q<n_q_points; ++q)
+            data.psi_values[q] -= data.function_values[q];
+        }
+
+      // Do the same for gradients, if required
+      if (update_flags & update_gradients)
+        {
+          // try to be a little clever to avoid recursive virtual function
+          // calls when calling gradient_list for functions that are really
+          // scalar functions
+          if (fe_is_system)
+            exact_solution.vector_gradient_list (fe_values.get_quadrature_points(),
+                                                 data.psi_grads);
+          else
+            {
+              exact_solution.gradient_list (fe_values.get_quadrature_points(),
+                                            data.tmp_gradients);
+              for (unsigned int i=0; i<n_q_points; ++i)
+                data.psi_grads[i][0] = data.tmp_gradients[i];
+            }
+
+          // then subtract finite element function_grads. We need to be
+          // careful in the codimension one case, since there we only have
+          // tangential gradients in the finite element function, not the full
+          // gradient. This is taken care of, by subtracting the normal
+          // component of the gradient from the exact function.
+          if (update_flags & update_normal_vectors)
+            for (unsigned int k=0; k<n_components; ++k)
+              for (unsigned int q=0; q<n_q_points; ++q)
+                data.psi_grads[q][k] -= (data.function_grads[q][k] +
+                                         (data.psi_grads[q][k]* // (f.n) n
+                                          fe_values.normal_vector(q))*
+                                         fe_values.normal_vector(q));
+          else
+            for (unsigned int k=0; k<n_components; ++k)
+              for (unsigned int q=0; q<n_q_points; ++q)
+                data.psi_grads[q][k] -= data.function_grads[q][k];
+        }
+
+      double diff = 0;
+      switch (norm)
+        {
+        case mean:
+          // Compute values in quadrature points and integrate
+          for (unsigned int q=0; q<n_q_points; ++q)
+            {
+              double sum = 0;
+              for (unsigned int k=0; k<n_components; ++k)
+                sum += data.psi_values[q](k) * data.weight_vectors[q](k);
+              diff += sum * fe_values.JxW(q);
+            }
+          break;
+
+        case Lp_norm:
+        case L1_norm:
+        case W1p_norm:
+          // Compute values in quadrature points and integrate
+          for (unsigned int q=0; q<n_q_points; ++q)
+            {
+              double sum = 0;
+              for (unsigned int k=0; k<n_components; ++k)
+                sum += std::pow(data.psi_values[q](k)*data.psi_values[q](k),
+                                exponent/2.) * data.weight_vectors[q](k);
+              diff += sum * fe_values.JxW(q);
+            }
+
+          // Compute the root only, if no derivative values are added later
+          if (!(update_flags & update_gradients))
+            diff = std::pow(diff, 1./exponent);
+          break;
+
+        case L2_norm:
+        case H1_norm:
+          // Compute values in quadrature points and integrate
+          for (unsigned int q=0; q<n_q_points; ++q)
+            {
+              double sum = 0;
+              for (unsigned int k=0; k<n_components; ++k)
+                sum += data.psi_values[q](k) * data.psi_values[q](k) *
+                  data.weight_vectors[q](k);
+              diff += sum * fe_values.JxW(q);
+            }
+          // Compute the root only, if no derivative values are added later
+          if (norm == L2_norm)
+            diff=std::sqrt(diff);
+          break;
+
+        case Linfty_norm:
+        case W1infty_norm:
+          for (unsigned int q=0; q<n_q_points; ++q)
+            for (unsigned int k=0; k<n_components; ++k)
+              diff = std::max (diff, std::abs(data.psi_values[q](k)*
+                                              data.weight_vectors[q](k)));
+          break;
+
+        case H1_seminorm:
+        case W1p_seminorm:
+        case W1infty_seminorm:
+          break;
+
+        default:
+          Assert (false, ExcNotImplemented());
+          break;
+        }
+
+      switch (norm)
+        {
+        case W1p_seminorm:
+        case W1p_norm:
+          for (unsigned int q=0; q<n_q_points; ++q)
+            {
+              double sum = 0;
+              for (unsigned int k=0; k<n_components; ++k)
+                sum += std::pow(data.psi_grads[q][k]*data.psi_grads[q][k],
+                                exponent/2.) * data.weight_vectors[q](k);
+              diff += sum * fe_values.JxW(q);
+            }
+          diff = std::pow(diff, 1./exponent);
+          break;
+
+        case H1_seminorm:
+        case H1_norm:
+          for (unsigned int q=0; q<n_q_points; ++q)
+            {
+              double sum = 0;
+              for (unsigned int k=0; k<n_components; ++k)
+                sum += (data.psi_grads[q][k] * data.psi_grads[q][k]) *
+                  data.weight_vectors[q](k);
+              diff += sum * fe_values.JxW(q);
+            }
+          diff = std::sqrt(diff);
+          break;
+
+        case W1infty_seminorm:
+        case W1infty_norm:
+          {
+            double t = 0;
+            for (unsigned int q=0; q<n_q_points; ++q)
+              for (unsigned int k=0; k<n_components; ++k)
+                for (unsigned int d=0; d<dim; ++d)
+                  t = std::max(t, std::abs(data.psi_grads[q][k][d]) *
+                               data.weight_vectors[q](k));
+
+            // then add seminorm to norm if that had previously been computed
+            diff += t;
+          }
+          break;
+        default:
+          break;
+        }
+
+      // append result of this cell to the end of the vector
+      Assert (numbers::is_finite(diff), ExcNumberNotFinite());
+      return diff;
+    }
+
+
+
     template <int dim, class InVector, class OutVector, class DH, int spacedim>
     static
     void
-    do_integrate_difference (const dealii::hp::MappingCollection<dim,spacedim>    &mapping,
+    do_integrate_difference (const dealii::hp::MappingCollection<dim,spacedim> &mapping,
                              const DH              &dof,
                              const InVector        &fe_function,
                              const Function<spacedim>   &exact_solution,
@@ -4698,17 +5120,12 @@ namespace VectorTools
                              const Function<spacedim>   *weight,
                              const double           exponent_1)
     {
-      // we mark the "exponent" parameter
-      // to this function "const" since
-      // it is strictly incoming, but we
-      // need to set it to something
-      // different later on, if
-      // necessary, so have a read-write
-      // version of it:
+      // we mark the "exponent" parameter to this function "const" since it is
+      // strictly incoming, but we need to set it to something different later
+      // on, if necessary, so have a read-write version of it:
       double exponent = exponent_1;
 
       const unsigned int        n_components = dof.get_fe().n_components();
-      const bool                fe_is_system = (n_components != 1);
 
       if (weight!=0)
         {
@@ -4755,32 +5172,7 @@ namespace VectorTools
         }
 
       dealii::hp::FECollection<dim,spacedim> fe_collection (dof.get_fe());
-      dealii::hp::FEValues<dim,spacedim> x_fe_values(mapping, fe_collection, q, update_flags);
-
-      const unsigned int max_n_q_points = q.max_n_quadrature_points ();
-
-      std::vector< dealii::Vector<double> >
-      function_values (max_n_q_points, dealii::Vector<double>(n_components));
-      std::vector<std::vector<Tensor<1,spacedim> > >
-      function_grads (max_n_q_points, std::vector<Tensor<1,spacedim> >(n_components));
-
-      std::vector<double>
-      weight_values (max_n_q_points);
-      std::vector<dealii::Vector<double> >
-      weight_vectors (max_n_q_points, dealii::Vector<double>(n_components));
-
-      std::vector<dealii::Vector<double> >
-      psi_values (max_n_q_points, dealii::Vector<double>(n_components));
-      std::vector<std::vector<Tensor<1,spacedim> > >
-      psi_grads (max_n_q_points, std::vector<Tensor<1,spacedim> >(n_components));
-      std::vector<double>
-      psi_scalar (max_n_q_points);
-
-      // tmp vector when we use the
-      // Function<spacedim> functions for
-      // scalar functions
-      std::vector<double>         tmp_values (max_n_q_points);
-      std::vector<Tensor<1,spacedim> > tmp_gradients (max_n_q_points);
+      IDScratchData<dim,spacedim> data(mapping, fe_collection, q, update_flags);
 
       // loop over all cells
       typename DH::active_cell_iterator cell = dof.begin_active(),
@@ -4788,285 +5180,26 @@ namespace VectorTools
       for (unsigned int index=0; cell != endc; ++cell, ++index)
         if (cell->is_locally_owned())
           {
-            double diff=0;
             // initialize for this cell
-            x_fe_values.reinit (cell);
+            data.x_fe_values.reinit (cell);
 
-            const dealii::FEValues<dim, spacedim> &fe_values  = x_fe_values.get_present_fe_values ();
+            const dealii::FEValues<dim, spacedim> &fe_values  = data.x_fe_values.get_present_fe_values ();
             const unsigned int   n_q_points = fe_values.n_quadrature_points;
-
-            // resize all out scratch
-            // arrays to the number of
-            // quadrature points we use
-            // for the present cell
-            function_values.resize (n_q_points,
-                                    dealii::Vector<double>(n_components));
-            function_grads.resize (n_q_points,
-                                   std::vector<Tensor<1,spacedim> >(n_components));
-
-            weight_values.resize (n_q_points);
-            weight_vectors.resize (n_q_points,
-                                   dealii::Vector<double>(n_components));
-
-            psi_values.resize (n_q_points,
-                               dealii::Vector<double>(n_components));
-            psi_grads.resize (n_q_points,
-                              std::vector<Tensor<1,spacedim> >(n_components));
-            psi_scalar.resize (n_q_points);
-
-            tmp_values.resize (n_q_points);
-            tmp_gradients.resize (n_q_points);
-
-            if (weight!=0)
-              {
-                if (weight->n_components>1)
-                  weight->vector_value_list (fe_values.get_quadrature_points(),
-                                             weight_vectors);
-                else
-                  {
-                    weight->value_list (fe_values.get_quadrature_points(),
-                                        weight_values);
-                    for (unsigned int k=0; k<n_q_points; ++k)
-                      weight_vectors[k] = weight_values[k];
-                  }
-              }
-            else
-              {
-                for (unsigned int k=0; k<n_q_points; ++k)
-                  weight_vectors[k] = 1.;
-              }
-
+            data.resize_vectors (n_q_points, n_components);
 
             if (update_flags & update_values)
-              {
-                // first compute the exact solution
-                // (vectors) at the quadrature points
-                // try to do this as efficient as
-                // possible by avoiding a second
-                // virtual function call in case
-                // the function really has only
-                // one component
-                if (fe_is_system)
-                  exact_solution.vector_value_list (fe_values.get_quadrature_points(),
-                                                    psi_values);
-                else
-                  {
-                    exact_solution.value_list (fe_values.get_quadrature_points(),
-                                               tmp_values);
-                    for (unsigned int i=0; i<n_q_points; ++i)
-                      psi_values[i](0) = tmp_values[i];
-                  }
-
-                // then subtract finite element
-                // fe_function
-                fe_values.get_function_values (fe_function, function_values);
-                for (unsigned int q=0; q<n_q_points; ++q)
-                  psi_values[q] -= function_values[q];
-              }
-
-            // Do the same for gradients, if required
+              fe_values.get_function_values (fe_function, data.function_values);
             if (update_flags & update_gradients)
-              {
-                // try to be a little clever
-                // to avoid recursive virtual
-                // function calls when calling
-                // gradient_list for functions
-                // that are really scalar
-                // functions
-                if (fe_is_system)
-                  exact_solution.vector_gradient_list (fe_values.get_quadrature_points(),
-                                                       psi_grads);
-                else
-                  {
-                    exact_solution.gradient_list (fe_values.get_quadrature_points(),
-                                                  tmp_gradients);
-                    for (unsigned int i=0; i<n_q_points; ++i)
-                      psi_grads[i][0] = tmp_gradients[i];
-                  }
+              fe_values.get_function_grads (fe_function, data.function_grads);
 
-                // then subtract finite element
-                // function_grads. We
-                // need to be careful
-                // in the codimension
-                // one case, since
-                // there we only have
-                // tangential gradients
-                // in the finite
-                // element function,
-                // not the full
-                // gradient. This is
-                // taken care of, by
-                // subtracting the
-                // normal component of
-                // the gradient from
-                // the exact function.
-                fe_values.get_function_grads (fe_function, function_grads);
-                if (update_flags & update_normal_vectors)
-                  for (unsigned int k=0; k<n_components; ++k)
-                    for (unsigned int q=0; q<n_q_points; ++q)
-                      psi_grads[q][k] -= (function_grads[q][k] +
-                                          (psi_grads[q][k]* // (f.n) n
-                                           fe_values.normal_vector(q))*
-                                          fe_values.normal_vector(q));
-                else
-                  for (unsigned int k=0; k<n_components; ++k)
-                    for (unsigned int q=0; q<n_q_points; ++q)
-                      psi_grads[q][k] -= function_grads[q][k];
-              }
-
-            switch (norm)
-              {
-              case mean:
-                std::fill_n (psi_scalar.begin(), n_q_points, 0.0);
-                // Compute values in
-                // quadrature points
-                for (unsigned int k=0; k<n_components; ++k)
-                  for (unsigned int q=0; q<n_q_points; ++q)
-                    psi_scalar[q] += psi_values[q](k)
-                                     * weight_vectors[q](k);
-
-                // Integrate
-                diff = std::inner_product (psi_scalar.begin(), psi_scalar.end(),
-                                           fe_values.get_JxW_values().begin(),
-                                           0.0);
-                break;
-              case Lp_norm:
-              case L1_norm:
-              case W1p_norm:
-                std::fill_n (psi_scalar.begin(), n_q_points, 0.0);
-                // Compute values in
-                // quadrature points
-                for (unsigned int k=0; k<n_components; ++k)
-                  for (unsigned int q=0; q<n_q_points; ++q)
-                    psi_scalar[q] += std::pow(psi_values[q](k)*psi_values[q](k),
-                                              exponent/2.)
-                                     * weight_vectors[q](k);
-
-                // Integrate
-                diff = std::inner_product (psi_scalar.begin(), psi_scalar.end(),
-                                           fe_values.get_JxW_values().begin(),
-                                           0.0);
-                // Compute the root only,
-                // if no derivative
-                // values are added later
-                if (!(update_flags & update_gradients))
-                  diff = std::pow(diff, 1./exponent);
-                break;
-              case L2_norm:
-              case H1_norm:
-                std::fill_n (psi_scalar.begin(), n_q_points, 0.0);
-                // Compute values in
-                // quadrature points
-                for (unsigned int k=0; k<n_components; ++k)
-                  for (unsigned int q=0; q<n_q_points; ++q)
-                    psi_scalar[q] += psi_values[q](k)*psi_values[q](k)
-                                     * weight_vectors[q](k);
-
-                // Integrate
-                diff = std::inner_product (psi_scalar.begin(), psi_scalar.end(),
-                                           fe_values.get_JxW_values().begin(),
-                                           0.0);
-                // Compute the root only,
-                // if no derivative
-                // values are added later
-                if (norm == L2_norm)
-                  diff=std::sqrt(diff);
-                break;
-              case Linfty_norm:
-              case W1infty_norm:
-                std::fill_n (psi_scalar.begin(), n_q_points, 0.0);
-                for (unsigned int k=0; k<n_components; ++k)
-                  for (unsigned int q=0; q<n_q_points; ++q)
-                    {
-                      double newval = std::fabs(psi_values[q](k))
-                                      * weight_vectors[q](k);
-                      if (psi_scalar[q]<newval)
-                        psi_scalar[q] = newval;
-                    }
-                // Maximum on one cell
-                diff = *std::max_element (psi_scalar.begin(), psi_scalar.end());
-                break;
-              case H1_seminorm:
-              case W1p_seminorm:
-              case W1infty_seminorm:
-                break;
-              default:
-                Assert (false, ExcNotImplemented());
-                break;
-              }
-
-            switch (norm)
-              {
-              case W1p_seminorm:
-              case W1p_norm:
-                std::fill_n (psi_scalar.begin(), n_q_points, 0.0);
-                for (unsigned int k=0; k<n_components; ++k)
-                  for (unsigned int q=0; q<n_q_points; ++q)
-                    psi_scalar[q] += std::pow(psi_grads[q][k] * psi_grads[q][k],
-                                              exponent/2.)
-                                     * weight_vectors[q](k);
-
-                diff += std::inner_product (psi_scalar.begin(), psi_scalar.end(),
-                                            fe_values.get_JxW_values().begin(),
-                                            0.0);
-                diff = std::pow(diff, 1./exponent);
-                break;
-              case H1_seminorm:
-              case H1_norm:
-                // take square of integrand
-                std::fill_n (psi_scalar.begin(), n_q_points, 0.0);
-                for (unsigned int k=0; k<n_components; ++k)
-                  for (unsigned int q=0; q<n_q_points; ++q)
-                    psi_scalar[q] += (psi_grads[q][k] * psi_grads[q][k])
-                                     * weight_vectors[q](k);
-
-                // add seminorm to L_2 norm or
-                // to zero
-                diff += std::inner_product (psi_scalar.begin(), psi_scalar.end(),
-                                            fe_values.get_JxW_values().begin(),
-                                            0.0);
-                diff = std::sqrt(diff);
-                break;
-
-              case W1infty_seminorm:
-              case W1infty_norm:
-                std::fill_n (psi_scalar.begin(), n_q_points, 0.0);
-                for (unsigned int k=0; k<n_components; ++k)
-                  for (unsigned int q=0; q<n_q_points; ++q)
-                    {
-                      double t = 0.;
-                      for (unsigned int d=0; d<dim; ++d)
-                        t = std::max(t,std::fabs(psi_grads[q][k][d])
-                                     * weight_vectors[q](k));
-
-                      psi_scalar[q] = std::max(psi_scalar[q],t);
-                    }
-
-                // compute seminorm
-                {
-                  double t = 0;
-                  for (unsigned int i=0; i<psi_scalar.size(); ++i)
-                    t = std::max (t, psi_scalar[i]);
-
-                  // then add seminorm to norm if that had previously been
-                  // computed
-                  diff += t;
-                }
-                break;
-              default:
-                break;
-              }
-            // append result of this cell
-            // to the end of the vector
-            Assert (numbers::is_finite(diff), ExcNumberNotFinite());
-            difference(index) = diff;
+            difference(index) =
+              integrate_difference_inner (exact_solution, norm, weight,
+                                          update_flags, exponent,
+                                          n_components, data);
           }
         else
-          // the cell is a ghost cell
-          // or is artificial. write
-          // a zero into the
-          // corresponding value of
-          // the returned vector
+          // the cell is a ghost cell or is artificial. write a zero into the
+          // corresponding value of the returned vector
           difference(index) = 0;
     }
 
@@ -5147,7 +5280,7 @@ namespace VectorTools
                         const double              exponent)
   {
     internal
-    ::do_integrate_difference(hp::StaticMappingQ1<dim>::mapping_collection,
+    ::do_integrate_difference(hp::StaticMappingQ1<dim,spacedim>::mapping_collection,
                               dof, fe_function, exact_solution,
                               difference, q,
                               norm, weight, exponent);
@@ -5192,6 +5325,8 @@ namespace VectorTools
     const std::pair<typename DoFHandler<dim,spacedim>::active_cell_iterator, Point<spacedim> >
     cell_point = GridTools::find_active_cell_around_point (mapping, dof, point);
 
+    AssertThrow(cell_point.first->is_locally_owned(),
+                ExcPointNotAvailableHere());
     Assert(GeometryInfo<dim>::distance_to_unit_cell(cell_point.second) < 1e-10,
            ExcInternalError());
 
@@ -5292,6 +5427,8 @@ namespace VectorTools
     cell_point
       = GridTools::find_active_cell_around_point (mapping, dof, point);
 
+    AssertThrow(cell_point.first->is_locally_owned(),
+                ExcPointNotAvailableHere());
     Assert(GeometryInfo<dim>::distance_to_unit_cell(cell_point.second) < 1e-10,
            ExcInternalError());
 
@@ -5329,6 +5466,8 @@ namespace VectorTools
     const std::pair<typename hp::DoFHandler<dim,spacedim>::active_cell_iterator, Point<spacedim> >
     cell_point =  GridTools::find_active_cell_around_point (mapping, dof, point);
 
+    AssertThrow(cell_point.first->is_locally_owned(),
+                ExcPointNotAvailableHere());
     Assert(GeometryInfo<dim>::distance_to_unit_cell(cell_point.second) < 1e-10,
            ExcInternalError());
 
@@ -5365,6 +5504,8 @@ namespace VectorTools
     const std::pair<typename DoFHandler<dim,spacedim>::active_cell_iterator, Point<spacedim> >
     cell_point = GridTools::find_active_cell_around_point (mapping, dof, point);
 
+    AssertThrow(cell_point.first->is_locally_owned(),
+                ExcPointNotAvailableHere());
     Assert(GeometryInfo<dim>::distance_to_unit_cell(cell_point.second) < 1e-10,
            ExcInternalError());
 
@@ -5400,6 +5541,8 @@ namespace VectorTools
     const std::pair<typename hp::DoFHandler<dim,spacedim>::active_cell_iterator, Point<spacedim> >
     cell_point =  GridTools::find_active_cell_around_point (mapping, dof, point);
 
+    AssertThrow(cell_point.first->is_locally_owned(),
+                ExcPointNotAvailableHere());
     Assert(GeometryInfo<dim>::distance_to_unit_cell(cell_point.second) < 1e-10,
            ExcInternalError());
 
@@ -5424,7 +5567,7 @@ namespace VectorTools
   subtract_mean_value(VECTOR                  &v,
                       const std::vector<bool> &p_select)
   {
-    if(p_select.size() == 0)
+    if (p_select.size() == 0)
       {
         // In case of an empty boolean mask operate on the whole vector:
         v.add( - v.mean_value() );
@@ -5434,12 +5577,12 @@ namespace VectorTools
         // This function is not implemented for distributed vectors, so
         // if v is not a boring Vector or BlockVector:
         Assert(   dynamic_cast<Vector<double> *>(& v)
-               || dynamic_cast<Vector<float> *>(& v)
-               || dynamic_cast<Vector<long double> *>(& v)
-               || dynamic_cast<BlockVector<double> *>(& v)
-               || dynamic_cast<BlockVector<float> *>(& v)
-               || dynamic_cast<BlockVector<long double> *>(& v),
-               ExcNotImplemented());
+                  || dynamic_cast<Vector<float> *>(& v)
+                  || dynamic_cast<Vector<long double> *>(& v)
+                  || dynamic_cast<BlockVector<double> *>(& v)
+                  || dynamic_cast<BlockVector<float> *>(& v)
+                  || dynamic_cast<BlockVector<long double> *>(& v),
+                  ExcNotImplemented());
 
         const unsigned int n = v.size();
 
@@ -5456,7 +5599,7 @@ namespace VectorTools
             }
         // Error out if we have not constrained anything. Note that in this
         // case the vector v is always nonempty.
-        Assert (n == 0 || counter > 0, ExcNoComponentSelected());
+        Assert (n == 0 || counter > 0, ComponentMask::ExcNoComponentSelected());
 
         s /= counter;
 

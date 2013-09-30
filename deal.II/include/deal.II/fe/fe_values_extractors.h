@@ -1,14 +1,19 @@
-//---------------------------------------------------------------------------
-//    $Id$
+// ---------------------------------------------------------------------
+// $Id$
 //
-//    Copyright (C) 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013 by the deal.II authors
+// Copyright (C) 1998 - 2013 by the deal.II authors
 //
-//    This file is subject to QPL and may not be  distributed
-//    without copyright and license information. Please refer
-//    to the file deal.II/doc/license.html for the  text  and
-//    further information on this license.
+// This file is part of the deal.II library.
 //
-//---------------------------------------------------------------------------
+// The deal.II library is free software; you can use it, redistribute
+// it, and/or modify it under the terms of the GNU Lesser General
+// Public License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+// The full text of the license can be found in the file LICENSE at
+// the top level of the deal.II distribution.
+//
+// ---------------------------------------------------------------------
+
 #ifndef __deal2__fe_values_extractors_h
 #define __deal2__fe_values_extractors_h
 
@@ -200,6 +205,61 @@ namespace FEValuesExtractors
      */
     SymmetricTensor (const unsigned int first_tensor_component);
   };
+
+
+  /**
+   * Extractor for a (possible non-)symmetric tensor of a
+   * rank specified by the template
+   * argument. For a second order
+   * tensor, this represents a collection of
+   * <code>(dim*dim)</code>
+   * components of a vector-valued
+   * element. The value of <code>dim</code>
+   * is defined by the FEValues object the
+   * extractor is applied to. The result of
+   * applying an object of this type to an
+   * FEValues, FEFaceValues or
+   * FESubfaceValues object is of type
+   * FEValuesViews::Tensor.
+   *
+   * The concept of
+   * extractors is defined in the
+   * documentation of the namespace
+   * FEValuesExtractors and in the @ref
+   * vector_valued module.
+   *
+   * @ingroup feaccess vector_valued
+   *
+   * @author Denis Davydov, 2013
+   */
+  template <int rank>
+  struct Tensor
+  {
+    /**
+     * The first component of the tensor
+     * view.
+     */
+    unsigned int first_tensor_component;
+
+    /**
+     * Default constructor. Initialize the
+     * object with an invalid component. This leads to
+     * an object that can not be used, but it allows
+     * objects of this kind to be put into arrays that
+     * require a default constructor upon resizing the
+     * array, and then later assigning a suitable
+     * object to each element of the array.
+     */
+    Tensor ();
+
+    /**
+     * Constructor. Take the first
+     * component of the selected tensor
+     * inside the FEValues object as
+     * argument.
+     */
+    Tensor (const unsigned int first_tensor_component);
+  };
 }
 
 
@@ -248,6 +308,22 @@ namespace FEValuesExtractors
   template <int rank>
   inline
   SymmetricTensor<rank>::SymmetricTensor (const unsigned int first_tensor_component)
+    :
+    first_tensor_component (first_tensor_component)
+  {}
+
+
+  template <int rank>
+  inline
+  Tensor<rank>::Tensor ()
+    :
+    first_tensor_component(numbers::invalid_unsigned_int)
+  {}
+
+
+  template <int rank>
+  inline
+  Tensor<rank>::Tensor (const unsigned int first_tensor_component)
     :
     first_tensor_component (first_tensor_component)
   {}

@@ -1,15 +1,19 @@
-//---------------------------------------------------------------------------
-//    $Id$
-//    Version: $Name$
+// ---------------------------------------------------------------------
+// $Id$
 //
-//    Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012 by the deal.II authors
+// Copyright (C) 2000 - 2013 by the deal.II authors
 //
-//    This file is subject to QPL and may not be  distributed
-//    without copyright and license information. Please refer
-//    to the file deal.II/doc/license.html for the  text  and
-//    further information on this license.
+// This file is part of the deal.II library.
 //
-//---------------------------------------------------------------------------
+// The deal.II library is free software; you can use it, redistribute
+// it, and/or modify it under the terms of the GNU Lesser General
+// Public License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+// The full text of the license can be found in the file LICENSE at
+// the top level of the deal.II distribution.
+//
+// ---------------------------------------------------------------------
+
 
 #include <deal.II/base/vector_slice.h>
 #include <deal.II/base/utilities.h>
@@ -385,8 +389,8 @@ SparsityPattern::reinit (const size_type m,
   std::size_t vec_len = 0;
   for (size_type i=0; i<m; ++i)
     vec_len += std::min(static_cast<size_type>(store_diagonal_first_in_row ?
-					       std::max(row_lengths[i], 1U) :
-					       row_lengths[i]),
+                                               std::max(row_lengths[i], 1U) :
+                                               row_lengths[i]),
                         n);
 
   // sometimes, no entries are
@@ -412,7 +416,7 @@ SparsityPattern::reinit (const size_type m,
   max_row_length = (row_lengths.size() == 0 ?
                     0 :
                     std::min (static_cast<size_type>(*std::max_element(row_lengths.begin(),
-								       row_lengths.end())),
+                                                     row_lengths.end())),
                               n));
 
   if (store_diagonal_first_in_row && (max_row_length==0) && (m!=0))
@@ -464,7 +468,7 @@ SparsityPattern::reinit (const size_type m,
     rowstart[i] = rowstart[i-1] +
                   (store_diagonal_first_in_row ?
                    std::max(std::min(static_cast<size_type>(row_lengths[i-1]),n),
-			    static_cast<size_type> (1U)) :
+                            static_cast<size_type> (1U)) :
                    std::min(static_cast<size_type>(row_lengths[i-1]),n));
   Assert ((rowstart[rows]==vec_len)
           ||
@@ -771,7 +775,7 @@ SparsityPattern::empty () const
 
 
 
-SparsityPattern::size_type 
+SparsityPattern::size_type
 SparsityPattern::max_entries_per_row () const
 {
   // if compress() has not yet been
@@ -793,7 +797,7 @@ SparsityPattern::max_entries_per_row () const
 
 
 
-SparsityPattern::size_type 
+SparsityPattern::size_type
 SparsityPattern::operator () (const size_type i,
                               const size_type j) const
 {
@@ -831,8 +835,8 @@ SparsityPattern::operator () (const size_type i,
                                           &colnums[rowstart[i]]);
   const size_type *const p
     = Utilities::lower_bound<const size_type *> (sorted_region_start,
-                                                    &colnums[rowstart[i+1]],
-                                                    j);
+                                                 &colnums[rowstart[i+1]],
+                                                 j);
   if ((p != &colnums[rowstart[i+1]])  &&  (*p == j))
     return (p - &colnums[0]);
   else
@@ -931,7 +935,7 @@ SparsityPattern::exists (const size_type i, const size_type j) const
 
 
 
-SparsityPattern::size_type 
+SparsityPattern::size_type
 SparsityPattern::row_position (const size_type i, const size_type j) const
 {
   Assert ((rowstart!=0) && (colnums!=0), ExcEmptyObject());
@@ -1067,7 +1071,7 @@ SparsityPattern::print_gnuplot (std::ostream &out) const
 
 
 
-SparsityPattern::size_type 
+SparsityPattern::size_type
 SparsityPattern::bandwidth () const
 {
   Assert ((rowstart!=0) && (colnums!=0), ExcEmptyObject());
@@ -1191,6 +1195,7 @@ template void SparsityPattern::copy_from<CompressedSimpleSparsityPattern> (const
 template void SparsityPattern::copy_from<float> (const FullMatrix<float> &, bool);
 template void SparsityPattern::copy_from<double> (const FullMatrix<double> &, bool);
 
+template void SparsityPattern::copy_from<SparsityPattern> (const SparsityPattern &);
 template void SparsityPattern::copy_from<CompressedSparsityPattern> (const CompressedSparsityPattern &);
 template void SparsityPattern::copy_from<CompressedSetSparsityPattern> (const CompressedSetSparsityPattern &);
 template void SparsityPattern::copy_from<CompressedSimpleSparsityPattern> (const CompressedSimpleSparsityPattern &);

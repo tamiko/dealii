@@ -1,17 +1,18 @@
-//---------------------------------------------------------------------------
-//    $Id$
-//    Version: $Name$
-//    Author: Toby D. Young, Polish Academy of Sciences, 2008-2013
+// ---------------------------------------------------------------------
+// $Id$
 //
-//    Copyright (C) 2009-2013 by the deal.II authors
+// Copyright (C) 2009 - 2013 by the deal.II authors
 //
-//    This file is subject to QPL and may not be  distributed
-//    without copyright and license information. Please refer
-//    to the file deal.II/doc/license.html for the  text  and
-//    further information on this license.
+// This file is part of the deal.II library.
 //
-//---------------------------------------------------------------------------
-
+// The deal.II library is free software; you can use it, redistribute
+// it, and/or modify it under the terms of the GNU Lesser General
+// Public License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+// The full text of the license can be found in the file LICENSE at
+// the top level of the deal.II distribution.
+//
+// ---------------------------------------------------------------------
 
 #include <deal.II/lac/slepc_solver.h>
 
@@ -49,7 +50,7 @@ namespace SLEPcWrappers
     :
     solver_control (cn),
     mpi_communicator (mpi_communicator),
-    target_eigenvalue (PETSC_NULL),
+    target_eigenvalue (0.),
     set_which (EPS_LARGEST_MAGNITUDE),
     set_problem (EPS_NHEP),
     opA (NULL),
@@ -109,8 +110,8 @@ namespace SLEPcWrappers
   }
 
   void
-  SolverBase::solve (const size_type  n_eigenpairs, 
-		     size_type *n_converged)
+  SolverBase::solve (const unsigned int  n_eigenpairs,
+                     unsigned int *n_converged)
   {
     int ierr;
 
@@ -150,14 +151,18 @@ namespace SLEPcWrappers
         AssertThrow (ierr == 0, ExcSLEPcError(ierr));
       }
 
-    // set transformation type if any
+    // if a spectral transformation is to be used, set the
+    // transformation and target the wanted eigenvalues
     if (transformation)
-      transformation->set_context (solver_data->eps);
+      {
+	// set transformation type if any
+	transformation->set_context (solver_data->eps);
+	
+	// set target eigenvalues to solve for
+	ierr = EPSSetTarget (solver_data->eps, target_eigenvalue);
+	AssertThrow (ierr == 0, ExcSLEPcError(ierr));
+      }
 
-    // set target eigenvalues to solve for
-    ierr = EPSSetTarget (solver_data->eps, target_eigenvalue);
-    AssertThrow (ierr == 0, ExcSLEPcError(ierr));
-    
     // set which portion of the eigenspectrum to solve for
     ierr = EPSSetWhichEigenpairs (solver_data->eps, set_which);
     AssertThrow (ierr == 0, ExcSLEPcError(ierr));
@@ -186,11 +191,11 @@ namespace SLEPcWrappers
 
     // get number of converged eigenstates
     ierr = EPSGetConverged (solver_data->eps,
-                            reinterpret_cast<PetscInt *>(n_converged));
+                            reinterpret_cast<PetscInt*>(n_converged));
     AssertThrow (ierr == 0, ExcSLEPcError(ierr));
 
-    PetscInt n_iterations = 0;
-    double residual_norm = 1e300;
+    PetscInt n_iterations   = 0;
+    PetscReal residual_norm = 1.e300;
 
     // @todo Investigate elaborating on some of this to act on the
     // complete eigenspectrum
@@ -199,9 +204,13 @@ namespace SLEPcWrappers
       ierr = EPSGetIterationNumber (solver_data->eps, &n_iterations);
       AssertThrow (ierr == 0, ExcSLEPcError(ierr));
 
-      // get the residual norm of the most extreme eigenvalue
-      ierr = EPSComputeResidualNorm (solver_data->eps, 0, &residual_norm);
-      AssertThrow (ierr == 0, ExcSLEPcError(ierr));
+      // get the residual norm of the most extreme eigenvalue if and
+      // only if at least one eigenvector has converged.
+      if ((*n_converged)>0)
+	{
+	  ierr = EPSComputeResidualNorm (solver_data->eps, 0, &residual_norm);
+	  AssertThrow (ierr == 0, ExcSLEPcError(ierr));
+	}
 
       // check the solver state
       const SolverControl::State state
@@ -218,7 +227,7 @@ namespace SLEPcWrappers
   }
 
   void
-  SolverBase::get_eigenpair (const size_type            index,
+  SolverBase::get_eigenpair (const unsigned int            index,
                              PetscScalar               &eigenvalues,
                              PETScWrappers::VectorBase &eigenvectors)
   {
@@ -226,8 +235,8 @@ namespace SLEPcWrappers
 
     // get converged eigenpair
     int ierr = EPSGetEigenpair (solver_data->eps, index,
-                                &eigenvalues, PETSC_NULL, 
-				eigenvectors, PETSC_NULL);
+                                &eigenvalues, PETSC_NULL,
+                                eigenvectors, PETSC_NULL);
     AssertThrow (ierr == 0, ExcSLEPcError(ierr));
   }
 
@@ -241,11 +250,11 @@ namespace SLEPcWrappers
   {
 #ifndef PETSC_USE_COMPLEX
     AssertThrow (solver_data.get() != 0, ExcSLEPcWrappersUsageError());
-    
+
     // get converged eigenpair
     int ierr = EPSGetEigenpair (solver_data->eps, index,
-				&real_eigenvalues, &imag_eigenvalues, 
-				real_eigenvectors, imag_eigenvectors);
+                                &real_eigenvalues, &imag_eigenvalues,
+                                real_eigenvectors, imag_eigenvectors);
     AssertThrow (ierr == 0, ExcSLEPcError(ierr));
 #else
     Assert ((false),
@@ -448,7 +457,7 @@ namespace SLEPcWrappers
                              this->solver_control.max_steps());
     AssertThrow (ierr == 0, ExcSLEPcError(ierr));
 #else
-    // Supress compiler warnings about unused paameters.
+    // Suppress compiler warnings about unused parameters.
     (void) eps;
 
     // PETSc/SLEPc version must be > 3.1.0.
@@ -481,7 +490,7 @@ namespace SLEPcWrappers
                              this->solver_control.max_steps());
     AssertThrow (ierr == 0, ExcSLEPcError(ierr));
 #else
-    // Supress compiler warnings about unused paameters.
+    // Suppress compiler warnings about unused parameters.
     (void) eps;
 
     // PETSc/SLEPc version must be > 3.1.0.
@@ -494,8 +503,8 @@ namespace SLEPcWrappers
 
   /* ---------------------- LAPACK ------------------------- */
   SolverLAPACK::SolverLAPACK (SolverControl        &cn,
-			      const MPI_Comm       &mpi_communicator,
-			      const AdditionalData &data)
+                              const MPI_Comm       &mpi_communicator,
+                              const AdditionalData &data)
     :
     SolverBase (cn, mpi_communicator),
     additional_data (data)
@@ -517,7 +526,7 @@ namespace SLEPcWrappers
                              this->solver_control.max_steps());
     AssertThrow (ierr == 0, ExcSLEPcError(ierr));
 #else
-    // Supress compiler warnings about unused paameters.
+    // Suppress compiler warnings about unused parameters.
     (void) eps;
 
     Assert ((false),
@@ -530,13 +539,5 @@ namespace SLEPcWrappers
 
 DEAL_II_NAMESPACE_CLOSE
 
-#else
-
-// On gcc2.95 on Alpha OSF1, the native assembler does not like empty
-// files, so provide some dummy code
-namespace
-{
-  void dummy () {}
-}
 #endif // DEAL_II_WITH_SLEPC
 

@@ -1,14 +1,19 @@
-//---------------------------------------------------------------------------
-//    $Id$
+// ---------------------------------------------------------------------
+// $Id$
 //
-//    Copyright (C) 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2008, 2010, 2011, 2012 by the deal.II authors
+// Copyright (C) 1998 - 2013 by the deal.II authors
 //
-//    This file is subject to QPL and may not be  distributed
-//    without copyright and license information. Please refer
-//    to the file deal.II/doc/license.html for the  text  and
-//    further information on this license.
+// This file is part of the deal.II library.
 //
-//---------------------------------------------------------------------------
+// The deal.II library is free software; you can use it, redistribute
+// it, and/or modify it under the terms of the GNU Lesser General
+// Public License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+// The full text of the license can be found in the file LICENSE at
+// the top level of the deal.II distribution.
+//
+// ---------------------------------------------------------------------
+
 #ifndef __deal2__dof_levels_h
 #define __deal2__dof_levels_h
 
@@ -85,6 +90,18 @@ namespace internal
        */
       DoFObjects<dim> dof_object;
 
+      /**
+       * Return a pointer to the beginning of the DoF indices cache
+       * for a given cell.
+       *
+       * @param obj_index The number of the cell we are looking at.
+       * @param dofs_per_cell The number of DoFs per cell for this cell.
+       * @return A pointer to the first DoF index for the current cell. The
+       *   next dofs_per_cell indices are for the current cell.
+       */
+      const types::global_dof_index *
+      get_cell_cache_start (const unsigned int obj_index,
+                               const unsigned int dofs_per_cell) const;
 
       /**
        * Determine an estimate for the
@@ -101,6 +118,23 @@ namespace internal
       void serialize(Archive &ar,
                      const unsigned int version);
     };
+
+
+
+    template <int dim>
+    inline
+    const types::global_dof_index *
+    DoFLevel<dim>::get_cell_cache_start (const unsigned int obj_index,
+                                             const unsigned int dofs_per_cell) const
+    {
+      Assert (obj_index*dofs_per_cell+dofs_per_cell
+              <=
+              cell_dof_indices_cache.size(),
+              ExcInternalError());
+
+      return &cell_dof_indices_cache[obj_index*dofs_per_cell];
+    }
+
 
 
     template <int dim>

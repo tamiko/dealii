@@ -1,16 +1,18 @@
-//---------------------------------------------------------------------------
-//    $Id$
-//    Version: $Name$
+// ---------------------------------------------------------------------
+// $Id$
 //
-//    Copyright (C) 2008, 2010, 2011, 2012 by the deal.II authors
+// Copyright (C) 2008 - 2013 by the deal.II authors
 //
-//    This file is subject to QPL and may not be  distributed
-//    without copyright and license information. Please refer
-//    to the file deal.II/doc/license.html for the  text  and
-//    further information on this license.
+// This file is part of the deal.II library.
 //
-//---------------------------------------------------------------------------
-
+// The deal.II library is free software; you can use it, redistribute
+// it, and/or modify it under the terms of the GNU Lesser General
+// Public License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+// The full text of the license can be found in the file LICENSE at
+// the top level of the deal.II distribution.
+//
+// ---------------------------------------------------------------------
 
 #include <deal.II/base/memory_consumption.h>
 #include <deal.II/lac/trilinos_vector_base.h>
@@ -29,7 +31,7 @@ namespace TrilinosWrappers
   {
 #ifndef DEAL_II_USE_LARGE_INDEX_TYPE
     // define a helper function that queries the global vector length of an
-    // Epetra_FEVector object  by calling either the 32- or 64-bit 
+    // Epetra_FEVector object  by calling either the 32- or 64-bit
     // function necessary.
     int global_length(const Epetra_FEVector &vector)
     {
@@ -37,7 +39,7 @@ namespace TrilinosWrappers
     }
 #else
     // define a helper function that queries the global vector length of an
-    // Epetra_FEVector object  by calling either the 32- or 64-bit 
+    // Epetra_FEVector object  by calling either the 32- or 64-bit
     // function necessary.
     long long int global_length(const Epetra_FEVector &vector)
     {
@@ -61,7 +63,7 @@ namespace TrilinosWrappers
       // we can use []. Note that we
       // can only get local values.
 
-      const TrilinosWrappers::types::int_type local_index = 
+      const TrilinosWrappers::types::int_type local_index =
         vector.vector->Map().LID(static_cast<TrilinosWrappers::types::int_type>(index));
       Assert (local_index >= 0,
               ExcAccessToNonLocalElement (index,
@@ -189,7 +191,7 @@ namespace TrilinosWrappers
   {
     // Extract local indices in
     // the vector.
-    TrilinosWrappers::types::int_type trilinos_i = 
+    TrilinosWrappers::types::int_type trilinos_i =
       vector->Map().LID(static_cast<TrilinosWrappers::types::int_type>(index));
     TrilinosScalar value = 0.;
 
@@ -218,7 +220,7 @@ namespace TrilinosWrappers
   {
     // Extract local indices in
     // the vector.
-    TrilinosWrappers::types::int_type trilinos_i = 
+    TrilinosWrappers::types::int_type trilinos_i =
       vector->Map().LID(static_cast<TrilinosWrappers::types::int_type>(index));
     TrilinosScalar value = 0.;
 
@@ -447,7 +449,7 @@ namespace TrilinosWrappers
     //entry.
     return sizeof(*this)
            + this->local_size()*( sizeof(double)+
-               sizeof(TrilinosWrappers::types::int_type) );
+                                  sizeof(TrilinosWrappers::types::int_type) );
   }
 
 } /* end of namespace TrilinosWrappers */

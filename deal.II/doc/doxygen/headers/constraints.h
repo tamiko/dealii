@@ -1,15 +1,19 @@
-//-------------------------------------------------------------------------
-//    $Id$
-//    Version: $Name$
+// ---------------------------------------------------------------------
+// $Id$
 //
-//    Copyright (C) 2010, 2012, 2013 by the deal.II authors
+// Copyright (C) 2010 - 2013 by the deal.II authors
 //
-//    This file is subject to QPL and may not be  distributed
-//    without copyright and license information. Please refer
-//    to the file deal.II/doc/license.html for the  text  and
-//    further information on this license.
+// This file is part of the deal.II library.
 //
-//-------------------------------------------------------------------------
+// The deal.II library is free software; you can use it, redistribute
+// it, and/or modify it under the terms of the GNU Lesser General
+// Public License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+// The full text of the license can be found in the file LICENSE at
+// the top level of the deal.II distribution.
+//
+// ---------------------------------------------------------------------
+
 
 /**
  * @defgroup constraints Constraints on degrees of freedom
@@ -22,7 +26,7 @@
  * Constraints typically come from several sources, for example:
  * - If you have Dirichlet-type boundary conditions, $u|_{\partial\Omega}=g$,
  *   one usually enforces
- *   them by requiring that that degrees of freedom on the boundary have
+ *   them by requiring that degrees of freedom on the boundary have
  *   particular values, for example $x_{12}=42$ if the boundary condition
  *   $g(\mathbf x)$ requires that the finite element solution $u(\mathbf x)$
  *   at the location of degree
@@ -109,6 +113,13 @@
  * below. The resulting linear systems are equivalent to those one gets after
  * calling the ConstraintMatrix::condense() functions.
  *
+ * @note Both ways of applying constraints set the value of the matrix
+ * diagonals to constrained entries to a <i>positive</i> entry of the same
+ * magnitude as the other entries in the matrix. As a consequence, you need to
+ * set up your problem such that the weak form describing the main matrix
+ * contribution is not <i>negative definite</i>. Otherwise, iterative solvers
+ * such as CG will break down or be considerably slower as GMRES.
+ *
  * @note While these two ways are <i>equivalent</i>, i.e., the solution of
  * linear systems computed via either approach is the same, the linear
  * systems themselves do not necessarily have the same matrix and right
@@ -116,7 +127,6 @@
  * side entries corresponding to constrained degrees of freedom may be different
  * as a result of the way in which we compute them; they are, however, always
  * chosen in such a way that the solution to the linear system is the same.
- *
  *
  * <h4>Condensing matrices and sparsity patterns</h4>
  *

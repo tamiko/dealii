@@ -1,15 +1,19 @@
-//---------------------------------------------------------------------------
-//    $Id$
-//    Version: $Name$
+// ---------------------------------------------------------------------
+// $Id$
 //
-//    Copyright (C) 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2012 by the deal.II authors
+// Copyright (C) 2001 - 2013 by the deal.II authors
 //
-//    This file is subject to QPL and may not be  distributed
-//    without copyright and license information. Please refer
-//    to the file deal.II/doc/license.html for the  text  and
-//    further information on this license.
+// This file is part of the deal.II library.
 //
-//---------------------------------------------------------------------------
+// The deal.II library is free software; you can use it, redistribute
+// it, and/or modify it under the terms of the GNU Lesser General
+// Public License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+// The full text of the license can be found in the file LICENSE at
+// the top level of the deal.II distribution.
+//
+// ---------------------------------------------------------------------
+
 
 
 for (deal_II_dimension : DIMENSIONS)
@@ -24,7 +28,7 @@ for (deal_II_dimension : DIMENSIONS)
 
 for (X : TRIANGULATION_AND_DOFHANDLERS; deal_II_dimension : DIMENSIONS ; deal_II_space_dimension : SPACE_DIMENSIONS)
 {
-  
+
 #if deal_II_dimension <= deal_II_space_dimension
   namespace GridTools \{
 
@@ -65,6 +69,23 @@ for (X : TRIANGULATION_AND_DOFHANDLERS; deal_II_dimension : DIMENSIONS ; deal_II
 }
 
 
+
+for (deal_II_dimension : DIMENSIONS ; deal_II_space_dimension : SPACE_DIMENSIONS)
+{
+
+#if deal_II_dimension <= deal_II_space_dimension
+  namespace GridTools \{
+  template
+    bool
+    have_same_coarse_mesh (const MGDoFHandler<deal_II_dimension,deal_II_space_dimension> &mesh_1,
+			   const MGDoFHandler<deal_II_dimension,deal_II_space_dimension> &mesh_2);
+
+  \}
+
+  #endif
+}
+
+
 for (deal_II_dimension : DIMENSIONS; deal_II_space_dimension :  SPACE_DIMENSIONS)
   {
 #if deal_II_dimension <= deal_II_space_dimension
@@ -80,7 +101,7 @@ for (deal_II_dimension : DIMENSIONS; deal_II_space_dimension :  SPACE_DIMENSIONS
       volume
       (const Triangulation<deal_II_dimension, deal_II_space_dimension> &,
        const Mapping<deal_II_dimension, deal_II_space_dimension> &);
-    
+
     template
       void delete_unused_vertices (std::vector<Point<deal_II_space_dimension> > &,
 				   std::vector<CellData<deal_II_dimension> > &,
@@ -115,7 +136,7 @@ for (deal_II_dimension : DIMENSIONS; deal_II_space_dimension :  SPACE_DIMENSIONS
     template
       void partition_triangulation (const unsigned int,
 			       Triangulation<deal_II_dimension, deal_II_space_dimension> &);
-    
+
     template
       void partition_triangulation (const unsigned int,
 				    const SparsityPattern &,
@@ -128,9 +149,9 @@ for (deal_II_dimension : DIMENSIONS; deal_II_space_dimension :  SPACE_DIMENSIONS
       (const hp::MappingCollection<deal_II_dimension, deal_II_space_dimension> &,
        const hp::DoFHandler<deal_II_dimension, deal_II_space_dimension> &,
        const Point<deal_II_space_dimension> &);
-    
 
-    
+
+
     template
       void get_subdomain_association (const Triangulation<deal_II_dimension, deal_II_space_dimension>  &,
 				      std::vector<types::subdomain_id> &);
@@ -139,11 +160,11 @@ for (deal_II_dimension : DIMENSIONS; deal_II_space_dimension :  SPACE_DIMENSIONS
     unsigned int count_cells_with_subdomain_association(
       const Triangulation<deal_II_dimension, deal_II_space_dimension> &,
       const types::subdomain_id);
-    
+
     template
       double
       minimal_cell_diameter (const Triangulation<deal_II_dimension, deal_II_space_dimension> &triangulation);
-    
+
     template
       double
       maximal_cell_diameter (const Triangulation<deal_II_dimension, deal_II_space_dimension> &triangulation);
@@ -154,10 +175,10 @@ for (deal_II_dimension : DIMENSIONS; deal_II_space_dimension :  SPACE_DIMENSIONS
 	const Triangulation<deal_II_dimension, deal_II_space_dimension> &triangulation_1,
 	const Triangulation<deal_II_dimension, deal_II_space_dimension> &triangulation_2,
 	Triangulation<deal_II_dimension, deal_II_space_dimension>       &result);
-#if deal_II_dimension == deal_II_space_dimension  
+#if deal_II_dimension == deal_II_space_dimension
     template
     void
-    laplace_transform (const std::map<types::global_dof_index,Point<deal_II_dimension> > &new_points,
+    laplace_transform (const std::map<unsigned int,Point<deal_II_dimension> > &new_points,
                        Triangulation<deal_II_dimension> &triangulation);
 
     template
@@ -167,12 +188,12 @@ for (deal_II_dimension : DIMENSIONS; deal_II_space_dimension :  SPACE_DIMENSIONS
        Triangulation<deal_II_dimension,deal_II_space_dimension> &triangulation);
 
 #endif
-    
+
     \}
 #endif
 
 
-    
+
   }
 
 
@@ -231,6 +252,23 @@ for (X : TRIANGULATION_AND_DOFHANDLERS; deal_II_dimension : DIMENSIONS ; deal_II
     #if deal_II_dimension >= 2
 
       template
+      std::vector<PeriodicFacePair<X::cell_iterator> >
+      collect_periodic_faces
+                                 (const X &,
+                                  const types::boundary_id,
+                                  const types::boundary_id,
+                                  unsigned int,
+                                  const Tensor<1,X::space_dimension> &);
+    
+      template<typename DH>
+      std::vector<PeriodicFacePair<X::cell_iterator> >
+      collect_periodic_faces
+                                 (const X &,
+                                  const types::boundary_id,
+                                  unsigned int,
+                                  const Tensor<1,X::space_dimension> &);
+
+      template
       std::map<X::face_iterator, std::pair<X::face_iterator, std::bitset<3> > >
       collect_periodic_face_pairs
                                  (const X::face_iterator &,
@@ -238,8 +276,7 @@ for (X : TRIANGULATION_AND_DOFHANDLERS; deal_II_dimension : DIMENSIONS ; deal_II
                                   const types::boundary_id,
                                   const types::boundary_id,
                                   int,
-                                  const Tensor<1,deal_II_space_dimension> &);
-
+                                  const Tensor<1,X::space_dimension> &);
       template
       std::map<X::active_face_iterator, std::pair<X::active_face_iterator, std::bitset<3> > >
       collect_periodic_face_pairs
@@ -248,7 +285,7 @@ for (X : TRIANGULATION_AND_DOFHANDLERS; deal_II_dimension : DIMENSIONS ; deal_II
                                   const types::boundary_id,
                                   const types::boundary_id,
                                   int,
-                                  const Tensor<1,deal_II_space_dimension> &);
+                                  const Tensor<1,X::active_face_iterator::AccessorType::space_dimension> &);
 
       template
       std::map<X::face_iterator, std::pair<X::face_iterator, std::bitset<3> > >
@@ -257,7 +294,7 @@ for (X : TRIANGULATION_AND_DOFHANDLERS; deal_II_dimension : DIMENSIONS ; deal_II
                                   const types::boundary_id,
                                   const types::boundary_id,
                                   int,
-                                  const Tensor<1,deal_II_space_dimension> &);
+                                  const Tensor<1,X::space_dimension> &);
 
       template
       std::map<X::face_iterator, X::face_iterator>
@@ -266,10 +303,42 @@ for (X : TRIANGULATION_AND_DOFHANDLERS; deal_II_dimension : DIMENSIONS ; deal_II
                                   const types::boundary_id,
                                   int,
                                   const Tensor<1,deal_II_space_dimension> &);
+ 
+      template
+      void
+      identify_periodic_face_pairs
+        (const X &,
+         const types::boundary_id,
+         const types::boundary_id,
+         const unsigned int,
+         std::vector<std_cxx1x::tuple<X::cell_iterator, unsigned int,
+                                      X::cell_iterator, unsigned int> > &);
 
     #endif
 
   \}
 #endif
 }
+
+for (deal_II_dimension : DIMENSIONS ; deal_II_space_dimension : SPACE_DIMENSIONS)
+{
+#if deal_II_dimension <= deal_II_space_dimension
+   #if deal_II_dimension >= 2
+     namespace GridTools \{
+       template
+       void
+       identify_periodic_face_pairs
+         (const parallel::distributed::Triangulation<deal_II_dimension, deal_II_space_dimension> &,
+          const types::boundary_id,
+          const types::boundary_id,
+          const unsigned int,
+          std::vector<std_cxx1x::tuple<parallel::distributed::Triangulation<deal_II_dimension, deal_II_space_dimension>::cell_iterator,
+                                       unsigned int,
+                                       parallel::distributed::Triangulation<deal_II_dimension, deal_II_space_dimension>::cell_iterator,
+                                       unsigned int> > &);
+     \}
+   #endif
+#endif
+}
+
 

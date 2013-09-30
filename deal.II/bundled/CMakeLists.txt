@@ -1,16 +1,18 @@
-#####
+## ---------------------------------------------------------------------
+## $Id$
 ##
-## Copyright (C) 2012, 2013 by the deal.II authors
+## Copyright (C) 2012 - 2013 by the deal.II authors
 ##
 ## This file is part of the deal.II library.
 ##
-## <TODO: Full License information>
-## This file is dual licensed under QPL 1.0 and LGPL 2.1 or any later
-## version of the LGPL license.
+## The deal.II library is free software; you can use it, redistribute
+## it, and/or modify it under the terms of the GNU Lesser General
+## Public License as published by the Free Software Foundation; either
+## version 2.1 of the License, or (at your option) any later version.
+## The full text of the license can be found in the file LICENSE at
+## the top level of the deal.II distribution.
 ##
-## Author: Matthias Maier <matthias.maier@iwr.uni-heidelberg.de>
-##
-#####
+## ---------------------------------------------------------------------
 
 #
 # Export information about bundled library locations and do the actual
@@ -32,6 +34,9 @@ IF(FEATURE_BOOST_BUNDLED_CONFIGURED)
     DESTINATION ${DEAL_II_INCLUDE_RELDIR}/deal.II/bundled
     COMPONENT library
     PATTERN ".svn" EXCLUDE
+    )
+  FILE(APPEND ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/deal_ii_source_includes
+    "${BOOST_FOLDER}/include\n"
     )
 
   ADD_SUBDIRECTORY(${BOOST_FOLDER}/libs/serialization/src)
@@ -66,9 +71,10 @@ ENDIF()
 #
 # Threading Building Blocks library
 #
-IF(NOT CMAKE_SYSTEM_NAME MATCHES "CYGWIN")
+IF(NOT CMAKE_SYSTEM_NAME MATCHES "CYGWIN"
+   AND NOT CMAKE_SYSTEM_NAME MATCHES "Windows")
   #
-  # Cygwin is unsupported by tbb
+  # Cygwin is unsupported by tbb, Windows due to the way we compile tbb...
   #
   SET(FEATURE_THREADS_HAVE_BUNDLED TRUE)
   OPTION(DEAL_II_FORCE_BUNDLED_THREADS
@@ -84,6 +90,9 @@ IF(FEATURE_THREADS_BUNDLED_CONFIGURED)
     COMPONENT library
     FILES_MATCHING PATTERN "*.h"
     PATTERN ".svn" EXCLUDE
+    )
+  FILE(APPEND ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/deal_ii_source_includes
+    "${TBB_FOLDER}/include\n"
     )
 
   ADD_SUBDIRECTORY(${TBB_FOLDER}/src)

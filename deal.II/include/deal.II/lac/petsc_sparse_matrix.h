@@ -1,14 +1,19 @@
-//---------------------------------------------------------------------------
-//    $Id$
+// ---------------------------------------------------------------------
+// $Id$
 //
-//    Copyright (C) 2004, 2005, 2006, 2007, 2009, 2012 by the deal.II authors
+// Copyright (C) 2004 - 2013 by the deal.II authors
 //
-//    This file is subject to QPL and may not be  distributed
-//    without copyright and license information. Please refer
-//    to the file deal.II/doc/license.html for the  text  and
-//    further information on this license.
+// This file is part of the deal.II library.
 //
-//---------------------------------------------------------------------------
+// The deal.II library is free software; you can use it, redistribute
+// it, and/or modify it under the terms of the GNU Lesser General
+// Public License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+// The full text of the license can be found in the file LICENSE at
+// the top level of the deal.II distribution.
+//
+// ---------------------------------------------------------------------
+
 #ifndef __deal2__petsc_sparse_matrix_h
 #define __deal2__petsc_sparse_matrix_h
 
@@ -168,8 +173,8 @@ namespace PETScWrappers
      * the start.
      */
     template <typename SparsityType>
-    SparseMatrix (const SparsityType &sparsity_pattern,
-                  const bool          preset_nonzero_locations = true);
+    explicit SparseMatrix (const SparsityType &sparsity_pattern,
+                           const bool          preset_nonzero_locations = true);
 
     /**
      * This operator assigns a scalar to
@@ -209,7 +214,7 @@ namespace PETScWrappers
      * the constructor of this class with
      * the same argument list as the
      * present function.
-     */                           
+     */
     void reinit (const size_type               m,
                  const size_type               n,
                  const std::vector<size_type> &row_lengths,
@@ -320,6 +325,15 @@ namespace PETScWrappers
                                        const VectorBase &v) const;
 
   private:
+
+    /**
+     * Purposefully not implemented
+     */
+    SparseMatrix(const SparseMatrix &);
+    /**
+     * Purposefully not implemented
+     */
+    SparseMatrix &operator= (const SparseMatrix &);
 
     /**
      * Do the actual work for the

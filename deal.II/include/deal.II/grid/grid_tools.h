@@ -1,14 +1,19 @@
-//---------------------------------------------------------------------------
-//    $Id$
+// ---------------------------------------------------------------------
+// $Id$
 //
-//    Copyright (C) 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013 by the deal.II authors
+// Copyright (C) 2001 - 2013 by the deal.II authors
 //
-//    This file is subject to QPL and may not be  distributed
-//    without copyright and license information. Please refer
-//    to the file deal.II/doc/license.html for the  text  and
-//    further information on this license.
+// This file is part of the deal.II library.
 //
-//---------------------------------------------------------------------------
+// The deal.II library is free software; you can use it, redistribute
+// it, and/or modify it under the terms of the GNU Lesser General
+// Public License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+// The full text of the license can be found in the file LICENSE at
+// the top level of the deal.II distribution.
+//
+// ---------------------------------------------------------------------
+
 #ifndef __deal2__grid_tools_H
 #define __deal2__grid_tools_H
 
@@ -19,6 +24,7 @@
 #include <deal.II/grid/tria_accessor.h>
 #include <deal.II/grid/tria_iterator.h>
 #include <deal.II/fe/mapping_q1.h>
+#include <deal.II/base/std_cxx1x/tuple.h>
 
 #include <bitset>
 #include <list>
@@ -232,16 +238,32 @@ namespace GridTools
                Triangulation<2> &triangulation);
 
   /**
-   * This function transformes the @p Triangulation @p tria smoothly to a
-   * domain that is described by the boundary points in the map @p
-   * new_points. This map maps the point indices to the boundary points in the
-   * transformed domain.
+   * Transform the given triangulation smoothly to a different domain where
+   * each of the vertices at the boundary of the triangulation is mapped to
+   * the corresponding points in the @p new_points map.
    *
-   * Note, that the @p Triangulation is changed in-place, therefore you don't
-   * need to keep two triangulations, but the given triangulation is changed
-   * (overwritten).
+   * The way this function works is that it solves a Laplace equation for each
+   * of the dim components of a displacement field that maps the current
+   * domain into one described by @p new_points . The @p new_points array
+   * therefore represents the boundary values of this displacement field.
+   * The function then evaluates this displacement field at each vertex in
+   * the interior and uses it to place the mapped vertex where the
+   * displacement field locates it. Because the solution of the Laplace
+   * equation is smooth, this guarantees a smooth mapping from the old
+   * domain to the new one.
    *
-   * In 1d, this function is not currently implemented.
+   * @param[in] new_points The locations where a subset of the existing vertices
+   * are to be placed. Typically, this would be a map from the vertex indices
+   * of all nodes on the boundary to their new locations, thus completely
+   * specifying the geometry of the mapped domain. However, it may also include
+   * interior points if necessary and it does not need to include all boundary
+   * vertices (although you then lose control over the exact shape of the mapped
+   * domain).
+   *
+   * @param[in,out] tria The Triangulation object. This object is changed in-place,
+   * i.e., the previous locations of vertices are overwritten.
+   *
+   * @note This function is not currently implemented for the 1d case.
    */
   template <int dim>
   void laplace_transform (const std::map<unsigned int,Point<dim> > &new_points,
@@ -322,6 +344,11 @@ namespace GridTools
    * a hanging node located on a face or an
    * edge of it.
    *
+   * @note If the point requested does not lie in any of the cells of
+   * the mesh given, then this function throws an exception of type
+   * GridTools::ExcPointNotFound. You can catch this exception and
+   * decide what to do in that case.
+   *
    * @note It isn't entirely clear at this time whether the function
    * does the right thing with anisotropically refined meshes. It needs
    * to be checked for this case.
@@ -333,32 +360,23 @@ namespace GridTools
 
 
   /**
-   * Find and return an iterator to
-   * the active cell that surrounds
-   * a given point @p ref. The
-   * type of the first parameter
-   * may be either
-   * Triangulation,
-   * DoFHandler, or
-   * MGDoFHandler, i.e. we
-   * can find the cell around a
-   * point for iterators into each
-   * of these classes.
+   * Find and return an iterator to the active cell that surrounds a
+   * given point @p ref. The type of the first parameter may be either
+   * Triangulation, or one of the DoF handler classes, i.e. we can find the
+   * cell around a point for iterators into each of these classes.
    *
-   * This is solely a wrapper function
-   * for the @p interpolate function
-   * given below,
-   * providing backward compatibility.
-   * A Q1 mapping is used for the
-   * boundary, and the iterator to
-   * the cell in which the point
-   * resides is returned.
+   * This is solely a wrapper function for the function of same name
+   * below.  A Q1 mapping is used for the boundary, and the iterator
+   * to the cell in which the point resides is returned.
    *
-   * It is recommended to use the
-   * other version of this function,
-   * as it simultaneously delivers the
-   * local coordinate of the given point
-   * without additional computational cost.
+   * It is recommended to use the other version of this function, as
+   * it simultaneously delivers the local coordinate of the given
+   * point without additional computational cost.
+   *
+   * @note If the point requested does not lie in any of the cells of
+   * the mesh given, then this function throws an exception of type
+   * GridTools::ExcPointNotFound. You can catch this exception and
+   * decide what to do in that case.
    *
    * @note When applied to a triangulation or DoF handler object based
    * on a parallel::distributed::Triangulation object, the cell
@@ -374,58 +392,39 @@ namespace GridTools
                                  const Point<spacedim> &p);
 
   /**
-   * Find and return an iterator to
-   * the active cell that surrounds
-   * a given point @p p. The
-   * type of the first parameter
-   * may be either
-   * Triangulation,
-   * DoFHandler, hp::DoFHandler, or
-   * MGDoFHandler, i.e., we
-   * can find the cell around a
-   * point for iterators into each
-   * of these classes.
+   * Find and return an iterator to the active cell that surrounds a
+   * given point @p p. The type of the first parameter may be either
+   * Triangulation, DoFHandler, hp::DoFHandler, or MGDoFHandler, i.e.,
+   * we can find the cell around a point for iterators into each of
+   * these classes.
    *
-   * The algorithm used in this
-   * function proceeds by first
-   * looking for vertex located
-   * closest to the given point, see
-   * find_closest_vertex(). Secondly,
-   * all adjacent cells to this point
-   * are found in the mesh, see
-   * find_cells_adjacent_to_vertex().
-   * Lastly, for each of these cells,
-   * it is tested whether the point is
-   * inside. This check is performed
-   * using arbitrary boundary mappings.
-   * Still, it is possible that due
-   * to roundoff errors, the point
-   * cannot be located exactly inside
-   * the unit cell. In this case,
-   * even points at a very small
-   * distance outside the unit cell
+   * The algorithm used in this function proceeds by first looking for
+   * vertex located closest to the given point, see
+   * find_closest_vertex(). Secondly, all adjacent cells to this point
+   * are found in the mesh, see find_cells_adjacent_to_vertex().
+   * Lastly, for each of these cells, it is tested whether the point
+   * is inside. This check is performed using arbitrary boundary
+   * mappings.  Still, it is possible that due to roundoff errors, the
+   * point cannot be located exactly inside the unit cell. In this
+   * case, even points at a very small distance outside the unit cell
    * are allowed.
    *
-   * If a point lies on the
-   * boundary of two or more cells,
-   * then the algorithm tries to identify
-   * the cell that is of highest
+   * If a point lies on the boundary of two or more cells, then the
+   * algorithm tries to identify the cell that is of highest
    * refinement level.
    *
-   * The function returns an
-   * iterator to the cell, as well
-   * as the local position of the
-   * point inside the unit
-   * cell. This local position
-   * might be located slightly
-   * outside an actual unit cell,
-   * due to numerical roundoff.
-   * Therefore, the point returned
-   * by this function should
-   * be projected onto the unit cell,
-   * using GeometryInfo::project_to_unit_cell.
-   * This is not automatically performed
-   * by the algorithm.
+   * The function returns an iterator to the cell, as well as the
+   * local position of the point inside the unit cell. This local
+   * position might be located slightly outside an actual unit cell,
+   * due to numerical roundoff.  Therefore, the point returned by this
+   * function should be projected onto the unit cell, using
+   * GeometryInfo::project_to_unit_cell.  This is not automatically
+   * performed by the algorithm.
+   *
+   * @note If the point requested does not lie in any of the cells of
+   * the mesh given, then this function throws an exception of type
+   * GridTools::ExcPointNotFound. You can catch this exception and
+   * decide what to do in that case.
    *
    * @note When applied to a triangulation or DoF handler object based
    * on a parallel::distributed::Triangulation object, the cell
@@ -442,14 +441,16 @@ namespace GridTools
                                  const Point<spacedim>     &p);
 
   /**
-   * A version of the previous function
-   * where we use that mapping on a given
-   * cell that corresponds to the active
-   * finite element index of that
-   * cell. This is obviously only useful
-   * for hp problems, since the active
-   * finite element index for all other DoF
-   * handlers is always zero.
+   * A version of the previous function where we use that mapping on a
+   * given cell that corresponds to the active finite element index of
+   * that cell. This is obviously only useful for hp problems, since
+   * the active finite element index for all other DoF handlers is
+   * always zero.
+   *
+   * @note If the point requested does not lie in any of the cells of
+   * the mesh given, then this function throws an exception of type
+   * GridTools::ExcPointNotFound. You can catch this exception and
+   * decide what to do in that case.
    *
    * @note When applied to a triangulation or DoF handler object based
    * on a parallel::distributed::Triangulation object, the cell
@@ -968,7 +969,18 @@ namespace GridTools
                              const std::set<types::boundary_id> &boundary_ids
                              = std::set<types::boundary_id>());
 
-
+  /**
+   * Data type that provides all the information that is needed
+   * to create periodicity constraints and a periodic p4est forest
+   * with respect to two periodic cell faces
+   */
+  template<typename CellIterator>
+  struct PeriodicFacePair
+  {
+    CellIterator cell[2];
+    unsigned int face_idx[2];
+    std::bitset<3> orientation;
+  };
 
   /**
    * An orthogonal equality test for faces.
@@ -1054,8 +1066,8 @@ namespace GridTools
 
 
   /**
-   * This function loops over all faces from @p begin to @p end and
-   * collects a set of periodic face pairs for @p direction:
+   * This function will collect periodic face pairs on the highest (i.e.
+   * coarsest) mesh level.
    *
    * Define a 'first' boundary as all boundary faces having boundary_id
    * @p b_id1 and a 'second' boundary consisting of all faces belonging
@@ -1063,42 +1075,35 @@ namespace GridTools
    *
    * This function tries to match all faces belonging to the first
    * boundary with faces belonging to the second boundary with the help
-   * of orthogonal_equality.
+   * of orthogonal_equality().
+   *
+   * The bitset that is returned inside of PeriodicFacePair encodes the
+   * _relative_ orientation of the first face with respect to the second
+   * face, see the documentation of orthogonal_equality for further details.
+   *
+   * The @p direction refers to the space direction in which periodicity
+   * is enforced.
    *
    * The @p offset is a vector tangential to the faces that is added to the
    * location of vertices of the 'first' boundary when attempting to match
    * them to the corresponding vertices of the 'second' boundary. This can
    * be used to implement conditions such as $u(0,y)=u(1,y+1)$.
    *
-   * @author Matthias Maier, 2012
-   */
-  template<typename FaceIterator>
-  std::map<FaceIterator, std::pair<FaceIterator, std::bitset<3> > >
-  collect_periodic_face_pairs (const FaceIterator                          &begin,
-                               const typename identity<FaceIterator>::type &end,
-                               const types::boundary_id                    b_id1,
-                               const types::boundary_id                    b_id2,
-                               int                                         direction,
-                               const dealii::Tensor<1,FaceIterator::AccessorType::space_dimension> &offset);
-
-
-  /**
-   * Same function as above, but accepts a Triangulation or DoFHandler
-   * object @p dof_handler instead of an explicit face iterator range.
+   * @note The created std::vector can be used in
+   * DoFTools::make_periodicity_constraints and in
+   * parallel::distributed::Triangulation::add_periodicity to enforce
+   * periodicity algebraically.
    *
-   * This function will collect periodic face pairs on the highest (i.e.
-   * coarsest) mesh level.
-   *
-   * @author Matthias Maier, 2012
+   * @author Daniel Arndt, 2013
    */
   template<typename DH>
-  std::map<typename DH::face_iterator, std::pair<typename DH::face_iterator, std::bitset<3> > >
-  collect_periodic_face_pairs (const DH                 &dof_handler, /*TODO: Name*/
-                               const types::boundary_id b_id1,
-                               const types::boundary_id b_id2,
-                               int                      direction,
-                               const dealii::Tensor<1,DH::space_dimension> &offset);
-
+  std::vector<PeriodicFacePair<typename DH::cell_iterator> >
+  collect_periodic_faces
+  (const DH                 &dof_handler,
+   const types::boundary_id b_id1,
+   const types::boundary_id b_id2,
+   const unsigned int       direction,
+   const dealii::Tensor<1,DH::space_dimension> &offset);
 
   /**
    * This compatibility version of collect_periodic_face_pairs only works
@@ -1118,15 +1123,101 @@ namespace GridTools
    * meshes with cells not in @ref GlossFaceOrientation
    * "standard orientation".
    *
+   * @author Daniel Arndt, 2013
+   */
+  template<typename DH>
+  std::vector<PeriodicFacePair<typename DH::cell_iterator> >
+  collect_periodic_faces
+  (const DH                 &dof_handler,
+   const types::boundary_id b_id,
+   const unsigned int       direction,
+   const dealii::Tensor<1,DH::space_dimension> &offset);
+
+  /**
+   * This function does the same as collect_periodic_faces but returns a
+   * different data type.
+   *
    * @author Matthias Maier, 2012
+   *
+   * @note The returned data type is not compatible with
+   * DoFTools::make_periodicity_constraints
+   *
+   * @deprecated
+   */
+  template<typename DH>
+  std::map<typename DH::face_iterator, std::pair<typename DH::face_iterator, std::bitset<3> > >
+  collect_periodic_face_pairs
+  (const DH                 &container,
+   const types::boundary_id b_id1,
+   const types::boundary_id b_id2,
+   int                      direction,
+   const dealii::Tensor<1,DH::space_dimension> &offset) DEAL_II_DEPRECATED;
+
+  /**
+   * This compatibility version of collect_periodic_face_pairs only works
+   * on grids with cells in @ref GlossFaceOrientation "standard orientation".
+   *
+   * @author Matthias Maier, 2012
+   *
+   * @note The returned data type is not compatible with
+   * DoFTools::make_periodicity_constraints
+   *
+   * @deprecated
    */
   template<typename DH>
   std::map<typename DH::face_iterator, typename DH::face_iterator>
-  collect_periodic_face_pairs (const DH                 &dof_handler, /*TODO: Name*/
-                               const types::boundary_id b_id,
-                               int                      direction,
-                               const dealii::Tensor<1,DH::space_dimension> &offset);
+  collect_periodic_face_pairs
+  (const DH                 &dof_handler, /*TODO: Name*/
+   const types::boundary_id b_id,
+   int                      direction,
+   const dealii::Tensor<1,DH::space_dimension> &offset) DEAL_II_DEPRECATED;
 
+  /**
+   * This version loops over all faces from @p begin to @p end
+   * instead of accepting a DoFHandler or a Triangulation.
+   *
+   * @author Matthias Maier, 2012
+   *
+   * @note This function cannot produce the return as the other
+   * collect_periodic_faces functions.
+   *
+   * @deprecated
+   */
+  template<typename FaceIterator>
+  std::map<FaceIterator, std::pair<FaceIterator, std::bitset<3> > >
+  collect_periodic_face_pairs
+  (const FaceIterator                          &begin,
+   const typename identity<FaceIterator>::type &end,
+   const types::boundary_id                    b_id1,
+   const types::boundary_id                    b_id2,
+   const int                                   direction,
+   const dealii::Tensor<1,FaceIterator::AccessorType::space_dimension> &offset)
+  DEAL_II_DEPRECATED;
+
+  /**
+   * This function does the same as collect_periodic_faces but returns a
+   * different data type.
+   *
+   * @author Daniel Arndt, 2013
+   *
+   * @note The returned data type is not compatible with
+   * DoFTools::make_periodicity_constraints, but with a version of
+   * parallel::distributed::Triangulation::add_periodicity
+   *
+   * @note Use collect_periodic_faces instead.
+   *
+   * @deprecated
+   */
+  template<typename DH>
+  void
+  identify_periodic_face_pairs
+  (const DH &dof_handler,
+   const types::boundary_id b_id1,
+   const types::boundary_id b_id2,
+   const unsigned int direction,
+   std::vector<std_cxx1x::tuple<typename DH::cell_iterator, unsigned int,
+                                typename DH::cell_iterator, unsigned int> >
+     &periodicity_vector) DEAL_II_DEPRECATED;
 
 
   /**

@@ -1,14 +1,19 @@
-//---------------------------------------------------------------------------
-//    $Id$
+// ---------------------------------------------------------------------
+// $Id$
 //
-//    Copyright (C) 2010, 2011, 2012, 2013 by the deal.II authors
+// Copyright (C) 2010 - 2013 by the deal.II authors
 //
-//    This file is subject to QPL and may not be  distributed
-//    without copyright and license information. Please refer
-//    to the file deal.II/doc/license.html for the  text  and
-//    further information on this license.
+// This file is part of the deal.II library.
 //
-//---------------------------------------------------------------------------
+// The deal.II library is free software; you can use it, redistribute
+// it, and/or modify it under the terms of the GNU Lesser General
+// Public License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+// The full text of the license can be found in the file LICENSE at
+// the top level of the deal.II distribution.
+//
+// ---------------------------------------------------------------------
+
 #ifndef __deal2__integrators_laplace_h
 #define __deal2__integrators_laplace_h
 
@@ -334,6 +339,77 @@ namespace LocalIntegrators
                       const double dnui = n * fe1.shape_grad_component(j,k,d);
                       const double ue = fe2.shape_value_component(j,k,d);
                       const double dnue = n * fe2.shape_grad_component(j,k,d);
+                      M11(i,j) += dx*(-.5*nui*dnvi*ui-.5*nui*dnui*vi+nu*penalty*ui*vi);
+                      M12(i,j) += dx*( .5*nui*dnvi*ue-.5*nue*dnue*vi-nu*penalty*vi*ue);
+                      M21(i,j) += dx*(-.5*nue*dnve*ui+.5*nui*dnui*ve-nu*penalty*ui*ve);
+                      M22(i,j) += dx*( .5*nue*dnve*ue+.5*nue*dnue*ve+nu*penalty*ue*ve);
+                    }
+                }
+            }
+        }
+    }
+
+    template <int dim>
+    void ip_tangential_matrix (
+      FullMatrix<double> &M11,
+      FullMatrix<double> &M12,
+      FullMatrix<double> &M21,
+      FullMatrix<double> &M22,
+      const FEValuesBase<dim> &fe1,
+      const FEValuesBase<dim> &fe2,
+      double penalty,
+      double factor1 = 1.,
+      double factor2 = -1.)
+    {
+      const unsigned int n_dofs = fe1.dofs_per_cell;
+      AssertDimension(fe1.get_fe().n_components(), dim);
+      AssertDimension(fe2.get_fe().n_components(), dim);
+      AssertDimension(M11.n(), n_dofs);
+      AssertDimension(M11.m(), n_dofs);
+      AssertDimension(M12.n(), n_dofs);
+      AssertDimension(M12.m(), n_dofs);
+      AssertDimension(M21.n(), n_dofs);
+      AssertDimension(M21.m(), n_dofs);
+      AssertDimension(M22.n(), n_dofs);
+      AssertDimension(M22.m(), n_dofs);
+
+      const double nui = factor1;
+      const double nue = (factor2 < 0) ? factor1 : factor2;
+      const double nu = .5*(nui+nue);
+
+      for (unsigned int k=0; k<fe1.n_quadrature_points; ++k)
+        {
+          const double dx = fe1.JxW(k);
+          const Point<dim> &n = fe1.normal_vector(k);
+	  for (unsigned int i=0; i<n_dofs; ++i)
+	    {
+	      for (unsigned int j=0; j<n_dofs; ++j)
+		{
+		  double u1dotn = 0.;
+		  double v1dotn = 0.;
+		  double u2dotn = 0.;
+		  double v2dotn = 0.;
+		  
+		  for (unsigned int d=0; d<dim; ++d)
+		    {
+		      u1dotn += n(d)*fe1.shape_value_component(j,k,d);
+		      v1dotn += n(d)*fe1.shape_value_component(i,k,d);
+		      u2dotn += n(d)*fe2.shape_value_component(j,k,d);
+		      v2dotn += n(d)*fe2.shape_value_component(i,k,d);
+		    }
+			  
+		  for (unsigned int d=0; d<fe1.get_fe().n_components(); ++d)
+		    {
+		      
+						       // multiply by 
+                      const double vi = fe1.shape_value_component(i,k,d)*(1-v1dotn);
+                      const double dnvi = n * fe1.shape_grad_component(i,k,d)*(1-v1dotn);
+                      const double ve = fe2.shape_value_component(i,k,d)*(1-v2dotn);
+                      const double dnve = n * fe2.shape_grad_component(i,k,d)*(1-v2dotn);
+                      const double ui = fe1.shape_value_component(j,k,d)*(1-u1dotn);
+                      const double dnui = n * fe1.shape_grad_component(j,k,d)*(1-u1dotn);
+                      const double ue = fe2.shape_value_component(j,k,d)*(1-u2dotn);
+                      const double dnue = n * fe2.shape_grad_component(j,k,d)*(1-u2dotn);
                       M11(i,j) += dx*(-.5*nui*dnvi*ui-.5*nui*dnui*vi+nu*penalty*ui*vi);
                       M12(i,j) += dx*( .5*nui*dnvi*ue-.5*nue*dnue*vi-nu*penalty*vi*ue);
                       M21(i,j) += dx*(-.5*nue*dnve*ui+.5*nui*dnui*ve-nu*penalty*ui*ve);

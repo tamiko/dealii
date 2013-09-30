@@ -1,13 +1,25 @@
-/* Author: Martin Kronbichler, Uppsala University,
-           Wolfgang Bangerth, Texas A&M University,
-           Timo Heister, University of Goettingen, 2008-2011 */
-/*                                                                */
-/*    Copyright (C) 2008-2012 by the deal.II authors */
-/*                                                                */
-/*    This file is subject to QPL and may not be  distributed     */
-/*    without copyright and license information. Please refer     */
-/*    to the file deal.II/doc/license.html for the  text  and     */
-/*    further information on this license.                        */
+/* ---------------------------------------------------------------------
+ * $Id$
+ *
+ * Copyright (C) 2008 - 2013 by the deal.II authors
+ *
+ * This file is part of the deal.II library.
+ *
+ * The deal.II library is free software; you can use it, redistribute
+ * it, and/or modify it under the terms of the GNU Lesser General
+ * Public License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ * The full text of the license can be found in the file LICENSE at
+ * the top level of the deal.II distribution.
+ *
+ * ---------------------------------------------------------------------
+
+ *
+ * Authors: Martin Kronbichler, Uppsala University,
+ *          Wolfgang Bangerth, Texas A&M University,
+ *          Timo Heister, University of Goettingen, 2008-2011
+ */
+
 
 // @sect3{Include files}
 
@@ -93,7 +105,7 @@ namespace Step32
 
   // In the following namespace, we define the various pieces of equation data
   // that describe the problem. This corresponds to the various aspects of
-  // making the problem at least slightly realistc and that were exhaustively
+  // making the problem at least slightly realistic and that were exhaustively
   // discussed in the description of the testcase in the introduction.
   //
   // We start with a few coefficients that have constant values (the comment
@@ -101,7 +113,7 @@ namespace Step32
   namespace EquationData
   {
     const double eta                   = 1e21;    /* Pa s       */
-    const double kappa                 = 1e-6;    /* m / s      */
+    const double kappa                 = 1e-6;    /* m^2 / s    */
     const double reference_density     = 3300;    /* kg / m^3   */
     const double reference_temperature = 293;     /* K          */
     const double expansion_coefficient = 2e-5;    /* 1/K        */
@@ -217,7 +229,7 @@ namespace Step32
   // block. The three code blocks of the <code>vmult</code> function implement
   // the multiplications with the three blocks of this preconditioner matrix
   // and should be self explanatory if you have read through step-31 or the
-  // discussion of compositing solvers in step-20.
+  // discussion of composing solvers in step-20.
   namespace LinearSolvers
   {
     template <class PreconditionerA, class PreconditionerMp>
@@ -1993,7 +2005,7 @@ namespace Step32
     }
 
     // Following this, we can compute constraints for the solution vectors,
-    // including hanging node constraints and homogenous and inhomogenous
+    // including hanging node constraints and homogeneous and inhomogeneous
     // boundary values for the Stokes and temperature fields. Note that as for
     // everything else, the constraint objects can not hold <i>all</i>
     // constraints on every processor. Rather, each processor needs to store
@@ -3213,14 +3225,36 @@ namespace Step32
   }
 
 
-  // The <code>output_results()</code> function does mostly what the
-  // corresponding one did in to step-31, in particular the merging data from
-  // the two DoFHandler objects (for the Stokes and the temperature parts of
-  // the problem) into one. There is one minor change: we make sure that each
-  // processor only works on the subdomain it owns locally (and not on ghost
-  // or artificial cells) when building the joint solution vector. The same
-  // will then have to be done in DataOut::build_patches(), but that function
-  // does so automatically.
+  // The <code>output_results()</code> function has a similar task to the one
+  // in step-31. However, here we are going to demonstrate a different
+  // technique on how to merge output from different DoFHandler objects. The
+  // way we're going to achieve this recombination is to create a joint
+  // DoFHandler that collects both components, the Stokes solution and the
+  // temperature solution. This can be nicely done by combining the finite
+  // elements from the two systems to form one FESystem, and let this
+  // collective system define a new DoFHandler object. To be sure that
+  // everything was done correctly, we perform a sanity check that ensures
+  // that we got all the dofs from both Stokes and temperature even in the
+  // combined system. We then combine the data vectors. Unfortunately, there
+  // is no straight-forward relation that tells us how to sort Stokes and
+  // temperature vector into the joint vector. The way we can get around this
+  // trouble is to rely on the information collected in the FESystem. For each
+  // dof on a cell, the joint finite element knows to which equation component
+  // (velocity component, pressure, or temperature) it belongs – that's the
+  // information we need! So we step through all cells (with iterators into
+  // all three DoFHandlers moving in sync), and for each joint cell dof, we
+  // read out that component using the FiniteElement::system_to_base_index
+  // function (see there for a description of what the various parts of its
+  // return value contain). We also need to keep track whether we're on a
+  // Stokes dof or a temperature dof, which is contained in
+  // joint_fe.system_to_base_index(i).first.first. Eventually, the dof_indices
+  // data structures on either of the three systems tell us how the relation
+  // between global vector and local dofs looks like on the present cell,
+  // which concludes this tedious work. We make sure that each processor only
+  // works on the subdomain it owns locally (and not on ghost or artificial
+  // cells) when building the joint solution vector. The same will then have
+  // to be done in DataOut::build_patches(), but that function does so
+  // automatically.
   //
   // What we end up with is a set of patches that we can write using the
   // functions in DataOutBase in a variety of output formats. Here, we then
@@ -3295,6 +3329,7 @@ namespace Step32
           }
     }
 
+    joint_solution.compress(VectorOperation::insert);
 
     IndexSet locally_relevant_joint_dofs(joint_dof_handler.n_dofs());
     DoFTools::extract_locally_relevant_dofs (joint_dof_handler, locally_relevant_joint_dofs);

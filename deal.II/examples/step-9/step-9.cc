@@ -1,13 +1,23 @@
-/* Author: Wolfgang Bangerth, University of Heidelberg, 2000 */
+/* ---------------------------------------------------------------------
+ * $Id$
+ *
+ * Copyright (C) 2000 - 2013 by the deal.II authors
+ *
+ * This file is part of the deal.II library.
+ *
+ * The deal.II library is free software; you can use it, redistribute
+ * it, and/or modify it under the terms of the GNU Lesser General
+ * Public License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ * The full text of the license can be found in the file LICENSE at
+ * the top level of the deal.II distribution.
+ *
+ * ---------------------------------------------------------------------
 
-/*    $Id$       */
-/*                                                                */
-/*    Copyright (C) 2000-2004, 2006-2008, 2010-2013 by the deal.II authors */
-/*                                                                */
-/*    This file is subject to QPL and may not be  distributed     */
-/*    without copyright and license information. Please refer     */
-/*    to the file deal.II/doc/license.html for the  text  and     */
-/*    further information on this license.                        */
+ *
+ * Author: Wolfgang Bangerth, University of Heidelberg, 2000
+ */
+
 
 // Just as in previous examples, we have to include several files of which the
 // meaning has already been discussed:
@@ -36,7 +46,7 @@
 #include <deal.II/fe/fe_q.h>
 #include <deal.II/grid/grid_out.h>
 
-// The following two files provide classes and information for multi-threaded
+// The following two files provide classes and information for multithreaded
 // programs. In the first one, the classes and functions are declared which we
 // need to start new threads and to wait for threads to return (i.e. the
 // <code>Thread</code> class and the <code>new_thread</code> functions). The
@@ -142,7 +152,7 @@ namespace Step9
   // @sect3{Equation data declaration}
 
   // Next we declare a class that describes the advection field. This, of
-  // course, is a vector field with as many compents as there are space
+  // course, is a vector field with as many components as there are space
   // dimensions. One could now use a class derived from the
   // <code>Function</code> base class, as we have done for boundary values and
   // coefficients in previous examples, but there is another possibility in
@@ -391,7 +401,7 @@ namespace Step9
   // rather than the common vectors of doubles, as the additional accuracy is
   // not necessary for estimated values.
   //
-  // In addition to these two functions, the class declares to exceptions
+  // In addition to these two functions, the class declares two exceptions
   // which are raised when a cell has no neighbors in each of the space
   // directions (in which case the matrix described in the introduction would
   // be singular and can't be inverted), while the other one is used in the
@@ -507,14 +517,14 @@ namespace Step9
     // information, we could use the value of the global variable
     // <code>multithread_info.n_cpus</code>, which is determined at start-up
     // time of your program automatically. (Note that if the library was not
-    // configured for multi-threading, then the number of CPUs is set to one.)
+    // configured for multithreading, then the number of CPUs is set to one.)
     // However, sometimes there might be reasons to use another value. For
     // example, you might want to use less processors than there are in your
-    // system in order not to use too many computational ressources. On the
+    // system in order not to use too many computational resources. On the
     // other hand, if there are several jobs running on a computer and you
     // want to get a higher percentage of CPU time, it might be worth to start
     // more threads than there are CPUs, as most operating systems assign
-    // roughly the same CPU ressources to all threads presently running. For
+    // roughly the same CPU resources to all threads presently running. For
     // this reason, the <code>MultithreadInfo</code> class contains a
     // read-write variable <code>n_default_threads</code> which is set to
     // <code>n_cpus</code> by default, but can be set to another value. This
@@ -545,7 +555,7 @@ namespace Step9
     // can be omitted. (However, you still need to write the angle brackets,
     // even if they are empty.)
     //
-    // If you did not configure for multi-threading, then the
+    // If you did not configure for multithreading, then the
     // <code>new_thread</code> function that is supposed to start a new thread
     // in parallel only executes the function which should be run in parallel,
     // waits for it to return (i.e. the function is executed sequentially),
@@ -559,7 +569,7 @@ namespace Step9
     // the same size. Each thread will then assemble the local contributions
     // of the cells within its chunk and transfer these contributions to the
     // global matrix. As splitting a range of cells is a rather common task
-    // when using multi-threading, there is a function in the
+    // when using multithreading, there is a function in the
     // <code>Threads</code> namespace that does exactly this. In fact, it does
     // this not only for a range of cell iterators, but for iterators in
     // general, so you could use it for <code>std::vector::iterator</code> or
@@ -576,7 +586,7 @@ namespace Step9
     // differ (<code>begin_active</code> returns an
     // <code>active_iterator</code>, while <code>end</code> returns a
     // <code>raw_iterator</code>), and in this case the C++ language requires
-    // us to specify the template type explicitely. For brevity, we first
+    // us to specify the template type explicitly. For brevity, we first
     // typedef this data type to an alias.
     typedef typename DoFHandler<dim>::active_cell_iterator active_cell_iterator;
     std::vector<std::pair<active_cell_iterator,active_cell_iterator> >
@@ -586,7 +596,7 @@ namespace Step9
                                                     n_threads);
 
     // Finally, for each of the chunks of iterators we have computed, start
-    // one thread (or if not in multi-thread mode: execute assembly on these
+    // one thread (or if not in multithread mode: execute assembly on these
     // chunks sequentially). This is done using the following sequence of
     // function calls:
     for (unsigned int thread=0; thread<n_threads; ++thread)
@@ -595,7 +605,7 @@ namespace Step9
                                       thread_ranges[thread].first,
                                       thread_ranges[thread].second);
     // The reasons and internal workings of these functions can be found in
-    // the report on the subject of multi-threading, which is available online
+    // the report on the subject of multithreading, which is available online
     // as well. Suffice it to say that we create a new thread that calls the
     // <code>assemble_system_interval</code> function on the present object
     // (the <code>this</code> pointer), with the arguments following in the
@@ -611,17 +621,17 @@ namespace Step9
     // When all the threads are running, the only thing we have to do is wait
     // for them to finish. This is necessary of course, as we can't proceed
     // with our tasks before the matrix and right hand side are
-    // assemblesd. Waiting for all the threads to finish can be done using the
-    // <code>joint_all</code> function in the <code>ThreadGroup</code>
+    // assembled. Waiting for all the threads to finish can be done using the
+    // <code>join_all</code> function in the <code>ThreadGroup</code>
     // container, which just calls <code>join</code> on each of the thread
     // objects it stores.
     //
-    // Again, if the library was not configured to use multi-threading, then
+    // Again, if the library was not configured to use multithreading, then
     // no threads can run in parallel and the function returns immediately.
     threads.join_all ();
 
 
-    // After the matrix has been assembled in parallel, we stil have to
+    // After the matrix has been assembled in parallel, we still have to
     // eliminate hanging node constraints. This is something that can't be
     // done on each of the threads separately, so we have to do it now.
     hanging_node_constraints.condense (system_matrix);
@@ -816,7 +826,7 @@ namespace Step9
         //
         // On the other hand, we would now like to write the local
         // contributions to the global system of equations into the global
-        // objects. This needs some kind of synchronisation, as if we would
+        // objects. This needs some kind of synchronization, as if we would
         // not take care of the fact that multiple threads write into the
         // matrix at the same time, we might be surprised that one threads
         // reads data from the matrix that another thread is presently
@@ -845,7 +855,7 @@ namespace Step9
         // i.e. other threads can now enter into the protected section by
         // acquiring the lock. Two final notes are in place here, however:
         //
-        // 1. If the library was not configured for multi-threading, then
+        // 1. If the library was not configured for multithreading, then
         // there can't be parallel threads and there is no need to
         // synchronize. Thus, the <code>lock</code> and <code>release</code>
         // functions are no-ops, i.e. they return without doing anything.
@@ -1273,7 +1283,7 @@ namespace Step9
         // can determine an approximation of the gradient for the present
         // cell, then we need to have passed over vectors <code>y</code> which
         // span the whole space, otherwise we would not have all components of
-        // the gradient. This is indicated by the invertability of the matrix.
+        // the gradient. This is indicated by the invertibility of the matrix.
         //
         // If the matrix should not be invertible, this means that the present
         // cell had an insufficient number of active neighbors. In contrast to

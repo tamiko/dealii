@@ -1,15 +1,19 @@
-//---------------------------------------------------------------------------
-//    $Id$
-//    Version: $Name$
+// ---------------------------------------------------------------------
+// $Id$
 //
-//    Copyright (C) 2011-2013 by the deal.II authors
+// Copyright (C) 2011 - 2013 by the deal.II authors
 //
-//    This file is subject to QPL and may not be  distributed
-//    without copyright and license information. Please refer
-//    to the file deal.II/doc/license.html for the  text  and
-//    further information on this license.
+// This file is part of the deal.II library.
 //
-//---------------------------------------------------------------------------
+// The deal.II library is free software; you can use it, redistribute
+// it, and/or modify it under the terms of the GNU Lesser General
+// Public License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+// The full text of the license can be found in the file LICENSE at
+// the top level of the deal.II distribution.
+//
+// ---------------------------------------------------------------------
+
 
 #ifndef __deal2__matrix_free_dof_info_h
 #define __deal2__matrix_free_dof_info_h
@@ -21,6 +25,8 @@
 #include <deal.II/lac/constraint_matrix.h>
 #include <deal.II/dofs/dof_handler.h>
 #include <deal.II/matrix_free/helper_functions.h>
+
+#include <deal.II/base/std_cxx1x/array.h>
 
 #include <memory>
 
@@ -51,19 +57,6 @@ namespace internal
      */
     struct DoFInfo
     {
-            
-      /**
-       * size_type of the dof_indicies object.
-       */
-      
-      typedef std::vector<types::global_dof_index>::size_type size_dof;
-      
-      /**
-       * size_type of the constraint_indicators object.
-       */
-      
-      typedef std::vector<std::pair<unsigned short, unsigned short> >::size_type size_constraint;
-
       /**
        * Default empty constructor.
        */
@@ -78,18 +71,18 @@ namespace internal
        * Clears all data fields in this class.
        */
       void clear ();
-      
+
 
       /**
        * Returns a pointer to the first index in the DoF row @p row.
        */
-      const types::global_dof_index *begin_indices (const unsigned int row) const;
+      const unsigned int *begin_indices (const unsigned int row) const;
 
       /**
        * Returns a pointer to the one past the last DoF index in the row @p
        * row.
        */
-      const types::global_dof_index *end_indices (const unsigned int row) const;
+      const unsigned int *end_indices (const unsigned int row) const;
 
       /**
        * Returns the number of entries in the indices field for the given row.
@@ -120,13 +113,13 @@ namespace internal
        * Returns a pointer to the first index in the DoF row @p row for plain
        * indices (i.e., the entries where constraints are not embedded).
        */
-      const types::global_dof_index *begin_indices_plain (const unsigned int row) const;
+      const unsigned int *begin_indices_plain (const unsigned int row) const;
 
       /**
        * Returns a pointer to the one past the last DoF index in the row @p
        * row (i.e., the entries where constraints are not embedded).
        */
-      const types::global_dof_index *end_indices_plain (const unsigned int row) const;
+      const unsigned int *end_indices_plain (const unsigned int row) const;
 
       /**
        * Returns the FE index for a given finite element degree. If not in hp
@@ -178,7 +171,7 @@ namespace internal
        */
       void compute_renumber_serial (const std::vector<unsigned int> &boundary_cells,
                                     const SizeInfo                  &size_info,
-                                    std::vector<types::global_dof_index> &renumbering);
+                                    std::vector<unsigned int>       &renumbering);
 
       /**
        * Reorganizes cells in the hp case without parallelism such that all
@@ -187,7 +180,7 @@ namespace internal
        * DoFHandlers.
        */
       void compute_renumber_hp_serial (SizeInfo                  &size_info,
-                                     std::vector<types::global_dof_index> &renumbering,
+                                       std::vector<unsigned int> &renumbering,
                                        std::vector<unsigned int> &irregular_cells);
 
       /**
@@ -197,7 +190,7 @@ namespace internal
        */
       void compute_renumber_parallel (const std::vector<unsigned int> &boundary_cells,
                                       SizeInfo                        &size_info,
-                                      std::vector<types::global_dof_index> &renumbering);
+                                      std::vector<unsigned int>       &renumbering);
 
       /**
        * This method reorders the way cells are gone through based on a given
@@ -206,7 +199,7 @@ namespace internal
        * vectorization.
        */
       void reorder_cells (const SizeInfo                  &size_info,
-                          const std::vector<types::global_dof_index> &renumbering,
+                          const std::vector<unsigned int> &renumbering,
                           const std::vector<unsigned int> &constraint_pool_row_index,
                           const std::vector<unsigned int> &irregular_cells,
                           const unsigned int               vectorization_length);
@@ -237,7 +230,7 @@ namespace internal
       void
       make_thread_graph_partition_color (SizeInfo                  &size_info,
                                          TaskInfo                  &task_info,
-                                         std::vector<types::global_dof_index> &renumbering,
+                                         std::vector<unsigned int> &renumbering,
                                          std::vector<unsigned int> &irregular_cells,
                                          const bool                 hp_bool);
 
@@ -258,7 +251,7 @@ namespace internal
       void
       make_thread_graph_partition_partition (SizeInfo                  &size_info,
                                              TaskInfo                  &task_info,
-                                             std::vector<types::global_dof_index> &renumbering,
+                                             std::vector<unsigned int> &renumbering,
                                              std::vector<unsigned int> &irregular_cells,
                                              const bool                 hp_bool);
 
@@ -271,7 +264,7 @@ namespace internal
       void
       make_connectivity_graph (const SizeInfo                  &size_info,
                                const TaskInfo                  &task_info,
-                               const std::vector<types::global_dof_index> &renumbering,
+                               const std::vector<unsigned int> &renumbering,
                                const std::vector<unsigned int> &irregular_cells,
                                const bool                       do_blocking,
                                CompressedSimpleSparsityPattern &connectivity) const;
@@ -313,19 +306,25 @@ namespace internal
        * certain structure in the indices, like indices for vector-valued
        * problems or for cells where not all vector components are filled.
        */
-      std::vector<std_cxx1x::tuple<size_dof,
-          size_constraint,
-          unsigned int> > row_starts;
+      std::vector<std_cxx1x::array<unsigned int, 3> > row_starts;
 
       /**
-       * Stores the (global) indices of the degrees of freedom for each cell. This
-       * array also includes the indirect contributions from constraints,
+       * Stores the indices of the degrees of freedom for each cell. These
+       * indices are computed in MPI-local index space, i.e., each processor
+       * stores the locally owned indices as numbers between <tt>0</tt> and
+       * <tt>n_locally_owned_dofs-1</tt> and ghost indices in the range
+       * <tt>n_locally_owned_dofs</tt> to
+       * <tt>n_locally_owned_dofs+n_ghost_dofs</tt>. The translation between
+       * this MPI-local index space and the global numbering of degrees of
+       * freedom is stored in the @p vector_partitioner data structure.
+
+       * This array also includes the indirect contributions from constraints,
        * which are described by the @p constraint_indicator field. Because of
        * variable lengths of rows, this would be a vector of a
        * vector. However, we use one contiguous memory region and store the
        * rowstart in the variable @p row_starts.
        */
-      std::vector<types::global_dof_index> dof_indices;
+      std::vector<unsigned int> dof_indices;
 
       /**
        * This variable describes the position of constraints in terms of the
@@ -350,13 +349,13 @@ namespace internal
        * This stores a (sorted) list of all locally owned degrees of freedom
        * that are constrained.
        */
-      std::vector<types::global_dof_index> constrained_dofs;
+      std::vector<unsigned int> constrained_dofs;
 
       /**
        * Stores the rowstart indices of the compressed row storage in the @p
        * plain_dof_indices fields.
        */
-      std::vector<types::global_dof_index> row_starts_plain_indices;
+      std::vector<unsigned int> row_starts_plain_indices;
 
       /**
        * Stores the indices of the degrees of freedom for each cell. This
@@ -366,7 +365,7 @@ namespace internal
        * contiguous memory region and store the rowstart in the variable @p
        * row_starts_plain_indices.
        */
-      std::vector<types::global_dof_index> plain_dof_indices;
+      std::vector<unsigned int> plain_dof_indices;
 
       /**
        * Stores the dimension of the underlying DoFHandler. Since the indices
@@ -428,11 +427,11 @@ namespace internal
 #ifndef DOXYGEN
 
     inline
-      const types::global_dof_index *
+    const unsigned int *
     DoFInfo::begin_indices (const unsigned int row) const
     {
       AssertIndexRange (row, row_starts.size()-1);
-      const unsigned int index = std_cxx1x::get<0>(row_starts[row]);
+      const unsigned int index = row_starts[row][0];
       AssertIndexRange(index, dof_indices.size()+1);
       return dof_indices.empty() ? 0 : &dof_indices[0] + index;
     }
@@ -440,11 +439,11 @@ namespace internal
 
 
     inline
-      const types::global_dof_index *
+    const unsigned int *
     DoFInfo::end_indices (const unsigned int row) const
     {
       AssertIndexRange (row, row_starts.size()-1);
-      const unsigned int index = std_cxx1x::get<0>(row_starts[row+1]);
+      const unsigned int index = row_starts[row+1][0];
       AssertIndexRange(index, dof_indices.size()+1);
       return dof_indices.empty() ? 0 : &dof_indices[0] + index;
     }
@@ -456,8 +455,7 @@ namespace internal
     DoFInfo::row_length_indices (const unsigned int row) const
     {
       AssertIndexRange (row, row_starts.size()-1);
-      return (std_cxx1x::get<0>(row_starts[row+1]) -
-              std_cxx1x::get<0>(row_starts[row]));
+      return (row_starts[row+1][0] - row_starts[row][0]);
     }
 
 
@@ -467,7 +465,7 @@ namespace internal
     DoFInfo::begin_indicators (const unsigned int row) const
     {
       AssertIndexRange (row, row_starts.size()-1);
-      const unsigned int index = std_cxx1x::get<1>(row_starts[row]);
+      const unsigned int index = row_starts[row][1];
       AssertIndexRange (index, constraint_indicator.size()+1);
       return constraint_indicator.empty() ? 0 : &constraint_indicator[0] + index;
     }
@@ -479,7 +477,7 @@ namespace internal
     DoFInfo::end_indicators (const unsigned int row) const
     {
       AssertIndexRange (row, row_starts.size()-1);
-      const unsigned int index = std_cxx1x::get<1>(row_starts[row+1]);
+      const unsigned int index = row_starts[row+1][1];
       AssertIndexRange (index, constraint_indicator.size()+1);
       return constraint_indicator.empty() ? 0 : &constraint_indicator[0] + index;
     }
@@ -491,20 +489,19 @@ namespace internal
     DoFInfo::row_length_indicators (const unsigned int row) const
     {
       AssertIndexRange (row, row_starts.size()-1);
-      return (std_cxx1x::get<1>(row_starts[row+1]) -
-              std_cxx1x::get<1>(row_starts[row]));
+      return (row_starts[row+1][1] - row_starts[row][1]);
     }
 
 
 
     inline
-    const types::global_dof_index *
+    const unsigned int *
     DoFInfo::begin_indices_plain (const unsigned int row) const
     {
       // if we have no constraints, should take the data from dof_indices
       if (row_length_indicators(row) == 0)
         {
-          Assert (row_starts_plain_indices[row] == numbers::invalid_dof_index,
+          Assert (row_starts_plain_indices[row]==numbers::invalid_unsigned_int,
                   ExcInternalError());
           return begin_indices(row);
         }
@@ -520,7 +517,7 @@ namespace internal
 
 
     inline
-    const types::global_dof_index *
+    const unsigned int *
     DoFInfo::end_indices_plain (const unsigned int row) const
     {
       return begin_indices_plain(row) +

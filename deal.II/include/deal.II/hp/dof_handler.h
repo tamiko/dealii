@@ -1,14 +1,19 @@
-//----------------------------------------------------------------------
-//    $Id$
+// ---------------------------------------------------------------------
+// $Id$
 //
-//    Copyright (C) 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013 by the deal.II authors
+// Copyright (C) 2005 - 2013 by the deal.II authors
 //
-//    This file is subject to QPL and may not be  distributed
-//    without copyright and license information. Please refer
-//    to the file deal.II/doc/license.html for the  text  and
-//    further information on this license.
+// This file is part of the deal.II library.
 //
-//----------------------------------------------------------------------
+// The deal.II library is free software; you can use it, redistribute
+// it, and/or modify it under the terms of the GNU Lesser General
+// Public License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+// The full text of the license can be found in the file LICENSE at
+// the top level of the deal.II distribution.
+//
+// ---------------------------------------------------------------------
+
 #ifndef __deal2__hp_dof_handler_h
 #define __deal2__hp_dof_handler_h
 
@@ -33,9 +38,9 @@ namespace internal
 {
   namespace hp
   {
-    template <int> class DoFLevel;
-    template <int> class DoFFaces;
-    template <int> class DoFObjects;
+    class DoFLevel;
+    template <int> class DoFIndicesOnFaces;
+    template <int> class DoFIndicesOnFacesOrEdges;
 
     namespace DoFHandler
     {
@@ -310,9 +315,17 @@ namespace hp
     cell_iterator        begin       (const unsigned int level = 0) const;
 
     /**
-    * Iterator to the first active
-    * cell on level @p level.
-    */
+     *  Iterator to the first active cell on level @p level. If the
+     *  given level does not contain any active cells (i.e., all cells
+     *  on this level are further refined, then this function returns
+     *  <code>end_active(level)</code> so that loops of the kind
+     *  @code
+     *    for (cell=dof_handler.begin_active(level); cell!=dof_handler.end_active(level); ++cell)
+     *      ...
+     *  @endcode
+     *  have zero iterations, as may be expected if there are no active
+     *  cells on this level.
+     */
     active_cell_iterator begin_active(const unsigned int level = 0) const;
 
     /**
@@ -334,12 +347,10 @@ namespace hp
     cell_iterator        end (const unsigned int level) const;
 
     /**
-    * Return an active iterator
-    * which is the first iterator
-    * not on level. If @p level is
-    * the last level, then this
-    * returns <tt>end()</tt>.
-    */
+     * Return an active iterator which is the first active iterator not
+     * on the given level. If @p level is the last level, then this
+     * returns <tt>end()</tt>.
+     */
     active_cell_iterator end_active (const unsigned int level) const;
 
     /*@}*/
@@ -378,7 +389,7 @@ namespace hp
      * DoFs which are constrained by
      * hanging nodes, see @ref constraints.
      */
-   types::global_dof_index n_dofs () const;
+    types::global_dof_index n_dofs () const;
 
     /**
     * The number of multilevel
@@ -682,7 +693,7 @@ namespace hp
      *  the active_fe_indices in
      *  the
      *  dealii::internal::hp::DoFLevel. They
-     *  are initialized with the a
+     *  are initialized with a
      *  zero indicator, meaning
      *  that fe[0] is going to be
      *  used by default.  This
@@ -693,7 +704,6 @@ namespace hp
      *  cell has a valid
      *  active_fe_index.
      */
-
     void create_active_fe_table ();
 
     /**
@@ -780,7 +790,8 @@ namespace hp
      * <tt>levels[]</tt> tree of
      * the Triangulation objects.
      */
-    std::vector<dealii::internal::hp::DoFLevel<dim>*>    levels;
+    std::vector<dealii::internal::hp::DoFLevel*> levels;
+
     /**
      * Space to store the DoF
      * numbers for the faces.
@@ -788,7 +799,7 @@ namespace hp
      * <tt>faces</tt> pointer of
      * the Triangulation objects.
      */
-    dealii::internal::hp::DoFFaces<dim> *faces;
+    dealii::internal::hp::DoFIndicesOnFaces<dim> *faces;
 
     /**
      * A structure that contains all
@@ -826,7 +837,7 @@ namespace hp
      * actual data format used to
      * the present class.
      */
-    std::vector<types::global_dof_index>      vertex_dofs;
+    std::vector<types::global_dof_index> vertex_dofs;
 
     /**
      * For each vertex in the
@@ -855,10 +866,10 @@ namespace hp
 
     /**
      * Array to store the
-     * information, if a cell on
+     * information if a cell on
      * some level has children or
      * not. It is used by the
-     * refinement listeners as a
+     * signal slots as a
      * persistent buffer during the
      * refinement, i.e. from between
      * when pre_refinement_action is
@@ -889,8 +900,7 @@ namespace hp
      * the functions that set and
      * retrieve vertex dof indices.
      */
-    template <int> friend class dealii::internal::hp::DoFLevel;
-    template <int> friend class dealii::internal::hp::DoFObjects;
+    template <int> friend class dealii::internal::hp::DoFIndicesOnFacesOrEdges;
     friend struct dealii::internal::hp::DoFHandler::Implementation;
   };
 

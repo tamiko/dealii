@@ -1,14 +1,19 @@
-//---------------------------------------------------------------------------
-//    $Id$
+// ---------------------------------------------------------------------
+// $Id$
 //
-//    Copyright (C) 2008, 2009, 2010, 2012 by the deal.II authors
+// Copyright (C) 2008 - 2013 by the deal.II authors
 //
-//    This file is subject to QPL and may not be  distributed
-//    without copyright and license information. Please refer
-//    to the file deal.II/doc/license.html for the  text  and
-//    further information on this license.
+// This file is part of the deal.II library.
 //
-//---------------------------------------------------------------------------
+// The deal.II library is free software; you can use it, redistribute
+// it, and/or modify it under the terms of the GNU Lesser General
+// Public License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+// The full text of the license can be found in the file LICENSE at
+// the top level of the deal.II distribution.
+//
+// ---------------------------------------------------------------------
+
 #ifndef __deal2__sparsity_tools_h
 #define __deal2__sparsity_tools_h
 
@@ -231,7 +236,9 @@ namespace SparsityTools
    * range of elements stored locally
    * and should be the one used in
    * the constructor of the
-   * CompressedSimpleSparsityPattern. Only
+   * CompressedSimpleSparsityPattern.
+   * This should be the locally relevant set.
+   * Only
    * rows contained in myrange are
    * checked in csp for transfer.
    * This function needs to be used
@@ -245,6 +252,19 @@ namespace SparsityTools
                                    const std::vector<size_type> &rows_per_cpu,
                                    const MPI_Comm &mpi_comm,
                                    const IndexSet &myrange);
+
+  /**
+   * similar to the function above, but includes support for
+   * BlockCompressedSimpleSparsityPattern.
+   * @p owned_set_per_cpu is typically DoFHandler::locally_owned_dofs_per_processor 
+   * and @p myrange are locally_relevant_dofs.
+   */
+  template <class CSP_t>
+  void distribute_sparsity_pattern(CSP_t &csp,
+                                   const std::vector<IndexSet> &owned_set_per_cpu,
+                                   const MPI_Comm &mpi_comm,
+                                   const IndexSet &myrange);
+
 #endif
 
 

@@ -1,13 +1,23 @@
-/* Author: Wolfgang Bangerth, Texas A&M University, 2005, 2006 */
+/* ---------------------------------------------------------------------
+ * $Id$
+ *
+ * Copyright (C) 2005 - 2013 by the deal.II authors
+ *
+ * This file is part of the deal.II library.
+ *
+ * The deal.II library is free software; you can use it, redistribute
+ * it, and/or modify it under the terms of the GNU Lesser General
+ * Public License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ * The full text of the license can be found in the file LICENSE at
+ * the top level of the deal.II distribution.
+ *
+ * ---------------------------------------------------------------------
 
-/*    $Id$       */
-/*                                                                */
-/*    Copyright (C) 2005-2008, 2010-2013 by the deal.II authors */
-/*                                                                */
-/*    This file is subject to QPL and may not be  distributed     */
-/*    without copyright and license information. Please refer     */
-/*    to the file deal.II/doc/license.html for the  text  and     */
-/*    further information on this license.                        */
+ *
+ * Author: Wolfgang Bangerth, Texas A&M University, 2005, 2006
+ */
+
 
 // @sect3{Include files}
 
@@ -270,10 +280,10 @@ namespace Step20
   // binding simpler elements together into one larger element. In the present
   // case, we want to couple a single RT(degree) element with a single
   // DQ(degree) element. The constructor to <code>FESystem</code> that does
-  // this requires us to specity first the first base element (the
+  // this requires us to specify first the first base element (the
   // <code>FE_RaviartThomas</code> object of given degree) and then the number
   // of copies for this base element, and then similarly the kind and number
-  // of <code>FE_DGQ</code> elements. Note that the Raviart Thomas element
+  // of <code>FE_DGQ</code> elements. Note that the Raviart-Thomas element
   // already has <code>dim</code> vector components, so that the coupled
   // element will have <code>dim+1</code> vector components, the first
   // <code>dim</code> of which correspond to the velocity variable whereas the
@@ -796,7 +806,7 @@ namespace Step20
     // used here, the Gauss points happen to be superconvergence points in
     // which the pointwise error is much smaller (and converges with higher
     // order) than anywhere else. These are therefore not particularly good
-    // points for ingration. To avoid this problem, we simply use a
+    // points for integration. To avoid this problem, we simply use a
     // trapezoidal rule and iterate it <code>degree+2</code> times in each
     // coordinate direction (again as explained in step-7):
     QTrapez<1>     q_trapez;
@@ -903,7 +913,7 @@ namespace Step20
 // The main function we stole from step-6 instead of step-4. It is almost
 // equal to the one in step-6 (apart from the changed class names, of course),
 // the only exception is that we pass the degree of the finite element space
-// to the constructor of the mixed laplace problem (here, we use zero-th order
+// to the constructor of the mixed Laplace problem (here, we use zero-th order
 // elements).
 int main ()
 {

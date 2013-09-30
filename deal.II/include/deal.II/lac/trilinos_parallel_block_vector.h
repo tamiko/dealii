@@ -1,14 +1,19 @@
-//---------------------------------------------------------------------------
-//    $Id$
+// ---------------------------------------------------------------------
+// $Id$
 //
-//    Copyright (C) 2008, 2009, 2010, 2011, 2012 by the deal.II authors
+// Copyright (C) 2008 - 2013 by the deal.II authors
 //
-//    This file is subject to QPL and may not be  distributed
-//    without copyright and license information. Please refer
-//    to the file deal.II/doc/license.html for the  text  and
-//    further information on this license.
+// This file is part of the deal.II library.
 //
-//---------------------------------------------------------------------------
+// The deal.II library is free software; you can use it, redistribute
+// it, and/or modify it under the terms of the GNU Lesser General
+// Public License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+// The full text of the license can be found in the file LICENSE at
+// the top level of the deal.II distribution.
+//
+// ---------------------------------------------------------------------
+
 #ifndef __deal2__trilinos_parallel_block_vector_h
 #define __deal2__trilinos_parallel_block_vector_h
 
@@ -120,7 +125,17 @@ namespace TrilinosWrappers
        * processes.
        */
       explicit BlockVector (const std::vector<IndexSet> &parallel_partitioning,
-                   const MPI_Comm              &communicator = MPI_COMM_WORLD);
+                            const MPI_Comm              &communicator = MPI_COMM_WORLD);
+
+      /**
+       * Creates a BlockVector with ghost elements. @p ghost_values
+       * may contain any elements in @p parallel_partitioning, they will
+       * be ignored.
+       */
+      BlockVector (const std::vector<IndexSet> &parallel_partitioning,
+          const std::vector<IndexSet> &ghost_values,
+          const MPI_Comm              &communicator);
+
 
       /**
        * Copy-Constructor. Set all the
@@ -225,6 +240,14 @@ namespace TrilinosWrappers
       void reinit (const std::vector<IndexSet> &parallel_partitioning,
                    const MPI_Comm              &communicator = MPI_COMM_WORLD,
                    const bool                   fast = false);
+      /**
+       * like above, but with a second set of indices for
+       * ghost entries.
+       */
+      void reinit (const std::vector<IndexSet> &partitioning,
+                   const std::vector<IndexSet> &ghost_values,
+                   const MPI_Comm              &communicator = MPI_COMM_WORLD);
+
 
       /**
        * Change the dimension to that
@@ -341,6 +364,11 @@ namespace TrilinosWrappers
       bool is_compressed () const;
 
       /**
+       * Returns if this Vector contains ghost elements.
+       */
+      bool has_ghost_elements() const;
+
+      /**
        * Swap the contents of this
        * vector and the other vector
        * <tt>v</tt>. One could do this
@@ -417,6 +445,14 @@ namespace TrilinosWrappers
       reinit (parallel_partitioning, communicator, false);
     }
 
+
+    inline
+    BlockVector::BlockVector (const std::vector<IndexSet> &parallel_partitioning,
+        const std::vector<IndexSet> &ghost_values,
+        const MPI_Comm              &communicator)
+    {
+      reinit(parallel_partitioning, ghost_values, communicator);
+    }
 
 
     inline
@@ -496,6 +532,18 @@ namespace TrilinosWrappers
       return *this;
     }
 
+
+    inline
+    bool
+    BlockVector::has_ghost_elements() const
+    {
+      bool ghosted=block(0).has_ghost_elements();
+#ifdef DEBUG
+      for (unsigned int i=0; i<this->n_blocks(); ++i)
+        Assert(block(i).has_ghost_elements()==ghosted, ExcInternalError());
+#endif
+      return ghosted;
+    }
 
     inline
     void

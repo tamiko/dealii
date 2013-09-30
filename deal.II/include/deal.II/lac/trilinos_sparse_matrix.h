@@ -1,14 +1,19 @@
-//---------------------------------------------------------------------------
-//    $Id$
+// ---------------------------------------------------------------------
+// $Id$
 //
-//    Copyright (C) 2008, 2009, 2010, 2011, 2012, 2013 by the deal.II authors
+// Copyright (C) 2008 - 2013 by the deal.II authors
 //
-//    This file is subject to QPL and may not be  distributed
-//    without copyright and license information. Please refer
-//    to the file deal.II/doc/license.html for the  text  and
-//    further information on this license.
+// This file is part of the deal.II library.
 //
-//---------------------------------------------------------------------------
+// The deal.II library is free software; you can use it, redistribute
+// it, and/or modify it under the terms of the GNU Lesser General
+// Public License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+// The full text of the license can be found in the file LICENSE at
+// the top level of the deal.II distribution.
+//
+// ---------------------------------------------------------------------
+
 #ifndef __deal2__trilinos_sparse_matrix_h
 #define __deal2__trilinos_sparse_matrix_h
 
@@ -2967,26 +2972,26 @@ namespace TrilinosWrappers
 
     Epetra_CombineMode mode = last_action;
     if (last_action == Zero)
-    {
-      if ((operation==::dealii::VectorOperation::add) ||
-          (operation==::dealii::VectorOperation::unknown))
-        mode = Add;
-      else if (operation==::dealii::VectorOperation::insert)
-        mode = Insert;
-    }
+      {
+        if ((operation==::dealii::VectorOperation::add) ||
+            (operation==::dealii::VectorOperation::unknown))
+          mode = Add;
+        else if (operation==::dealii::VectorOperation::insert)
+          mode = Insert;
+      }
     else
-    {
-      Assert(
+      {
+        Assert(
           ((last_action == Add) && (operation!=::dealii::VectorOperation::insert))
           ||
           ((last_action == Insert) && (operation!=::dealii::VectorOperation::add)),
           ExcMessage("operation and argument to compress() do not match"));
-    }
+      }
 
     // flush buffers
     int ierr;
     ierr = matrix->GlobalAssemble (*column_space_map, matrix->RowMap(),
-        true, mode);
+                                   true, mode);
 
     AssertThrow (ierr == 0, ExcTrilinosError(ierr));
 
@@ -3132,7 +3137,7 @@ namespace TrilinosWrappers
     if (elide_zero_values == false)
       {
         col_index_ptr = (TrilinosWrappers::types::int_type *)col_indices;
-        col_value_ptr = const_cast<TrilinosScalar*>(values);
+        col_value_ptr = const_cast<TrilinosScalar *>(values);
         n_columns = n_cols;
       }
     else
@@ -3182,9 +3187,9 @@ namespace TrilinosWrappers
         if (matrix->Filled() == false)
           {
             ierr = matrix->Epetra_CrsMatrix::InsertGlobalValues(
-                static_cast<TrilinosWrappers::types::int_type>(row), 
-                static_cast<int>(n_columns),const_cast<double *>(col_value_ptr), 
-                col_index_ptr);
+                     static_cast<TrilinosWrappers::types::int_type>(row),
+                     static_cast<int>(n_columns),const_cast<double *>(col_value_ptr),
+                     col_index_ptr);
 
             // When inserting elements, we do not want to create exceptions in
             // the case when inserting non-local data (since that's what we
@@ -3357,7 +3362,7 @@ namespace TrilinosWrappers
     if (elide_zero_values == false)
       {
         col_index_ptr = (TrilinosWrappers::types::int_type *)col_indices;
-        col_value_ptr = const_cast<TrilinosScalar*>(values);
+        col_value_ptr = const_cast<TrilinosScalar *>(values);
         n_columns = n_cols;
 #ifdef DEBUG
         for (size_type j=0; j<n_cols; ++j)
@@ -3443,7 +3448,7 @@ namespace TrilinosWrappers
                                                      indices);
         for (TrilinosWrappers::types::int_type i=0; i<n_indices; ++i)
           std::cout << indices[i] << " ";
-        std::cout << endl << std::endl;
+        std::cout << std::endl << std::endl;
         Assert (ierr <= 0,
                 ExcAccessToNonPresentElement(row, col_index_ptr[0]));
       }
@@ -3669,6 +3674,9 @@ namespace TrilinosWrappers
                 ExcMessage ("Column map of matrix does not fit with vector map!"));
         Assert (out.vector_partitioner().SameAs(m.RangeMap()) == true,
                 ExcMessage ("Row map of matrix does not fit with vector map!"));
+        (void)m;
+        (void)in;
+        (void)out;
       }
     }
   }
@@ -3682,12 +3690,16 @@ namespace TrilinosWrappers
   {
     Assert (&src != &dst, ExcSourceEqualsDestination());
     Assert (matrix->Filled(), ExcMatrixNotCompressed());
+    (void)src;
+    (void)dst;
 
     internal::SparseMatrix::check_vector_map_equality(*matrix, src, dst);
     const size_type dst_local_size = dst.end() - dst.begin();
     AssertDimension (dst_local_size, static_cast<size_type>(matrix->RangeMap().NumMyElements()));
+    (void)dst_local_size;
     const size_type src_local_size = src.end() - src.begin();
     AssertDimension (src_local_size, static_cast<size_type>(matrix->DomainMap().NumMyElements()));
+    (void)src_local_size;
 
     Epetra_MultiVector tril_dst (View, matrix->RangeMap(), dst.begin(),
                                  matrix->DomainMap().NumMyPoints(), 1);
@@ -3701,7 +3713,7 @@ namespace TrilinosWrappers
   }
 
 
- 
+
   template <typename VectorType>
   inline
   void

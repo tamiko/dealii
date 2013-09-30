@@ -1,16 +1,18 @@
-#####
+## ---------------------------------------------------------------------
+## $Id$
 ##
-## Copyright (C) 2012 by the deal.II authors
+## Copyright (C) 2012 - 2013 by the deal.II authors
 ##
 ## This file is part of the deal.II library.
 ##
-## <TODO: Full License information>
-## This file is dual licensed under QPL 1.0 and LGPL 2.1 or any later
-## version of the LGPL license.
+## The deal.II library is free software; you can use it, redistribute
+## it, and/or modify it under the terms of the GNU Lesser General
+## Public License as published by the Free Software Foundation; either
+## version 2.1 of the License, or (at your option) any later version.
+## The full text of the license can be found in the file LICENSE at
+## the top level of the deal.II distribution.
 ##
-## Author: Matthias Maier <matthias.maier@iwr.uni-heidelberg.de>
-##
-#####
+## ---------------------------------------------------------------------
 
 #
 # Try to find the HDF5 library
@@ -47,9 +49,15 @@ FIND_LIBRARY(HDF5_HL_LIBRARY NAMES hdf5_hl
     lib${LIB_SUFFIX} lib64 lib
   )
 
-SET(_output ${HDF5_LIBRARY} ${HDF5_HL_LIBRARY})
+SET(_output ${HDF5_HL_LIBRARY} ${HDF5_LIBRARY})
 FIND_PACKAGE_HANDLE_STANDARD_ARGS(HDF5 DEFAULT_MSG
   _output # Cosmetic: Gives nice output
+  HDF5_HL_LIBRARY
+  HDF5_LIBRARY
+  HDF5_INCLUDE_DIR
+  )
+
+MARK_AS_ADVANCED(
   HDF5_LIBRARY
   HDF5_HL_LIBRARY
   HDF5_INCLUDE_DIR
@@ -60,8 +68,9 @@ IF(HDF5_FOUND)
     ${HDF5_INCLUDE_DIR}
     )
   SET(HDF5_LIBRARIES
-    ${HDF5_LIBRARY}
     ${HDF5_HL_LIBRARY}
+    ${HDF5_LIBRARY}
+    ${MPI_C_LIBRARIES} # for good measure
     )
 
   #
@@ -75,12 +84,7 @@ IF(HDF5_FOUND)
     SET(HDF5_WITH_MPI TRUE)
   ENDIF()
 
-  MARK_AS_ADVANCED(
-    HDF5_DIR
-    HDF5_LIBRARY
-    HDF5_HL_LIBRARY
-    HDF5_INCLUDE_DIR
-    )
+  MARK_AS_ADVANCED(HDF5_DIR)
 ELSE()
   SET(HDF5_DIR "" CACHE PATH
     "An optional hint to an hdf5 directory"

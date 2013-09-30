@@ -1,14 +1,19 @@
-//---------------------------------------------------------------------------
-//    $Id$
+// ---------------------------------------------------------------------
+// $Id$
 //
-//    Copyright (C) 2004, 2005, 2006, 2007, 2010, 2012 by the deal.II authors
+// Copyright (C) 2004 - 2013 by the deal.II authors
 //
-//    This file is subject to QPL and may not be  distributed
-//    without copyright and license information. Please refer
-//    to the file deal.II/doc/license.html for the  text  and
-//    further information on this license.
+// This file is part of the deal.II library.
 //
-//---------------------------------------------------------------------------
+// The deal.II library is free software; you can use it, redistribute
+// it, and/or modify it under the terms of the GNU Lesser General
+// Public License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+// The full text of the license can be found in the file LICENSE at
+// the top level of the deal.II distribution.
+//
+// ---------------------------------------------------------------------
+
 #ifndef __deal2__petsc_parallel_block_sparse_matrix_h
 #define __deal2__petsc_parallel_block_sparse_matrix_h
 
@@ -19,6 +24,7 @@
 
 #  include <deal.II/base/table.h>
 #  include <deal.II/lac/block_matrix_base.h>
+#  include <deal.II/lac/block_sparsity_pattern.h>
 #  include <deal.II/lac/petsc_parallel_sparse_matrix.h>
 #  include <deal.II/lac/petsc_parallel_block_vector.h>
 #  include <deal.II/lac/exceptions.h>
@@ -171,6 +177,31 @@ namespace PETScWrappers
        */
       void reinit (const size_type n_block_rows,
                    const size_type n_block_columns);
+
+
+      /**
+       * Efficiently reinit the block matrix for a parallel computation.
+       * Only the BlockSparsityPattern of the Simple type can efficiently
+       * store large sparsity patterns in parallel, so this is the only
+       * supported argument.
+       * The IndexSets describe the locally owned range of DoFs for each block.
+       * Note that each IndexSet needs to be contiguous. For a symmetric structure
+       * hand in the same vector for the first two arguments.
+       */
+      void reinit(const std::vector<IndexSet> &rows,
+                  const std::vector<IndexSet> &cols,
+                  const BlockCompressedSimpleSparsityPattern &bcsp,
+                  const MPI_Comm &com);
+
+
+      /**
+       * Same as above but for a symmetric structure only.
+       */
+      void reinit(const std::vector<IndexSet> &sizes,
+                  const BlockCompressedSimpleSparsityPattern &bcsp,
+                  const MPI_Comm &com);
+
+
 
       /**
        * Matrix-vector multiplication:

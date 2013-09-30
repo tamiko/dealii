@@ -1,14 +1,19 @@
-//---------------------------------------------------------------------------
-//    $Id$
+// ---------------------------------------------------------------------
+// $Id$
 //
-//    Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2012 by the deal.II authors
+// Copyright (C) 2000 - 2013 by the deal.II authors
 //
-//    This file is subject to QPL and may not be  distributed
-//    without copyright and license information. Please refer
-//    to the file deal.II/doc/license.html for the  text  and
-//    further information on this license.
+// This file is part of the deal.II library.
 //
-//---------------------------------------------------------------------------
+// The deal.II library is free software; you can use it, redistribute
+// it, and/or modify it under the terms of the GNU Lesser General
+// Public License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+// The full text of the license can be found in the file LICENSE at
+// the top level of the deal.II distribution.
+//
+// ---------------------------------------------------------------------
+
 #ifndef __deal2__block_sparsity_pattern_h
 #define __deal2__block_sparsity_pattern_h
 
@@ -72,7 +77,7 @@ namespace TrilinosWrappers
  * You will in general not want to use this class, but one of the
  * derived classes.
  *
- * @todo Handle opitmization of diagonal elements of the underlying
+ * @todo Handle optimization of diagonal elements of the underlying
  * SparsityPattern correctly.
  *
  * @see @ref GlossBlockLA "Block (linear algebra)"
@@ -1350,12 +1355,14 @@ BlockCompressedSimpleSparsityPattern::column_number (const size_type row,
   Assert(index<row_length(row), ExcIndexRange(index, 0, row_length(row)));
 
   size_type c = 0;
+  size_type block_columns = 0; //sum of n_cols for all blocks to the left
   for (unsigned int b=0; b<columns; ++b)
     {
       unsigned int rowlen = sub_objects[row_index.first][b]->row_length (row_index.second);
       if (index<c+rowlen)
-        return c+sub_objects[row_index.first][b]->column_number(row_index.second, index-c);
+        return block_columns+sub_objects[row_index.first][b]->column_number(row_index.second, index-c);
       c += rowlen;
+      block_columns += sub_objects[row_index.first][b]->n_cols();
     }
 
   Assert(false, ExcInternalError());

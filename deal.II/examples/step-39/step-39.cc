@@ -1,13 +1,23 @@
-/* Author: Guido Kanschat, Texas A&M University, 2009 */
+/* ---------------------------------------------------------------------
+ * $Id$
+ *
+ * Copyright (C) 2010 - 2013 by the deal.II authors
+ *
+ * This file is part of the deal.II library.
+ *
+ * The deal.II library is free software; you can use it, redistribute
+ * it, and/or modify it under the terms of the GNU Lesser General
+ * Public License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ * The full text of the license can be found in the file LICENSE at
+ * the top level of the deal.II distribution.
+ *
+ * ---------------------------------------------------------------------
 
-/*    $Id$       */
-/*                                                                */
-/*    Copyright (C) 2010-2013 by the deal.II authors */
-/*                                                                */
-/*    This file is subject to QPL and may not be  distributed     */
-/*    without copyright and license information. Please refer     */
-/*    to the file deal.II/doc/license.html for the  text  and     */
-/*    further information on this license.                        */
+ *
+ * Author: Guido Kanschat, Texas A&M University, 2009
+ */
+
 
 // The include files for the linear algebra: A regular SparseMatrix, which in
 // turn will include the necessary files for SparsityPattern and Vector
@@ -88,13 +98,13 @@ namespace Step39
   {
   public:
     void cell(MeshWorker::DoFInfo<dim> &dinfo,
-	      typename MeshWorker::IntegrationInfo<dim> &info) const;
+              typename MeshWorker::IntegrationInfo<dim> &info) const;
     void boundary(MeshWorker::DoFInfo<dim> &dinfo,
-		  typename MeshWorker::IntegrationInfo<dim> &info) const;
+                  typename MeshWorker::IntegrationInfo<dim> &info) const;
     void face(MeshWorker::DoFInfo<dim> &dinfo1,
-	      MeshWorker::DoFInfo<dim> &dinfo2,
-	      typename MeshWorker::IntegrationInfo<dim> &info1,
-	      typename MeshWorker::IntegrationInfo<dim> &info2) const;
+              MeshWorker::DoFInfo<dim> &dinfo2,
+              typename MeshWorker::IntegrationInfo<dim> &info1,
+              typename MeshWorker::IntegrationInfo<dim> &info2) const;
   };
 
 
@@ -103,7 +113,7 @@ namespace Step39
   // ourselves. Similarly, we implement Nitsche boundary conditions and the
   // interior penalty fluxes between cells.
   //
-  // The boundary und flux terms need a penalty parameter, which should be
+  // The boundary and flux terms need a penalty parameter, which should be
   // adjusted to the cell size and the polynomial degree. A safe choice of
   // this parameter for constant coefficients can be found in
   // LocalIntegrators::Laplace::compute_penalty() and we use this below.
@@ -153,9 +163,9 @@ namespace Step39
     void cell(MeshWorker::DoFInfo<dim> &dinfo, typename MeshWorker::IntegrationInfo<dim> &info) const;
     void boundary(MeshWorker::DoFInfo<dim> &dinfo, typename MeshWorker::IntegrationInfo<dim> &info) const;
     void face(MeshWorker::DoFInfo<dim> &dinfo1,
-	      MeshWorker::DoFInfo<dim> &dinfo2,
-	      typename MeshWorker::IntegrationInfo<dim> &info1,
-	      typename MeshWorker::IntegrationInfo<dim> &info2) const;
+              MeshWorker::DoFInfo<dim> &dinfo2,
+              typename MeshWorker::IntegrationInfo<dim> &info1,
+              typename MeshWorker::IntegrationInfo<dim> &info2) const;
   };
 
 
@@ -202,9 +212,9 @@ namespace Step39
     void cell(MeshWorker::DoFInfo<dim> &dinfo, typename MeshWorker::IntegrationInfo<dim> &info) const;
     void boundary(MeshWorker::DoFInfo<dim> &dinfo, typename MeshWorker::IntegrationInfo<dim> &info) const;
     void face(MeshWorker::DoFInfo<dim> &dinfo1,
-	      MeshWorker::DoFInfo<dim> &dinfo2,
-	      typename MeshWorker::IntegrationInfo<dim> &info1,
-	      typename MeshWorker::IntegrationInfo<dim> &info2) const;
+              MeshWorker::DoFInfo<dim> &dinfo2,
+              typename MeshWorker::IntegrationInfo<dim> &info1,
+              typename MeshWorker::IntegrationInfo<dim> &info2) const;
   };
 
 
@@ -298,13 +308,13 @@ namespace Step39
     void cell(MeshWorker::DoFInfo<dim> &dinfo, typename MeshWorker::IntegrationInfo<dim> &info) const;
     void boundary(MeshWorker::DoFInfo<dim> &dinfo, typename MeshWorker::IntegrationInfo<dim> &info) const;
     void face(MeshWorker::DoFInfo<dim> &dinfo1,
-	      MeshWorker::DoFInfo<dim> &dinfo2,
-	      typename MeshWorker::IntegrationInfo<dim> &info1,
-	      typename MeshWorker::IntegrationInfo<dim> &info2) const;
+              MeshWorker::DoFInfo<dim> &dinfo2,
+              typename MeshWorker::IntegrationInfo<dim> &info1,
+              typename MeshWorker::IntegrationInfo<dim> &info2) const;
   };
 
   // Here we have the integration on cells. There is currently no good
-  // interfce in MeshWorker that would allow us to access values of regular
+  // interface in MeshWorker that would allow us to access values of regular
   // functions in the quadrature points. Thus, we have to create the vectors
   // for the exact function's values and gradients inside the cell
   // integrator. After that, everything is as before and we just add up the
@@ -511,7 +521,7 @@ namespace Step39
     mg_matrix_dg_down.clear();
     // It is important to update the sparsity patterns after <tt>clear()</tt>
     // was called for the level matrices, since the matrices lock the sparsity
-    // pattern through the Smartpointer ans Subscriptor mechanism.
+    // pattern through the Smartpointer and Subscriptor mechanism.
     mg_sparsity.resize(0, n_levels-1);
     mg_sparsity_dg_interface.resize(0, n_levels-1);
 
@@ -614,7 +624,7 @@ namespace Step39
     MeshWorker::Assembler::MGMatrixSimple<SparseMatrix<double> > assembler;
     assembler.initialize(mg_matrix);
     assembler.initialize_fluxes(mg_matrix_dg_up, mg_matrix_dg_down);
-    
+
     MatrixIntegrator<dim> integrator;
     // Here is the other difference to the previous function: we run over all
     // cells, not only the active ones. And we use <tt>mg_dof_handler</tt>,
@@ -640,7 +650,7 @@ namespace Step39
 
     MeshWorker::DoFInfo<dim> dof_info(dof_handler);
 
-    // Since this assembler alows us to fill several vectors, the interface is
+    // Since this assembler allows us to fill several vectors, the interface is
     // a little more complicated as above. The pointers to the vectors have to
     // be stored in a NamedData object. While this seems to cause two extra
     // lines of code here, it actually comes handy in more complex
@@ -755,7 +765,7 @@ namespace Step39
     const unsigned int n_gauss_points = dof_handler.get_fe().tensor_degree()+1;
     info_box.initialize_gauss_quadrature(n_gauss_points, n_gauss_points+1, n_gauss_points);
 
-    // but now we need to notify the info box of the finite element functio we
+    // but now we need to notify the info box of the finite element function we
     // want to evaluate in the quadrature points. First, we create a NamedData
     // object with this vector, which is the solution we just computed.
     NamedData<Vector<double>* > solution_data;
@@ -763,7 +773,7 @@ namespace Step39
 
     // Then, we tell the Meshworker::VectorSelector for cells, that we need
     // the second derivatives of this solution (to compute the
-    // Laplacian). Therefore, the boolean arguments selecting function values
+    // Laplacian). Therefore, the Boolean arguments selecting function values
     // and first derivatives a false, only the last one selecting second
     // derivatives is true.
     info_box.cell_selector.add("solution", false, false, true);

@@ -1,16 +1,18 @@
-#####
+## ---------------------------------------------------------------------
+## $Id$
 ##
-## Copyright (C) 2012 by the deal.II authors
+## Copyright (C) 2012 - 2013 by the deal.II authors
 ##
 ## This file is part of the deal.II library.
 ##
-## <TODO: Full License information>
-## This file is dual licensed under QPL 1.0 and LGPL 2.1 or any later
-## version of the LGPL license.
+## The deal.II library is free software; you can use it, redistribute
+## it, and/or modify it under the terms of the GNU Lesser General
+## Public License as published by the Free Software Foundation; either
+## version 2.1 of the License, or (at your option) any later version.
+## The full text of the license can be found in the file LICENSE at
+## the top level of the deal.II distribution.
 ##
-## Author: Matthias Maier <matthias.maier@iwr.uni-heidelberg.de>
-##
-#####
+## ---------------------------------------------------------------------
 
 #
 # Set up deal.II specific definitions
@@ -49,17 +51,15 @@
 #     DEAL_II_PROJECT_CONFIG_RELDIR   *)
 #
 #     DEAL_II_BUILD_TYPES
-#     DEAL_II_WITH_BUNDLED_DIRECTORY
-#     DEAL_II_WITH_DOC_DIRECTORY
 #
 # *)  Can be overwritten by the command line via -D<...>
 #
 
-###########################################################################
-#                                                                         #
-#                   General information about deal.II:                    #
-#                                                                         #
-###########################################################################
+########################################################################
+#                                                                      #
+#                  General information about deal.II:                  #
+#                                                                      #
+########################################################################
 
 SET_IF_EMPTY(DEAL_II_PACKAGE_NAME "deal.II")
 
@@ -83,11 +83,11 @@ STRING(REGEX REPLACE
 SET(DEAL_II_VERSION ${DEAL_II_VERSION_MAJOR}.${DEAL_II_VERSION_MINOR})
 
 
-###########################################################################
-#                                                                         #
-#          Information about paths, install locations and names:          #
-#                                                                         #
-###########################################################################
+########################################################################
+#                                                                      #
+#         Information about paths, install locations and names:        #
+#                                                                      #
+########################################################################
 
 SET(DEAL_II_PROJECT_CONFIG_NAME "${DEAL_II_PACKAGE_NAME}")
 
@@ -110,7 +110,7 @@ IF(DEAL_II_COMPONENT_COMPAT_FILES)
       (NOT "${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}") )
     #
     # Ensure that in case of an out of source build BINARY_DIR/include !=
-    # INSTALL_PREFIX/include us always true. Otherwise stale headers might
+    # INSTALL_PREFIX/include is always true. Otherwise stale headers might
     # get included resulting in a failing build.
     #
     SET_IF_EMPTY(DEAL_II_INCLUDE_RELDIR "include/install")
@@ -144,41 +144,3 @@ IF(CMAKE_BUILD_TYPE MATCHES "Release")
   LIST(APPEND DEAL_II_BUILD_TYPES "RELEASE")
 ENDIF()
 
-
-###########################################################################
-#                                                                         #
-#  Cleanup and Includes that have to happen after the call to PROJECT():  #
-#                                                                         #
-###########################################################################
-
-#
-# Cleanup some files used for storing the names of all object targets that
-# will be bundled to the deal.II library.
-# (Right now, i.e. cmake 2.8.8, this is the only reliable way to get
-# information into a global scope...)
-#
-FOREACH(_build ${DEAL_II_BUILD_TYPES})
-  STRING(TOLOWER "${_build}" _build_lowercase)
-  FILE(REMOVE
-    ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/deal_ii_objects_${_build_lowercase}
-    )
-ENDFOREACH()
-
-
-#
-# Cross compilation stuff:
-#
-IF(CMAKE_CROSSCOMPILING)
-  #
-  # Disable platform introspection when cross compiling
-  #
-  SET(DEAL_II_ALLOW_PLATFORM_INTROSPECTION OFF CACHE BOOL "" FORCE)
-
-  #
-  # Import native expand_instantiations for use in cross compilation:
-  #
-  SET(DEAL_II_NATIVE "DEAL_II_NATIVE-NOTFOUND" CACHE FILEPATH
-    "A pointer to a native deal.Ii build directory"
-    )
-  INCLUDE(${DEAL_II_NATIVE}/cmake/scripts//importExecutables.cmake)
-ENDIF()

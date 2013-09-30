@@ -63,7 +63,7 @@ one of the usual ODE solvers (this is called the method of lines).
 Both of these methods have advantages and disadvantages.
 Traditionally, people have preferred the method of lines, since it
 allows to use the very well developed machinery of high-order ODE
-solvers avaiable for the rather stiff ODEs resulting from this
+solvers available for the rather stiff ODEs resulting from this
 approach, including step length control and estimation of the temporal
 error.
 
@@ -84,7 +84,7 @@ other time dependent problems, we find that the character of a
 solution changes as time progresses. For example, for the wave
 equation, we may have a single wave travelling through the domain,
 where the solution is smooth or even constant in front of and behind
-the wave &mdash& adaptivity would be really useful for such cases, but the
+the wave &mdash; adaptivity would be really useful for such cases, but the
 key is that the area where we need to refine the mesh changes from
 time step to time step!
 
@@ -156,7 +156,7 @@ time derivatives for both variables, for which it is simple to write
 down time stepping schemes. Note that we do not have boundary
 conditions for $v$ at first. However, we could enforce $v=\frac{\partial
 g}{\partial t}$ on the boundary. It turns out in numerical examples that this
-as actually necessary: without doing so the solution doesn't look particularly
+is actually necessary: without doing so the solution doesn't look particularly
 wrong, but the Crank-Nicolson scheme does not conserve energy if one doesn't
 enforce these boundary conditions.
 
@@ -296,9 +296,9 @@ where
 	\\
 	A^{n,n-1}_{ij} &=& (\nabla\phi_i^n, \nabla\phi_j^{n-1}),
 	\\
-	F^n_{ij} &=& (f^n,\phi_i^n),
+	F^n_{i} &=& (f^n,\phi_i^n),
 	\\
-	F^{n-1}_{ij} &=& (f^{n-1},\phi_i^n).
+	F^{n-1}_{i} &=& (f^{n-1},\phi_i^n).
 @f}
 
 If we solve these two equations, we can move the solution one step
@@ -388,7 +388,7 @@ $[-1,1]^2$ seven times uniformly, giving a mesh size of $h=\frac 1{64}$, which
 is what we set the time step to. The fact that we set the time step and mesh
 size individually in two different places is error prone: it is too easy to
 refine the mesh once more but forget to also adjust the time step. @ref
-step_24 "step-24" shows a better way how to keep these things in synch.
+step_24 "step-24" shows a better way how to keep these things in sync.
 
 
 <h3>The test case</h3>

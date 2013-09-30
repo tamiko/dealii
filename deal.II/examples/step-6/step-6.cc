@@ -1,13 +1,23 @@
-/* Author: Wolfgang Bangerth, University of Heidelberg, 2000 */
+/* ---------------------------------------------------------------------
+ * $Id$
+ *
+ * Copyright (C) 2000 - 2013 by the deal.II authors
+ *
+ * This file is part of the deal.II library.
+ *
+ * The deal.II library is free software; you can use it, redistribute
+ * it, and/or modify it under the terms of the GNU Lesser General
+ * Public License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ * The full text of the license can be found in the file LICENSE at
+ * the top level of the deal.II distribution.
+ *
+ * ---------------------------------------------------------------------
 
-/*    $Id$       */
-/*                                                                */
-/*    Copyright (C) 2000-2004, 2006-2008, 2010-2012 by the deal.II authors */
-/*                                                                */
-/*    This file is subject to QPL and may not be  distributed     */
-/*    without copyright and license information. Please refer     */
-/*    to the file deal.II/doc/license.html for the  text  and     */
-/*    further information on this license.                        */
+ *
+ * Author: Wolfgang Bangerth, University of Heidelberg, 2000
+ */
+
 
 // @sect3{Include files}
 
@@ -67,7 +77,7 @@
 #include <deal.II/grid/grid_refinement.h>
 
 // Finally, we need a simple way to actually compute the refinement indicators
-// based on some error estimat. While in general, adaptivity is very
+// based on some error estimate. While in general, adaptivity is very
 // problem-specific, the error indicator in the following file often yields
 // quite nicely adapted grids for a wide class of problems.
 #include <deal.II/numerics/error_estimator.h>
@@ -289,7 +299,7 @@ void Step6<dim>::setup_system ()
 
   // After setting up all the degrees of freedoms, here are now the
   // differences compared to step-5, all of which are related to constraints
-  // associated with the hanging nodes. In the class desclaration, we have
+  // associated with the hanging nodes. In the class declaration, we have
   // already allocated space for an object <code>constraints</code> that will
   // hold a list of these constraints (they form a matrix, which is reflected
   // in the name of the class, but that is immaterial for the moment). Now we
@@ -754,7 +764,7 @@ int main ()
   // approximately the same string as would be generated if the exception was
   // thrown using the <code>Assert</code> macro. You have seen the output of
   // such an exception in the previous example, and you then know that it
-  // contains the file and line number of where the exception occured, and
+  // contains the file and line number of where the exception occurred, and
   // some other information. This is also what the following statements would
   // print.
   //

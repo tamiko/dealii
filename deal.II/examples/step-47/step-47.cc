@@ -1,13 +1,22 @@
-/* Author: Wolfgang Bangerth, University of Heidelberg, 2000 */
+/* ---------------------------------------------------------------------
+ * $Id$
+ *
+ * Copyright (C) 2011 - 2013 by the deal.II authors
+ *
+ * This file is part of the deal.II library.
+ *
+ * The deal.II library is free software; you can use it, redistribute
+ * it, and/or modify it under the terms of the GNU Lesser General
+ * Public License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ * The full text of the license can be found in the file LICENSE at
+ * the top level of the deal.II distribution.
+ *
+ * ---------------------------------------------------------------------
 
-/*    $Id$       */
-/*                                                                */
-/*    Copyright (C) 2011-2012 by the deal.II authors */
-/*                                                                */
-/*    This file is subject to QPL and may not be  distributed     */
-/*    without copyright and license information. Please refer     */
-/*    to the file deal.II/doc/license.html for the  text  and     */
-/*    further information on this license.                        */
+ *
+ * Author: Wolfgang Bangerth, University of Heidelberg, 2000
+ */
 
 
 #include <deal.II/base/quadrature_lib.h>
@@ -439,7 +448,7 @@ namespace Step47
 // To integrate the enriched elements we have to find the geometrical
 // decomposition of the original element in subelements. The subelements are
 // used to integrate the elements on both sides of the discontinuity. The
-// disontinuity line is approximated by a piece-wise linear interpolation
+// discontinuity line is approximated by a piece-wise linear interpolation
 // between the intersection of the discontinuity with the edges of the
 // elements. The vector level_set_values has the values of the level set
 // function at the vertices of the elements. From these values can be found by
@@ -467,7 +476,7 @@ namespace Step47
 
     // the sign of the level set function at the 4 nodes of the elements can
     // be positive + or negative - depending on the sign of the level set
-    // function we have the folloing three classes of decomposition type 1:
+    // function we have the following three classes of decomposition type 1:
     // ++++, ---- type 2: -+++, +-++, ++-+, +++-, +---, -+--, --+-, ---+ type
     // 3: +--+, ++--, +-+-, -++-, --++, -+-+
 

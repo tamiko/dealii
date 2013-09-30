@@ -1,14 +1,19 @@
-//---------------------------------------------------------------------------
-//    $Id$
+// ---------------------------------------------------------------------
+// $Id$
 //
-//    Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013 by the deal.II authors
+// Copyright (C) 2000 - 2013 by the deal.II authors
 //
-//    This file is subject to QPL and may not be  distributed
-//    without copyright and license information. Please refer
-//    to the file deal.II/doc/license.html for the  text  and
-//    further information on this license.
+// This file is part of the deal.II library.
 //
-//---------------------------------------------------------------------------
+// The deal.II library is free software; you can use it, redistribute
+// it, and/or modify it under the terms of the GNU Lesser General
+// Public License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+// The full text of the license can be found in the file LICENSE at
+// the top level of the deal.II distribution.
+//
+// ---------------------------------------------------------------------
+
 #ifndef __deal2__fe_tools_H
 #define __deal2__fe_tools_H
 
@@ -155,7 +160,12 @@ namespace FETools
    * indices of each local block. If it is false, then the block sizes are
    * returned.
    *
-   * @todo Which way does this vector map the numbers?
+   * The vector <tt>renumbering</tt> will be indexed by the standard
+   * numbering of local degrees of freedom, namely first first vertex,
+   * then second vertex, after vertices lines, quads, and hexes. For
+   * each index, the entry indicates the index which this degree of
+   * freedom receives in a numbering scheme, where the first block is
+   * numbered completely before the second.
    */
   template<int dim, int spacedim>
   void compute_block_renumbering (
@@ -259,7 +269,7 @@ namespace FETools
    * For all possible (isotropic and anisotropic) refinement cases compute the
    * embedding matrices from a coarse cell to the child cells. Each column of
    * the resulting matrices contains the representation of a coarse grid basis
-   * functon by the fine grid basis; the matrices are split such that there is
+   * function by the fine grid basis; the matrices are split such that there is
    * one matrix for every child.
    *
    * This function computes the coarse grid function in a sufficiently large

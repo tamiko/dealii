@@ -1,14 +1,19 @@
-//---------------------------------------------------------------------------
-//    $Id$
+// ---------------------------------------------------------------------
+// $Id$
 //
-//    Copyright (C) 2005, 2006, 2008, 2009, 2010, 2011, 2012 by the deal.II authors
+// Copyright (C) 2005 - 2013 by the deal.II authors
 //
-//    This file is subject to QPL and may not be  distributed
-//    without copyright and license information. Please refer
-//    to the file deal.II/doc/license.html for the  text  and
-//    further information on this license.
+// This file is part of the deal.II library.
 //
-//---------------------------------------------------------------------------
+// The deal.II library is free software; you can use it, redistribute
+// it, and/or modify it under the terms of the GNU Lesser General
+// Public License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+// The full text of the license can be found in the file LICENSE at
+// the top level of the deal.II distribution.
+//
+// ---------------------------------------------------------------------
+
 #ifndef __deal2__symmetric_tensor_h
 #define __deal2__symmetric_tensor_h
 
@@ -792,8 +797,8 @@ public:
    * one.
    *
    * If the present object is a
-   * rank-4 tensor, the the result
-   * is a rank-2 tensor, the
+   * rank-4 tensor, then the result
+   * is a rank-2 tensor, i.e., the
    * operation contracts over the
    * last two indices of the
    * present object and the indices
@@ -2837,7 +2842,67 @@ operator / (const SymmetricTensor<rank,dim> &t,
   return tt;
 }
 
+/**
+ * Compute the scalar product $a:b=\sum_{i,j} a_{ij}b_{ij}$ between two
+ * tensors $a,b$ of rank 2. In the current case where both arguments are
+ * symmetric tensors, this is equivalent to calling the expression
+ * <code>t1*t2</code> which uses the overloaded <code>operator*</code>
+ * between two symmetric tensors of rank 2.
+ *
+ * @relates SymmetricTensor
+ */
+template <int dim, typename Number>
+inline
+Number
+scalar_product (const SymmetricTensor<2,dim,Number> &t1,
+                const SymmetricTensor<2,dim,Number> &t2)
+{
+  return (t1*t2);
+}
 
+
+/**
+ * Compute the scalar product $a:b=\sum_{i,j} a_{ij}b_{ij}$ between two
+ * tensors $a,b$ of rank 2. We don't use <code>operator*</code> for this
+ * operation since the product between two tensors is usually assumed to be
+ * the contraction over the last index of the first tensor and the first index
+ * of the second tensor, for example $(a\cdot b)_{ij}=\sum_k a_{ik}b_{kj}$.
+ *
+ * @relates Tensor
+ * @relates SymmetricTensor
+ */
+template <int dim, typename Number>
+inline
+Number
+scalar_product (const SymmetricTensor<2,dim,Number> &t1,
+                const Tensor<2,dim,Number> &t2)
+{
+  Number s = 0;
+  for (unsigned int i=0; i<dim; ++i)
+    for (unsigned int j=0; j<dim; ++j)
+      s += t1[i][j] * t2[i][j];
+  return s;
+}
+
+
+/**
+ * Compute the scalar product $a:b=\sum_{i,j} a_{ij}b_{ij}$ between two
+ * tensors $a,b$ of rank 2. We don't use <code>operator*</code> for this
+ * operation since the product between two tensors is usually assumed to be
+ * the contraction over the last index of the first tensor and the first index
+ * of the second tensor, for example $(a\cdot b)_{ij}=\sum_k a_{ik}b_{kj}$.
+ *
+ * @relates Tensor
+ * @relates SymmetricTensor
+ */
+template <int dim, typename Number>
+inline
+Number
+scalar_product (const Tensor<2,dim,Number> &t1,
+                const SymmetricTensor<2,dim,Number> &t2)
+{
+  return scalar_product(t2, t1);
+}
 
 
 /**

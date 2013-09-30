@@ -1,15 +1,19 @@
-//---------------------------------------------------------------------------
-//    $Id$
-//    Version: $Name$
+// ---------------------------------------------------------------------
+// $Id$
 //
-//    Copyright (C) 2011, 2012 by the deal.II authors
+// Copyright (C) 2011 - 2013 by the deal.II authors
 //
-//    This file is subject to QPL and may not be  distributed
-//    without copyright and license information. Please refer
-//    to the file deal.II/doc/license.html for the  text  and
-//    further information on this license.
+// This file is part of the deal.II library.
 //
-//---------------------------------------------------------------------------
+// The deal.II library is free software; you can use it, redistribute
+// it, and/or modify it under the terms of the GNU Lesser General
+// Public License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+// The full text of the license can be found in the file LICENSE at
+// the top level of the deal.II distribution.
+//
+// ---------------------------------------------------------------------
+
 
 #include <deal.II/base/utilities.h>
 #include <deal.II/base/memory_consumption.h>
@@ -174,7 +178,7 @@ internal_reinit(const Mapping<dim>                          &mapping,
           dof_info[i].n_components = dof_handler[i]->get_fe().element_multiplicity(0);
           dof_info[i].dofs_per_cell.push_back(dof_handler[i]->get_fe().dofs_per_cell);
           dof_info[i].row_starts.resize(size_info.n_macro_cells+1);
-          std_cxx1x::get<2>(dof_info[i].row_starts.back()) =
+          dof_info[i].row_starts.back()[2] =
             cell_level_index.size() % VectorizedArray<Number>::n_array_elements;
 
           // if indices are not initialized, the cell_level_index might not be
@@ -296,7 +300,7 @@ internal_reinit(const Mapping<dim>                            &mapping,
           dof_info[i].n_components = dof_handler[i]->get_fe()[0].element_multiplicity(0);
           dof_info[i].dofs_per_cell.push_back(dof_handler[i]->get_fe()[0].dofs_per_cell);
           dof_info[i].row_starts.resize(size_info.n_macro_cells+1);
-          std_cxx1x::get<2>(dof_info[i].row_starts.back()) =
+          dof_info[i].row_starts.back()[2] =
             cell_level_index.size() % VectorizedArray<Number>::n_array_elements;
 
           // if indices are not initialized, the cell_level_index might not be
@@ -459,14 +463,12 @@ void MatrixFree<dim,Number>::initialize_indices
 {
   const unsigned int n_fe = dof_handlers.n_dof_handlers;
   const unsigned int n_active_cells = cell_level_index.size();
-  const unsigned int n_mpi_procs = size_info.n_procs;
 
   AssertDimension (n_active_cells, cell_level_index.size());
   AssertDimension (n_fe, locally_owned_set.size());
   AssertDimension (n_fe, constraint.size());
 
   std::vector<types::global_dof_index> local_dof_indices;
-  std::vector<std::vector<types::global_dof_index> > ghost_dofs(n_fe);
   std::vector<std::vector<std::vector<unsigned int> > > lexicographic_inv(n_fe);
 
   internal::MatrixFreeFunctions::ConstraintValues<double> constraint_values;
@@ -526,7 +528,7 @@ void MatrixFree<dim,Number>::initialize_indices
             dynamic_cast<const FE_Poly<TensorProductPolynomials<dim>,dim,dim>*>
             (&fe.base_element(0));
           const FE_Poly<TensorProductPolynomials<dim,Polynomials::
-            PiecewisePolynomial<double> >,dim,dim> *fe_poly_piece =
+          PiecewisePolynomial<double> >,dim,dim> *fe_poly_piece =
             dynamic_cast<const FE_Poly<TensorProductPolynomials<dim,
             Polynomials::PiecewisePolynomial<double> >,dim,dim>*>
             (&fe.base_element(0));
@@ -577,8 +579,9 @@ void MatrixFree<dim,Number>::initialize_indices
 
       // initialize the arrays for indices
       dof_info[no].row_starts.resize (n_active_cells+1);
-      dof_info[no].row_starts[0] = std_cxx1x::tuple<unsigned int,unsigned int,
-                                   unsigned int> (0,0,0);
+      dof_info[no].row_starts[0][0] = 0;
+      dof_info[no].row_starts[0][1] = 0;
+      dof_info[no].row_starts[0][2] = 0;
       dof_info[no].dof_indices.reserve
       ((n_active_cells*dof_info[no].dofs_per_cell[0]*3)/2);
 
@@ -589,11 +592,9 @@ void MatrixFree<dim,Number>::initialize_indices
         end_index   = dof_info[no].vector_partitioner->local_range().second;
         for (types::global_dof_index i=start_index; i<end_index; ++i)
           if (constraint[no]->is_constrained(i)==true)
-            dof_info[no].constrained_dofs.push_back(i-start_index);
+            dof_info[no].constrained_dofs.
+              push_back(static_cast<unsigned int>(i-start_index));
       }
-
-      if (n_mpi_procs > 1)
-        ghost_dofs[no].reserve (locally_owned_set[no].n_elements()/10+1);
     }
 
   // extract all the global indices associated with the computation, and form
@@ -685,7 +686,7 @@ void MatrixFree<dim,Number>::initialize_indices
   // reorganize the indices in order to overlap communication in MPI with
   // computations: Place all cells with ghost indices into one chunk. Also
   // reorder cells so that we can parallelize by threads
-  std::vector<types::global_dof_index> renumbering;
+  std::vector<unsigned int> renumbering;
   if (task_info.use_multithreading == true)
     {
       dof_info[0].compute_renumber_parallel (boundary_cells, size_info,
@@ -715,7 +716,7 @@ void MatrixFree<dim,Number>::initialize_indices
   // operations will then be done simultaneously).
 #ifdef DEBUG
   {
-    std::vector<types::global_dof_index> sorted_renumbering (renumbering);
+    std::vector<unsigned int> sorted_renumbering (renumbering);
     std::sort (sorted_renumbering.begin(), sorted_renumbering.end());
     for (unsigned int i=0; i<sorted_renumbering.size(); ++i)
       Assert (sorted_renumbering[i] == i, ExcInternalError());

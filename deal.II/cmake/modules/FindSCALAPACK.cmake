@@ -1,16 +1,18 @@
-#####
+## ---------------------------------------------------------------------
+## $Id$
 ##
-## Copyright (C) 2012 by the deal.II authors
+## Copyright (C) 2012 - 2013 by the deal.II authors
 ##
 ## This file is part of the deal.II library.
 ##
-## <TODO: Full License information>
-## This file is dual licensed under QPL 1.0 and LGPL 2.1 or any later
-## version of the LGPL license.
+## The deal.II library is free software; you can use it, redistribute
+## it, and/or modify it under the terms of the GNU Lesser General
+## Public License as published by the Free Software Foundation; either
+## version 2.1 of the License, or (at your option) any later version.
+## The full text of the license can be found in the file LICENSE at
+## the top level of the deal.II distribution.
 ##
-## Author: Matthias Maier <matthias.maier@iwr.uni-heidelberg.de>
-##
-#####
+## ---------------------------------------------------------------------
 
 #
 # Try to find the SCALAPACK library
@@ -39,7 +41,7 @@ FIND_LIBRARY(SCALAPACK_LIBRARY NAMES scalapack
 # SCALAPACK needs LAPACK and BLAS as dependency, search for them with the help
 # of the LAPACK find module:
 #
-FIND_PACKAGE(LAPACK)
+FIND_PACKAGE(DEALII_LAPACK)
 
 #
 # Well, depending on the version of scalapack and the distribution it might
@@ -49,7 +51,7 @@ FIND_PACKAGE(LAPACK)
 FOREACH(_lib blacs blacsCinit blacsF77init)
   STRING(TOUPPER "${_lib}" _lib_upper)
   FIND_LIBRARY(${_lib_upper}_LIBRARY
-    NAMES ${_lib} ${_lib}_MPI-LINUX-0
+    NAMES ${_lib} ${_lib}_MPI-LINUX-0 ${_lib}_MPI-DARWIN-0
     HINTS
       ${BLACS_DIR}
       ${SCALAPACK_DIR}
@@ -71,27 +73,28 @@ FIND_PACKAGE_HANDLE_STANDARD_ARGS(SCALAPACK DEFAULT_MSG
   LAPACK_FOUND
   )
 
+MARK_AS_ADVANCED(
+  lapack_LIBRARY
+  atlas_LIBRARY
+  blas_LIBRARY
+  SCALAPACK_LIBRARY
+  BLACS_LIBRARY
+  BLACSCINIT_LIBRARY
+  BLACSF77INIT_LIBRARY
+  )
+
 IF(SCALAPACK_FOUND)
   SET(SCALAPACK_LIBRARIES
     ${SCALAPACK_LIBRARY}
     ${LAPACK_LIBRARIES}
     ${BLACS_LIBRARIES}
+    ${MPI_Fortran_LIBRARIES} # for good measure
     )
   SET(SCALAPACK_LINKER_FLAGS
     ${LAPACK_LINKER_FLAGS}
     )
 
-  MARK_AS_ADVANCED(
-    lapack_LIBRARY
-    atlas_LIBRARY
-    blas_LIBRARY
-    SCALAPACK_DIR
-    SCALAPACK_LIBRARY
-    BLACS_DIR
-    BLACS_LIBRARY
-    BLACSCINIT_LIBRARY
-    BLACSF77INIT_LIBRARY
-    )
+  MARK_AS_ADVANCED(SCALAPACK_DIR BLACS_DIR)
 ELSE()
   SET(SCALAPACK_DIR "" CACHE PATH
     "An optional hint to a SCALAPACK directory"

@@ -1,14 +1,19 @@
-//---------------------------------------------------------------------------
-//    $Id$
+// ---------------------------------------------------------------------
+// $Id$
 //
-//    Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2009, 2010, 2011, 2012 by the deal.II authors
+// Copyright (C) 1999 - 2013 by the deal.II authors
 //
-//    This file is subject to QPL and may not be  distributed
-//    without copyright and license information. Please refer
-//    to the file deal.II/doc/license.html for the  text  and
-//    further information on this license.
+// This file is part of the deal.II library.
 //
-//---------------------------------------------------------------------------
+// The deal.II library is free software; you can use it, redistribute
+// it, and/or modify it under the terms of the GNU Lesser General
+// Public License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+// The full text of the license can be found in the file LICENSE at
+// the top level of the deal.II distribution.
+//
+// ---------------------------------------------------------------------
+
 #ifndef __deal2__precondition_h
 #define __deal2__precondition_h
 
@@ -1316,7 +1321,7 @@ PreconditionSSOR<MATRIX>::initialize (const MATRIX &rA,
           // only. note: the first entry in each line denotes the diagonal
           // element, which we need not check.
           typename SparseMatrix<typename MATRIX::value_type>::const_iterator
-            it = mat->begin(row)+1;
+          it = mat->begin(row)+1;
           for ( ; it < mat->end(row); ++it)
             if (it->column() > row)
               break;
@@ -1771,7 +1776,7 @@ PreconditionChebyshev<MATRIX,VECTOR>::initialize (const MATRIX &matrix,
 
       // attach stream to SolverCG, run it with log report for eigenvalues
       std::ostream *old_stream = deallog.has_file() ? &deallog.get_file_stream() :
-        static_cast<std::ostream *>(0);
+                                 static_cast<std::ostream *>(0);
       if (old_stream)
         deallog.detach();
 
@@ -1791,7 +1796,7 @@ PreconditionChebyshev<MATRIX,VECTOR>::initialize (const MATRIX &matrix,
       cg_data.compute_eigenvalues = true;
       SolverCG<VECTOR> solver (control, memory, cg_data);
       internal::PreconditionChebyshev::DiagonalPreconditioner<VECTOR>
-        preconditioner(data.matrix_diagonal_inverse);
+      preconditioner(data.matrix_diagonal_inverse);
       try
         {
           solver.solve(matrix, *dummy, *rhs, preconditioner);

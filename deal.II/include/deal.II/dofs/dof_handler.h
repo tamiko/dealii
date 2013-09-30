@@ -1,14 +1,19 @@
-//---------------------------------------------------------------------------
-//    $Id$
+// ---------------------------------------------------------------------
+// $Id$
 //
-//    Copyright (C) 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013 by the deal.II authors
+// Copyright (C) 1998 - 2013 by the deal.II authors
 //
-//    This file is subject to QPL and may not be  distributed
-//    without copyright and license information. Please refer
-//    to the file deal.II/doc/license.html for the  text  and
-//    further information on this license.
+// This file is part of the deal.II library.
 //
-//---------------------------------------------------------------------------
+// The deal.II library is free software; you can use it, redistribute
+// it, and/or modify it under the terms of the GNU Lesser General
+// Public License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+// The full text of the license can be found in the file LICENSE at
+// the top level of the deal.II distribution.
+//
+// ---------------------------------------------------------------------
+
 #ifndef __deal2__dof_handler_h
 #define __deal2__dof_handler_h
 
@@ -18,6 +23,7 @@
 #include <deal.II/base/exceptions.h>
 #include <deal.II/base/smartpointer.h>
 #include <deal.II/base/index_set.h>
+#include <deal.II/base/std_cxx1x/shared_ptr.h>
 #include <deal.II/dofs/block_info.h>
 #include <deal.II/dofs/dof_iterator_selector.h>
 #include <deal.II/dofs/number_cache.h>
@@ -511,8 +517,16 @@ public:
   cell_iterator        begin       (const unsigned int level = 0) const;
 
   /**
-   * Iterator to the first active
-   * cell on level @p level.
+   *  Iterator to the first active cell on level @p level. If the
+   *  given level does not contain any active cells (i.e., all cells
+   *  on this level are further refined, then this function returns
+   *  <code>end_active(level)</code> so that loops of the kind
+   *  @code
+   *    for (cell=dof_handler.begin_active(level); cell!=dof_handler.end_active(level); ++cell)
+   *      ...
+   *  @endcode
+   *  have zero iterations, as may be expected if there are no active
+   *  cells on this level.
    */
   active_cell_iterator begin_active(const unsigned int level = 0) const;
 
@@ -534,10 +548,8 @@ public:
   cell_iterator end (const unsigned int level) const;
 
   /**
-   * Return an active iterator
-   * which is the first iterator
-   * not on level. If @p level is
-   * the last level, then this
+   * Return an active iterator which is the first active iterator not
+   * on the given level. If @p level is the last level, then this
    * returns <tt>end()</tt>.
    */
   active_cell_iterator end_active (const unsigned int level) const;
@@ -992,8 +1004,8 @@ private:
      * given (inclusive) range of levels.
      */
     void init (const unsigned int coarsest_level,
-	       const unsigned int finest_level,
-	       const unsigned int dofs_per_vertex);
+               const unsigned int finest_level,
+               const unsigned int dofs_per_vertex);
 
     /**
      * Return the coarsest level for which this structure
@@ -1013,7 +1025,7 @@ private:
      */
     types::global_dof_index
     get_index (const unsigned int level,
-	       const unsigned int dof_number) const;
+               const unsigned int dof_number) const;
 
     /**
      * Set the index of the <code>dof_number</code>th degree of
@@ -1021,8 +1033,8 @@ private:
      * to <code>index</code>.
      */
     void set_index (const unsigned int level,
-		    const unsigned int dof_number,
-		    const types::global_dof_index index);
+                    const unsigned int dof_number,
+                    const types::global_dof_index index);
 
     /**
      * Exception.

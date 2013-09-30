@@ -1,16 +1,18 @@
-#####
+## ---------------------------------------------------------------------
+## $Id$
 ##
-## Copyright (C) 2012, 2013 by the deal.II authors
+## Copyright (C) 2012 - 2013 by the deal.II authors
 ##
 ## This file is part of the deal.II library.
 ##
-## <TODO: Full License information>
-## This file is dual licensed under QPL 1.0 and LGPL 2.1 or any later
-## version of the LGPL license.
+## The deal.II library is free software; you can use it, redistribute
+## it, and/or modify it under the terms of the GNU Lesser General
+## Public License as published by the Free Software Foundation; either
+## version 2.1 of the License, or (at your option) any later version.
+## The full text of the license can be found in the file LICENSE at
+## the top level of the deal.II distribution.
 ##
-## Author: Matthias Maier <matthias.maier@iwr.uni-heidelberg.de>
-##
-#####
+## ---------------------------------------------------------------------
 
 #
 # General setup for GCC and compilers sufficiently close to GCC
@@ -51,7 +53,7 @@ ENABLE_IF_SUPPORTED(CMAKE_CXX_FLAGS "-fpic")
 # Check whether the -as-needed flag is available. If so set it to link
 # the deal.II library with it.
 #
-ENABLE_IF_LINKS(CMAKE_SHARED_LINKER_FLAGS "-Wl,--as-needed")
+ENABLE_IF_LINKS(DEAL_II_LINKER_FLAGS "-Wl,--as-needed")
 
 #
 # Setup various warnings:
@@ -72,6 +74,12 @@ ENABLE_IF_SUPPORTED(CMAKE_CXX_FLAGS "-Wswitch")
 ENABLE_IF_SUPPORTED(CMAKE_CXX_FLAGS "-Wno-unused-local-typedefs")
 
 #
+# Disable Wlong-long that will trigger a lot of warnings when compiling
+# with disabled C++11 support:
+#
+ENABLE_IF_SUPPORTED(CMAKE_CXX_FLAGS "-Wno-long-long")
+
+#
 # Disable deprecation warnings
 #
 ENABLE_IF_SUPPORTED(CMAKE_CXX_FLAGS "-Wno-deprecated")
@@ -79,6 +87,11 @@ ENABLE_IF_SUPPORTED(CMAKE_CXX_FLAGS "-Wno-deprecated-declarations")
 
 
 IF(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  #
+  # Silence Clang warnings about unused parameters:
+  #
+  SET(CMAKE_CXX_FLAGS "-Qunused-arguments ${CMAKE_CXX_FLAGS}")
+
   #
   # *Boy*, clang seems to be the very definition of "pedantic" in
   # "-pedantic" mode, so disable a bunch of harmless warnings
@@ -95,6 +108,16 @@ IF(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 ENDIF()
 
 
+IF(DEAL_II_STATIC_EXECUTABLE)
+  #
+  # To produce a static executable, we have to statically link libstdc++
+  # and gcc's support libraries and glibc:
+  #
+  ENABLE_IF_SUPPORTED(DEAL_II_LINKER_FLAGS "-static")
+  ENABLE_IF_SUPPORTED(DEAL_II_LINKER_FLAGS "-pthread")
+ENDIF()
+
+
 #############################
 #                           #
 #    For Release target:    #
@@ -108,6 +131,7 @@ IF (CMAKE_BUILD_TYPE MATCHES "Release")
   ADD_FLAGS(DEAL_II_CXX_FLAGS_RELEASE "-O2")
 
   ENABLE_IF_SUPPORTED(DEAL_II_CXX_FLAGS_RELEASE "-funroll-loops")
+  ENABLE_IF_SUPPORTED(DEAL_II_CXX_FLAGS_RELEASE "-funroll-all-loops")
   ENABLE_IF_SUPPORTED(DEAL_II_CXX_FLAGS_RELEASE "-fstrict-aliasing")
   ENABLE_IF_SUPPORTED(DEAL_II_CXX_FLAGS_RELEASE "-felide-constructors")
 
@@ -126,16 +150,22 @@ IF (CMAKE_BUILD_TYPE MATCHES "Debug")
   LIST(APPEND DEAL_II_DEFINITIONS_DEBUG "DEBUG")
   LIST(APPEND DEAL_II_USER_DEFINITIONS_DEBUG "DEBUG")
 
-  ADD_FLAGS(DEAL_II_CXX_FLAGS_DEBUG "-O0")
+  ENABLE_IF_SUPPORTED(DEAL_II_CXX_FLAGS_DEBUG "-Og")
+  #
+  # If -Og is not available, fall back to -O0:
+  #
+  IF(NOT DEAL_II_HAVE_FLAG_Og)
+    ADD_FLAGS(DEAL_II_CXX_FLAGS_DEBUG "-O0")
+  ENDIF()
 
   ENABLE_IF_SUPPORTED(DEAL_II_CXX_FLAGS_DEBUG "-ggdb")
-  ENABLE_IF_SUPPORTED(DEAL_II_SHARED_LINKER_FLAGS_DEBUG "-ggdb")
+  ENABLE_IF_SUPPORTED(DEAL_II_LINKER_FLAGS_DEBUG "-ggdb")
   #
   # If -ggdb is not available, fall back to -g:
   #
   IF(NOT DEAL_II_HAVE_FLAG_ggdb)
     ENABLE_IF_SUPPORTED(DEAL_II_CXX_FLAGS_DEBUG "-g")
-    ENABLE_IF_SUPPORTED(DEAL_II_SHARED_LINKER_FLAGS_DEBUG "-g")
+    ENABLE_IF_SUPPORTED(DEAL_II_LINKER_FLAGS_DEBUG "-g")
   ENDIF()
 ENDIF()
 

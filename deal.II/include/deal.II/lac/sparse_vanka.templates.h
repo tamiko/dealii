@@ -1,14 +1,19 @@
-//---------------------------------------------------------------------------
-//    $Id$
+// ---------------------------------------------------------------------
+// $Id$
 //
-//    Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2011, 2012 by the deal.II authors
+// Copyright (C) 1999 - 2013 by the deal.II authors
 //
-//    This file is subject to QPL and may not be  distributed
-//    without copyright and license information. Please refer
-//    to the file deal.II/doc/license.html for the  text  and
-//    further information on this license.
+// This file is part of the deal.II library.
 //
-//---------------------------------------------------------------------------
+// The deal.II library is free software; you can use it, redistribute
+// it, and/or modify it under the terms of the GNU Lesser General
+// Public License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+// The full text of the license can be found in the file LICENSE at
+// the top level of the deal.II distribution.
+//
+// ---------------------------------------------------------------------
+
 #ifndef __deal2__sparse_vanka_templates_h
 #define __deal2__sparse_vanka_templates_h
 
@@ -67,10 +72,10 @@ SparseVanka<number>::compute_inverses ()
 #else
   const size_type n_inverses = std::count (selected.begin(),
                                            selected.end(),
-                                            true);
+                                           true);
 
-  const size_type n_inverses_per_thread = std::max(n_inverses / n_threads, 
-          static_cast<size_type> (1U));
+  const size_type n_inverses_per_thread = std::max(n_inverses / n_threads,
+                                                   static_cast<size_type> (1U));
 
   // set up start and end index
   // for each of the
@@ -288,7 +293,7 @@ SparseVanka<number>::apply_preconditioner (Vector<number2>         &dst,
             // number of DoFs coupling to
             // irow (including irow itself)
             for (typename SparseMatrix<number>::const_iterator p=matrix->begin(row);
-                p != matrix->end(row); ++p)
+                 p != matrix->end(row); ++p)
               {
                 // find out whether this DoF
                 // (that couples with @p irow,
@@ -391,8 +396,8 @@ SparseBlockVanka<number>::compute_dof_masks (const SparseMatrix<number> &M,
                                            selected.end(),
                                            true);
 
-  const size_type n_inverses_per_block = std::max(n_inverses / n_blocks, 
-      static_cast<size_type> (1U));
+  const size_type n_inverses_per_block = std::max(n_inverses / n_blocks,
+                                                  static_cast<size_type> (1U));
 
   // precompute the splitting points
   std::vector<std::pair<size_type, size_type> > intervals (n_blocks);

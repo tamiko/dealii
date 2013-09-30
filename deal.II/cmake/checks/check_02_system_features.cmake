@@ -1,16 +1,18 @@
-#####
+## ---------------------------------------------------------------------
+## $Id$
 ##
-## Copyright (C) 2012, 2013 by the deal.II authors
+## Copyright (C) 2012 - 2013 by the deal.II authors
 ##
 ## This file is part of the deal.II library.
 ##
-## <TODO: Full License information>
-## This file is dual licensed under QPL 1.0 and LGPL 2.1 or any later
-## version of the LGPL license.
+## The deal.II library is free software; you can use it, redistribute
+## it, and/or modify it under the terms of the GNU Lesser General
+## Public License as published by the Free Software Foundation; either
+## version 2.1 of the License, or (at your option) any later version.
+## The full text of the license can be found in the file LICENSE at
+## the top level of the deal.II distribution.
 ##
-## Author: Matthias Maier <matthias.maier@iwr.uni-heidelberg.de>
-##
-#####
+## ---------------------------------------------------------------------
 
 #
 # This file sets up:
@@ -29,11 +31,11 @@
 #
 
 
-###########################################################################
-#                                                                         #
-#                     POSIX and Linux specific tests:                     #
-#                                                                         #
-###########################################################################
+########################################################################
+#                                                                      #
+#                    POSIX and Linux specific tests:                   #
+#                                                                      #
+########################################################################
 
 #
 # Check for various posix (and linux) specific header files and symbols
@@ -56,24 +58,30 @@ CHECK_CXX_SYMBOL_EXISTS("rand_r" "stdlib.h" HAVE_RAND_R)
 #
 # Do we have the Bessel function jn?
 #
-FIND_LIBRARY(m_lib NAMES m)
-MARK_AS_ADVANCED(m_lib)
+# Switch the library preference back to prefer dynamic libraries if
+# DEAL_II_PREFER_STATIC_LIBS=TRUE but DEAL_II_STATIC_EXECUTABLE=FALSE. In
+# this case system libraries should be linked dynamically.
+#
+SWITCH_LIBRARY_PREFERENCE()
+FIND_LIBRARY(m_LIBRARY NAMES m)
+SWITCH_LIBRARY_PREFERENCE()
+MARK_AS_ADVANCED(m_LIBRARY)
 
-IF(NOT m_lib MATCHES "-NOTFOUND")
-  SET(CMAKE_REQUIRED_LIBRARIES ${m_lib})
+IF(NOT m_LIBRARY MATCHES "-NOTFOUND")
+  LIST(APPEND CMAKE_REQUIRED_LIBRARIES ${m_LIBRARY})
   CHECK_CXX_SYMBOL_EXISTS("jn" "math.h" HAVE_JN)
-  SET(CMAKE_REQUIRED_LIBRARIES)
+  RESET_CMAKE_REQUIRED()
   IF(HAVE_JN)
-    LIST(APPEND DEAL_II_EXTERNAL_LIBRARIES ${m_lib})
+    LIST(APPEND DEAL_II_EXTERNAL_LIBRARIES ${m_LIBRARY})
   ENDIF()
 ENDIF()
 
 
-###########################################################################
-#                                                                         #
-#                         Mac OSX specific setup:                         #
-#                                                                         #
-###########################################################################
+########################################################################
+#                                                                      #
+#                        Mac OSX specific setup:                       #
+#                                                                      #
+########################################################################
 
 IF(CMAKE_SYSTEM_NAME MATCHES "Darwin")
   #
@@ -90,16 +98,16 @@ IF(CMAKE_SYSTEM_NAME MATCHES "Darwin")
   #
   # TODO: MM: Check whether this is still necessary...
   #
-  STRIP_FLAG(CMAKE_SHARED_LINKER_FLAGS "-rdynamic")
+  STRIP_FLAG(DEAL_II_LINKER_FLAGS "-rdynamic")
 ENDIF()
 
 
 
-###########################################################################
-#                                                                         #
-#                    Windows and CYGWIN specific setup:                   #
-#                                                                         #
-###########################################################################
+########################################################################
+#                                                                      #
+#                   Windows and CYGWIN specific setup:                 #
+#                                                                      #
+########################################################################
 
 IF(CMAKE_SYSTEM_NAME MATCHES "Windows")
   #
@@ -108,12 +116,32 @@ IF(CMAKE_SYSTEM_NAME MATCHES "Windows")
   SET(DEAL_II_MSVC TRUE)
 
   #
-  # Disable shared libraries on native Windows targets for the moment.
+  # Shared library handling:
   #
-  MESSAGE(WARNING "\n"
-    "BUILD_SHARED_LIBS forced to OFF\n\n"
-    )
-  SET(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
+  IF(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
+    #
+    # With MinGW we're lucky:
+    #
+    ENABLE_IF_LINKS(DEAL_II_LINKER_FLAGS "-Wl,--export-all-symbols")
+    ENABLE_IF_LINKS(DEAL_II_LINKER_FLAGS "-Wl,--enable-auto-import")
+    ENABLE_IF_LINKS(DEAL_II_LINKER_FLAGS "-Wl,--allow-multiple-definition")
+
+    #
+    # Workaround for a miscompilation and linkage issue with shared libraries
+    # with MinGW. Replacing -O0 with -O1 seems to help..
+    #
+    REPLACE_FLAG(DEAL_II_CXX_FLAGS_DEBUG "-O0" "-O1")
+
+  ELSE()
+
+    #
+    # Otherwise disable shared libraries:
+    #
+    MESSAGE(WARNING "\n"
+      "BUILD_SHARED_LIBS forced to OFF\n\n"
+      )
+    SET(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
+  ENDIF()
 
   #
   # Disable -ggdb and -g on Windows/MinGW targets for the moment until the
@@ -122,10 +150,11 @@ IF(CMAKE_SYSTEM_NAME MATCHES "Windows")
   # - Matthias Maier, 2012
   #
   STRIP_FLAG(DEAL_II_CXX_FLAGS_DEBUG "-ggdb")
-  STRIP_FLAG(DEAL_II_SHARED_LINKER_FLAGS_DEBUG "-ggdb")
+  STRIP_FLAG(DEAL_II_LINKER_FLAGS_DEBUG "-ggdb")
   STRIP_FLAG(DEAL_II_CXX_FLAGS_DEBUG "-g")
-  STRIP_FLAG(DEAL_II_SHARED_LINKER_FLAGS_DEBUG "-g")
+  STRIP_FLAG(DEAL_II_LINKER_FLAGS_DEBUG "-g")
 ENDIF()
+
 
 IF(CMAKE_SYSTEM_NAME MATCHES "CYGWIN")
   #
@@ -135,5 +164,4 @@ IF(CMAKE_SYSTEM_NAME MATCHES "CYGWIN")
   # - Matthias Maier, 2013
   #
   REPLACE_FLAG(DEAL_II_CXX_FLAGS_DEBUG "-O0" "-O1")
-
 ENDIF()

@@ -1,15 +1,19 @@
-//---------------------------------------------------------------------------
-//    $Id$
-//    Version: $Name$
+// ---------------------------------------------------------------------
+// $Id$
 //
-//    Copyright (C) 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2012, 2013 by the deal.II authors
+// Copyright (C) 1998 - 2013 by the deal.II authors
 //
-//    This file is subject to QPL and may not be  distributed
-//    without copyright and license information. Please refer
-//    to the file deal.II/doc/license.html for the  text  and
-//    further information on this license.
+// This file is part of the deal.II library.
 //
-//---------------------------------------------------------------------------
+// The deal.II library is free software; you can use it, redistribute
+// it, and/or modify it under the terms of the GNU Lesser General
+// Public License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+// The full text of the license can be found in the file LICENSE at
+// the top level of the deal.II distribution.
+//
+// ---------------------------------------------------------------------
+
 
 #include <deal.II/base/parameter_handler.h>
 #include <deal.II/base/logstream.h>
@@ -429,14 +433,18 @@ namespace Patterns
 
   List::List (const PatternBase  &p,
               const unsigned int  min_elements,
-              const unsigned int  max_elements)
+              const unsigned int  max_elements,
+              const std::string  &separator)
     :
     pattern (p.clone()),
     min_elements (min_elements),
-    max_elements (max_elements)
+    max_elements (max_elements),
+    separator (separator)
   {
     Assert (min_elements <= max_elements,
             ExcInvalidRange (min_elements, max_elements));
+    Assert (separator.size() > 0,
+            ExcMessage ("The separator must have a non-zero length."));
   }
 
 
@@ -453,7 +461,6 @@ namespace Patterns
   {
     std::string tmp = test_string_list;
     std::vector<std::string> split_list;
-    split_list.reserve (std::count (tmp.begin(), tmp.end(), ',')+1);
 
     // first split the input list
     while (tmp.length() != 0)
@@ -461,10 +468,10 @@ namespace Patterns
         std::string name;
         name = tmp;
 
-        if (name.find(",") != std::string::npos)
+        if (name.find(separator) != std::string::npos)
           {
-            name.erase (name.find(","), std::string::npos);
-            tmp.erase (0, tmp.find(",")+1);
+            name.erase (name.find(separator), std::string::npos);
+            tmp.erase (0, tmp.find(separator)+separator.size());
           }
         else
           tmp = "";
@@ -477,7 +484,7 @@ namespace Patterns
           name.erase (name.length()-1, 1);
 
         split_list.push_back (name);
-      };
+      }
 
     if ((split_list.size() < min_elements) ||
         (split_list.size() > max_elements))
@@ -502,8 +509,10 @@ namespace Patterns
     description << description_init
                 << " list of <" << pattern->description() << ">"
                 << " of length " << min_elements << "..." << max_elements
-                << " (inclusive)"
-                << "]";
+                << " (inclusive)";
+    if (separator != ",")
+      description << " separated by <" << separator << ">";
+    description << "]";
 
     return description.str();
   }
@@ -513,7 +522,7 @@ namespace Patterns
   PatternBase *
   List::clone () const
   {
-    return new List(*pattern, min_elements, max_elements);
+    return new List(*pattern, min_elements, max_elements, separator);
   }
 
 
@@ -521,7 +530,8 @@ namespace Patterns
   List::memory_consumption () const
   {
     return (sizeof(*this) +
-            MemoryConsumption::memory_consumption(*pattern));
+            MemoryConsumption::memory_consumption(*pattern) +
+            MemoryConsumption::memory_consumption(separator));
   }
 
 
@@ -548,7 +558,14 @@ namespace Patterns
         if (!(is >> max_elements))
           return new List(*base_pattern, min_elements);
 
-        return new List(*base_pattern, min_elements, max_elements);
+        is.ignore(strlen(" separated by <"));
+        std::string separator;
+        if (!is)
+          std::getline(is, separator, '>');
+        else
+          separator = ",";
+
+        return new List(*base_pattern, min_elements, max_elements, separator);
       }
     else
       return 0;
@@ -565,15 +582,22 @@ namespace Patterns
   Map::Map (const PatternBase  &p_key,
             const PatternBase  &p_value,
             const unsigned int  min_elements,
-            const unsigned int  max_elements)
+            const unsigned int  max_elements,
+            const std::string  &separator)
     :
     key_pattern (p_key.clone()),
     value_pattern (p_value.clone()),
     min_elements (min_elements),
-    max_elements (max_elements)
+    max_elements (max_elements),
+    separator (separator)
   {
     Assert (min_elements <= max_elements,
             ExcInvalidRange (min_elements, max_elements));
+    Assert (separator.size() > 0,
+            ExcMessage ("The separator must have a non-zero length."));
+    Assert (separator != ":",
+            ExcMessage ("The separator can not be a colon ':' sicne that "
+                        "is the separator between the two elements of <key:value> pairs"));
   }
 
 
@@ -593,7 +617,6 @@ namespace Patterns
   {
     std::string tmp = test_string_list;
     std::vector<std::string> split_list;
-    split_list.reserve (std::count (tmp.begin(), tmp.end(), ',')+1);
 
     // first split the input list at comma sites
     while (tmp.length() != 0)
@@ -601,10 +624,10 @@ namespace Patterns
         std::string map_entry;
         map_entry = tmp;
 
-        if (map_entry.find(",") != std::string::npos)
+        if (map_entry.find(separator) != std::string::npos)
           {
-            map_entry.erase (map_entry.find(","), std::string::npos);
-            tmp.erase (0, tmp.find(",")+1);
+            map_entry.erase (map_entry.find(separator), std::string::npos);
+            tmp.erase (0, tmp.find(separator)+separator.size());
           }
         else
           tmp = "";
@@ -617,7 +640,7 @@ namespace Patterns
           map_entry.erase (map_entry.length()-1, 1);
 
         split_list.push_back (map_entry);
-      };
+      }
 
     if ((split_list.size() < min_elements) ||
         (split_list.size() > max_elements))
@@ -665,8 +688,10 @@ namespace Patterns
                 << key_pattern->description() << ":"
                 << value_pattern->description() << ">"
                 << " of length " << min_elements << "..." << max_elements
-                << " (inclusive)"
-                << "]";
+                << " (inclusive)";
+    if (separator != ",")
+      description << " separated by <" << separator << ">";
+    description << "]";
 
     return description.str();
   }
@@ -676,7 +701,9 @@ namespace Patterns
   PatternBase *
   Map::clone () const
   {
-    return new Map(*key_pattern, *value_pattern, min_elements, max_elements);
+    return new Map(*key_pattern, *value_pattern,
+                   min_elements, max_elements,
+                   separator);
   }
 
 
@@ -685,7 +712,8 @@ namespace Patterns
   {
     return (sizeof(*this) +
             MemoryConsumption::memory_consumption (*key_pattern) +
-            MemoryConsumption::memory_consumption (*value_pattern));
+            MemoryConsumption::memory_consumption (*value_pattern) +
+            MemoryConsumption::memory_consumption (separator));
   }
 
 
@@ -720,7 +748,16 @@ namespace Patterns
         if (!(is >> max_elements))
           return new Map(*key_pattern, *value_pattern, min_elements);
 
-        return new Map(*key_pattern, *value_pattern, min_elements, max_elements);
+        is.ignore(strlen(" separated by <"));
+        std::string separator;
+        if (!is)
+          std::getline(is, separator, '>');
+        else
+          separator = ",";
+
+        return new Map(*key_pattern, *value_pattern,
+                       min_elements, max_elements,
+                       separator);
       }
     else
       return 0;
@@ -1081,20 +1118,20 @@ ParameterHandler::mangle (const std::string &s)
   for (unsigned int i=0; i<s.size(); ++i)
     {
       static const std::string allowed_characters
-	("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789");
+      ("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789");
 
       if ((! mangle_whole_string)
-	  &&
-	  (allowed_characters.find (s[i]) != std::string::npos))
-	u.push_back (s[i]);
+          &&
+          (allowed_characters.find (s[i]) != std::string::npos))
+        u.push_back (s[i]);
       else
-	{
-	  u.push_back ('_');
-	  static const char hex[16]
-	    = { '0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f'};
-	  u.push_back (hex[static_cast<unsigned char>(s[i])/16]);
-	  u.push_back (hex[static_cast<unsigned char>(s[i])%16]);
-	}
+        {
+          u.push_back ('_');
+          static const char hex[16]
+            = { '0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f'};
+          u.push_back (hex[static_cast<unsigned char>(s[i])/16]);
+          u.push_back (hex[static_cast<unsigned char>(s[i])%16]);
+        }
     }
 
   return u;
@@ -1276,7 +1313,8 @@ ParameterHandler::get_current_full_path (const std::string &name) const
 
 
 
-bool ParameterHandler::read_input (std::istream &input)
+bool ParameterHandler::read_input (std::istream &input,
+                                   const std::string &filename)
 {
   AssertThrow (input, ExcIO());
 
@@ -1288,8 +1326,7 @@ bool ParameterHandler::read_input (std::istream &input)
     {
       ++lineno;
       getline (input, line);
-      if (!scan_line (line, lineno))
-        status = false;
+      status &= scan_line (line, filename, lineno);
     }
 
   return status;
@@ -1309,7 +1346,7 @@ bool ParameterHandler::read_input (const std::string &filename,
       std::ifstream input (openname.c_str());
       AssertThrow(input, ExcIO());
 
-      return read_input (input);
+      return read_input (input, filename);
     }
   catch (const PathSearch::ExcFileNotFound &)
     {
@@ -1331,34 +1368,10 @@ bool ParameterHandler::read_input (const std::string &filename,
 
 bool ParameterHandler::read_input_from_string (const char *s)
 {
-  // if empty std::string then exit
-  // with success
-  if ((s == 0) || ((*s) == 0)) return true;
-
-  std::string line;
-  std::string input (s);
-  int    lineno=0;
-
-  // if necessary append a newline char
-  // to make all lines equal
-  if (input[input.length()-1] != '\n')
-    input += '\n';
-
-  bool status = true;
-  while (input.size() != 0)
-    {
-      // get one line from Input (=s)
-      line.assign (input, 0, input.find('\n'));
-      // delete this part including
-      // the backspace
-      input.erase (0, input.find('\n')+1);
-      ++lineno;
-
-      if (!scan_line (line, lineno))
-        status = false;
-    }
-
-  return status;
+  // create an istringstream representation and pass it off
+  // to the other functions doing this work
+  std::istringstream in (s);
+  return read_input (in, "input string");
 }
 
 
@@ -1567,6 +1580,10 @@ ParameterHandler::declare_entry (const std::string           &entry,
   entries->put (get_current_full_path(entry) + path_separator +
                 "pattern_description",
                 patterns.back()->description());
+
+  // as documented, do the default value checking at the very end
+  AssertThrow (pattern.match (default_value),
+               ExcValueDoesNotMatchPattern (default_value, pattern.description()));
 }
 
 
@@ -2238,8 +2255,9 @@ ParameterHandler::log_parameters_section (LogStream &out)
 
 
 bool
-ParameterHandler::scan_line (std::string        line,
-                             const unsigned int lineno)
+ParameterHandler::scan_line (std::string         line,
+                             const std::string  &input_filename,
+                             const unsigned int  lineno)
 {
   // if there is a comment, delete it
   if (line.find('#') != std::string::npos)
@@ -2252,11 +2270,14 @@ ParameterHandler::scan_line (std::string        line,
     line.erase (line.find("  "), 1);
   // now every existing whitespace
   // should be exactly one ' ';
-  // if at end or beginning: delete
-  if ((line.length() != 0) && (std::isspace (line[0])))  line.erase (0, 1);
+  // if at beginning: delete
+  if ((line.length() != 0) && (std::isspace (line[0])))
+    line.erase (0, 1);
   // if line is now empty: leave
-  if (line.length() == 0) return true;
+  if (line.length() == 0)
+    return true;
 
+  // also delete spaces at the end
   if (std::isspace (line[line.length()-1]))
     line.erase (line.size()-1, 1);
 
@@ -2272,8 +2293,9 @@ ParameterHandler::scan_line (std::string        line,
       // check whether subsection exists
       if (!entries->get_child_optional (get_current_full_path(subsection)))
         {
-          std::cerr << "Line " << lineno
-                    << ": There is no such subsection to be entered: "
+          std::cerr << "Line <" << lineno
+                    << "> of file <" << input_filename
+                    << ">: There is no such subsection to be entered: "
                     << demangle(get_current_full_path(subsection)) << std::endl;
           for (unsigned int i=0; i<subsection_path.size(); ++i)
             std::cerr << std::setw(i*2+4) << " "
@@ -2294,8 +2316,9 @@ ParameterHandler::scan_line (std::string        line,
     {
       if (subsection_path.size() == 0)
         {
-          std::cerr << "Line " << lineno
-                    << ": There is no subsection to leave here!" << std::endl;
+          std::cerr << "Line <" << lineno
+                    << "> of file <" << input_filename
+                    << ">: There is no subsection to leave here!" << std::endl;
           return false;
         }
       else
@@ -2336,7 +2359,9 @@ ParameterHandler::scan_line (std::string        line,
                 = entries->get<unsigned int> (get_current_full_path(entry_name) + path_separator + "pattern");
               if (!patterns[pattern_index]->match(entry_value))
                 {
-                  std::cerr << "Line " << lineno << ":" << std::endl
+                  std::cerr << "Line <" << lineno
+                            << "> of file <" << input_filename
+                            << ">:" << std::endl
                             << "    The entry value" << std::endl
                             << "        " << entry_value << std::endl
                             << "    for the entry named" << std::endl
@@ -2354,8 +2379,9 @@ ParameterHandler::scan_line (std::string        line,
         }
       else
         {
-          std::cerr << "Line " << lineno
-                    << ": No such entry was declared:" << std::endl
+          std::cerr << "Line <" << lineno
+                    << "> of file <" << input_filename
+                    << ">: No such entry was declared:" << std::endl
                     << "    " << entry_name << std::endl
                     << "    <Present subsection:" << std::endl;
           for (unsigned int i=0; i<subsection_path.size(); ++i)
@@ -2367,9 +2393,46 @@ ParameterHandler::scan_line (std::string        line,
         }
     }
 
+  // an include statement?
+  if ((line.find ("INCLUDE ") == 0) ||
+      (line.find ("include ") == 0))
+    {
+      // erase "set" statement and eliminate
+      // spaces around the '='
+      line.erase (0, 7);
+      while ((line.size() > 0) && (line[0] == ' '))
+        line.erase (0, 1);
+
+      // the remainder must then be a filename
+      if (line.size() == 0)
+        {
+          std::cerr << "Line <" << lineno
+                    << "> of file <" << input_filename
+                    << "> is an include statement but does not name a file!"
+                    << std::endl;
+
+          return false;
+        }
+
+      std::ifstream input (line.c_str());
+      if (!input)
+        {
+          std::cerr << "Line <" << lineno
+                    << "> of file <" << input_filename
+                    << "> is an include statement but the file <"
+                    << line << "> could not be opened!"
+                    << std::endl;
+
+          return false;
+        }
+      else
+        return read_input (input);
+    }
+
   // this line matched nothing known
-  std::cerr << "Line " << lineno
-            << ": This line matched nothing known ('set' or 'subsection' missing!?):" << std::endl
+  std::cerr << "Line <" << lineno
+            << "> of file <" << input_filename
+            << ">: This line matched nothing known ('set' or 'subsection' missing!?):" << std::endl
             << "    " << line << std::endl;
   return false;
 }
@@ -2428,11 +2491,12 @@ MultipleParameterLoop::~MultipleParameterLoop ()
 
 
 
-bool MultipleParameterLoop::read_input (std::istream &input)
+bool MultipleParameterLoop::read_input (std::istream &input,
+                                        const std::string &filename)
 {
   AssertThrow (input, ExcIO());
 
-  bool x = ParameterHandler::read_input (input);
+  bool x = ParameterHandler::read_input (input, filename);
   if (x)
     init_branches ();
   return x;

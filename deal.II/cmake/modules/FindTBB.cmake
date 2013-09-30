@@ -1,16 +1,18 @@
-#####
+## ---------------------------------------------------------------------
+## $Id$
 ##
-## Copyright (C) 2012 by the deal.II authors
+## Copyright (C) 2012 - 2013 by the deal.II authors
 ##
 ## This file is part of the deal.II library.
 ##
-## <TODO: Full License information>
-## This file is dual licensed under QPL 1.0 and LGPL 2.1 or any later
-## version of the LGPL license.
+## The deal.II library is free software; you can use it, redistribute
+## it, and/or modify it under the terms of the GNU Lesser General
+## Public License as published by the Free Software Foundation; either
+## version 2.1 of the License, or (at your option) any later version.
+## The full text of the license can be found in the file LICENSE at
+## the top level of the deal.II distribution.
 ##
-## Author: Matthias Maier <matthias.maier@iwr.uni-heidelberg.de>
-##
-#####
+## ---------------------------------------------------------------------
 
 #
 # Try to find the Threading Building Blocks library
@@ -57,8 +59,13 @@ FIND_PACKAGE_HANDLE_STANDARD_ARGS(TBB DEFAULT_MSG
   TBB_INCLUDE_DIR
   )
 
+MARK_AS_ADVANCED(
+  TBB_LIBRARY
+  TBB_DEBUG_LIBRARY
+  TBB_INCLUDE_DIR
+  )
+
 IF(TBB_FOUND)
-  MARK_AS_ADVANCED(TBB_LIBRARY TBB_DEBUG_LIBRARY TBB_INCLUDE_DIR)
 
   IF(NOT TBB_DEBUG_LIBRARY MATCHES "-NOTFOUND")
     SET(TBB_WITH_DEBUGLIB TRUE)
@@ -69,8 +76,8 @@ IF(TBB_FOUND)
 
   SET(TBB_INCLUDE_DIRS ${TBB_INCLUDE_DIR})
 
+  MARK_AS_ADVANCED(TBB_DIR)
 ELSE()
-
   SET(TBB_DIR "" CACHE PATH
     "An optional hint to a TBB installation"
     )

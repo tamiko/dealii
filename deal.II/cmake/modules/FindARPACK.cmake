@@ -1,16 +1,18 @@
-#####
+## ---------------------------------------------------------------------
+## $Id$
 ##
-## Copyright (C) 2012 by the deal.II authors
+## Copyright (C) 2012 - 2013 by the deal.II authors
 ##
 ## This file is part of the deal.II library.
 ##
-## <TODO: Full License information>
-## This file is dual licensed under QPL 1.0 and LGPL 2.1 or any later
-## version of the LGPL license.
+## The deal.II library is free software; you can use it, redistribute
+## it, and/or modify it under the terms of the GNU Lesser General
+## Public License as published by the Free Software Foundation; either
+## version 2.1 of the License, or (at your option) any later version.
+## The full text of the license can be found in the file LICENSE at
+## the top level of the deal.II distribution.
 ##
-## Author: Matthias Maier <matthias.maier@iwr.uni-heidelberg.de>
-##
-#####
+## ---------------------------------------------------------------------
 
 #
 # Try to find the ARPACK library
@@ -32,7 +34,7 @@ SET_IF_EMPTY(ARPACK_DIR "$ENV{ARPACK_DIR}")
 #
 # ARPACK needs LAPACK and BLAS as dependencies:
 #
-FIND_PACKAGE(LAPACK)
+FIND_PACKAGE(DEALII_LAPACK)
 
 FIND_LIBRARY(ARPACK_LIBRARY
   NAMES arpack
@@ -46,21 +48,23 @@ FIND_PACKAGE_HANDLE_STANDARD_ARGS(ARPACK DEFAULT_MSG
   LAPACK_FOUND
   )
 
+MARK_AS_ADVANCED(
+  lapack_LIBRARY
+  atlas_LIBRARY
+  blas_LIBRARY
+  ARPACK_LIBRARY
+  )
+
 IF(ARPACK_FOUND)
   SET(ARPACK_LIBRARIES
-    ${ARPACK_LIBRARY} ${LAPACK_LIBRARIES}
+    ${ARPACK_LIBRARY}
+    ${LAPACK_LIBRARIES}
     )
   SET(ARPACK_LINKER_FLAGS
     ${LAPACK_LINKER_FLAGS}
     )
 
-  MARK_AS_ADVANCED(
-    lapack_LIBRARY
-    atlas_LIBRARY
-    blas_LIBRARY
-    ARPACK_LIBRARY
-    ARPACK_DIR
-  )
+  MARK_AS_ADVANCED(ARPACK_DIR)
 ELSE()
   SET(ARPACK_DIR "" CACHE PATH
     "An optional hint to an ARPACK installation"

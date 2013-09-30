@@ -1,12 +1,21 @@
-/* $Id$
+/* ---------------------------------------------------------------------
+ * $Id$
  *
- * Copyright (C) 1999-2003, 2005-2007, 2009, 2011-2013 by the deal.II authors
+ * Copyright (C) 1999 - 2013 by the deal.II authors
  *
- * This file is subject to QPL and may not be  distributed
- * without copyright and license information. Please refer
- * to the file deal.II/doc/license.html for the  text  and
- * further information on this license.
+ * This file is part of the deal.II library.
+ *
+ * The deal.II library is free software; you can use it, redistribute
+ * it, and/or modify it under the terms of the GNU Lesser General
+ * Public License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ * The full text of the license can be found in the file LICENSE at
+ * the top level of the deal.II distribution.
+ *
+ * ---------------------------------------------------------------------
+
  */
+
 
 // @sect3{Include files}
 
@@ -84,7 +93,7 @@ void second_grid ()
   // We then fill it with a ring domain. The center of the ring shall be the
   // point (1,0), and inner and outer radius shall be 0.5 and 1. The number of
   // circumferential cells could be adjusted automatically by this function,
-  // but we choose to set it explicitely to 10 as the last argument:
+  // but we choose to set it explicitly to 10 as the last argument:
   const Point<2> center (1,0);
   const double inner_radius = 0.5,
                outer_radius = 1.0;

@@ -1,14 +1,19 @@
-//---------------------------------------------------------------------------
-//    $Id$
+// ---------------------------------------------------------------------
+// $Id$
 //
-//    Copyright (C) 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013 by the deal.II authors
+// Copyright (C) 1998 - 2013 by the deal.II authors
 //
-//    This file is subject to QPL and may not be  distributed
-//    without copyright and license information. Please refer
-//    to the file deal.II/doc/license.html for the  text  and
-//    further information on this license.
+// This file is part of the deal.II library.
 //
-//---------------------------------------------------------------------------
+// The deal.II library is free software; you can use it, redistribute
+// it, and/or modify it under the terms of the GNU Lesser General
+// Public License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+// The full text of the license can be found in the file LICENSE at
+// the top level of the deal.II distribution.
+//
+// ---------------------------------------------------------------------
+
 
 #ifndef __deal2__constraint_matrix_h
 #define __deal2__constraint_matrix_h
@@ -227,6 +232,14 @@ public:
    * the distributed case.
    */
   bool can_store_line (const size_type line_index) const;
+
+  /**
+   * Returns the index set describing locally relevant lines if any are
+   * present. Note that if no local lines were given, this represents an empty
+   * IndexSet, whereas otherwise it contains the global problem size and the
+   * local range.
+   */
+  const IndexSet & get_local_lines() const;
 
   /**
    * This function copies the content of @p
@@ -542,6 +555,15 @@ public:
    * from one.
    */
   bool is_identity_constrained (const size_type index) const;
+
+  /**
+   * Return whether the two given degrees of freedom are linked by an
+   * equality constraint that either constrains index1 to be so that
+   * <code>index1=index2</code> or constrains index2 so that
+   * <code>index2=index1</code>.
+   */
+  bool are_identity_constrained (const size_type index1,
+                                     const size_type index2) const;
 
   /**
    * Return the maximum number of other
@@ -1518,7 +1540,7 @@ public:
    * @ingroup Exceptions
    */
   DeclException2 (ExcIncorrectConstraint,
-		  int, int,
+                  int, int,
                   << "While distributing the constraint for DoF "
                   << arg1 << ", it turns out that one of the processors "
                   << "who own the " << arg2
@@ -1529,7 +1551,7 @@ public:
                   << "with the appropriate locally_relevant set so "
                   << "that every processor who owns a DoF that constrains "
                   << "another DoF also knows about this constraint?");
-  
+
 private:
 
   /**
@@ -1828,7 +1850,12 @@ ConstraintMatrix::ConstraintMatrix (const IndexSet &local_constraints)
   lines (),
   local_lines (local_constraints),
   sorted (false)
-{}
+{
+  // make sure the IndexSet is compressed. Otherwise this can lead to crashes
+  // that are hard to find (only happen in release mode).
+  // see tests/mpi/constraint_matrix_crash_01
+  local_lines.compress();
+}
 
 
 
@@ -2032,6 +2059,15 @@ inline bool
 ConstraintMatrix::can_store_line (size_type line_index) const
 {
   return !local_lines.size() || local_lines.is_element(line_index);
+}
+
+
+
+inline
+const IndexSet &
+ConstraintMatrix::get_local_lines () const
+{
+  return local_lines;
 }
 
 

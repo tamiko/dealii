@@ -1,23 +1,25 @@
-#####
+## ---------------------------------------------------------------------
+## $Id$
 ##
-## Copyright (C) 2012, 2013 by the deal.II authors
+## Copyright (C) 2012 - 2013 by the deal.II authors
 ##
 ## This file is part of the deal.II library.
 ##
-## <TODO: Full License information>
-## This file is dual licensed under QPL 1.0 and LGPL 2.1 or any later
-## version of the LGPL license.
+## The deal.II library is free software; you can use it, redistribute
+## it, and/or modify it under the terms of the GNU Lesser General
+## Public License as published by the Free Software Foundation; either
+## version 2.1 of the License, or (at your option) any later version.
+## The full text of the license can be found in the file LICENSE at
+## the top level of the deal.II distribution.
 ##
-## Author: Matthias Maier <matthias.maier@iwr.uni-heidelberg.de>
-##
-#####
+## ---------------------------------------------------------------------
 
 
-###########################################################################
-#                                                                         #
-#                    Platform and CPU specific tests:                     #
-#                                                                         #
-###########################################################################
+########################################################################
+#                                                                      #
+#                   Platform and CPU specific tests:                   #
+#                                                                      #
+########################################################################
 
 #
 # This file sets up
@@ -37,19 +39,21 @@
 #
 # Determine the Endianess of the platform:
 #
-INCLUDE(TestBigEndian)
-TEST_BIG_ENDIAN(DEAL_II_WORDS_BIGENDIAN)
+IF(CMAKE_C_COMPILER_WORKS)
+  INCLUDE(TestBigEndian)
+
+  CLEAR_CMAKE_REQUIRED()
+  TEST_BIG_ENDIAN(DEAL_II_WORDS_BIGENDIAN)
+  RESET_CMAKE_REQUIRED()
+ELSE()
+  MESSAGE(STATUS
+    "No suitable C compiler was found! Assuming little endian platform."
+    )
+  SET(DEAL_II_WORDS_BIGENDIAN "0")
+ENDIF()
 
 
 IF(DEAL_II_ALLOW_PLATFORM_INTROSPECTION)
-
-  #
-  # These tests depend on certain cpu instruction sets being enabled, so
-  # use the user supplied compiler flags for the tests as well:
-  #
-  SET(CMAKE_REQUIRED_FLAGS "${CMAKE_CXX_FLAGS_SAVED}")
-
-
   #
   # Take care that the following tests are rerun if CMAKE_REQUIRED_FLAGS
   # changes..
@@ -135,9 +139,8 @@ IF(DEAL_II_ALLOW_PLATFORM_INTROSPECTION)
     }
     "
     DEAL_II_HAVE_AVX)
-
-  SET(CMAKE_REQUIRED_FLAGS "")
 ENDIF()
+
 
 IF(DEAL_II_HAVE_SSE2)
   IF(DEAL_II_HAVE_AVX)
@@ -148,4 +151,3 @@ IF(DEAL_II_HAVE_SSE2)
 ELSE()
   SET(DEAL_II_COMPILER_VECTORIZATION_LEVEL 0)
 ENDIF()
-

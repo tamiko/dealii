@@ -1,15 +1,19 @@
-//---------------------------------------------------------------------------
-//    $Id$
-//    Version: $Name$
+// ---------------------------------------------------------------------
+// $Id$
 //
-//    Copyright (C) 2011, 2012 by the deal.II authors
+// Copyright (C) 2011 - 2013 by the deal.II authors
 //
-//    This file is subject to QPL and may not be  distributed
-//    without copyright and license information. Please refer
-//    to the file deal.II/doc/license.html for the  text  and
-//    further information on this license.
+// This file is part of the deal.II library.
 //
-//---------------------------------------------------------------------------
+// The deal.II library is free software; you can use it, redistribute
+// it, and/or modify it under the terms of the GNU Lesser General
+// Public License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+// The full text of the license can be found in the file LICENSE at
+// the top level of the deal.II distribution.
+//
+// ---------------------------------------------------------------------
+
 
 #ifndef __deal2__matrix_free_fe_evaluation_h
 #define __deal2__matrix_free_fe_evaluation_h
@@ -1770,7 +1774,7 @@ namespace internal
   {
     typedef typename VectorType::BlockType BaseVectorType;
 
-    static BaseVectorType* get_vector_component (VectorType &vec,
+    static BaseVectorType *get_vector_component (VectorType &vec,
                                                  const unsigned int component)
     {
       AssertIndexRange (component, vec.n_blocks());
@@ -1783,7 +1787,7 @@ namespace internal
   {
     typedef VectorType BaseVectorType;
 
-    static BaseVectorType* get_vector_component (VectorType &vec,
+    static BaseVectorType *get_vector_component (VectorType &vec,
                                                  const unsigned int)
     {
       return &vec;
@@ -1817,15 +1821,14 @@ FEEvaluationBase<dim,dofs_per_cell_,n_q_points_,n_components_,Number>
   // loop over all local dofs. ind_local holds local number on cell, index
   // iterates over the elements of index_local_to_global and dof_indices
   // points to the global indices stored in index_local_to_global
-  const types::global_dof_index *dof_indices = dof_info.begin_indices(cell);
+  const unsigned int *dof_indices = dof_info.begin_indices(cell);
   const std::pair<unsigned short,unsigned short> *indicators =
     dof_info.begin_indicators(cell);
   const std::pair<unsigned short,unsigned short> *indicators_end =
     dof_info.end_indicators(cell);
   unsigned int ind_local = 0;
 
-  const unsigned int n_irreg_components_filled =
-    std_cxx1x::get<2>(dof_info.row_starts[cell]);
+  const unsigned int n_irreg_components_filled = dof_info.row_starts[cell][2];
   const bool at_irregular_cell = n_irreg_components_filled > 0;
 
   // scalar case (or case when all components have the same degrees of freedom
@@ -2127,7 +2130,7 @@ FEEvaluationBase<dim,dofs_per_cell_,n_q_points_,n_components_,Number>
   // select between block vectors and non-block vectors. Note that the number
   // of components is checked in the internal data
   typename internal::BlockVectorSelector<VectorType,
-    IsBlockVector<VectorType>::value>::BaseVectorType *src_data[n_components];
+           IsBlockVector<VectorType>::value>::BaseVectorType *src_data[n_components];
   for (unsigned int d=0; d<n_components; ++d)
     src_data[d] = internal::BlockVectorSelector<VectorType, IsBlockVector<VectorType>::value>::get_vector_component(const_cast<VectorType &>(src), d);
 
@@ -2210,7 +2213,7 @@ FEEvaluationBase<dim,dofs_per_cell_,n_q_points_,n_components_,Number>
   // select between block vectors and non-block vectors. Note that the number
   // of components is checked in the internal data
   const typename internal::BlockVectorSelector<VectorType,
-    IsBlockVector<VectorType>::value>::BaseVectorType *src_data[n_components];
+        IsBlockVector<VectorType>::value>::BaseVectorType *src_data[n_components];
   for (unsigned int d=0; d<n_components; ++d)
     src_data[d] = internal::BlockVectorSelector<VectorType, IsBlockVector<VectorType>::value>::get_vector_component(const_cast<VectorType &>(src), d);
 
@@ -2277,7 +2280,7 @@ FEEvaluationBase<dim,dofs_per_cell_,n_q_points_,n_components_,Number>
   // select between block vectors and non-block vectors. Note that the number
   // of components is checked in the internal data
   typename internal::BlockVectorSelector<VectorType,
-    IsBlockVector<VectorType>::value>::BaseVectorType *dst_data[n_components];
+           IsBlockVector<VectorType>::value>::BaseVectorType *dst_data[n_components];
   for (unsigned int d=0; d<n_components; ++d)
     dst_data[d] = internal::BlockVectorSelector<VectorType, IsBlockVector<VectorType>::value>::get_vector_component(dst, d);
 
@@ -2355,7 +2358,7 @@ FEEvaluationBase<dim,dofs_per_cell_,n_q_points_,n_components_,Number>
   // select between block vectors and non-block vectors. Note that the number
   // of components is checked in the internal data
   typename internal::BlockVectorSelector<VectorType,
-    IsBlockVector<VectorType>::value>::BaseVectorType *dst_data[n_components];
+           IsBlockVector<VectorType>::value>::BaseVectorType *dst_data[n_components];
   for (unsigned int d=0; d<n_components; ++d)
     dst_data[d] = internal::BlockVectorSelector<VectorType, IsBlockVector<VectorType>::value>::get_vector_component(dst, d);
 
@@ -2439,10 +2442,9 @@ FEEvaluationBase<dim,dofs_per_cell_,n_q_points_,n_components_,Number>
   // loop over all local dofs. ind_local holds local number on cell, index
   // iterates over the elements of index_local_to_global and dof_indices
   // points to the global indices stored in index_local_to_global
-  const types::global_dof_index *dof_indices = dof_info.begin_indices_plain(cell);
+  const unsigned int *dof_indices = dof_info.begin_indices_plain(cell);
 
-  const unsigned int n_irreg_components_filled =
-    std_cxx1x::get<2>(dof_info.row_starts[cell]);
+  const unsigned int n_irreg_components_filled = dof_info.row_starts[cell][2];
   const bool at_irregular_cell = n_irreg_components_filled > 0;
 
   // scalar case (or case when all components have the same degrees of freedom
@@ -3878,12 +3880,12 @@ namespace internal
   inline
   void
   apply_tensor_product_values (const VectorizedArray<Number> *shape_values,
-			       const VectorizedArray<Number> in [],
-			       VectorizedArray<Number>       out [])
+                               const VectorizedArray<Number> in [],
+                               VectorizedArray<Number>       out [])
   {
     AssertIndexRange (direction, dim);
     const int mm     = dof_to_quad ? (fe_degree+1) : n_q_points_1d,
-      nn     = dof_to_quad ? n_q_points_1d : (fe_degree+1);
+              nn     = dof_to_quad ? n_q_points_1d : (fe_degree+1);
     const int n_cols = nn / 2;
     const int mid    = mm / 2;
 
@@ -3897,132 +3899,132 @@ namespace internal
           {
             for (int col=0; col<n_cols; ++col)
               {
-        	VectorizedArray<Number> val0, val1, in0, in1, res0, res1;
-        	if (dof_to_quad == true)
-        	  {
-        	    val0 = shape_values[col];
-        	    val1 = shape_values[nn-1-col];
-        	  }
-        	else
-        	  {
-        	    val0 = shape_values[col*n_q_points_1d];
-        	    val1 = shape_values[(col+1)*n_q_points_1d-1];
-        	  }
-        	if (mid > 0)
-        	  {
-        	    in0 = in[0];
-        	    in1 = in[stride*(mm-1)];
-        	    res0 = val0 * in0;
-        	    res1 = val1 * in0;
-        	    res0 += val1 * in1;
-        	    res1 += val0 * in1;
-        	    for (int ind=1; ind<mid; ++ind)
-        	      {
-        		if (dof_to_quad == true)
-        		  {
-        		    val0 = shape_values[ind*n_q_points_1d+col];
-        		    val1 = shape_values[ind*n_q_points_1d+nn-1-col];
-        		  }
-        		else
-        		  {
-        		    val0 = shape_values[col*n_q_points_1d+ind];
-        		    val1 = shape_values[(col+1)*n_q_points_1d-1-ind];
-        		  }
-        		in0 = in[stride*ind];
-        		in1 = in[stride*(mm-1-ind)];
-        		res0 += val0 * in0;
-        		res1 += val1 * in0;
-        		res0 += val1 * in1;
-        		res1 += val0 * in1;
-        	      }
-        	  }
-        	else
-        	  res0 = res1 = VectorizedArray<Number>();
-        	if (dof_to_quad == true)
-        	  {
-        	    if (mm % 2 == 1)
-        	      {
-        		val0 = shape_values[mid*n_q_points_1d+col];
-        		val1 = val0 * in[stride*mid];
-        		res0 += val1;
-        		res1 += val1;
-        	      }
-        	  }
-        	else
-        	  {
-        	    if (mm % 2 == 1 && nn % 2 == 0)
-        	      {
-        		val0 = shape_values[col*n_q_points_1d+mid];
-        		val1 = val0 * in[stride*mid];
-        		res0 += val1;
-        		res1 += val1;
-        	      }
-        	  }
-        	if (add == false)
-        	  {
-        	    out[stride*col]         = res0;
-        	    out[stride*(nn-1-col)]  = res1;
-        	  }
-        	else
-        	  {
-        	    out[stride*col]        += res0;
-        	    out[stride*(nn-1-col)] += res1;
-        	  }
+                VectorizedArray<Number> val0, val1, in0, in1, res0, res1;
+                if (dof_to_quad == true)
+                  {
+                    val0 = shape_values[col];
+                    val1 = shape_values[nn-1-col];
+                  }
+                else
+                  {
+                    val0 = shape_values[col*n_q_points_1d];
+                    val1 = shape_values[(col+1)*n_q_points_1d-1];
+                  }
+                if (mid > 0)
+                  {
+                    in0 = in[0];
+                    in1 = in[stride*(mm-1)];
+                    res0 = val0 * in0;
+                    res1 = val1 * in0;
+                    res0 += val1 * in1;
+                    res1 += val0 * in1;
+                    for (int ind=1; ind<mid; ++ind)
+                      {
+                        if (dof_to_quad == true)
+                          {
+                            val0 = shape_values[ind*n_q_points_1d+col];
+                            val1 = shape_values[ind*n_q_points_1d+nn-1-col];
+                          }
+                        else
+                          {
+                            val0 = shape_values[col*n_q_points_1d+ind];
+                            val1 = shape_values[(col+1)*n_q_points_1d-1-ind];
+                          }
+                        in0 = in[stride*ind];
+                        in1 = in[stride*(mm-1-ind)];
+                        res0 += val0 * in0;
+                        res1 += val1 * in0;
+                        res0 += val1 * in1;
+                        res1 += val0 * in1;
+                      }
+                  }
+                else
+                  res0 = res1 = VectorizedArray<Number>();
+                if (dof_to_quad == true)
+                  {
+                    if (mm % 2 == 1)
+                      {
+                        val0 = shape_values[mid*n_q_points_1d+col];
+                        val1 = val0 * in[stride*mid];
+                        res0 += val1;
+                        res1 += val1;
+                      }
+                  }
+                else
+                  {
+                    if (mm % 2 == 1 && nn % 2 == 0)
+                      {
+                        val0 = shape_values[col*n_q_points_1d+mid];
+                        val1 = val0 * in[stride*mid];
+                        res0 += val1;
+                        res1 += val1;
+                      }
+                  }
+                if (add == false)
+                  {
+                    out[stride*col]         = res0;
+                    out[stride*(nn-1-col)]  = res1;
+                  }
+                else
+                  {
+                    out[stride*col]        += res0;
+                    out[stride*(nn-1-col)] += res1;
+                  }
               }
             if ( dof_to_quad == true && nn%2==1 && mm%2==1 )
               {
-        	if (add==false)
-        	  out[stride*n_cols]  = in[stride*mid];
-        	else
-        	  out[stride*n_cols] += in[stride*mid];
+                if (add==false)
+                  out[stride*n_cols]  = in[stride*mid];
+                else
+                  out[stride*n_cols] += in[stride*mid];
               }
             else if (dof_to_quad == true && nn%2==1)
               {
-        	VectorizedArray<Number> res0;
-        	VectorizedArray<Number> val0  = shape_values[n_cols];
-        	if (mid > 0)
-        	  {
-        	    res0  = in[0] + in[stride*(mm-1)];
-        	    res0 *= val0;
-        	    for (int ind=1; ind<mid; ++ind)
-        	      {
-        		val0  = shape_values[ind*n_q_points_1d+n_cols];
-        		VectorizedArray<Number> val1  = in[stride*ind] + in[stride*(mm-1-ind)];
-        		val1 *= val0;
-        		res0 += val1;
-        	      }
-        	  }
-        	else
-        	  res0 = VectorizedArray<Number>();
-        	if (add == false)
-        	  out[stride*n_cols]  = res0;
-        	else
-        	  out[stride*n_cols] += res0;
+                VectorizedArray<Number> res0;
+                VectorizedArray<Number> val0  = shape_values[n_cols];
+                if (mid > 0)
+                  {
+                    res0  = in[0] + in[stride*(mm-1)];
+                    res0 *= val0;
+                    for (int ind=1; ind<mid; ++ind)
+                      {
+                        val0  = shape_values[ind*n_q_points_1d+n_cols];
+                        VectorizedArray<Number> val1  = in[stride*ind] + in[stride*(mm-1-ind)];
+                        val1 *= val0;
+                        res0 += val1;
+                      }
+                  }
+                else
+                  res0 = VectorizedArray<Number>();
+                if (add == false)
+                  out[stride*n_cols]  = res0;
+                else
+                  out[stride*n_cols] += res0;
               }
             else if (dof_to_quad == false && nn%2 == 1)
               {
-        	VectorizedArray<Number> res0;
-        	if (mid > 0)
-        	  {
-        	    VectorizedArray<Number> val0 = shape_values[n_cols*n_q_points_1d];
-        	    res0 = in[0] + in[stride*(mm-1)];
-        	    res0 *= val0;
-        	    for (int ind=1; ind<mid; ++ind)
-        	      {
-        		val0  = shape_values[n_cols*n_q_points_1d+ind];
-        		VectorizedArray<Number> val1 = in[stride*ind] + in[stride*(mm-1-ind)];
-        		val1 *= val0;
-        		res0 += val1;
-        	      }
-        	    if (mm % 2)
-        	      res0 += in[stride*mid];
-        	  }
-        	else
-        	  res0 = in[0];
-        	if (add == false)
-        	  out[stride*n_cols]  = res0;
-        	else
-        	  out[stride*n_cols] += res0;
+                VectorizedArray<Number> res0;
+                if (mid > 0)
+                  {
+                    VectorizedArray<Number> val0 = shape_values[n_cols*n_q_points_1d];
+                    res0 = in[0] + in[stride*(mm-1)];
+                    res0 *= val0;
+                    for (int ind=1; ind<mid; ++ind)
+                      {
+                        val0  = shape_values[n_cols*n_q_points_1d+ind];
+                        VectorizedArray<Number> val1 = in[stride*ind] + in[stride*(mm-1-ind)];
+                        val1 *= val0;
+                        res0 += val1;
+                      }
+                    if (mm % 2)
+                      res0 += in[stride*mid];
+                  }
+                else
+                  res0 = in[0];
+                if (add == false)
+                  out[stride*n_cols]  = res0;
+                else
+                  out[stride*n_cols] += res0;
               }
 
             // increment: in regular case, just go to the next point in
@@ -4031,16 +4033,16 @@ namespace internal
             switch (direction)
               {
               case 0:
-        	in += mm;
-        	out += nn;
-        	break;
+                in += mm;
+                out += nn;
+                break;
               case 1:
               case 2:
-        	++in;
-        	++out;
-        	break;
+                ++in;
+                ++out;
+                break;
               default:
-        	Assert (false, ExcNotImplemented());
+                Assert (false, ExcNotImplemented());
               }
           }
         if (direction == 1)
@@ -4081,12 +4083,12 @@ namespace internal
   inline
   void
   apply_tensor_product_gradients (const VectorizedArray<Number> *shape_gradients,
-				  const VectorizedArray<Number> in [],
-				  VectorizedArray<Number>       out [])
+                                  const VectorizedArray<Number> in [],
+                                  VectorizedArray<Number>       out [])
   {
     AssertIndexRange (direction, dim);
     const int mm     = dof_to_quad ? (fe_degree+1) : n_q_points_1d,
-      nn     = dof_to_quad ? n_q_points_1d : (fe_degree+1);
+              nn     = dof_to_quad ? n_q_points_1d : (fe_degree+1);
     const int n_cols = nn / 2;
     const int mid    = mm / 2;
 
@@ -4225,12 +4227,12 @@ namespace internal
   inline
   void
   apply_tensor_product_hessians (const VectorizedArray<Number> *shape_hessians,
-				 const VectorizedArray<Number> in [],
-				 VectorizedArray<Number>       out [])
+                                 const VectorizedArray<Number> in [],
+                                 VectorizedArray<Number>       out [])
   {
     AssertIndexRange (direction, dim);
     const int mm     = dof_to_quad ? (fe_degree+1) : n_q_points_1d,
-      nn     = dof_to_quad ? n_q_points_1d : (fe_degree+1);
+              nn     = dof_to_quad ? n_q_points_1d : (fe_degree+1);
     const int n_cols = nn / 2;
     const int mid    = mm / 2;
 
@@ -4399,8 +4401,8 @@ namespace internal
   inline
   void
   apply_tensor_product_gradients_gl (const VectorizedArray<Number> *shape_gradients,
-				     const VectorizedArray<Number> in [],
-				     VectorizedArray<Number>       out [])
+                                     const VectorizedArray<Number> in [],
+                                     VectorizedArray<Number>       out [])
   {
     AssertIndexRange (direction, dim);
     const int mm     = fe_degree+1;

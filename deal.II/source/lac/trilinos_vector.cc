@@ -1,16 +1,18 @@
-//---------------------------------------------------------------------------
-//    $Id$
-//    Version: $Name$
+// ---------------------------------------------------------------------
+// $Id$
 //
-//    Copyright (C) 2008, 2009, 2012, 2013 by the deal.II authors
+// Copyright (C) 2008 - 2013 by the deal.II authors
 //
-//    This file is subject to QPL and may not be  distributed
-//    without copyright and license information. Please refer
-//    to the file deal.II/doc/license.html for the  text  and
-//    further information on this license.
+// This file is part of the deal.II library.
 //
-//---------------------------------------------------------------------------
-
+// The deal.II library is free software; you can use it, redistribute
+// it, and/or modify it under the terms of the GNU Lesser General
+// Public License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+// The full text of the license can be found in the file LICENSE at
+// the top level of the deal.II distribution.
+//
+// ---------------------------------------------------------------------
 
 #include <deal.II/lac/trilinos_vector.h>
 
@@ -44,12 +46,12 @@ namespace TrilinosWrappers
     // by calling either the 32- or 64-bit function necessary, and returns the
     // result in the correct data type so that we can use it in calling other
     // Epetra member functions that are overloaded by index type
-    int* my_global_elements(const Epetra_BlockMap &map)
+    int *my_global_elements(const Epetra_BlockMap &map)
     {
-       return map.MyGlobalElements();
+      return map.MyGlobalElements();
     }
     // define a helper function that queries the global vector length of an
-    // Epetra_FEVector object  by calling either the 32- or 64-bit 
+    // Epetra_FEVector object  by calling either the 32- or 64-bit
     // function necessary.
     int global_length(const Epetra_FEVector &vector)
     {
@@ -69,12 +71,12 @@ namespace TrilinosWrappers
     // by calling either the 32- or 64-bit function necessary, and returns the
     // result in the correct data type so that we can use it in calling other
     // Epetra member functions that are overloaded by index type
-    long long int* my_global_elements(const Epetra_BlockMap &map)
+    long long int *my_global_elements(const Epetra_BlockMap &map)
     {
-       return map.MyGlobalElements64();
+      return map.MyGlobalElements64();
     }
     // define a helper function that queries the global vector length of an
-    // Epetra_FEVector object  by calling either the 32- or 64-bit 
+    // Epetra_FEVector object  by calling either the 32- or 64-bit
     // function necessary.
     long long int global_length(const Epetra_FEVector &vector)
     {
@@ -127,8 +129,8 @@ namespace TrilinosWrappers
       VectorBase()
     {
       AssertThrow (n_global_elements(input_map) == n_global_elements(v.vector->Map()),
-		   ExcDimensionMismatch (n_global_elements(input_map),
-					 n_global_elements(v.vector->Map())));
+                   ExcDimensionMismatch (n_global_elements(input_map),
+                                         n_global_elements(v.vector->Map())));
 
       last_action = Zero;
 
@@ -149,7 +151,7 @@ namespace TrilinosWrappers
       :
       VectorBase()
     {
-      AssertThrow (parallel_partitioner.size() == 
+      AssertThrow (parallel_partitioner.size() ==
                    static_cast<size_type>(n_global_elements(v.vector->Map())),
                    ExcDimensionMismatch (parallel_partitioner.size(),
                                          n_global_elements(v.vector->Map())));
@@ -160,6 +162,17 @@ namespace TrilinosWrappers
                     (parallel_partitioner.make_trilinos_map(communicator,
                                                             true)));
       reinit (v, false, true);
+    }
+
+    Vector::Vector (const IndexSet &local,
+                    const IndexSet &ghost,
+                    const MPI_Comm &communicator)
+      :
+      VectorBase()
+    {
+      IndexSet parallel_partitioning = local;
+      parallel_partitioning.add_indices(ghost);
+      reinit(parallel_partitioning, communicator);
     }
 
 
@@ -335,6 +348,13 @@ namespace TrilinosWrappers
 
     }
 
+
+    void Vector::reinit(const IndexSet &local, const IndexSet &ghost, const MPI_Comm &communicator)
+    {
+      IndexSet parallel_partitioning = local;
+      parallel_partitioning.add_indices(ghost);
+      reinit(parallel_partitioning, communicator);
+    }
 
 
     Vector &

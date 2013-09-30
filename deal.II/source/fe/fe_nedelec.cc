@@ -1,3 +1,19 @@
+// ---------------------------------------------------------------------
+// $Id$
+//
+// Copyright (C) 2013 by the deal.II authors
+//
+// This file is part of the deal.II library.
+//
+// The deal.II library is free software; you can use it, redistribute
+// it, and/or modify it under the terms of the GNU Lesser General
+// Public License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+// The full text of the license can be found in the file LICENSE at
+// the top level of the deal.II distribution.
+//
+// ---------------------------------------------------------------------
+
 #include <deal.II/base/logstream.h>
 #include <deal.II/base/utilities.h>
 #include <deal.II/base/quadrature.h>
@@ -230,7 +246,7 @@ FE_Nedelec<2>::initialize_support_points (const unsigned int degree)
   // Initialize quadratures to obtain
   // quadrature points later on.
   const QGauss<dim - 1> reference_edge_quadrature (degree + 1);
-  const unsigned int&
+  const unsigned int &
   n_edge_points = reference_edge_quadrature.size ();
   const unsigned int n_boundary_points
     = GeometryInfo<dim>::lines_per_cell * n_edge_points;
@@ -511,7 +527,7 @@ FE_Nedelec<dim>::initialize_restriction ()
   const QGauss<1> edge_quadrature (2 * this->degree);
   const std::vector<Point<1> > &edge_quadrature_points
     = edge_quadrature.get_points ();
-  const unsigned int&
+  const unsigned int &
   n_edge_quadrature_points = edge_quadrature.size ();
   const unsigned int
   index = RefinementCase<dim>::isotropic_refinement - 1;
@@ -3290,7 +3306,7 @@ FE_Nedelec<dim>::interpolate (std::vector<double> &local_dofs,
       {
         const QGauss<1>
         reference_edge_quadrature (this->degree);
-        const unsigned int&
+        const unsigned int &
         n_edge_points = reference_edge_quadrature.size ();
 
         // Let us begin with the
@@ -4151,7 +4167,7 @@ FE_Nedelec<dim>::interpolate (std::vector<double> &local_dofs,
             // the interior shape
             // functions.
             const QGauss<dim> reference_quadrature (this->degree);
-            const unsigned int&
+            const unsigned int &
             n_interior_points = reference_quadrature.size ();
 
             // We create the
@@ -4556,7 +4572,7 @@ const
       // Let us begin with the
       // interpolation part.
       const QGauss<dim - 1> reference_edge_quadrature (this->degree);
-      const unsigned int&
+      const unsigned int &
       n_edge_points = reference_edge_quadrature.size ();
 
       for (unsigned int i = 0; i < 2; ++i)
@@ -4672,7 +4688,7 @@ const
           // vertical, interior
           // shape functions.
           const QGauss<dim> reference_quadrature (this->degree);
-          const unsigned int&
+          const unsigned int &
           n_interior_points = reference_quadrature.size ();
           const std::vector<Polynomials::Polynomial<double> > &
           legendre_polynomials
@@ -4827,7 +4843,7 @@ const
       // Let us begin with the
       // interpolation part.
       const QGauss<1> reference_edge_quadrature (this->degree);
-      const unsigned int&
+      const unsigned int &
       n_edge_points = reference_edge_quadrature.size ();
 
       for (unsigned int q_point = 0; q_point < n_edge_points; ++q_point)

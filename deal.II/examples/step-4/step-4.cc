@@ -1,13 +1,23 @@
-/* Author: Wolfgang Bangerth, University of Heidelberg, 1999 */
+/* ---------------------------------------------------------------------
+ * $Id$
+ *
+ * Copyright (C) 1999 - 2013 by the deal.II authors
+ *
+ * This file is part of the deal.II library.
+ *
+ * The deal.II library is free software; you can use it, redistribute
+ * it, and/or modify it under the terms of the GNU Lesser General
+ * Public License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ * The full text of the license can be found in the file LICENSE at
+ * the top level of the deal.II distribution.
+ *
+ * ---------------------------------------------------------------------
 
-/*    $Id$       */
-/*                                                                */
-/*    Copyright (C) 1999-2012 by the deal.II authors */
-/*                                                                */
-/*    This file is subject to QPL and may not be  distributed     */
-/*    without copyright and license information. Please refer     */
-/*    to the file deal.II/doc/license.html for the  text  and     */
-/*    further information on this license.                        */
+ *
+ * Author: Wolfgang Bangerth, University of Heidelberg, 1999
+ */
+
 
 // @sect3{Include files}
 
@@ -154,7 +164,7 @@ public:
 // formulas above right away.
 //
 // The last thing to note is that a <code>Point@<dim@></code> denotes a point
-// in dim-dimensionsal space, and its individual components (i.e. $x$, $y$,
+// in dim-dimensional space, and its individual components (i.e. $x$, $y$,
 // ... coordinates) can be accessed using the () operator (in fact, the []
 // operator will work just as well) with indices starting at zero as usual in
 // C and C++.
@@ -446,7 +456,7 @@ void Step4<dim>::solve ()
 // <code>data_out.write_gnuplot</code> call by
 // <code>data_out.write_vtk</code>.
 //
-// Since the program will run both 2d and 3d versions of the laplace solver,
+// Since the program will run both 2d and 3d versions of the Laplace solver,
 // we use the dimension in the filename to generate distinct filenames for
 // each run (in a better program, one would check whether <code>dim</code> can
 // have other values than 2 or 3, but we neglect this here for the sake of

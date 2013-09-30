@@ -1,15 +1,19 @@
-//---------------------------------------------------------------------------
-//    $Id$
-//    Version: $Name$
+// ---------------------------------------------------------------------
+// $Id$
 //
-//    Copyright (C) 2011, 2012, 2013 by deal.II authors
+// Copyright (C) 2011 - 2013 by the deal.II authors
 //
-//    This file is subject to QPL and may not be  distributed
-//    without copyright and license information. Please refer
-//    to the file deal.II/doc/license.html for the  text  and
-//    further information on this license.
+// This file is part of the deal.II library.
 //
-//---------------------------------------------------------------------------
+// The deal.II library is free software; you can use it, redistribute
+// it, and/or modify it under the terms of the GNU Lesser General
+// Public License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+// The full text of the license can be found in the file LICENSE at
+// the top level of the deal.II distribution.
+//
+// ---------------------------------------------------------------------
+
 #ifndef __deal2__partitioner_h
 #define __deal2__partitioner_h
 
@@ -45,12 +49,12 @@ namespace Utilities
      * where other processors might require information from. In a
      * sense, these import indices form the dual of the ghost
      * indices. This information is gathered once when constructing the
-     * partitioner, which obviates subsequent global communcation steps
+     * partitioner, which obviates subsequent global communication steps
      * when exchanging data.
      *
-     * The partitioner includes a mechanism for converting global to
-     * local and local to global indices. The storage convention for the
-     * partitioner is as follows. The local range is associated with
+     * The partitioner includes a mechanism for converting global to local and
+     * local to global indices. Internally, this class stores vector elements
+     * using the convention as follows: The local range is associated with
      * local indices [0,@p local_size), and ghost indices are stored
      * consecutively in [@p local_size, @p local_size + @p
      * n_ghost_indices). The ghost indices are sorted according to their
@@ -273,7 +277,7 @@ namespace Utilities
        * Returns the MPI communicator underlying the
        * partitioner object.
        */
-      const MPI_Comm& get_communicator() const;
+      const MPI_Comm &get_communicator() const;
 
       /**
        * Computes the memory consumption of this
@@ -286,7 +290,7 @@ namespace Utilities
        */
       DeclException2 (ExcIndexNotPresent,
                       types::global_dof_index,
-		      unsigned int,
+                      unsigned int,
                       << "Global index " << arg1
                       << " neither owned nor ghost on proc " << arg2);
 
@@ -409,7 +413,7 @@ namespace Utilities
     {
       types::global_dof_index size= local_range_data.second - local_range_data.first;
       Assert(size<=std::numeric_limits<unsigned int>::max(),
-	     ExcNotImplemented());
+             ExcNotImplemented());
       return static_cast<unsigned int>(size);
     }
 
@@ -570,7 +574,7 @@ namespace Utilities
 
 
     inline
-    const MPI_Comm&
+    const MPI_Comm &
     Partitioner::get_communicator() const
     {
       return communicator;

@@ -1,14 +1,19 @@
-//---------------------------------------------------------------------------
-//    $Id$
+// ---------------------------------------------------------------------
+// $Id$
 //
-//    Copyright (C) 2006, 2007, 2008, 2010, 2012 by the deal.II authors
+// Copyright (C) 2006 - 2013 by the deal.II authors
 //
-//    This file is subject to QPL and may not be  distributed
-//    without copyright and license information. Please refer
-//    to the file deal.II/doc/license.html for the  text  and
-//    further information on this license.
+// This file is part of the deal.II library.
 //
-//---------------------------------------------------------------------------
+// The deal.II library is free software; you can use it, redistribute
+// it, and/or modify it under the terms of the GNU Lesser General
+// Public License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+// The full text of the license can be found in the file LICENSE at
+// the top level of the deal.II distribution.
+//
+// ---------------------------------------------------------------------
+
 #ifndef __deal2__dof_faces_h
 #define __deal2__dof_faces_h
 
@@ -42,7 +47,7 @@ namespace internal
      * the hierarchical structure of cells, which are organized in levels. In 2D we store
      * information on degrees of freedom located on lines whereas in 3D we store information on
      * degrees of freedom located on quads and lines. In 1D we do nothing, as the faces of
-     * lines are vertices which are treated seperately.
+     * lines are vertices which are treated separately.
      *
      * Apart from the DoFObjects object containing the data to store (degree of freedom
      * indices) we do not store any data or provide any functionality. However, we do implement
@@ -72,7 +77,7 @@ namespace internal
 
     /**
      * Store the indices of degrees of freedom on faces in 1D. As these would be vertices, which
-     * are treted seperately, don't do anything.
+     * are treted separately, don't do anything.
      *
      * @author Tobias Leicht, 2006
      */

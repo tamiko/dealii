@@ -1,14 +1,19 @@
-//---------------------------------------------------------------------------
-//    $Id$
+// ---------------------------------------------------------------------
+// $Id$
 //
-//    Copyright (C) 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2009, 2010, 2012 by the deal.II authors
+// Copyright (C) 1998 - 2013 by the deal.II authors
 //
-//    This file is subject to QPL and may not be  distributed
-//    without copyright and license information. Please refer
-//    to the file deal.II/doc/license.html for the  text  and
-//    further information on this license.
+// This file is part of the deal.II library.
 //
-//---------------------------------------------------------------------------
+// The deal.II library is free software; you can use it, redistribute
+// it, and/or modify it under the terms of the GNU Lesser General
+// Public License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+// The full text of the license can be found in the file LICENSE at
+// the top level of the deal.II distribution.
+//
+// ---------------------------------------------------------------------
+
 #ifndef __deal2__exceptions_h
 #define __deal2__exceptions_h
 
@@ -79,7 +84,7 @@ public:
 
   /**
    * Print more specific information about the exception which
-   * occured. Overload this function in your own exception classes.
+   * occurred. Overload this function in your own exception classes.
    */
   virtual void print_info (std::ostream &out) const;
 
@@ -148,7 +153,7 @@ namespace deal_II_exceptions
    * processes is redirected to the same console window. In this case,
    * it is convenient to set as additional name the name of the host on
    * which the program runs, so that one can see in which instance of the
-   * program the exception occured.
+   * program the exception occurred.
    *
    * The string pointed to by the argument is copied, so doesn't need to be
    * stored after the call to this function.
@@ -825,7 +830,7 @@ namespace StandardExceptions
                                              ExcIndexRange((index),0,(range)))
 
 #define AssertGlobalIndexRange(index,range) Assert((index) < (range), \
-						   ExcIndexRange<types::global_dof_index>((index),0,(range)))
+                                                   ExcIndexRange<types::global_dof_index>((index),0,(range)))
 
 using namespace StandardExceptions;
 

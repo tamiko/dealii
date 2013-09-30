@@ -1,15 +1,19 @@
-//---------------------------------------------------------------------------
-//    $Id$
-//    Version: $Name$
+// ---------------------------------------------------------------------
+// $Id$
 //
-//    Copyright (C) 2011, 2012, 2013 by deal.II authors
+// Copyright (C) 2011 - 2013 by the deal.II authors
 //
-//    This file is subject to QPL and may not be  distributed
-//    without copyright and license information. Please refer
-//    to the file deal.II/doc/license.html for the  text  and
-//    further information on this license.
+// This file is part of the deal.II library.
 //
-//---------------------------------------------------------------------------
+// The deal.II library is free software; you can use it, redistribute
+// it, and/or modify it under the terms of the GNU Lesser General
+// Public License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+// The full text of the license can be found in the file LICENSE at
+// the top level of the deal.II distribution.
+//
+// ---------------------------------------------------------------------
+
 #ifndef __deal2__parallel_vector_h
 #define __deal2__parallel_vector_h
 
@@ -151,6 +155,12 @@ namespace parallel
               const MPI_Comm  communicator);
 
       /**
+       * Same constructor as above but without any ghost indices.
+       */
+      Vector (const IndexSet &local_range,
+              const MPI_Comm  communicator);
+
+      /**
        * Create the vector based on the parallel partitioning described in @p
        * partitioner. The input argument is a shared pointer, which store the
        * partitioner data only once and share it between several vectors with
@@ -198,6 +208,12 @@ namespace parallel
        */
       void reinit (const IndexSet &local_range,
                    const IndexSet &ghost_indices,
+                   const MPI_Comm  communicator);
+
+      /**
+       * Same as above, but without ghost entries.
+       */
+      void reinit (const IndexSet &local_range,
                    const MPI_Comm  communicator);
 
       /**
@@ -484,7 +500,7 @@ namespace parallel
        * not owned by the current processor but can be written into or read
        * from locally (ghost elements).
        */
-      const IndexSet& ghost_elements() const;
+      const IndexSet &ghost_elements() const;
 
       /**
        * Returns whether the given global index is a ghost index on the
@@ -566,6 +582,29 @@ namespace parallel
        * This function does the same thing as operator().
        */
       Number &operator [] (const size_type global_index);
+
+      /**
+       * A collective get operation: instead
+       * of getting individual elements of a
+       * vector, this function allows to get
+       * a whole set of elements at once. The
+       * indices of the elements to be read
+       * are stated in the first argument,
+       * the corresponding values are returned in the
+       * second.
+       */
+      template <typename OtherNumber>
+      void extract_subvector_to (const std::vector<size_type> &indices,
+                                 std::vector<OtherNumber> &values) const;
+
+      /**
+       * Just as the above, but with pointers.
+       * Useful in minimizing copying of data around.
+       */
+      template <typename ForwardIterator, typename OutputIterator>
+      void extract_subvector_to (ForwardIterator          indices_begin,
+                                 const ForwardIterator    indices_end,
+                                 OutputIterator           values_begin) const;
 
       /**
        * Read access to the data field specified by @p local_index. Locally
@@ -770,7 +809,7 @@ namespace parallel
        * vector.
        */
       const MPI_Comm &get_mpi_communicator () const;
-      
+
       /**
        * Checks whether the given partitioner is compatible with the
        * partitioner used for this vector. Two partitioners are compatible if
@@ -977,6 +1016,22 @@ namespace parallel
 
     template <typename Number>
     inline
+    Vector<Number>::Vector (const IndexSet &local_range,
+                             const MPI_Comm  communicator)
+      :
+      allocated_size (0),
+      val (0),
+      import_data (0),
+      vector_view (0, static_cast<Number *>(0))
+    {
+      IndexSet ghost_indices(local_range.size());
+      reinit (local_range, ghost_indices, communicator);
+    }
+
+
+
+    template <typename Number>
+    inline
     Vector<Number>::Vector (const size_type size)
       :
       allocated_size (0),
@@ -1038,7 +1093,7 @@ namespace parallel
       else if (partitioner.get() != c.partitioner.get())
         {
           size_type local_ranges_different_loc = (local_range() !=
-                                                     c.local_range());
+                                                  c.local_range());
           if ((partitioner->n_mpi_processes() > 1 &&
                Utilities::MPI::max(local_ranges_different_loc,
                                    partitioner->get_communicator()) != 0)
@@ -1047,6 +1102,7 @@ namespace parallel
             reinit (c, true);
         }
       vector_view = c.vector_view;
+      update_ghost_values();
       return *this;
     }
 
@@ -1070,7 +1126,7 @@ namespace parallel
       else if (partitioner.get() != c.partitioner.get())
         {
           size_type local_ranges_different_loc = (local_range() !=
-                                                     c.local_range());
+                                                  c.local_range());
           if ((partitioner->n_mpi_processes() > 1 &&
                Utilities::MPI::max(local_ranges_different_loc,
                                    partitioner->get_communicator()) != 0)
@@ -1205,8 +1261,8 @@ namespace parallel
     Vector<Number>::vectors_equal_local (const Vector<Number2> &v) const
     {
       return partitioner->local_size()>0 ?
-        vector_view.template operator == <Number2>(v.vector_view)
-        : true;
+             vector_view.template operator == <Number2>(v.vector_view)
+             : true;
     }
 
 
@@ -1321,7 +1377,7 @@ namespace parallel
         return Utilities::MPI::sum (local_result *
                                     (real_type)partitioner->local_size(),
                                     partitioner->get_communicator())
-          /(real_type)partitioner->size();
+               /(real_type)partitioner->size();
       else
         return local_result;
     }
@@ -1437,8 +1493,8 @@ namespace parallel
     template <typename Number>
     inline
     std::pair<typename Vector<Number>::size_type,
-      typename Vector<Number>::size_type>
-    Vector<Number>::local_range () const
+        typename Vector<Number>::size_type>
+        Vector<Number>::local_range () const
     {
       return partitioner->local_range();
     }
@@ -1473,7 +1529,7 @@ namespace parallel
 
     template <typename Number>
     inline
-    typename Vector<Number>::size_type 
+    typename Vector<Number>::size_type
     Vector<Number>::n_ghost_entries () const
     {
       return partitioner->n_ghost_indices();
@@ -1483,7 +1539,7 @@ namespace parallel
 
     template <typename Number>
     inline
-    const IndexSet&
+    const IndexSet &
     Vector<Number>::ghost_elements() const
     {
       return partitioner->ghost_indices();
@@ -1577,6 +1633,33 @@ namespace parallel
     Vector<Number>::operator[] (const size_type global_index)
     {
       return operator()(global_index);
+    }
+
+
+
+    template <typename Number>
+    template <typename OtherNumber>
+    inline
+    void Vector<Number>::extract_subvector_to (const std::vector<size_type> &indices,
+                                               std::vector<OtherNumber> &values) const
+    {
+      for (size_type i = 0; i < indices.size(); ++i)
+        values[i] = operator()(indices[i]);
+    }
+
+
+
+    template <typename Number>
+    template <typename ForwardIterator, typename OutputIterator>
+    inline
+    void Vector<Number>::extract_subvector_to (ForwardIterator          indices_begin,
+                                               const ForwardIterator    indices_end,
+                                               OutputIterator           values_begin) const
+    {
+      while (indices_begin != indices_end) {
+        *values_begin = operator()(*indices_begin);
+        indices_begin++; values_begin++;
+      }
     }
 
 
@@ -2004,7 +2087,7 @@ namespace parallel
 
     template <typename Number>
     inline
-    const MPI_Comm&
+    const MPI_Comm &
     Vector<Number>::get_mpi_communicator() const
     {
       return partitioner->get_communicator();

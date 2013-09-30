@@ -1,16 +1,18 @@
-#####
+## ---------------------------------------------------------------------
+## $Id$
 ##
-## Copyright (C) 2012, 2013 by the deal.II authors
+## Copyright (C) 2012 - 2013 by the deal.II authors
 ##
 ## This file is part of the deal.II library.
 ##
-## <TODO: Full License information>
-## This file is dual licensed under QPL 1.0 and LGPL 2.1 or any later
-## version of the LGPL license.
+## The deal.II library is free software; you can use it, redistribute
+## it, and/or modify it under the terms of the GNU Lesser General
+## Public License as published by the Free Software Foundation; either
+## version 2.1 of the License, or (at your option) any later version.
+## The full text of the license can be found in the file LICENSE at
+## the top level of the deal.II distribution.
 ##
-## Author: Matthias Maier <matthias.maier@iwr.uni-heidelberg.de>
-##
-#####
+## ---------------------------------------------------------------------
 
 #
 # Try to find the UMFPACK library
@@ -34,7 +36,8 @@ ENDFOREACH()
 # TODO: There might be an external dependency for metis, ignore this for
 # now.
 #
-FIND_PACKAGE(LAPACK)
+FIND_PACKAGE(DEALII_LAPACK)
+FIND_PACKAGE(METIS)
 
 #
 # Two macros to make life easier:
@@ -103,9 +106,11 @@ FIND_UMFPACK_LIBRARY(UMFPACK umfpack REQUIRED)
 FIND_UMFPACK_LIBRARY(AMD amd REQUIRED)
 FIND_UMFPACK_LIBRARY(CHOLMOD cholmod)
 FIND_UMFPACK_LIBRARY(COLAMD colamd)
+FIND_UMFPACK_LIBRARY(CCOLAMD ccolamd)
+FIND_UMFPACK_LIBRARY(CAMD camd)
 FIND_UMFPACK_LIBRARY(SuiteSparse_config suitesparseconfig)
 
-SET(_output ${UMFPACK_LIBRARY} ${CHOLMOD_LIBRARY} ${COLAMD_LIBRARY} ${AMD_LIBRARY} ${SuiteSparse_config_LIBRARY})
+SET(_output ${UMFPACK_LIBRARY} ${CHOLMOD_LIBRARY} ${CCOLAMD_LIBRARY} ${COLAMD_LIBRARY} ${CAMD_LIBRARY} ${AMD_LIBRARY} ${SuiteSparse_config_LIBRARY})
 FIND_PACKAGE_HANDLE_STANDARD_ARGS(UMFPACK DEFAULT_MSG
   _output # Cosmetic: Gives nice output
   UMFPACK_LIBRARY
@@ -116,16 +121,41 @@ FIND_PACKAGE_HANDLE_STANDARD_ARGS(UMFPACK DEFAULT_MSG
   LAPACK_FOUND
   )
 
+MARK_AS_ADVANCED(
+  AMD_INCLUDE_DIR
+  AMD_LIBRARY
+  atlas_LIBRARY
+  blas_LIBRARY
+  CAMD_LIBRARY
+  CHOLMOD_LIBRARY
+  CCOLAMD_LIBRARY
+  COLAMD_LIBRARY
+  SuiteSparse_config_INCLUDE_DIR
+  SuiteSparse_config_LIBRARY
+  UMFPACK_INCLUDE_DIR
+  UMFPACK_LIBRARY
+  )
+
 
 IF(UMFPACK_FOUND)
   SET(UMFPACK_LIBRARIES
     ${UMFPACK_LIBRARY}
     ${CHOLMOD_LIBRARY}
+    ${CCOLAMD_LIBRARY}
     ${COLAMD_LIBRARY}
+    ${CAMD_LIBRARY}
     ${AMD_LIBRARY}
     ${SuiteSparse_config_LIBRARY}
-    ${LAPACK_LIBRARIES}
     )
+
+  #
+  # For good measure:
+  #
+  IF(METIS_FOUND)
+    LIST(APPEND UMFPACK_LIBRARIES ${METIS_LIBRARIES})
+  ENDIF()
+
+  LIST(APPEND UMFPACK_LIBRARIES ${LAPACK_LIBRARIES})
 
   #
   # Add rt to the link interface as well (for whatever reason,
@@ -133,10 +163,12 @@ IF(UMFPACK_FOUND)
   # lib does not record its dependence on librt.so as evidenced
   # by ldd :-( ):
   #
-  FIND_LIBRARY(rt_lib NAMES rt)
-  MARK_AS_ADVANCED(rt_lib)
-  IF(NOT rt_lib MATCHES "-NOTFOUND")
-    LIST(APPEND UMFPACK_LIBRARIES ${rt_lib})
+  SWITCH_LIBRARY_PREFERENCE()
+  FIND_LIBRARY(rt_LIBRARY NAMES rt)
+  SWITCH_LIBRARY_PREFERENCE()
+  MARK_AS_ADVANCED(rt_LIBRARY)
+  IF(NOT rt_LIBRARY MATCHES "-NOTFOUND")
+    LIST(APPEND UMFPACK_LIBRARIES ${rt_LIBRARY})
   ENDIF()
 
   SET(UMFPACK_INCLUDE_DIRS
@@ -148,20 +180,7 @@ IF(UMFPACK_FOUND)
     ${LAPACK_LINKER_FLAGS}
     )
 
-  MARK_AS_ADVANCED(
-    atlas_LIBRARY
-    blas_LIBRARY
-    UMFPACK_LIBRARY
-    AMD_LIBRARY
-    CHOLMOD_LIBRARY
-    COLAMD_LIBRARY
-    SuiteSparse_config_LIBRARY
-    UMFPACK_INCLUDE_DIR
-    AMD_INCLUDE_DIR
-    SuiteSparse_config_INCLUDE_DIR
-    UMFPACK_DIR
-    SUITESPARSE_DIR
-  )
+  MARK_AS_ADVANCED(UMFPACK_DIR SUITESPARSE_DIR)
 ELSE()
   SET(UMFPACK_DIR "" CACHE PATH
     "An optional hint to an UMFPACK directory"

@@ -1,14 +1,19 @@
-//---------------------------------------------------------------------------
-//    $Id$
+// ---------------------------------------------------------------------
+// $Id$
 //
-//    Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2011, 2012 by the deal.II authors
+// Copyright (C) 1999 - 2013 by the deal.II authors
 //
-//    This file is subject to QPL and may not be  distributed
-//    without copyright and license information. Please refer
-//    to the file deal.II/doc/license.html for the  text  and
-//    further information on this license.
+// This file is part of the deal.II library.
 //
-//---------------------------------------------------------------------------
+// The deal.II library is free software; you can use it, redistribute
+// it, and/or modify it under the terms of the GNU Lesser General
+// Public License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+// The full text of the license can be found in the file LICENSE at
+// the top level of the deal.II distribution.
+//
+// ---------------------------------------------------------------------
+
 #ifndef __deal2__table_handler_h
 #define __deal2__table_handler_h
 
@@ -306,13 +311,23 @@ public:
    *     2 13 a
    *     1 0 ""
    *   @endcode
-   *
-   **/
+   * - <code>org_mode_table</code>: Outputs to org-mode (http://orgmode.org/) table
+   *   format. It is easy to convert org-mode tables to HTML/LaTeX/csv.
+   *   Example output:
+   *   @code
+   *   | key1 | key2 | key3 |
+   *   | 0    | 0    | ""   |
+   *   | 1    | 0    | ""   |
+   *   | 2    | 13   | a    |
+   *   | 1    | 0    | ""   |
+   *   @endcode
+   */
   enum TextOutputFormat
   {
     table_with_headers,
     table_with_separate_column_description,
-    simple_table_with_separate_column_description
+    simple_table_with_separate_column_description,
+    org_mode_table
   };
 
   /**

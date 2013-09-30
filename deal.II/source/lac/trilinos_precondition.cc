@@ -1,16 +1,18 @@
-//---------------------------------------------------------------------------
-//    $Id$
-//    Version: $Name$
+// ---------------------------------------------------------------------
+// $Id$
 //
-//    Copyright (C) 2008, 2009, 2010, 2011, 2012 by the deal.II authors
+// Copyright (C) 2008 - 2013 by the deal.II authors
 //
-//    This file is subject to QPL and may not be distributed
-//    without copyright and license information. Please refer
-//    to the file deal.II/doc/license.html for the  text  and
-//    further information on this license.
+// This file is part of the deal.II library.
 //
-//---------------------------------------------------------------------------
-
+// The deal.II library is free software; you can use it, redistribute
+// it, and/or modify it under the terms of the GNU Lesser General
+// Public License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+// The full text of the license can be found in the file LICENSE at
+// the top level of the deal.II distribution.
+//
+// ---------------------------------------------------------------------
 
 #include <deal.II/lac/trilinos_precondition.h>
 
@@ -627,7 +629,7 @@ namespace TrilinosWrappers
         for (size_type d=0; d<constant_modes_dimension; ++d)
           for (size_type row=0; row<my_size; ++row)
             {
-              TrilinosWrappers::types::int_type global_row_id = 
+              TrilinosWrappers::types::int_type global_row_id =
                 constant_modes_are_global ? gid(domain_map,row) : row;
               distributed_constant_modes[d][row] =
                 additional_data.constant_modes[d][global_row_id];
@@ -688,8 +690,8 @@ namespace TrilinosWrappers
     // equidistributed map; avoid
     // storing the nonzero
     // elements.
-    vector_distributor.reset (new Epetra_Map(static_cast<TrilinosWrappers::types::int_type>(n_rows), 
-          0, communicator));
+    vector_distributor.reset (new Epetra_Map(static_cast<TrilinosWrappers::types::int_type>(n_rows),
+                                             0, communicator));
 
     if (trilinos_matrix.get() == 0)
       trilinos_matrix.reset (new SparseMatrix());
@@ -743,6 +745,52 @@ namespace TrilinosWrappers
                                              const AdditionalData &, const double,
                                              const ::dealii::SparsityPattern *);
 
+
+
+
+  /* -------------------------- PreconditionAMG -------------------------- */
+
+  void 
+  PreconditionIdentity::vmult(VectorBase       &dst,
+                              const VectorBase &src) const
+  {
+    dst = src;
+  }
+
+  void
+  PreconditionIdentity::Tvmult(VectorBase       &dst,
+                               const VectorBase &src) const
+  {
+    dst = src;
+  }
+
+  void 
+  PreconditionIdentity::vmult(dealii::Vector<double>       &dst,
+                              const dealii::Vector<double> &src) const
+  {
+    dst = src;
+  }
+
+  void
+  PreconditionIdentity::Tvmult(dealii::Vector<double>       &dst,
+                               const dealii::Vector<double> &src) const
+  {
+    dst = src;
+  }
+
+  void
+  PreconditionIdentity::vmult(parallel::distributed::Vector<double>       &dst,
+                              const parallel::distributed::Vector<double> &src) const
+  {
+    dst = src;
+  }
+
+  void
+  PreconditionIdentity::Tvmult(parallel::distributed::Vector<double>       &dst,
+                               const parallel::distributed::Vector<double> &src) const
+  {
+    dst = src;
+  }
 }
 
 DEAL_II_NAMESPACE_CLOSE

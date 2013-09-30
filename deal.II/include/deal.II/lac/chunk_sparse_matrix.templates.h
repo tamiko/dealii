@@ -1,14 +1,19 @@
-//---------------------------------------------------------------------------
-//    $Id$
+// ---------------------------------------------------------------------
+// $Id$
 //
-//    Copyright (C) 2008, 2009, 2011, 2012 by the deal.II authors
+// Copyright (C) 2008 - 2013 by the deal.II authors
 //
-//    This file is subject to QPL and may not be  distributed
-//    without copyright and license information. Please refer
-//    to the file deal.II/doc/license.html for the  text  and
-//    further information on this license.
+// This file is part of the deal.II library.
 //
-//---------------------------------------------------------------------------
+// The deal.II library is free software; you can use it, redistribute
+// it, and/or modify it under the terms of the GNU Lesser General
+// Public License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+// The full text of the license can be found in the file LICENSE at
+// the top level of the deal.II distribution.
+//
+// ---------------------------------------------------------------------
+
 #ifndef __deal2__chunk_sparse_matrix_templates_h
 #define __deal2__chunk_sparse_matrix_templates_h
 
@@ -206,9 +211,9 @@ namespace internal
       const size_type n_filled_last_cols = n % chunk_size;
 
       const size_type last_regular_row = n_filled_last_rows > 0 ?
-                                            std::min(m/chunk_size, 
-                                                static_cast<size_type>(end_row)) : 
-                                            end_row;
+                                         std::min(m/chunk_size,
+                                                  static_cast<size_type>(end_row)) :
+                                         end_row;
       const size_type irregular_col = n/chunk_size;
 
       typename OutVector::iterator dst_ptr = dst.begin()+chunk_size*begin_row;
@@ -450,7 +455,7 @@ ChunkSparseMatrix<number>::reinit (const ChunkSparsityPattern &sparsity)
   // chunks. this entails some padding elements
   const size_type chunk_size = cols->get_chunk_size();
   const size_type N = cols->sparsity_pattern.n_nonzero_elements() *
-                         chunk_size * chunk_size;
+                      chunk_size * chunk_size;
   if (N > max_len || max_len == 0)
     {
       if (val != 0)
@@ -492,7 +497,7 @@ ChunkSparseMatrix<number>::empty () const
 
 
 template <typename number>
-typename ChunkSparseMatrix<number>::size_type 
+typename ChunkSparseMatrix<number>::size_type
 ChunkSparseMatrix<number>::n_nonzero_elements () const
 {
   Assert (cols != 0, ExcNotInitialized());
@@ -502,7 +507,7 @@ ChunkSparseMatrix<number>::n_nonzero_elements () const
 
 
 template <typename number>
-typename ChunkSparseMatrix<number>::size_type 
+typename ChunkSparseMatrix<number>::size_type
 ChunkSparseMatrix<number>::n_actually_nonzero_elements () const
 {
   Assert (cols != 0, ExcNotInitialized());
@@ -587,7 +592,7 @@ ChunkSparseMatrix<number>::add (const number factor,
                                         * chunk_size * chunk_size];
 
   while (val_ptr != end_ptr)
-    *val_ptr++ += factor * *matrix_ptr++;
+    *val_ptr++ += factor **matrix_ptr++;
 }
 
 

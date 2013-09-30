@@ -1,14 +1,19 @@
-//---------------------------------------------------------------------------
-//    $Id$
+// ---------------------------------------------------------------------
+// $Id$
 //
-//    Copyright (C) 2004, 2005, 2006, 2007, 2010, 2011, 2012 by the deal.II authors
+// Copyright (C) 2004 - 2013 by the deal.II authors
 //
-//    This file is subject to QPL and may not be  distributed
-//    without copyright and license information. Please refer
-//    to the file deal.II/doc/license.html for the  text  and
-//    further information on this license.
+// This file is part of the deal.II library.
 //
-//---------------------------------------------------------------------------
+// The deal.II library is free software; you can use it, redistribute
+// it, and/or modify it under the terms of the GNU Lesser General
+// Public License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+// The full text of the license can be found in the file LICENSE at
+// the top level of the deal.II distribution.
+//
+// ---------------------------------------------------------------------
+
 #ifndef __deal2__block_vector_base_h
 #define __deal2__block_vector_base_h
 
@@ -921,6 +926,29 @@ public:
    * Exactly the same as operator().
    */
   reference operator[] (const size_type i);
+
+  /**
+   * A collective get operation: instead
+   * of getting individual elements of a
+   * vector, this function allows to get
+   * a whole set of elements at once. The
+   * indices of the elements to be read
+   * are stated in the first argument,
+   * the corresponding values are returned in the
+   * second.
+   */
+  template <typename OtherNumber>
+  void extract_subvector_to (const std::vector<size_type> &indices,
+                             std::vector<OtherNumber> &values) const;
+
+  /**
+   * Just as the above, but with pointers.
+   * Useful in minimizing copying of data around.
+   */
+  template <typename ForwardIterator, typename OutputIterator>
+  void extract_subvector_to (ForwardIterator          indices_begin,
+                             const ForwardIterator    indices_end,
+                             OutputIterator           values_begin) const;
 
   /**
    * Copy operator: fill all components of
@@ -2517,6 +2545,33 @@ typename BlockVectorBase<VectorType>::reference
 BlockVectorBase<VectorType>::operator[] (const size_type i)
 {
   return operator()(i);
+}
+
+
+
+template <typename VectorType>
+template <typename OtherNumber>
+inline
+void BlockVectorBase<VectorType>::extract_subvector_to (const std::vector<size_type> &indices,
+                                           std::vector<OtherNumber> &values) const
+{
+  for (size_type i = 0; i < indices.size(); ++i)
+    values[i] = operator()(indices[i]);
+}
+
+
+
+template <typename VectorType>
+template <typename ForwardIterator, typename OutputIterator>
+inline
+void BlockVectorBase<VectorType>::extract_subvector_to (ForwardIterator          indices_begin,
+                                                        const ForwardIterator    indices_end,
+                                                        OutputIterator           values_begin) const
+{
+  while (indices_begin != indices_end) {
+    *values_begin = operator()(*indices_begin);
+    indices_begin++; values_begin++;
+  }
 }
 
 #endif // DOXYGEN

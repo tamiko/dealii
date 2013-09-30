@@ -1,16 +1,18 @@
-//---------------------------------------------------------------------------
-//    $Id$
-//    Version: $Name$
+// ---------------------------------------------------------------------
+// $Id$
 //
-//    Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013 by the deal.II authors
+// Copyright (C) 1999 - 2013 by the deal.II authors
 //
-//    This file is subject to QPL and may not be  distributed
-//    without copyright and license information. Please refer
-//    to the file deal.II/doc/license.html for the  text  and
-//    further information on this license.
+// This file is part of the deal.II library.
 //
-//---------------------------------------------------------------------------
-
+// The deal.II library is free software; you can use it, redistribute
+// it, and/or modify it under the terms of the GNU Lesser General
+// Public License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+// The full text of the license can be found in the file LICENSE at
+// the top level of the deal.II distribution.
+//
+// ---------------------------------------------------------------------
 
 #include <deal.II/base/memory_consumption.h>
 #include <deal.II/base/quadrature.h>
@@ -44,7 +46,10 @@ namespace
 
 
 template <int dim, int spacedim>
-FESystem<dim,spacedim>::InternalData::InternalData(const unsigned int n_base_elements):
+FESystem<dim,spacedim>::InternalData::InternalData(const unsigned int n_base_elements,
+                                                   const bool         compute_hessians)
+:
+  compute_hessians (compute_hessians),
   base_fe_datas(n_base_elements),
   base_fe_values_datas(n_base_elements)
 {}
@@ -591,7 +596,7 @@ FESystem<dim,spacedim>::get_interpolation_matrix (
 
 
 template <int dim, int spacedim>
-const FullMatrix<double>&
+const FullMatrix<double> &
 FESystem<dim,spacedim>
 ::get_restriction_matrix (const unsigned int child,
                           const RefinementCase<dim> &refinement_case) const
@@ -618,7 +623,7 @@ FESystem<dim,spacedim>
 
       // shortcut for accessing local restrictions further down
       std::vector<const FullMatrix<double> *>
-        base_matrices(this->n_base_elements());
+      base_matrices(this->n_base_elements());
 
       for (unsigned int i=0; i<this->n_base_elements(); ++i)
         {
@@ -658,11 +663,11 @@ FESystem<dim,spacedim>
 
                 // so get the common base element and the indices therein:
                 const unsigned int
-                  base = this->system_to_base_table[i].first.first;
+                base = this->system_to_base_table[i].first.first;
 
                 const unsigned int
-                  base_index_i = this->system_to_base_table[i].second,
-                  base_index_j = this->system_to_base_table[j].second;
+                base_index_i = this->system_to_base_table[i].second,
+                base_index_j = this->system_to_base_table[j].second;
 
                 // if we are sure that DoFs i and j may couple, then copy
                 // entries of the matrices:
@@ -680,7 +685,7 @@ FESystem<dim,spacedim>
 
 
 template <int dim, int spacedim>
-const FullMatrix<double>&
+const FullMatrix<double> &
 FESystem<dim,spacedim>
 ::get_prolongation_matrix (const unsigned int child,
                            const RefinementCase<dim> &refinement_case) const
@@ -704,7 +709,7 @@ FESystem<dim,spacedim>
 
       bool do_prolongation = true;
       std::vector<const FullMatrix<double> *>
-        base_matrices(this->n_base_elements());
+      base_matrices(this->n_base_elements());
       for (unsigned int i=0; i<this->n_base_elements(); ++i)
         {
           base_matrices[i] =
@@ -727,11 +732,11 @@ FESystem<dim,spacedim>
                     this->system_to_base_table[j].first)
                   continue;
                 const unsigned int
-                  base = this->system_to_base_table[i].first.first;
+                base = this->system_to_base_table[i].first.first;
 
                 const unsigned int
-                  base_index_i = this->system_to_base_table[i].second,
-                  base_index_j = this->system_to_base_table[j].second;
+                base_index_i = this->system_to_base_table[i].second,
+                base_index_j = this->system_to_base_table[j].second;
                 prolongate(i,j) = (*base_matrices[base])(base_index_i,base_index_j);
               }
           prolongate.swap(const_cast<FullMatrix<double> &>
@@ -740,6 +745,45 @@ FESystem<dim,spacedim>
     }
 
   return this->prolongation[refinement_case-1][child];
+}
+
+
+template <int dim, int spacedim>
+unsigned int
+FESystem<dim,spacedim>::
+face_to_cell_index (const unsigned int face_dof_index,
+                    const unsigned int face,
+                    const bool face_orientation,
+                    const bool face_flip,
+                    const bool face_rotation) const
+{
+  // we need to ask the base elements how they want to translate
+  // the DoFs within their own numbering. thus, translate to
+  // the base element numbering and then back
+  const std::pair<std::pair<unsigned int, unsigned int>, unsigned int>
+  face_base_index = this->face_system_to_base_index(face_dof_index);
+
+  const unsigned int
+  base_face_to_cell_index
+  = this->base_element(face_base_index.first.first).face_to_cell_index (face_base_index.second,
+                                                                        face,
+                                                                        face_orientation,
+                                                                        face_flip,
+                                                                        face_rotation);
+
+  // it would be nice if we had a base_to_system_index function, but
+  // all that exists is a component_to_system_index function. we can't do
+  // this here because it won't work for non-primitive elements. consequently,
+  // simply do a loop over all dofs till we find whether it corresponds
+  // to the one we're interested in -- crude, maybe, but works for now
+  const std::pair<std::pair<unsigned int, unsigned int>, unsigned int>
+  target = std::make_pair (face_base_index.first, base_face_to_cell_index);
+  for (unsigned int i=0; i<this->dofs_per_cell; ++i)
+    if (this->system_to_base_index(i) == target)
+      return i;
+
+  Assert (false, ExcInternalError());
+  return numbers::invalid_unsigned_int;
 }
 
 
@@ -798,7 +842,8 @@ FESystem<dim,spacedim>::get_data (const UpdateFlags      flags_,
                                   const Quadrature<dim> &quadrature) const
 {
   UpdateFlags flags = flags_;
-  InternalData *data = new InternalData(this->n_base_elements());
+  InternalData *data = new InternalData(this->n_base_elements(),
+                                        flags & update_hessians);
 
   data->update_once = update_once (flags);
   data->update_each = update_each (flags);
@@ -809,7 +854,6 @@ FESystem<dim,spacedim>::get_data (const UpdateFlags      flags_,
   // finite differencing are required,
   // then initialize some objects for
   // that
-  data->compute_hessians = flags & update_hessians;
   if (data->compute_hessians)
     {
       // delete
@@ -885,14 +929,14 @@ FESystem<dim,spacedim>::get_face_data (
   const Quadrature<dim-1> &quadrature) const
 {
   UpdateFlags flags = flags_;
-  InternalData *data = new InternalData(this->n_base_elements());
+  InternalData *data = new InternalData(this->n_base_elements(),
+                                        flags & update_hessians);
 
   data->update_once = update_once (flags);
   data->update_each = update_each (flags);
   flags = data->update_once | data->update_each;
 
   UpdateFlags sub_flags = flags;
-  data->compute_hessians = flags & update_hessians;
   if (data->compute_hessians)
     {
       sub_flags = UpdateFlags (sub_flags ^ update_hessians);
@@ -937,14 +981,14 @@ FESystem<dim,spacedim>::get_subface_data (
   const Quadrature<dim-1> &quadrature) const
 {
   UpdateFlags flags = flags_;
-  InternalData *data = new InternalData(this->n_base_elements());
+  InternalData *data = new InternalData(this->n_base_elements(),
+                                        flags & update_hessians);
 
   data->update_once = update_once (flags);
   data->update_each = update_each (flags);
   flags = data->update_once | data->update_each;
 
   UpdateFlags sub_flags = flags;
-  data->compute_hessians = flags & update_hessians;
   if (data->compute_hessians)
     {
       sub_flags = UpdateFlags (sub_flags ^ update_hessians);
@@ -2460,17 +2504,17 @@ FESystem<dim,spacedim>::multiply_dof_numbers (
     unsigned int index = 0;
     for (unsigned int index=0; index<fes.size(); ++index)
       if (multiplicities[index]>0)
-	{
-	  total_conformity = fes[index]->conforming_space;
-	  break;
-	}
+        {
+          total_conformity = fes[index]->conforming_space;
+          break;
+        }
 
     for (; index<fes.size(); ++index)
       if (multiplicities[index]>0)
-	total_conformity =
-	  typename FiniteElementData<dim>::Conformity(total_conformity
-						      &
-						      fes[index]->conforming_space);
+        total_conformity =
+          typename FiniteElementData<dim>::Conformity(total_conformity
+                                                      &
+                                                      fes[index]->conforming_space);
   }
 
   std::vector<unsigned int> dpo;
@@ -2480,10 +2524,10 @@ FESystem<dim,spacedim>::multiply_dof_numbers (
   if (dim>2) dpo.push_back(multiplied_dofs_per_hex);
 
   return FiniteElementData<dim> (dpo,
-				 multiplied_n_components,
-				 degree,
-				 total_conformity,
-				 summed_multiplicities);
+                                 multiplied_n_components,
+                                 degree,
+                                 total_conformity,
+                                 summed_multiplicities);
 }
 
 

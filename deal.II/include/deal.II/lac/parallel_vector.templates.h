@@ -1,14 +1,19 @@
-//----------%-----------------------------------------------------------------
-//    $Id$
+// ---------------------------------------------------------------------
+// $Id$
 //
-//    Copyright (C) 2011, 2012, 2013 by the deal.II authors
+// Copyright (C) 2011 - 2013 by the deal.II authors
 //
-//    This file is subject to QPL and may not be  distributed
-//    without copyright and license information. Please refer
-//    to the file deal.II/doc/license.html for the  text  and
-//    further information on this license.
+// This file is part of the deal.II library.
 //
-//---------------------------------------------------------------------------
+// The deal.II library is free software; you can use it, redistribute
+// it, and/or modify it under the terms of the GNU Lesser General
+// Public License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+// The full text of the license can be found in the file LICENSE at
+// the top level of the deal.II distribution.
+//
+// ---------------------------------------------------------------------
+
 #ifndef __deal2__parallel_vector_templates_h
 #define __deal2__parallel_vector_templates_h
 
@@ -139,8 +144,22 @@ namespace parallel
                             const IndexSet &ghost_indices,
                             const MPI_Comm  communicator)
     {
-      // set up parallel partitioner with index sets
-      // and communicator
+      // set up parallel partitioner with index sets and communicator
+      std_cxx1x::shared_ptr<const Utilities::MPI::Partitioner> new_partitioner
+      (new Utilities::MPI::Partitioner (locally_owned_indices,
+                                        ghost_indices, communicator));
+      reinit (new_partitioner);
+    }
+
+
+
+    template <typename Number>
+    void
+    Vector<Number>::reinit (const IndexSet &locally_owned_indices,
+                            const MPI_Comm  communicator)
+    {
+      // set up parallel partitioner with index sets and communicator
+      IndexSet ghost_indices(locally_owned_indices.size());
       std_cxx1x::shared_ptr<const Utilities::MPI::Partitioner> new_partitioner
       (new Utilities::MPI::Partitioner (locally_owned_indices,
                                         ghost_indices, communicator));
@@ -204,7 +223,9 @@ namespace parallel
       // nothing to do for insert (only need to zero ghost entries in
       // compress_finish(). in debug mode we still want to check consistency
       // of the inserted data, therefore the communication is still
-      // initialized
+      // initialized. Having different code in debug and optimized mode is
+      // somewhat dangerous, but it really saves communication so it seems
+      // still worthwhile.
 #ifndef DEBUG
       if (operation == VectorOperation::insert)
         return;
@@ -295,6 +316,16 @@ namespace parallel
     {
 #ifdef DEAL_II_WITH_MPI
 
+      // in optimized mode, no communication was started, so leave the
+      // function directly (and only clear ghosts)
+#ifndef DEBUG
+      if (operation == VectorOperation::insert)
+        {
+          zero_out_ghosts();
+          return;
+        }
+#endif
+
       const Utilities::MPI::Partitioner &part = *partitioner;
 
       // nothing to do when we neither have import
@@ -338,7 +369,7 @@ namespace parallel
                    j++, read_position++)
                 Assert(*read_position == 0. ||
                        std::abs(local_element(j) - *read_position) <
-                       std::abs(local_element(j)) * 100. *
+                       std::abs(local_element(j)) * 1000. *
                        std::numeric_limits<Number>::epsilon(),
                        ExcMessage("Inserted elements do not match."));
           AssertDimension(read_position-import_data,part.n_import_indices());
@@ -567,8 +598,8 @@ namespace parallel
 #endif
 
       out << "Process #" << partitioner->this_mpi_process() << std::endl
-          << "Local range: [" << partitioner->local_range().first << "/"
-          << partitioner->local_range().second << "], global size: "
+          << "Local range: [" << partitioner->local_range().first << ", "
+          << partitioner->local_range().second << "), global size: "
           << partitioner->size() << std::endl
           << "Vector data:" << std::endl;
       if (across)

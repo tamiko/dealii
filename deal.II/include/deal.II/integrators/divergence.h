@@ -1,14 +1,19 @@
-//---------------------------------------------------------------------------
-//    $Id$
+// ---------------------------------------------------------------------
+// $Id$
 //
-//    Copyright (C) 2010, 2011, 2012, 2013 by the deal.II authors
+// Copyright (C) 2010 - 2013 by the deal.II authors
 //
-//    This file is subject to QPL and may not be  distributed
-//    without copyright and license information. Please refer
-//    to the file deal.II/doc/license.html for the  text  and
-//    further information on this license.
+// This file is part of the deal.II library.
 //
-//---------------------------------------------------------------------------
+// The deal.II library is free software; you can use it, redistribute
+// it, and/or modify it under the terms of the GNU Lesser General
+// Public License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+// The full text of the license can be found in the file LICENSE at
+// the top level of the deal.II distribution.
+//
+// ---------------------------------------------------------------------
+
 #ifndef __deal2__integrators_divergence_h
 #define __deal2__integrators_divergence_h
 
@@ -142,19 +147,58 @@ namespace LocalIntegrators
               result(i) += dx * input[d][k][d] * fetest.shape_value(i,k);
         }
     }
+
+
     /**
-     * Cell matrix for gradient. The derivative is on the trial
-     * function.
+     * The residual of the divergence operator in weak form.
      * \f[
-     * \int_Z \nabla u \cdot \mathbf v\,dx
+     * - \int_Z \nabla v \cdot \mathbf u \,dx
      * \f]
-     * This is the strong gradient and the trial space
-     * should be at least in <i>H</i><sup>1</sup>. The test functions can
-     * be discontinuous.
+     * This is the weak divergence operator and the test
+     * space should be at least <b>H</b><sup>1</sup>. The trial functions
+     * may be discontinuous.
+     *
+     * @todo Verify: The function cell_matrix() is the Frechet derivative of this function with respect
+     * to the test functions.
      *
      * @author Guido Kanschat
-     * @date 2011
+     * @date 2013
      */
+    template <int dim, typename number>
+    void cell_residual(
+      Vector<number> &result,
+      const FEValuesBase<dim> &fetest,
+      const VectorSlice<const std::vector<std::vector<double> > > &input,
+      const double factor = 1.)
+    {
+      AssertDimension(fetest.get_fe().n_components(), 1);
+      AssertVectorVectorDimension(input, dim, fetest.n_quadrature_points);
+      const unsigned int t_dofs = fetest.dofs_per_cell;
+      Assert (result.size() == t_dofs, ExcDimensionMismatch(result.size(), t_dofs));
+
+      for (unsigned int k=0; k<fetest.n_quadrature_points; ++k)
+        {
+          const double dx = factor * fetest.JxW(k);
+
+          for (unsigned int i=0; i<t_dofs; ++i)
+            for (unsigned int d=0; d<dim; ++d)
+              result(i) -= dx * input[d][k] * fetest.shape_grad(i,k)[d];
+        }
+    }
+
+
+/**
+ * Cell matrix for gradient. The derivative is on the trial function.
+ * \f[
+ * \int_Z \nabla u \cdot \mathbf v\,dx
+ * \f]
+ *
+ * This is the strong gradient and the trial space should be at least
+ * in <i>H</i><sup>1</sup>. The test functions can be discontinuous.
+ *
+ * @author Guido Kanschat
+ * @date 2011
+ */
     template <int dim>
     void gradient_matrix(
       FullMatrix<double> &M,
@@ -220,6 +264,42 @@ namespace LocalIntegrators
           for (unsigned int i=0; i<t_dofs; ++i)
             for (unsigned int d=0; d<dim; ++d)
               result(i) += dx * input[k][d] * fetest.shape_value_component(i,k,d);
+        }
+    }
+
+    /**
+     * The residual of the gradient operator in weak form.
+     * \f[
+     * -\int_Z \nabla\cdot \mathbf v u \,dx
+     * \f]
+     * This is the weak gradient operator and the test
+     * space should be at least <b>H</b><sup>div</sup>. The trial functions
+     * may be discontinuous.
+     *
+     * @todo Verify: The function gradient_matrix() is the Frechet derivative of this function with respect to the test functions.
+     *
+     * @author Guido Kanschat
+     * @date 2013
+     */
+    template <int dim, typename number>
+    void gradient_residual(
+      Vector<number> &result,
+      const FEValuesBase<dim> &fetest,
+      const std::vector<double> &input,
+      const double factor = 1.)
+    {
+      AssertDimension(fetest.get_fe().n_components(), dim);
+      AssertDimension(input.size(), fetest.n_quadrature_points);
+      const unsigned int t_dofs = fetest.dofs_per_cell;
+      Assert (result.size() == t_dofs, ExcDimensionMismatch(result.size(), t_dofs));
+
+      for (unsigned int k=0; k<fetest.n_quadrature_points; ++k)
+        {
+          const double dx = factor * fetest.JxW(k);
+
+          for (unsigned int i=0; i<t_dofs; ++i)
+            for (unsigned int d=0; d<dim; ++d)
+              result(i) -= dx * input[k] * fetest.shape_grad_component(i,k,d)[d];
         }
     }
 
@@ -297,6 +377,43 @@ namespace LocalIntegrators
           for (unsigned int i=0; i<t_dofs; ++i)
             for (unsigned int d=0; d<dim; ++d)
               result(i) += ndx[d] * fetest.shape_value(i,k) * data[d][k];
+        }
+    }
+
+    /**
+     * The trace of the gradient
+     * operator, namely the product
+     * of the normal component of the
+     * vector valued test space and
+     * the trial space.
+     * @f[
+     * \int_F u (\mathbf v\cdot \mathbf n) \,ds
+     * @f]
+     *
+     * @author Guido Kanschat
+     * @date 2013
+     */
+    template<int dim, typename number>
+    void
+    u_times_n_residual (
+      Vector<number> &result,
+      const FEValuesBase<dim> &fetest,
+      const std::vector<double> &data,
+      double factor = 1.)
+    {
+      const unsigned int t_dofs = fetest.dofs_per_cell;
+
+      AssertDimension(fetest.get_fe().n_components(), dim);
+      AssertDimension(result.size(), t_dofs);
+      AssertDimension(data.size(), fetest.n_quadrature_points);
+
+      for (unsigned int k=0; k<fetest.n_quadrature_points; ++k)
+        {
+          const Tensor<1,dim> ndx = factor * fetest.normal_vector(k) * fetest.JxW(k);
+
+          for (unsigned int i=0; i<t_dofs; ++i)
+            for (unsigned int d=0; d<dim; ++d)
+              result(i) += ndx[d] * fetest.shape_value_component(i,k,d) * data[k];
         }
     }
 

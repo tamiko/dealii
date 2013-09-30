@@ -1,14 +1,19 @@
-//---------------------------------------------------------------------------
-//    $Id$
+// ---------------------------------------------------------------------
+// $Id$
 //
-//    Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2012, 2013 by the deal.II authors
+// Copyright (C) 1999 - 2013 by the deal.II authors
 //
-//    This file is subject to QPL and may not be  distributed
-//    without copyright and license information. Please refer
-//    to the file deal.II/doc/license.html for the  text  and
-//    further information on this license.
+// This file is part of the deal.II library.
 //
-//---------------------------------------------------------------------------
+// The deal.II library is free software; you can use it, redistribute
+// it, and/or modify it under the terms of the GNU Lesser General
+// Public License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+// The full text of the license can be found in the file LICENSE at
+// the top level of the deal.II distribution.
+//
+// ---------------------------------------------------------------------
+
 #ifndef __deal2__grid_out_h
 #define __deal2__grid_out_h
 
@@ -623,13 +628,15 @@ namespace GridOutFlags
     /**
      * Background style.
      */
-    enum Background{
-	/// Use transparent value of SVG
-        transparent,
-	/// Use white background
-        white,
-	/// Use a gradient from white (top) to steelblue (bottom), and add date and time plus a deal.II logo. Automatically draws a margin.
-        dealii};
+    enum Background
+    {
+      /// Use transparent value of SVG
+      transparent,
+      /// Use white background
+      white,
+      /// Use a gradient from white (top) to steelblue (bottom), and add date and time plus a deal.II logo. Automatically draws a margin.
+      dealii
+    };
 
     Background background;
 
@@ -646,18 +653,20 @@ namespace GridOutFlags
     /**
      * Cell coloring.
      */
-    enum Coloring{ 
-        /// No cell coloring
-        none, 
-        /// Convert the material id into the cell color (default)
-        material_id, 
-        /// Convert the level number into the cell color
-        level_number, 
-        /// Convert the subdomain id into the cell color
-        subdomain_id, 
-        /// Convert the level subdomain id into the cell color
-        level_subdomain_id}; 
- 
+    enum Coloring
+    {
+      /// No cell coloring
+      none,
+      /// Convert the material id into the cell color (default)
+      material_id,
+      /// Convert the level number into the cell color
+      level_number,
+      /// Convert the subdomain id into the cell color
+      subdomain_id,
+      /// Convert the level subdomain id into the cell color
+      level_subdomain_id
+    };
+
     Coloring coloring;
 
     /// Interpret the level number of the cells as altitude over the x-y-plane (useful in the perpspective view).
@@ -665,7 +674,7 @@ namespace GridOutFlags
 
     /**
      * Cell labeling (fixed order).
-     * 
+     *
      * The following booleans determine which properties of the cell
      * shall be displayed as text in the middle of each cell.
      */
@@ -1046,15 +1055,15 @@ public:
 
   /**
    * Write the triangulation in the SVG format.
-   * 
-   * SVG (Scalable Vector Graphics) is 
-   * an XML-based vector image format 
-   * developed and maintained by the 
-   * World Wide Web Consortium (W3C). 
-   * This function conforms to the 
-   * latest specification SVG 1.1, 
+   *
+   * SVG (Scalable Vector Graphics) is
+   * an XML-based vector image format
+   * developed and maintained by the
+   * World Wide Web Consortium (W3C).
+   * This function conforms to the
+   * latest specification SVG 1.1,
    * released on August 16, 2011.
-   * 
+   *
    * The cells of the triangulation are written as polygons with
    * additional lines at the boundary of the triangulation. A coloring
    * of the cells is further possible in order to visualize a certain
@@ -1062,10 +1071,10 @@ public:
    * colorbar can be drawn to encode the chosen coloring.  Moreover, a
    * cell label can be added, showing level index, etc.
    *
-   * @note Yet only implemented for 
+   * @note Yet only implemented for
    * two-dimensional grids in two
    * space dimensions.
-   * 
+   *
    */
   template <int dim, int spacedim>
   void write_svg (const Triangulation<dim,spacedim> &tria,
@@ -1091,7 +1100,7 @@ public:
    */
   template <int dim>
   void write_mathgl (const Triangulation<dim> &tria,
-		     std::ostream             &out) const;
+                     std::ostream             &out) const;
 
   /**
    * Write grid to @p out according to the given data format. This
@@ -1503,19 +1512,19 @@ private:
 
 
   /**
-   * This function projects a three-dimensional point (Point<3> point) 
-   * onto a two-dimensional image plane, specified by the position of 
-   * the camera viewing system (Point<3> camera_position), camera 
-   * direction (Point<3> camera_position), camera horizontal (Point<3> 
-   * camera_horizontal, necessary for the correct alignment of the 
+   * This function projects a three-dimensional point (Point<3> point)
+   * onto a two-dimensional image plane, specified by the position of
+   * the camera viewing system (Point<3> camera_position), camera
+   * direction (Point<3> camera_position), camera horizontal (Point<3>
+   * camera_horizontal, necessary for the correct alignment of the
    * later images), and the focus of the camera (float camera_focus).
    *
    * For SVG output of grids.
    */
-  static Point<2> svg_project_point(Point<3> point, 
-                                    Point<3> camera_position, 
-                                    Point<3> camera_direction, 
-                                    Point<3> camera_horizontal, 
+  static Point<2> svg_project_point(Point<3> point,
+                                    Point<3> camera_position,
+                                    Point<3> camera_direction,
+                                    Point<3> camera_horizontal,
                                     float camera_focus);
 
   /**

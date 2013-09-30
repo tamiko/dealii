@@ -1,13 +1,22 @@
-/* Author: Luca Heltai, Wolfgang Bangerth, 2005 */
+/* ---------------------------------------------------------------------
+ * $Id$
+ *
+ * Copyright (C) 2005 - 2013 by the deal.II authors
+ *
+ * This file is part of the deal.II library.
+ *
+ * The deal.II library is free software; you can use it, redistribute
+ * it, and/or modify it under the terms of the GNU Lesser General
+ * Public License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ * The full text of the license can be found in the file LICENSE at
+ * the top level of the deal.II distribution.
+ *
+ * ---------------------------------------------------------------------
 
-/*    $Id$       */
-/*                                                                */
-/*    Copyright (C) 2005-2006, 2011-2012 by the deal.II authors */
-/*                                                                */
-/*    This file is subject to QPL and may not be  distributed     */
-/*    without copyright and license information. Please refer     */
-/*    to the file deal.II/doc/license.html for the  text  and     */
-/*    further information on this license.                        */
+ *
+ * Author: Luca Heltai, Wolfgang Bangerth, 2005
+ */
 
 
 // @sect4{Preliminaries}
@@ -133,7 +142,7 @@ namespace Step19
   // this program, I realized that there aren't all that many parameters this
   // program can usefully ask for, or better, it turned out: declaring and
   // querying these parameters was already done centralized in one place of
-  // the libray, namely the <code>DataOutInterface</code> class that handles
+  // the library, namely the <code>DataOutInterface</code> class that handles
   // exactly this -- managing parameters for input and output.
   //
   // So the second function call in this function is to let the
@@ -187,7 +196,7 @@ namespace Step19
     // with the subsection name, I like to use curly braces to force my editor
     // to indent everything that goes into this sub-section by one level of
     // indentation. In this sub-section, we shall have two entries, one that
-    // takes a boolean parameter and one that takes a selection list of
+    // takes a Boolean parameter and one that takes a selection list of
     // values, separated by the '|' character:
     prm.enter_subsection ("Dummy subsection");
     {
@@ -279,7 +288,7 @@ namespace Step19
             // Finally, let us note that if we were interested in the values
             // of the parameters declared above in the dummy subsection, we
             // would write something like this to extract the value of the
-            // boolean flag (the <code>prm.get</code> function returns the
+            // Boolean flag (the <code>prm.get</code> function returns the
             // value of a parameter as a string, whereas the
             // <code>prm.get_X</code> functions return a value already
             // converted to a different type):
@@ -288,7 +297,7 @@ namespace Step19
               prm.get_bool ("Dummy generate output");
             }
             prm.leave_subsection ();
-            // We would assign the result to a variable, or course, but don't
+            // We would assign the result to a variable, of course, but don't
             // here in order not to generate an unused variable that the
             // compiler might warn about.
             //

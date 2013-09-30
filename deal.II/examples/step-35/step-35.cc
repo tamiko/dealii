@@ -1,13 +1,22 @@
-/* Author: Abner Salgado, Texas A&M University 2009               */
+/* ---------------------------------------------------------------------
+ * $Id$
+ *
+ * Copyright (C) 2009 - 2013 by the deal.II authors
+ *
+ * This file is part of the deal.II library.
+ *
+ * The deal.II library is free software; you can use it, redistribute
+ * it, and/or modify it under the terms of the GNU Lesser General
+ * Public License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ * The full text of the license can be found in the file LICENSE at
+ * the top level of the deal.II distribution.
+ *
+ * ---------------------------------------------------------------------
 
-/*    $Id$       */
-/*                                                                */
-/*    Copyright (C) 2009-2012 by deal.II authors */
-/*                                                                */
-/*    This file is subject to QPL and may not be  distributed     */
-/*    without copyright and license information. Please refer     */
-/*    to the file deal.II/doc/license.html for the  text  and     */
-/*    further information on this license.                        */
+ *
+ * Author: Abner Salgado, Texas A&M University 2009
+ */
 
 
 // @sect3{Include files}
@@ -985,7 +994,7 @@ namespace Step35
 
   // The implementation of a diffusion step. Note that the expensive operation
   // is the diffusion solve at the end of the function, which we have to do
-  // once for each velocity component. To accellerate things a bit, we allow
+  // once for each velocity component. To accelerate things a bit, we allow
   // to do this in %parallel, using the Threads::new_task function which makes
   // sure that the <code>dim</code> solves are all taken care of and are
   // scheduled to available processors: if your machine has more than one
@@ -1252,8 +1261,8 @@ namespace Step35
   // pieces of data into a single DoFHandler object, and then use that to
   // drive graphical output.
   //
-  // We will not elaborate on this process here, but rather refer to step-31
-  // and step-32, where a similar procedure is used (and is documented) to
+  // We will not elaborate on this process here, but rather refer to step-32,
+  // where a similar procedure is used (and is documented) to
   // create a joint DoFHandler object for all variables.
   //
   // Let us also note that we here compute the vorticity as a scalar quantity

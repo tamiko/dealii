@@ -1,35 +1,19 @@
-//---------------------------------------------------------------------------
-//    $Id$
-//    Version: $Name$
+// ---------------------------------------------------------------------
+// $Id$
 //
-//    Copyright (C) 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010 by the deal.II authors
+// Copyright (C) 1998 - 2013 by the deal.II authors
 //
-//    This file is subject to QPL and may not be  distributed
-//    without copyright and license information. Please refer
-//    to the file deal.II/doc/license.html for the  text  and
-//    further information on this license.
+// This file is part of the deal.II library.
 //
-//---------------------------------------------------------------------------
+// The deal.II library is free software; you can use it, redistribute
+// it, and/or modify it under the terms of the GNU Lesser General
+// Public License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+// The full text of the license can be found in the file LICENSE at
+// the top level of the deal.II distribution.
+//
+// ---------------------------------------------------------------------
 
-
-for (deal_II_dimension : DIMENSIONS; deal_II_space_dimension :  SPACE_DIMENSIONS; Vector : SERIAL_VECTORS)
-  {
-    namespace FETools
-      \{
-#if deal_II_dimension <= deal_II_space_dimension
-      template
-	void interpolate<deal_II_dimension,deal_II_space_dimension>
-	(const DoFHandler<deal_II_dimension,deal_II_space_dimension> &, const Vector &,
-	 const DoFHandler<deal_II_dimension,deal_II_space_dimension> &, Vector &);
-
-      template
-	void interpolate<deal_II_dimension,deal_II_space_dimension>
-	(const DoFHandler<deal_II_dimension,deal_II_space_dimension> &, const Vector &,
-	 const DoFHandler<deal_II_dimension,deal_II_space_dimension> &, const ConstraintMatrix &,
-	 Vector &);
-#endif
-      \}
-  }
 
 for (deal_II_dimension : DIMENSIONS; deal_II_space_dimension :  SPACE_DIMENSIONS)
   {
@@ -63,6 +47,15 @@ for (deal_II_dimension : DIMENSIONS; deal_II_space_dimension :  SPACE_DIMENSIONS
   {
     namespace FETools
       \{
+  
+#if deal_II_dimension <= deal_II_space_dimension
+      template
+	void get_interpolation_matrix<deal_II_dimension,double,deal_II_space_dimension>
+	(const FiniteElement<deal_II_dimension,deal_II_space_dimension> &,
+	 const FiniteElement<deal_II_dimension,deal_II_space_dimension> &,
+	 FullMatrix<double> &);
+#endif
+
 #if deal_II_dimension == deal_II_space_dimension
 
       template class FEFactoryBase<deal_II_dimension>;
@@ -76,12 +69,7 @@ for (deal_II_dimension : DIMENSIONS; deal_II_space_dimension :  SPACE_DIMENSIONS
 	void compute_component_wise(
 	  const FiniteElement<deal_II_dimension>& ,
 	  std::vector<unsigned int>&, std::vector<std::vector<unsigned int> >&);
-      template
-  
-	void get_interpolation_matrix<deal_II_dimension>
-	(const FiniteElement<deal_II_dimension> &,
-	 const FiniteElement<deal_II_dimension> &,
-	 FullMatrix<double> &);
+
       template
 	void get_back_interpolation_matrix<deal_II_dimension>
 	(const FiniteElement<deal_II_dimension> &,
@@ -120,25 +108,6 @@ for (deal_II_dimension : DIMENSIONS; deal_II_space_dimension :  SPACE_DIMENSIONS
 	void compute_face_embedding_matrices<deal_II_dimension,double>
 	(const FiniteElement<deal_II_dimension> &, FullMatrix<double> (&)[GeometryInfo<deal_II_dimension>::max_children_per_face],
 	 unsigned int, unsigned int);
-
-      template
-	void interpolate<deal_II_dimension>
-	(const hp::DoFHandler<deal_II_dimension> &, const Vector<double> &,
-	 const hp::DoFHandler<deal_II_dimension> &, Vector<double> &);
-      template
-	void interpolate<deal_II_dimension>
-	(const hp::DoFHandler<deal_II_dimension> &, const Vector<double> &,
-	 const hp::DoFHandler<deal_II_dimension> &, const ConstraintMatrix &,
-	 Vector<double> &);
-      template
-	void interpolate<deal_II_dimension>
-	(const hp::DoFHandler<deal_II_dimension> &, const Vector<float> &,
-	 const hp::DoFHandler<deal_II_dimension> &, Vector<float> &);
-      template
-	void interpolate<deal_II_dimension>
-	(const hp::DoFHandler<deal_II_dimension> &, const Vector<float> &,
-	 const hp::DoFHandler<deal_II_dimension> &, const ConstraintMatrix &,
-	 Vector<float> &);
 
 
       template FiniteElement<deal_II_dimension,deal_II_dimension> *
@@ -206,50 +175,6 @@ for (deal_II_dimension : DIMENSIONS; deal_II_space_dimension :  SPACE_DIMENSIONS
 	lexicographic_to_hierarchic_numbering<deal_II_dimension>
 	(const FiniteElementData<deal_II_dimension> &);
   
-#endif
-      \}
-  }
-
-
-
-for (deal_II_dimension : DIMENSIONS; deal_II_space_dimension :  SPACE_DIMENSIONS; VEC : SERIAL_VECTORS)
-  {
-    namespace FETools
-      \{
-#if deal_II_dimension == deal_II_space_dimension
-     template
-	void back_interpolate<deal_II_dimension>
-	(const DoFHandler<deal_II_dimension> &, const VEC &,
-	 const FiniteElement<deal_II_dimension> &, VEC &);
-      template
-	void back_interpolate<deal_II_dimension>
-	(const DoFHandler<deal_II_dimension> &, const ConstraintMatrix &,
-	 const VEC &,
-	 const DoFHandler<deal_II_dimension> &, const ConstraintMatrix &,
-	 VEC &);
-      template
-	void interpolation_difference<deal_II_dimension>
-	(const DoFHandler<deal_II_dimension> &, const VEC &,
-	 const FiniteElement<deal_II_dimension> &, VEC &);
-      template
-	void interpolation_difference<deal_II_dimension>
-	(const DoFHandler<deal_II_dimension> &, const ConstraintMatrix &,
-	 const VEC &,
-	 const DoFHandler<deal_II_dimension> &, const ConstraintMatrix &,
-	 VEC &);
-      template
-	void project_dg<deal_II_dimension>
-	(const DoFHandler<deal_II_dimension> &, const VEC &,
-	 const DoFHandler<deal_II_dimension> &, VEC &);
-      template
-	void extrapolate<deal_II_dimension>
-	(const DoFHandler<deal_II_dimension> &, const VEC &,
-	 const DoFHandler<deal_II_dimension> &, VEC &);
-      template
-	void extrapolate<deal_II_dimension>
-	(const DoFHandler<deal_II_dimension> &, const VEC &,
-	 const DoFHandler<deal_II_dimension> &, const ConstraintMatrix &,
-	 VEC &);
 #endif
       \}
   }

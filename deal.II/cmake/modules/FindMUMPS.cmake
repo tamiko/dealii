@@ -1,16 +1,18 @@
-#####
+## ---------------------------------------------------------------------
+## $Id$
 ##
-## Copyright (C) 2012 by the deal.II authors
+## Copyright (C) 2012 - 2013 by the deal.II authors
 ##
 ## This file is part of the deal.II library.
 ##
-## <TODO: Full License information>
-## This file is dual licensed under QPL 1.0 and LGPL 2.1 or any later
-## version of the LGPL license.
+## The deal.II library is free software; you can use it, redistribute
+## it, and/or modify it under the terms of the GNU Lesser General
+## Public License as published by the Free Software Foundation; either
+## version 2.1 of the License, or (at your option) any later version.
+## The full text of the license can be found in the file LICENSE at
+## the top level of the deal.II distribution.
 ##
-## Author: Matthias Maier <matthias.maier@iwr.uni-heidelberg.de>
-##
-#####
+## ---------------------------------------------------------------------
 
 #
 # Try to find the MUMPS library
@@ -31,11 +33,8 @@ INCLUDE(FindPackageHandleStandardArgs)
 # (We'll rely on the user of FindMUMPS, setting up mpi *cough*)
 #
 FIND_PACKAGE(SCALAPACK) # which will also include lapack and blas
+FIND_PACKAGE(METIS)
 
-#
-# TODO: mumps might link to scotch and or metis as well. Ignore this for
-#       now. :-]
-#
 
 FIND_PATH(MUMPS_INCLUDE_DIR dmumps_c.h
   HINTS
@@ -82,6 +81,13 @@ FIND_PACKAGE_HANDLE_STANDARD_ARGS(MUMPS DEFAULT_MSG
   SCALAPACK_FOUND
   )
 
+MARK_AS_ADVANCED(
+  DMUMPS_LIBRARY
+  MUMPS_COMMON_LIBRARY
+  MUMPS_INCLUDE_DIR
+  PORT_LIBRARY
+  )
+
 IF(MUMPS_FOUND)
   SET(MUMPS_INCLUDE_DIRS
     ${MUMPS_INCLUDE_DIR}
@@ -91,18 +97,14 @@ IF(MUMPS_FOUND)
     ${MUMPS_COMMON_LIBRARY}
     ${PORD_LIBRARY}
     ${SCALAPACK_LIBRARIES}
-    ${MPI_CXX_LIBRARIES} # For good measure
+    ${METIS_LIBRARIES}       # for good measure
+    ${MPI_Fortran_LIBRARIES} # for good measure
     )
   SET(MUMPS_LINKER_FLAGS
     ${SCALAPACK_LINKER_FLAGS}
     )
 
-  MARK_AS_ADVANCED(
-    DMUMPS_LIBRARY
-    MUMPS_COMMON_LIBRARY
-    MUMPS_INCLUDE_DIR
-    PORT_LIBRARY
-  )
+  MARK_AS_ADVANCED(MUMPS_DIR)
 ELSE()
   SET(MUMPS_DIR "" CACHE PATH
     "An optional hint to a mumps directory"

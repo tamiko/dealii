@@ -1,15 +1,25 @@
-/* Authors: Joerg Frohne, Texas A&M University and                */
-/*                        University of Siegen, 2011, 2012        */
-/*          Wolfgang Bangerth, Texas A&M University, 2012         */
+/* ---------------------------------------------------------------------
+ * $Id$
+ *
+ * Copyright (C) 2011 - 2013 by the deal.II authors
+ *
+ * This file is part of the deal.II library.
+ *
+ * The deal.II library is free software; you can use it, redistribute
+ * it, and/or modify it under the terms of the GNU Lesser General
+ * Public License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ * The full text of the license can be found in the file LICENSE at
+ * the top level of the deal.II distribution.
+ *
+ * ---------------------------------------------------------------------
 
-/*    $Id$        */
-/*                                                                */
-/*    Copyright (C) 2011-2012 by the deal.II authors */
-/*                                                                */
-/*    This file is subject to QPL and may not be  distributed     */
-/*    without copyright and license information. Please refer     */
-/*    to the file deal.II/doc/license.html for the  text  and     */
-/*    further information on this license.                        */
+ *
+ * Authors: Joerg Frohne, Texas A&M University and
+ *                        University of Siegen, 2011, 2012
+ *          Wolfgang Bangerth, Texas A&M University, 2012
+ */
+
 
 // @sect3{Include files}
 
@@ -484,7 +494,7 @@ namespace Step41
           // function given above and in the introduction.
           //
           // If we decide that the DoF should be part of the active set, we
-          // add its index to the active set, introduce a nonhomogeneous
+          // add its index to the active set, introduce an inhomogeneous
           // equality constraint in the ConstraintMatrix object, and reset the
           // solution value to the height of the obstacle. Finally, the
           // residual of the non-contact part of the system serves as an
@@ -566,7 +576,7 @@ namespace Step41
   // @sect4{ObstacleProblem::output_results}
 
   // We use the vtk-format for the output.  The file contains the displacement
-  // and a numerical represenation of the active set. The function looks
+  // and a numerical representation of the active set. The function looks
   // standard but note that we can add an IndexSet object to the DataOut
   // object in exactly the same way as a regular solution vector: it is simply
   // interpreted as a function that is either zero (when a degree of freedom

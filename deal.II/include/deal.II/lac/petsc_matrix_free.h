@@ -1,16 +1,18 @@
-//---------------------------------------------------------------------------
-//    $Id$
-//    Version: $Name$
+// ---------------------------------------------------------------------
+// $Id$
 //
-//    Copyright (C) 2012 by the deal.II authors
+// Copyright (C) 2012 - 2013 by the deal.II authors
 //
-//    This file is subject to QPL and may not be  distributed
-//    without copyright and license information. Please refer
-//    to the file deal.II/doc/license.html for the  text  and
-//    further information on this license.
+// This file is part of the deal.II library.
 //
-//---------------------------------------------------------------------------
-
+// The deal.II library is free software; you can use it, redistribute
+// it, and/or modify it under the terms of the GNU Lesser General
+// Public License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+// The full text of the license can be found in the file LICENSE at
+// the top level of the deal.II distribution.
+//
+// ---------------------------------------------------------------------
 
 #ifndef __deal2__petsc_matrix_free_h
 #define __deal2__petsc_matrix_free_h
@@ -34,14 +36,14 @@ namespace PETScWrappers
    * Implementation of a parallel matrix class based on PETSc <tt>MatShell</tt> matrix-type.
    * This base class implements only the interface to the PETSc matrix object,
    * while all the functionality is contained in the matrix-vector
-   * multiplication which must be reimplmented in derived classes.
+   * multiplication which must be reimplemented in derived classes.
    *
    * This interface is an addition to the dealii::MatrixFree class to realize
    * user-defined matrix-classes together with PETSc solvers and functionalities.
    * See also the documentation of dealii::MatrixFree class and step-37 and step-48.
    *
    * Similar to other matrix classes in namespaces PETScWrappers and PETScWrappers::MPI,
-   * the MatrxiFree class provides the usual matrix-vector multiplication
+   * the MatrixFree class provides the usual matrix-vector multiplication
    *   <tt>vmult(VectorBase &dst, const VectorBase &src)</tt>
    * which is pure virtual and must be reimplemented in derived classes.
    * Besides the usual interface, this class has a matrix-vector multiplication

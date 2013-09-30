@@ -1,14 +1,19 @@
-//---------------------------------------------------------------------------
-//    $Id$
+// ---------------------------------------------------------------------
+// $Id$
 //
-//    Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2012, 2013 by the deal.II authors
+// Copyright (C) 1999 - 2013 by the deal.II authors
 //
-//    This file is subject to QPL and may not be  distributed
-//    without copyright and license information. Please refer
-//    to the file deal.II/doc/license.html for the  text  and
-//    further information on this license.
+// This file is part of the deal.II library.
 //
-//---------------------------------------------------------------------------
+// The deal.II library is free software; you can use it, redistribute
+// it, and/or modify it under the terms of the GNU Lesser General
+// Public License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+// The full text of the license can be found in the file LICENSE at
+// the top level of the deal.II distribution.
+//
+// ---------------------------------------------------------------------
+
 
 #ifndef __deal2__constraint_matrix_templates_h
 #define __deal2__constraint_matrix_templates_h
@@ -386,7 +391,7 @@ ConstraintMatrix::condense (SparseMatrix<number> &uncondensed,
   // which line in the constraint matrix
   // handles this index
   std::vector<size_type> distribute (sparsity.n_rows(),
-                                        numbers::invalid_size_type);
+                                     numbers::invalid_size_type);
 
   for (size_type c=0; c<lines.size(); ++c)
     distribute[lines[c].line] = c;
@@ -569,7 +574,7 @@ ConstraintMatrix::condense (BlockSparseMatrix<number> &uncondensed,
   // in the constraint matrix handles this
   // index
   std::vector<size_type> distribute (sparsity.n_rows(),
-                                        numbers::invalid_size_type);
+                                     numbers::invalid_size_type);
 
   for (size_type c=0; c<lines.size(); ++c)
     distribute[lines[c].line] = c;
@@ -738,12 +743,22 @@ namespace internal
       template<class VEC>
       void set_zero_parallel(const std::vector<size_type> &cm, VEC &vec, size_type shift = 0)
       {
-        Assert(!vec.has_ghost_elements(), ExcInternalError());//ExcGhostsPresent());
+        Assert(!vec.has_ghost_elements(), ExcInternalError());
         IndexSet locally_owned = vec.locally_owned_elements();
         for (typename std::vector<size_type>::const_iterator it = cm.begin();
              it != cm.end(); ++it)
-          if (locally_owned.is_element(*it))
-            vec(*it) = 0.;
+          {
+            // If shift>0 then we are working on a part of a BlockVector
+            // so vec(i) is actually the global entry i+shift.
+            // We first make sure the line falls into the range of vec,
+            // then check if is part of the local part of the vector, before
+            // finally setting it to 0.
+            if ((*it)<shift)
+              continue;
+            size_type idx = *it - shift;
+            if (idx<vec.size() && locally_owned.is_element(idx))
+              vec(idx) = 0.;
+          }
       }
 
       template<typename Number>
@@ -751,8 +766,18 @@ namespace internal
       {
         for (typename std::vector<size_type>::const_iterator it = cm.begin();
              it != cm.end(); ++it)
-          if (vec.in_local_range(*it))
-            vec(*it) = 0.;
+          {
+            // If shift>0 then we are working on a part of a BlockVector
+            // so vec(i) is actually the global entry i+shift.
+            // We first make sure the line falls into the range of vec,
+            // then check if is part of the local part of the vector, before
+            // finally setting it to 0.
+            if ((*it)<shift)
+              continue;
+            size_type idx = *it - shift;
+            if (vec.in_local_range(idx))
+              vec(idx) = 0.;
+          }
         vec.zero_out_ghosts();
       }
 
@@ -779,7 +804,7 @@ namespace internal
       {
         for (typename std::vector<size_type>::const_iterator it = cm.begin();
              it != cm.end(); ++it)
-           vec(*it) = 0.;
+          vec(*it) = 0.;
       }
 
       template<class VEC>
@@ -1114,10 +1139,11 @@ ConstraintMatrix::distribute (VectorType &vec) const
 
       typedef std::vector<ConstraintLine>::const_iterator constraint_iterator;
       for (constraint_iterator it = lines.begin();
-          it != lines.end(); ++it)
+           it != lines.end(); ++it)
         if (vec_owned_elements.is_element(it->line))
           for (unsigned int i=0; i<it->entries.size(); ++i)
-            needed_elements.add_index(it->entries[i].first);
+            if (!vec_owned_elements.is_element(it->entries[i].first))
+              needed_elements.add_index(it->entries[i].first);
 
       VectorType ghosted_vector;
       internal::import_vector_with_ghost_elements (vec,
@@ -1126,11 +1152,11 @@ ConstraintMatrix::distribute (VectorType &vec) const
                                                    internal::bool2type<IsBlockVector<VectorType>::value>());
 
       for (constraint_iterator it = lines.begin();
-          it != lines.end(); ++it)
+           it != lines.end(); ++it)
         if (vec_owned_elements.is_element(it->line))
           {
             typename VectorType::value_type
-              new_value = it->inhomogeneity;
+            new_value = it->inhomogeneity;
             for (unsigned int i=0; i<it->entries.size(); ++i)
               new_value += (static_cast<typename VectorType::value_type>
                             (ghosted_vector(it->entries[i].first)) *
@@ -1162,7 +1188,7 @@ ConstraintMatrix::distribute (VectorType &vec) const
           for (unsigned int i=0; i<next_constraint->entries.size(); ++i)
             new_value += (static_cast<typename VectorType::value_type>
                           (vec(next_constraint->entries[i].first)) *
-                           next_constraint->entries[i].second);
+                          next_constraint->entries[i].second);
           Assert(numbers::is_finite(new_value), ExcNumberNotFinite());
           vec(next_constraint->line) = new_value;
         }
@@ -1337,7 +1363,7 @@ namespace internals
       individual_size[index]++;
     }
 
-    size_type 
+    size_type
     get_size (const size_type index) const
     {
       return individual_size[index];
@@ -1947,7 +1973,7 @@ namespace internals
     const size_type loc_row = global_rows.local_row(i);
 
     typename SparseMatrix<number>::iterator
-      matrix_values = sparse_matrix->begin(row);
+    matrix_values = sparse_matrix->begin(row);
     const bool optimize_diagonal = sparsity.n_rows() == sparsity.n_cols();
 
     // distinguish three cases about what can
@@ -2408,7 +2434,7 @@ make_sorted_row_list (const std::vector<size_type> &local_dof_indices,
                 Utilities::lower_bound(active_dofs.begin(),
                                        active_dofs.end()-i+1,
                                        new_index);
-              if (*it != new_index)               
+              if (*it != new_index)
                 active_dofs.insert(it, new_index);
             }
         }
@@ -2698,7 +2724,7 @@ distribute_local_to_global (const FullMatrix<double>     &local_matrix,
           for (size_type block_col=0; block_col<num_blocks; ++block_col)
             {
               const size_type start_block = block_starts[block_col],
-                                 end_block = block_starts[block_col+1];
+                              end_block = block_starts[block_col+1];
               if (use_dealii_matrix == false)
                 {
                   size_type *col_ptr = &cols[0];
@@ -3019,7 +3045,7 @@ add_entries_local_to_global (const std::vector<size_type> &local_dof_indices,
           for (size_type block_col=0; block_col<num_blocks; ++block_col)
             {
               const size_type begin_block = block_starts[block_col],
-                                 end_block = block_starts[block_col+1];
+                              end_block = block_starts[block_col+1];
               std::vector<size_type>::iterator col_ptr = cols.begin();
               internals::resolve_matrix_row (global_rows, i, begin_block,
                                              end_block, dof_mask, col_ptr);

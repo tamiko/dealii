@@ -1,14 +1,19 @@
-//---------------------------------------------------------------------------
-//    $Id$
+// ---------------------------------------------------------------------
+// $Id$
 //
-//    Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013 by the deal.II authors
+// Copyright (C) 1999 - 2013 by the deal.II authors
 //
-//    This file is subject to QPL and may not be  distributed
-//    without copyright and license information. Please refer
-//    to the file deal.II/doc/license.html for the  text  and
-//    further information on this license.
+// This file is part of the deal.II library.
 //
-//---------------------------------------------------------------------------
+// The deal.II library is free software; you can use it, redistribute
+// it, and/or modify it under the terms of the GNU Lesser General
+// Public License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+// The full text of the license can be found in the file LICENSE at
+// the top level of the deal.II distribution.
+//
+// ---------------------------------------------------------------------
+
 #ifndef __deal2__full_matrix_templates_h
 #define __deal2__full_matrix_templates_h
 
@@ -338,9 +343,9 @@ void FullMatrix<number>::fill (const FullMatrix<number2> &src,
 
   // Compute maximal size of copied block
   const size_type rows = std::min (m() - dst_offset_i,
-                                      src.m() - src_offset_i);
+                                   src.m() - src_offset_i);
   const size_type cols = std::min (n() - dst_offset_j,
-                                      src.n() - src_offset_j);
+                                   src.n() - src_offset_j);
 
   for (size_type i=0; i<rows ; ++i)
     for (size_type j=0; j<cols ; ++j)
@@ -1146,7 +1151,7 @@ void FullMatrix<number>::Tadd (const FullMatrix<number2> &src,
   // Compute maximal size of copied block
   const size_type rows = std::min (m() - dst_offset_i, src.n() - src_offset_j);
   const size_type cols = std::min (n() - dst_offset_j,
-                                      src.m() - src_offset_i);
+                                   src.m() - src_offset_i);
 
 
   for (size_type i=0; i<rows ; ++i)
@@ -1641,7 +1646,7 @@ FullMatrix<number>::precondition_Jacobi (Vector<somenumber>       &dst,
   const somenumber *src_ptr = src.begin();
 
   for (size_type i=0; i<n; ++i, ++dst_ptr, ++src_ptr)
-    *dst_ptr = somenumber(om) * *src_ptr / somenumber((*this)(i,i));
+    *dst_ptr = somenumber(om) **src_ptr / somenumber((*this)(i,i));
 }
 
 

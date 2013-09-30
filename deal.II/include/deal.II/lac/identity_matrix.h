@@ -1,14 +1,19 @@
-//---------------------------------------------------------------------------
-//    $Id$
+// ---------------------------------------------------------------------
+// $Id$
 //
-//    Copyright (C) 2006, 2012 by the deal.II authors
+// Copyright (C) 2006 - 2013 by the deal.II authors
 //
-//    This file is subject to QPL and may not be  distributed
-//    without copyright and license information. Please refer
-//    to the file deal.II/doc/license.html for the  text  and
-//    further information on this license.
+// This file is part of the deal.II library.
 //
-//---------------------------------------------------------------------------
+// The deal.II library is free software; you can use it, redistribute
+// it, and/or modify it under the terms of the GNU Lesser General
+// Public License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+// The full text of the license can be found in the file LICENSE at
+// the top level of the deal.II distribution.
+//
+// ---------------------------------------------------------------------
+
 #ifndef __deal2__identity_matrix_h
 #define __deal2__identity_matrix_h
 
@@ -201,7 +206,7 @@ IdentityMatrix::reinit (const size_type n)
 
 
 inline
-IdentityMatrix::size_type 
+IdentityMatrix::size_type
 IdentityMatrix::m () const
 {
   return size;
@@ -210,7 +215,7 @@ IdentityMatrix::m () const
 
 
 inline
-IdentityMatrix::size_type 
+IdentityMatrix::size_type
 IdentityMatrix::n () const
 {
   return size;

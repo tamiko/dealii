@@ -1,22 +1,20 @@
-#####
+## ---------------------------------------------------------------------
+## $Id$
 ##
-## Copyright (C) 2012 by the deal.II authors
+## Copyright (C) 2012 - 2013 by the deal.II authors
 ##
 ## This file is part of the deal.II library.
 ##
-## <TODO: Full License information>
-## This file is dual licensed under QPL 1.0 and LGPL 2.1 or any later
-## version of the LGPL license.
+## The deal.II library is free software; you can use it, redistribute
+## it, and/or modify it under the terms of the GNU Lesser General
+## Public License as published by the Free Software Foundation; either
+## version 2.1 of the License, or (at your option) any later version.
+## The full text of the license can be found in the file LICENSE at
+## the top level of the deal.II distribution.
 ##
-## Author: Matthias Maier <matthias.maier@iwr.uni-heidelberg.de>
-##
-#####
+## ---------------------------------------------------------------------
 
 INCLUDE_DIRECTORIES(BEFORE ${CMAKE_CURRENT_BINARY_DIR})
-
-FILE(GLOB _header
-  ${CMAKE_SOURCE_DIR}/include/deal.II/lac/*.h
-  )
 
 SET(_src
   block_matrix_array.cc
@@ -77,7 +75,7 @@ SET(_src
   vector.cc
   vector_memory.cc
   vector_view.cc
-)
+  )
 
 SET(_inst
   block_sparse_matrix.inst.in
@@ -97,8 +95,11 @@ SET(_inst
   vector.inst.in
   vector_memory.inst.in
   vector_view.inst.in
-)
+  )
+
+FILE(GLOB _header
+  ${CMAKE_SOURCE_DIR}/include/deal.II/lac/*.h
+  )
 
 DEAL_II_ADD_LIBRARY(obj_lac OBJECT ${_src} ${_header} ${_inst})
 EXPAND_INSTANTIATIONS(obj_lac "${_inst}")
-

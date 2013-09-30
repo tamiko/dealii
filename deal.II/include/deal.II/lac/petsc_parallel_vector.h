@@ -1,14 +1,19 @@
-//---------------------------------------------------------------------------
-//    $Id$
+// ---------------------------------------------------------------------
+// $Id$
 //
-//    Copyright (C) 2004, 2005, 2006, 2007, 2009, 2010, 2012, 2013 by the deal.II authors
+// Copyright (C) 2004 - 2013 by the deal.II authors
 //
-//    This file is subject to QPL and may not be  distributed
-//    without copyright and license information. Please refer
-//    to the file deal.II/doc/license.html for the  text  and
-//    further information on this license.
+// This file is part of the deal.II library.
 //
-//---------------------------------------------------------------------------
+// The deal.II library is free software; you can use it, redistribute
+// it, and/or modify it under the terms of the GNU Lesser General
+// Public License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+// The full text of the license can be found in the file LICENSE at
+// the top level of the deal.II distribution.
+//
+// ---------------------------------------------------------------------
+
 #ifndef __deal2__petsc_parallel_vector_h
 #define __deal2__petsc_parallel_vector_h
 
@@ -171,10 +176,10 @@ namespace PETScWrappers
        */
       static const bool supports_distributed_data = true;
 
-         /**
-       * Default constructor. Initialize the
-       * vector as empty.
-       */
+      /**
+      * Default constructor. Initialize the
+      * vector as empty.
+      */
       Vector ();
 
       /**
@@ -269,15 +274,47 @@ namespace PETScWrappers
        */
       explicit Vector (const MPI_Comm     &communicator,
                        const IndexSet   &local,
-                       const IndexSet &ghost);
+                       const IndexSet &ghost) DEAL_II_DEPRECATED;
+
+      /**
+       * Constructs a new parallel ghosted PETSc
+       * vector from an Indexset. Note that
+       * @p local must be contiguous and
+       * the global size of the vector is
+       * determined by local.size(). The
+       * global indices in @p ghost are
+       * supplied as ghost indices that can
+       * also be read locally.
+       *
+       * Note that the @p ghost IndexSet
+       * may be empty and that any indices
+       * already contained in @p local are
+       * ignored during construction. That
+       * way, the ghost parameter can equal
+       * the set of locally relevant
+       * degrees of freedom, see step-32.
+       *
+       * @note This operation always creates a ghosted
+       * vector.
+       */
+      Vector (const IndexSet &local,
+              const IndexSet &ghost,
+              const MPI_Comm &communicator);
 
       /**
        * Constructs a new parallel PETSc
        * vector from an Indexset. This creates a non
        * ghosted vector.
        */
-      explicit Vector (const MPI_Comm     &communicator,
-                       const IndexSet   &local);
+      explicit Vector (const MPI_Comm &communicator,
+                       const IndexSet &local) DEAL_II_DEPRECATED;
+      /**
+       * Constructs a new parallel PETSc
+       * vector from an Indexset. This creates a non
+       * ghosted vector.
+       */
+      explicit Vector (const IndexSet &local,
+                       const MPI_Comm &communicator);
 
       /**
        * Copy the given vector. Resize the
@@ -409,7 +446,15 @@ namespace PETScWrappers
        */
       void reinit (const MPI_Comm     &communicator,
                    const IndexSet   &local,
-                   const IndexSet &ghost);
+                   const IndexSet &ghost) DEAL_II_DEPRECATED;
+      /**
+       * Reinit as a vector without ghost elements. See
+       * constructor with same signature
+       * for more detais.
+       */
+      void reinit (const IndexSet &local,
+                   const IndexSet &ghost,
+                   const MPI_Comm &communicator);
 
       /**
        * Reinit as a vector without ghost elements. See
@@ -417,7 +462,14 @@ namespace PETScWrappers
        * for more detais.
        */
       void reinit (const MPI_Comm     &communicator,
-                   const IndexSet   &local);
+                   const IndexSet   &local) DEAL_II_DEPRECATED;
+      /**
+       * Reinit as a vector without ghost elements. See
+       * constructor with same signature
+       * for more detais.
+       */
+      void reinit (const IndexSet &local,
+                   const MPI_Comm &communicator);
 
       /**
        * Return a reference to the MPI
@@ -536,10 +588,38 @@ namespace PETScWrappers
     Vector &
     Vector::operator = (const Vector &v)
     {
+      if (v.size()==0)
+        {
+          // this happens if v has not been initialized to something useful:
+          // Vector x,v;x=v;
+          // we skip the code below and create a simple serial vector of
+          // length 0
+
+          int ierr;
+#if DEAL_II_PETSC_VERSION_LT(3,2,0)
+          ierr = VecDestroy (vector);
+#else
+          ierr = VecDestroy (&vector);
+#endif
+          AssertThrow (ierr == 0, ExcPETScError(ierr));
+
+          const int n = 0;
+          ierr = VecCreateSeq (PETSC_COMM_SELF, n, &vector);
+          AssertThrow (ierr == 0, ExcPETScError(ierr));
+          ghosted = false;
+          ghost_indices.clear();
+          return *this;
+        }
+
       // if the vectors have different sizes,
       // then first resize the present one
       if (size() != v.size())
-        reinit (v.communicator, v.size(), v.local_size(), true);
+        {
+          if (v.has_ghost_elements())
+            reinit( v.locally_owned_elements(), v.ghost_indices, v.communicator);
+          else
+            reinit (v.communicator, v.size(), v.local_size(), true);
+        }
 
       const int ierr = VecCopy (v.vector, vector);
       AssertThrow (ierr == 0, ExcPETScError(ierr));

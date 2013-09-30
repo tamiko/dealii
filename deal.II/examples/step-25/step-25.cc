@@ -1,12 +1,22 @@
-/* Author: Ivan Christov, Wolfgang Bangerth, Texas A&M University, 2006 */
+/* ---------------------------------------------------------------------
+ * $Id$
+ *
+ * Copyright (C) 2006 - 2013 by the deal.II authors
+ *
+ * This file is part of the deal.II library.
+ *
+ * The deal.II library is free software; you can use it, redistribute
+ * it, and/or modify it under the terms of the GNU Lesser General
+ * Public License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ * The full text of the license can be found in the file LICENSE at
+ * the top level of the deal.II distribution.
+ *
+ * ---------------------------------------------------------------------
 
-/*    $Id$ */
-/*    Copyright (C) 2006-2009, 2011-2012 by the deal.II authors */
-/*                                                                */
-/*    This file is subject to QPL and may not be  distributed     */
-/*    without copyright and license information. Please refer     */
-/*    to the file deal.II/doc/license.html for the text and       */
-/*    further information on this license.                        */
+ *
+ * Author: Ivan Christov, Wolfgang Bangerth, Texas A&M University, 2006
+ */
 
 
 // @sect3{Include files and global variables}
@@ -323,7 +333,7 @@ namespace Step25
 
   // @sect4{SineGordonProblem::assemble_system}
 
-  // This functions assembles the system matrix and right-hand side vector for
+  // This function assembles the system matrix and right-hand side vector for
   // each iteration of Newton's method. The reader should refer to the
   // Introduction for the explicit formulas for the system matrix and
   // right-hand side.
@@ -340,7 +350,6 @@ namespace Step25
   {
     // First we assemble the Jacobian matrix $F'_h(U^{n,l})$, where $U^{n,l}$
     // is stored in the vector <code>solution</code> for convenience.
-    system_matrix = 0;
     system_matrix.copy_from (mass_matrix);
     system_matrix.add (std::pow(time_step*theta,2), laplace_matrix);
 
@@ -349,9 +358,23 @@ namespace Step25
     system_matrix.add (-std::pow(time_step*theta,2), tmp_matrix);
 
     // Then, we compute the right-hand side vector $-F_h(U^{n,l})$.
+    //
+    // We have to first build up the matrix
+    // $M+k^2\theta^2 A$, which we put into <code>tmp_matrix</code>
+    // use it to compute a contribution to the right hand side vector, and
+    // then build the matrix $M-k^2\theta(1-\theta) A$. We could
+    // build it in the same way as before, i.e., using code like
+    // @code
+    // tmp_matrix.copy_from (mass_matrix);
+    // tmp_matrix.add (-std::pow(time_step,2)*theta*(1-theta), laplace_matrix);
+    // @endcode
+    // but we can save the expense of the <code>copy_from</code> operation
+    // by starting from what is already in the <code>tmp_matrix</code>
+    // variable (i.e., $M+k^2\theta^2 A$) and subtracting from this
+    // $k^2\theta^2 A+k^2\theta(1-\theta) A=k^2\theta A$ when computing the
+    // second matrix:
     system_rhs = 0;
 
-    tmp_matrix = 0;
     tmp_matrix.copy_from (mass_matrix);
     tmp_matrix.add (std::pow(time_step*theta,2), laplace_matrix);
 
@@ -359,17 +382,14 @@ namespace Step25
     tmp_matrix.vmult (tmp_vector, solution);
     system_rhs += tmp_vector;
 
-    tmp_matrix = 0;
-    tmp_matrix.copy_from (mass_matrix);
-    tmp_matrix.add (-std::pow(time_step,2)*theta*(1-theta), laplace_matrix);
 
-    tmp_vector = 0;
+    tmp_matrix.add(-std::pow(time_step, 2) * theta, laplace_matrix);
+
     tmp_matrix.vmult (tmp_vector, old_solution);
     system_rhs -= tmp_vector;
 
     system_rhs.add (-time_step, M_x_velocity);
 
-    tmp_vector = 0;
     compute_nl_term (old_solution, solution, tmp_vector);
     system_rhs.add (std::pow(time_step,2)*theta, tmp_vector);
 
@@ -396,13 +416,14 @@ namespace Step25
   // integrate these terms exactly. It is usually sufficient to just make sure
   // that the right hand side is integrated up to the same order of accuracy
   // as the discretization scheme is, but it may be possible to improve on the
-  // constant in the asympotitic statement of convergence by choosing a more
+  // constant in the asymptotic statement of convergence by choosing a more
   // accurate quadrature formula.
   template <int dim>
   void SineGordonProblem<dim>::compute_nl_term (const Vector<double> &old_data,
                                                 const Vector<double> &new_data,
                                                 Vector<double>       &nl_term) const
   {
+    nl_term = 0;
     const QGauss<dim> quadrature_formula (3);
     FEValues<dim>     fe_values (fe, quadrature_formula,
                                  update_values |
@@ -423,6 +444,7 @@ namespace Step25
 
     for (; cell!=endc; ++cell)
       {
+        local_nl_term = 0;
         // Once we re-initialize our <code>FEValues</code> instantiation to
         // the current cell, we make use of the
         // <code>get_function_values</code> routine to get the values of the
@@ -449,15 +471,13 @@ namespace Step25
 
         for (unsigned int i=0; i<dofs_per_cell; ++i)
           nl_term(local_dof_indices[i]) += local_nl_term(i);
-
-        local_nl_term = 0;
       }
   }
 
   // @sect4{SineGordonProblem::compute_nl_matrix}
 
   // This is the second function dealing with the nonlinear scheme. It
-  // computes the matrix $N(\cdot,\cdot)$, whicih appears in the nonlinear
+  // computes the matrix $N(\cdot,\cdot)$, which appears in the nonlinear
   // term in the Jacobian of $F(\cdot)$. Just as <code>compute_nl_term</code>,
   // we must allow this function to receive as input an "old" and a "new"
   // solution, which we again call $w_{\mathrm{old}}$ and $w_{\mathrm{new}}$
@@ -485,6 +505,7 @@ namespace Step25
 
     for (; cell!=endc; ++cell)
       {
+        local_nl_matrix = 0;
         // Again, first we re-initialize our <code>FEValues</code>
         // instantiation to the current cell.
         fe_values.reinit (cell);
@@ -511,8 +532,6 @@ namespace Step25
           for (unsigned int j=0; j<dofs_per_cell; ++j)
             nl_matrix.add(local_dof_indices[i], local_dof_indices[j],
                           local_nl_matrix(i,j));
-
-        local_nl_matrix = 0;
       }
   }
 
@@ -552,7 +571,6 @@ namespace Step25
     PreconditionSSOR<> preconditioner;
     preconditioner.initialize(system_matrix, 1.2);
 
-    solution_update = 0;
     cg.solve (system_matrix, solution_update,
               system_rhs,
               preconditioner);
@@ -592,7 +610,7 @@ namespace Step25
   {
     make_grid_and_dofs ();
 
-    // To aknowledge the initial condition, we must use the function $u_0(x)$
+    // To acknowledge the initial condition, we must use the function $u_0(x)$
     // to compute $U^0$. To this end, below we will create an object of type
     // <code>InitialValues</code>; note that when we create this object (which
     // is derived from the <code>Function</code> class), we set its internal
@@ -676,11 +694,9 @@ namespace Step25
         laplace_matrix.vmult (tmp_vector, solution);
         M_x_velocity.add (-time_step*theta, tmp_vector);
 
-        tmp_vector = 0;
         laplace_matrix.vmult (tmp_vector, old_solution);
         M_x_velocity.add (-time_step*(1-theta), tmp_vector);
 
-        tmp_vector = 0;
         compute_nl_term (old_solution, solution, tmp_vector);
         M_x_velocity.add (-time_step, tmp_vector);
 

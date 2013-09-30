@@ -1,14 +1,18 @@
-//----------------------------  config.h.in  ---------------------------
-//    $Id$
-//    Version: $Name$
+// ---------------------------------------------------------------------
+// $Id$
 //
-//    Copyright (C) 2012, 2013 by the deal.II authors
+// Copyright (C) 2012 - 2013 by the deal.II authors
 //
-//    TODO: Header
+// This file is part of the deal.II library.
 //
-//    Author: Matthias Maier <matthias.maier@iwr.uni-heidelberg.de>
+// The deal.II library is free software; you can use it, redistribute
+// it, and/or modify it under the terms of the GNU Lesser General
+// Public License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+// The full text of the license can be found in the file LICENSE at
+// the top level of the deal.II distribution.
 //
-//----------------------------  config.h.in  ---------------------------
+// ---------------------------------------------------------------------
 
 #ifndef __deal2__config_h
 #define __deal2__config_h
@@ -184,12 +188,6 @@
  * Configured in check_2_compiler_bugs: *
  ****************************************/
 
-/* Defined if we have to work around a bug where the compiler doesn't accept
- * an explicit destructor call. See the aclocal.m4 file in the top-level
- * directory for a description of this bug.
- */
-#cmakedefine DEAL_II_EXPLICIT_DESTRUCTOR_BUG
-
 /* Defined if we have to work around a bug with some compilers that will not
  * allow us to specify a fully specialized class of a template as a friend.
  * See the aclocal.m4 file in the top-level directory for a description of
@@ -349,6 +347,31 @@
 #cmakedefine DEAL_II_WITH_P4EST
 #ifdef DEAL_II_WITH_P4EST
 #  define DEAL_II_USE_P4EST
+
+#  define DEAL_II_P4EST_VERSION_MAJOR @P4EST_VERSION_MAJOR@
+#  define DEAL_II_P4EST_VERSION_MINOR @P4EST_VERSION_MINOR@
+#  define DEAL_II_P4EST_VERSION_SUBMINOR @P4EST_VERSION_SUBMINOR@
+#  define DEAL_II_P4EST_VERSION_PATCH @P4EST_VERSION_PATCH@
+
+#  define DEAL_II_P4EST_VERSION_GTE(major,minor,subminor,patch) \
+ ((DEAL_II_P4EST_VERSION_MAJOR * 1000000 + \
+    DEAL_II_P4EST_VERSION_MINOR * 10000 + \
+     DEAL_II_P4EST_VERSION_SUBMINOR * 100 + \
+      DEAL_II_P4EST_VERSION_PATCH) \
+    >=  \
+    (major)*1000000 + (minor)*10000 + (subminor)*100 + (patch))
+#else
+  // p4est up to 0.3.4.1 didn't define P4EST_VERSION_*. since
+  // we didn't supports anything before 0.3.4, we assume 0.3.4
+  // This means that we can't use the new features in 0.3.4.1
+#  define DEAL_II_P4EST_VERSION_GTE(major,minor,subminor,patch) \
+  ((0 * 1000000 + \
+    3 * 10000 + \
+    4 * 100 + \
+    0) \
+    >=  \
+    (major)*1000000 + (minor)*10000 + (subminor)*100 + (patch))
+
 #endif
 
 

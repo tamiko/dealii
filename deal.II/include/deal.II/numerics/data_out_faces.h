@@ -1,14 +1,19 @@
-//---------------------------------------------------------------------------
-//    $Id$
+// ---------------------------------------------------------------------
+// $Id$
 //
-//    Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2008, 2009, 2011, 2012 by the deal.II authors
+// Copyright (C) 2000 - 2013 by the deal.II authors
 //
-//    This file is subject to QPL and may not be  distributed
-//    without copyright and license information. Please refer
-//    to the file deal.II/doc/license.html for the  text  and
-//    further information on this license.
+// This file is part of the deal.II library.
 //
-//---------------------------------------------------------------------------
+// The deal.II library is free software; you can use it, redistribute
+// it, and/or modify it under the terms of the GNU Lesser General
+// Public License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+// The full text of the license can be found in the file LICENSE at
+// the top level of the deal.II distribution.
+//
+// ---------------------------------------------------------------------
+
 #ifndef __deal2__data_out_faces_h
 #define __deal2__data_out_faces_h
 
@@ -38,19 +43,12 @@ namespace internal
     template <int dim, int spacedim>
     struct ParallelData : public internal::DataOut::ParallelDataBase<dim,spacedim>
     {
-      template <class FE>
-      ParallelData (const Quadrature<dim-1> &quadrature,
-                    const unsigned int n_components,
-                    const unsigned int n_datasets,
+      ParallelData (const unsigned int n_datasets,
                     const unsigned int n_subdivisions,
                     const std::vector<unsigned int> &n_postprocessor_outputs,
                     const Mapping<dim,spacedim> &mapping,
-                    const FE &finite_elements,
+                    const std::vector<std_cxx1x::shared_ptr<dealii::hp::FECollection<dim,spacedim> > > &finite_elements,
                     const UpdateFlags update_flags);
-
-      const dealii::hp::QCollection<dim-1> q_collection;
-      const dealii::hp::MappingCollection<dim,spacedim> mapping_collection;
-      dealii::hp::FEFaceValues<dim> x_fe_values;
 
       std::vector<Point<dim> > patch_normals;
       std::vector<Point<spacedim> > patch_evaluation_points;

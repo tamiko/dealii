@@ -1,23 +1,25 @@
-#####
+## ---------------------------------------------------------------------
+## $Id$
 ##
-## Copyright (C) 2012, 2013 by the deal.II authors
+## Copyright (C) 2012 - 2013 by the deal.II authors
 ##
 ## This file is part of the deal.II library.
 ##
-## <TODO: Full License information>
-## This file is dual licensed under QPL 1.0 and LGPL 2.1 or any later
-## version of the LGPL license.
+## The deal.II library is free software; you can use it, redistribute
+## it, and/or modify it under the terms of the GNU Lesser General
+## Public License as published by the Free Software Foundation; either
+## version 2.1 of the License, or (at your option) any later version.
+## The full text of the license can be found in the file LICENSE at
+## the top level of the deal.II distribution.
 ##
-## Author: Matthias Maier <matthias.maier@iwr.uni-heidelberg.de>
-##
-#####
+## ---------------------------------------------------------------------
 
 
-###########################################################################
-#                                                                         #
-#                       Finalize the configuration:                       #
-#                                                                         #
-###########################################################################
+########################################################################
+#                                                                      #
+#                      Finalize the configuration:                     #
+#                                                                      #
+########################################################################
 
 #
 # Hide some cmake specific cached variables. This is annoying...
@@ -58,12 +60,36 @@ FOREACH(_build ${DEAL_II_BUILD_TYPES})
   ENDIF()
 ENDFOREACH()
 
+#
+# Cleanup some files used for storing the names of all object targets that
+# will be bundled to the deal.II library.
+# (Right now, i.e. cmake 2.8.8, this is the only reliable way to get
+# information into a global scope...)
+#
+FOREACH(_build ${DEAL_II_BUILD_TYPES})
+  STRING(TOLOWER "${_build}" _build_lowercase)
+  FILE(REMOVE
+    ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/deal_ii_objects_${_build_lowercase}
+    )
+ENDFOREACH()
+FILE(WRITE
+  ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/deal_ii_source_includes
+  ""
+  )
 
-###########################################################################
-#                                                                         #
-#             And write a nice configuration summary to file:             #
-#                                                                         #
-###########################################################################
+#
+# Cleanup deal.IITargets.cmake in the build directory:
+#
+FILE(REMOVE
+  ${CMAKE_BINARY_DIR}/${DEAL_II_PROJECT_CONFIG_RELDIR}/${DEAL_II_PROJECT_CONFIG_NAME}BuildTargets.cmake
+  )
+
+
+########################################################################
+#                                                                      #
+#            And write a nice configuration summary to file:           #
+#                                                                      #
+########################################################################
 
 SET(_log_detailed "${CMAKE_BINARY_DIR}/detailed.log")
 SET(_log_summary  "${CMAKE_BINARY_DIR}/summary.log")
@@ -99,8 +125,14 @@ _both(
   )
 IF(CMAKE_CROSSCOMPILING)
   _both(
-    "#        CROSSCOMPILING!\n"
+    "#\n#        CROSSCOMPILING!\n"
     "#        DEAL_II_NATIVE:         ${DEAL_II_NATIVE}\n"
+    )
+ENDIF()
+
+IF(DEAL_II_STATIC_EXECUTABLE)
+  _both(
+    "#\n#        STATIC LINKAGE!\n"
     )
 ENDIF()
 
@@ -108,21 +140,21 @@ _both("#\n")
 
 _detailed(
 "#  Compiler flags used for this build:
-#        CMAKE_CXX_FLAGS:                     ${CMAKE_CXX_FLAGS}
+#        CMAKE_CXX_FLAGS:              ${CMAKE_CXX_FLAGS}
 "
   )
 IF(CMAKE_BUILD_TYPE MATCHES "Release")
-  _detailed("#        DEAL_II_CXX_FLAGS_RELEASE:           ${DEAL_II_CXX_FLAGS_RELEASE}\n")
+  _detailed("#        DEAL_II_CXX_FLAGS_RELEASE:    ${DEAL_II_CXX_FLAGS_RELEASE}\n")
 ENDIF()
 IF(CMAKE_BUILD_TYPE MATCHES "Debug")
-  _detailed("#        DEAL_II_CXX_FLAGS_DEBUG:             ${DEAL_II_CXX_FLAGS_DEBUG}\n")
+  _detailed("#        DEAL_II_CXX_FLAGS_DEBUG:      ${DEAL_II_CXX_FLAGS_DEBUG}\n")
 ENDIF()
-_detailed("#        CMAKE_SHARED_LINKER_FLAGS:           ${CMAKE_SHARED_LINKER_FLAGS}\n")
+_detailed("#        DEAL_II_LINKER_FLAGS:         ${DEAL_II_LINKER_FLAGS}\n")
 IF(CMAKE_BUILD_TYPE MATCHES "Release")
-  _detailed("#        DEAL_II_SHARED_LINKER_FLAGS_RELEASE: ${DEAL_II_SHARED_LINKER_FLAGS_RELEASE}\n")
+  _detailed("#        DEAL_II_LINKER_FLAGS_RELEASE: ${DEAL_II_LINKER_FLAGS_RELEASE}\n")
 ENDIF()
 IF(CMAKE_BUILD_TYPE MATCHES "Debug")
-  _detailed("#        DEAL_II_SHARED_LINKER_FLAGS_DEBUG:   ${DEAL_II_SHARED_LINKER_FLAGS_DEBUG}\n")
+  _detailed("#        DEAL_II_LINKER_FLAGS_DEBUG:   ${DEAL_II_LINKER_FLAGS_DEBUG}\n")
 ENDIF()
 _detailed("#\n")
 
@@ -151,9 +183,7 @@ FOREACH(_var ${_variables})
     LIST(APPEND _components "${_var}")
   ELSEIF(_var MATCHES "(MPI_CXX_COMPILER|MPI_CXX_COMPILE_FLAGS|MPI_CXX_LINK_FLAGS)")
     LIST(APPEND _features_config ${_var})
-  ELSEIF(_var MATCHES "(LIBRARIES|INCLUDE_PATH|INCLUDE_DIRS|LINKER_FLAGS)"
-         # Avoid a lot of Trilinos variables:
-         AND (NOT _var MATCHES "_TPL_|_MPI_") )
+  ELSEIF(_var MATCHES "(LIBRARIES|INCLUDE_PATH|INCLUDE_DIRS|LINKER_FLAGS)")
     LIST(APPEND _features_config ${_var})
   ENDIF()
 ENDFOREACH()
@@ -164,6 +194,20 @@ FOREACH(_var ${_features})
     STRING(REGEX REPLACE "^DEAL_II_WITH_" "" _feature ${_var})
     IF(FEATURE_${_feature}_EXTERNAL_CONFIGURED)
       _both("#        ${_var} set up with external dependencies\n")
+
+      #
+      # Print out version number:
+      #
+      IF(DEFINED ${_feature}_VERSION)
+        _detailed("#            ${_feature}_VERSION = ${${_feature}_VERSION}\n")
+      ENDIF()
+
+      #
+      # Print out ${_feature}_DIR:
+      #
+      IF(DEFINED ${_feature}_DIR)
+        _detailed("#            ${_feature}_DIR = ${${_feature}_DIR}\n")
+      ENDIF()
 
       #
       # Print the feature configuration:

@@ -1,16 +1,18 @@
-//---------------------------------------------------------------------------
-//    $Id$
-//    Version: $Name$
+// ---------------------------------------------------------------------
+// $Id$
 //
-//    Copyright (C) 2004, 2005, 2006, 2008, 2009, 2010, 2011, 2012 by the deal.II authors
+// Copyright (C) 2004 - 2013 by the deal.II authors
 //
-//    This file is subject to QPL and may not be  distributed
-//    without copyright and license information. Please refer
-//    to the file deal.II/doc/license.html for the  text  and
-//    further information on this license.
+// This file is part of the deal.II library.
 //
-//---------------------------------------------------------------------------
-
+// The deal.II library is free software; you can use it, redistribute
+// it, and/or modify it under the terms of the GNU Lesser General
+// Public License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+// The full text of the license can be found in the file LICENSE at
+// the top level of the deal.II distribution.
+//
+// ---------------------------------------------------------------------
 
 #include <deal.II/lac/petsc_matrix_base.h>
 
@@ -279,7 +281,7 @@ namespace PETScWrappers
 
 
 
-  MatrixBase::size_type 
+  MatrixBase::size_type
   MatrixBase::n () const
   {
     PetscInt n_rows, n_cols;
@@ -292,7 +294,7 @@ namespace PETScWrappers
 
 
 
-  MatrixBase::size_type 
+  MatrixBase::size_type
   MatrixBase::local_size () const
   {
     PetscInt n_rows, n_cols;
@@ -319,7 +321,7 @@ namespace PETScWrappers
 
 
 
-  MatrixBase::size_type 
+  MatrixBase::size_type
   MatrixBase::n_nonzero_elements () const
   {
     MatInfo mat_info;
@@ -332,7 +334,7 @@ namespace PETScWrappers
 
 
 
-  MatrixBase::size_type 
+  MatrixBase::size_type
   MatrixBase::
   row_length (const size_type row) const
   {
@@ -356,13 +358,16 @@ namespace PETScWrappers
     ierr = MatGetRow(*this, row, &ncols, &colnums, &values);
     AssertThrow (ierr == 0, MatrixBase::ExcPETScError(ierr));
 
-    // then restore the matrix and return the
-    // number of columns in this row as
-    // queried previously
+    // then restore the matrix and return the number of columns in this row as
+    // queried previously. Starting with PETSc 3.4, MatRestoreRow actually
+    // resets the last three arguments to zero/NULL, to avoid abuse of pointers
+    // now dangling. as a consequence, we need to save the size of the array
+    // and return the saved value.
+    const PetscInt ncols_saved = ncols;
     ierr = MatRestoreRow(*this, row, &ncols, &colnums, &values);
     AssertThrow (ierr == 0, MatrixBase::ExcPETScError(ierr));
 
-    return ncols;
+    return ncols_saved;
   }
 
 
@@ -467,16 +472,16 @@ namespace PETScWrappers
 
   MatrixBase &
   MatrixBase::add (const MatrixBase &other,
-		   const PetscScalar factor)
+                   const PetscScalar factor)
   {
     const int ierr = MatAXPY (matrix, factor,
-			      other, DIFFERENT_NONZERO_PATTERN);
+                              other, DIFFERENT_NONZERO_PATTERN);
 
     Assert (ierr == 0, ExcPETScError(ierr));
 
     return *this;
   }
-  
+
 
   void
   MatrixBase::vmult (VectorBase       &dst,
@@ -606,6 +611,36 @@ namespace PETScWrappers
 
     // Write to screen
     MatView (matrix, PETSC_VIEWER_STDOUT_WORLD);
+  }
+
+  void
+  MatrixBase::print (std::ostream &out,
+                     const bool    alternative_output) const
+  {
+    std::pair<MatrixBase::size_type, MatrixBase::size_type>
+    loc_range = local_range();
+
+    PetscInt ncols;
+    const PetscInt    *colnums;
+    const PetscScalar *values;
+
+    MatrixBase::size_type row;
+    for (row = loc_range.first; row < loc_range.second; ++row)
+      {
+        int ierr;
+        ierr = MatGetRow(*this, row, &ncols, &colnums, &values);
+        AssertThrow (ierr == 0, MatrixBase::ExcPETScError(ierr));
+
+        for (PetscInt col = 0; col < ncols; ++col)
+          {
+            out << "(" << row << "," << colnums[col] << ") " << values[col] << std::endl;
+          }
+
+        ierr = MatRestoreRow(*this, row, &ncols, &colnums, &values);
+        AssertThrow (ierr == 0, MatrixBase::ExcPETScError(ierr));
+      }
+
+    AssertThrow (out, ExcIO());
   }
 
 

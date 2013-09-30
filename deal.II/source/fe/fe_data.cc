@@ -1,16 +1,18 @@
-//---------------------------------------------------------------------------
-//    $Id$
-//    Version: $Name$
+// ---------------------------------------------------------------------
+// $Id$
 //
-//    Copyright (C) 2001, 2002, 2003, 2004, 2005, 2006, 2010, 2011, 2012 by the deal.II authors
+// Copyright (C) 2001 - 2013 by the deal.II authors
 //
-//    This file is subject to QPL and may not be  distributed
-//    without copyright and license information. Please refer
-//    to the file deal.II/doc/license.html for the  text  and
-//    further information on this license.
+// This file is part of the deal.II library.
 //
-//---------------------------------------------------------------------------
-
+// The deal.II library is free software; you can use it, redistribute
+// it, and/or modify it under the terms of the GNU Lesser General
+// Public License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+// The full text of the license can be found in the file LICENSE at
+// the top level of the deal.II distribution.
+//
+// ---------------------------------------------------------------------
 
 #include <deal.II/base/geometry_info.h>
 #include <deal.II/fe/fe.h>
@@ -95,54 +97,6 @@ bool FiniteElementData<dim>::operator== (const FiniteElementData<dim> &f) const
           (components == f.components) &&
           (degree == f.degree) &&
           (conforming_space == f.conforming_space));
-}
-
-template<int dim>
-unsigned int
-FiniteElementData<dim>::
-face_to_cell_index (const unsigned int face_index,
-                    const unsigned int face,
-                    const bool face_orientation,
-                    const bool face_flip,
-                    const bool face_rotation) const
-{
-  Assert (face_index < this->dofs_per_face,
-          ExcIndexRange(face_index, 0, this->dofs_per_face));
-  Assert (face < GeometryInfo<dim>::faces_per_cell,
-          ExcIndexRange(face, 0, GeometryInfo<dim>::faces_per_cell));
-
-  // DoF on a vertex
-  if (face_index < this->first_face_line_index)
-    {
-      // Vertex number on the face
-      const unsigned int face_vertex = face_index / this->dofs_per_vertex;
-      return face_index % this->dofs_per_vertex
-             + GeometryInfo<dim>::face_to_cell_vertices(face, face_vertex,
-                                                        face_orientation,
-                                                        face_flip,
-                                                        face_rotation)
-             * this->dofs_per_vertex;
-    }
-  // Else, DoF on a line?
-  if (face_index < this->first_face_quad_index)
-    {
-      // Ignore vertex dofs
-      const unsigned int index = face_index - this->first_face_line_index;
-      // Line number on the face
-      const unsigned int face_line = index / this->dofs_per_line;
-      return this->first_line_index + index % this->dofs_per_line
-             + GeometryInfo<dim>::face_to_cell_lines(face, face_line,
-                                                     face_orientation,
-                                                     face_flip,
-                                                     face_rotation)
-             * this->dofs_per_line;
-    }
-  // Else, DoF is on a quad
-
-  // Ignore vertex and line dofs
-  const unsigned int index = face_index - this->first_face_quad_index;
-  return this->first_quad_index + index
-         + face * this->dofs_per_quad;
 }
 
 

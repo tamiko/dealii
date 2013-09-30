@@ -1,14 +1,19 @@
-//---------------------------------------------------------------------------
-//    $Id$
+// ---------------------------------------------------------------------
+// $Id$
 //
-//    Copyright (C) 2008, 2009, 2012 by the deal.II authors
+// Copyright (C) 2008 - 2013 by the deal.II authors
 //
-//    This file is subject to QPL and may not be  distributed
-//    without copyright and license information. Please refer
-//    to the file deal.II/doc/license.html for the  text  and
-//    further information on this license.
+// This file is part of the deal.II library.
 //
-//---------------------------------------------------------------------------
+// The deal.II library is free software; you can use it, redistribute
+// it, and/or modify it under the terms of the GNU Lesser General
+// Public License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+// The full text of the license can be found in the file LICENSE at
+// the top level of the deal.II distribution.
+//
+// ---------------------------------------------------------------------
+
 #ifndef __deal2__trilinos_solver_h
 #define __deal2__trilinos_solver_h
 
@@ -157,6 +162,26 @@ namespace TrilinosWrappers
 
     /**
      * Solve the linear system
+     * <tt>Ax=b</tt> where <tt>A</tt>
+     * is an operator. This function
+     * can be used for matrix free
+     * computation. Depending on
+     * the information provided by
+     * derived classes and the
+     * object passed as a
+     * preconditioner, one of the
+     * linear solvers and
+     * preconditioners of Trilinos
+     * is chosen.
+     */
+    void
+    solve (Epetra_Operator        &A,
+           VectorBase             &x,
+           const VectorBase       &b,
+           const PreconditionBase &preconditioner);
+
+    /**
+     * Solve the linear system
      * <tt>Ax=b</tt>. Depending on the
      * information provided by derived
      * classes and the object passed as a
@@ -175,6 +200,32 @@ namespace TrilinosWrappers
      */
     void
     solve (const SparseMatrix           &A,
+           dealii::Vector<double>       &x,
+           const dealii::Vector<double> &b,
+           const PreconditionBase       &preconditioner);
+
+    /**
+     * Solve the linear system
+     * <tt>Ax=b</tt> where <tt>A</tt>
+     * is an operator. This function can
+     * be used for matric free. Depending on the
+     * information provided by derived
+     * classes and the object passed as a
+     * preconditioner, one of the linear
+     * solvers and preconditioners of
+     * Trilinos is chosen. This class
+     * works with matrices according to
+     * the TrilinosWrappers format, but
+     * can take deal.II vectors as
+     * argument. Since deal.II are serial
+     * vectors (not distributed), this
+     * function does only what you expect
+     * in case the matrix is locally
+     * owned. Otherwise, an exception
+     * will be thrown.
+     */
+    void
+    solve (Epetra_Operator              &A,
            dealii::Vector<double>       &x,
            const dealii::Vector<double> &b,
            const PreconditionBase       &preconditioner);
@@ -210,6 +261,12 @@ namespace TrilinosWrappers
     SolverControl &solver_control;
 
   private:
+
+    /**
+     * The solve function is used to set properly the Epetra_LinearProblem,
+     * once it is done this function solves the linear problem.
+     */
+    void execute_solve(const PreconditionBase &preconditioner);
 
     /**
      * A structure that collects

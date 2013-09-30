@@ -1,14 +1,19 @@
-//---------------------------------------------------------------------------
-//    $Id$
+// ---------------------------------------------------------------------
+// $Id$
 //
-//    Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2009, 2010, 2011, 2012 by the deal.II authors
+// Copyright (C) 2000 - 2013 by the deal.II authors
 //
-//    This file is subject to QPL and may not be  distributed
-//    without copyright and license information. Please refer
-//    to the file deal.II/doc/license.html for the  text  and
-//    further information on this license.
+// This file is part of the deal.II library.
 //
-//---------------------------------------------------------------------------
+// The deal.II library is free software; you can use it, redistribute
+// it, and/or modify it under the terms of the GNU Lesser General
+// Public License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+// The full text of the license can be found in the file LICENSE at
+// the top level of the deal.II distribution.
+//
+// ---------------------------------------------------------------------
+
 #ifndef __deal2__mapping_h
 #define __deal2__mapping_h
 
@@ -47,6 +52,8 @@ template <int dim, int spacedim> class FESubfaceValues;
  * the transform() functions of
  * inheriting classes in order to
  * work.
+ *
+ * @ingroup mapping
  */
 enum MappingType
 {
@@ -529,10 +536,10 @@ public:
      </ul>
 
      @note It would have been more reasonable to make this transform a template function
-     with the rank in DerivativeForm<1, dim, rank>. Unfortunately C++ does not
-     allow templatized virtual functions. This is why we identified
-     DerivativeForm<1, dim, 1> with a Tensor<1,dim> when using  mapping_covariant
-     in the function transform above this one.
+     with the rank in <code>DerivativeForm@<1, dim, rank@></code>. Unfortunately C++ does not
+     allow templatized virtual functions. This is why we identify
+     <code>DerivativeForm@<1, dim, 1@></code> with a <code>Tensor@<1,dim@></code>
+     when using  mapping_covariant() in the function transform above this one.
   */
 
   virtual
@@ -580,12 +587,11 @@ public:
      @f]
      </ul>
 
-     @todo The formulas for @p mapping_covariant_gradient,
-     @p mapping_contravariant_gradient and @p mapping_piola_gradient
-     are only true as stated for linear mappings,
-     if the mapping is bilinear for example then there is a missing
+     @todo The formulas for mapping_covariant_gradient(),
+     mapping_contravariant_gradient() and mapping_piola_gradient()
+     are only true as stated for linear mappings.
+     If, for example, the mapping is bilinear then there is a missing
      term associated with the derivative of of J.
-
   */
   virtual
   void
@@ -593,14 +599,6 @@ public:
              VectorSlice<std::vector<Tensor<2,spacedim> > >             output,
              const InternalDataBase &internal,
              const MappingType type) const = 0;
-
-
-
-
-
-
-
-
 
   /**
    * @deprecated Use transform() instead.

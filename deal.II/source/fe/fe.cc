@@ -1,16 +1,18 @@
-//---------------------------------------------------------------------------
-//    $Id$
-//    Version: $Name$
+// ---------------------------------------------------------------------
+// $Id$
 //
-//    Copyright (C) 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012 by the deal.II authors
+// Copyright (C) 1998 - 2013 by the deal.II authors
 //
-//    This file is subject to QPL and may not be  distributed
-//    without copyright and license information. Please refer
-//    to the file deal.II/doc/license.html for the  text  and
-//    further information on this license.
+// This file is part of the deal.II library.
 //
-//---------------------------------------------------------------------------
-
+// The deal.II library is free software; you can use it, redistribute
+// it, and/or modify it under the terms of the GNU Lesser General
+// Public License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+// The full text of the license can be found in the file LICENSE at
+// the top level of the deal.II distribution.
+//
+// ---------------------------------------------------------------------
 
 #include <deal.II/base/memory_consumption.h>
 #include <deal.II/fe/mapping.h>
@@ -188,16 +190,16 @@ FiniteElement<dim,spacedim>::FiniteElement (
       system_to_component_table.resize(this->dofs_per_cell);
       face_system_to_component_table.resize(this->dofs_per_face);
       for (unsigned int j=0 ; j<this->dofs_per_cell ; ++j)
-        {
-          system_to_component_table[j] = std::pair<unsigned,unsigned>(0,j);
-          system_to_base_table[j] = std::make_pair(std::make_pair(0U,0U),j);
-        }
+	system_to_component_table[j] = std::pair<unsigned,unsigned>(0,j);
       for (unsigned int j=0 ; j<this->dofs_per_face ; ++j)
-        {
-          face_system_to_component_table[j] = std::pair<unsigned,unsigned>(0,j);
-          face_system_to_base_table[j] = std::make_pair(std::make_pair(0U,0U),j);
-        }
+	face_system_to_component_table[j] = std::pair<unsigned,unsigned>(0,j);
     }
+  
+  for (unsigned int j=0 ; j<this->dofs_per_cell ; ++j)
+    system_to_base_table[j] = std::make_pair(std::make_pair(0U,0U),j);
+  for (unsigned int j=0 ; j<this->dofs_per_face ; ++j)
+    face_system_to_base_table[j] = std::make_pair(std::make_pair(0U,0U),j);
+  
   // Fill with default value; may be changed by constructor of derived class.
   base_to_block_indices.reinit(1,1);
 
@@ -539,6 +541,96 @@ block_mask (const ComponentMask &component_mask) const
 
   return block_mask;
 }
+
+
+
+template <int dim, int spacedim>
+unsigned int
+FiniteElement<dim,spacedim>::
+face_to_cell_index (const unsigned int face_index,
+                    const unsigned int face,
+                    const bool face_orientation,
+                    const bool face_flip,
+                    const bool face_rotation) const
+{
+  Assert (face_index < this->dofs_per_face,
+          ExcIndexRange(face_index, 0, this->dofs_per_face));
+  Assert (face < GeometryInfo<dim>::faces_per_cell,
+          ExcIndexRange(face, 0, GeometryInfo<dim>::faces_per_cell));
+
+//TODO: we could presumably solve the 3d case below using the
+// adjust_quad_dof_index_for_face_orientation_table field. for the
+// 2d case, we can't use adjust_line_dof_index_for_line_orientation_table
+// since that array is empty (presumably because we thought that
+// there are no flipped edges in 2d, but these can happen in
+// DoFTools::make_periodicity_constraints, for example). so we
+// would need to either fill this field, or rely on derived classes
+// implementing this function, as we currently do
+
+  // see the function's documentation for an explanation of this
+  // assertion -- in essence, derived classes have to implement
+  // an overloaded version of this function if we are to use any
+  // other than standard orientation
+  if ((face_orientation != true) || (face_flip != false) || (face_rotation != false))
+    Assert ((this->dofs_per_line <= 1) && (this->dofs_per_quad <= 1),
+            ExcMessage ("The function in this base class can not handle this case. "
+                        "Rather, the derived class you are using must provide "
+                        "an overloaded version but apparently hasn't done so. See "
+                        "the documentation of this function for more information."));
+
+  // we need to distinguish between DoFs on vertices, lines and in 3d quads.
+  // do so in a sequence of if-else statements
+  if (face_index < this->first_face_line_index)
+    // DoF is on a vertex
+    {
+      // get the number of the vertex on the face that corresponds to this DoF,
+      // along with the number of the DoF on this vertex
+      const unsigned int face_vertex         = face_index / this->dofs_per_vertex;
+      const unsigned int dof_index_on_vertex = face_index % this->dofs_per_vertex;
+
+      // then get the number of this vertex on the cell and translate
+      // this to a DoF number on the cell
+      return (GeometryInfo<dim>::face_to_cell_vertices(face, face_vertex,
+                                                       face_orientation,
+                                                       face_flip,
+                                                       face_rotation)
+              * this->dofs_per_vertex
+              +
+              dof_index_on_vertex);
+    }
+  else if (face_index < this->first_face_quad_index)
+    // DoF is on a face
+    {
+      // do the same kind of translation as before. we need to only consider
+      // DoFs on the lines, i.e., ignoring those on the vertices
+      const unsigned int index = face_index - this->first_face_line_index;
+
+      const unsigned int face_line         = index / this->dofs_per_line;
+      const unsigned int dof_index_on_line = index % this->dofs_per_line;
+
+      return (this->first_line_index
+              + GeometryInfo<dim>::face_to_cell_lines(face, face_line,
+                                                      face_orientation,
+                                                      face_flip,
+                                                      face_rotation)
+              * this->dofs_per_line
+              +
+              dof_index_on_line);
+    }
+  else
+    // DoF is on a quad
+    {
+      Assert (dim >= 3, ExcInternalError());
+
+      // ignore vertex and line dofs
+      const unsigned int index = face_index - this->first_face_quad_index;
+
+      return (this->first_quad_index
+              + face * this->dofs_per_quad
+              + index);
+    }
+}
+
 
 
 

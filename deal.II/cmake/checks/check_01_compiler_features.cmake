@@ -1,20 +1,24 @@
-#####
+## ---------------------------------------------------------------------
+## $Id$
 ##
-## Copyright (C) 2012, 2013 by the deal.II authors
+## Copyright (C) 2012 - 2013 by the deal.II authors
 ##
 ## This file is part of the deal.II library.
 ##
-## <TODO: Full License information>
-## This file is dual licensed under QPL 1.0 and LGPL 2.1 or any later
-## version of the LGPL license.
+## The deal.II library is free software; you can use it, redistribute
+## it, and/or modify it under the terms of the GNU Lesser General
+## Public License as published by the Free Software Foundation; either
+## version 2.1 of the License, or (at your option) any later version.
+## The full text of the license can be found in the file LICENSE at
+## the top level of the deal.II distribution.
 ##
-#####
+## ---------------------------------------------------------------------
 
-###########################################################################
-#                                                                         #
-#                  Check for various compiler features:                   #
-#                                                                         #
-###########################################################################
+########################################################################
+#                                                                      #
+#                 Check for various compiler features:                 #
+#                                                                      #
+########################################################################
 
 #
 # This file sets up:
@@ -148,8 +152,8 @@ CHECK_CXX_SOURCE_COMPILES(
   "
   HAVE_GLIBC_STACKTRACE)
 
-IF(HAVE_GLIBC_STACKTRACE)
-  ENABLE_IF_SUPPORTED(CMAKE_SHARED_LINKER_FLAGS "-rdynamic")
+IF(HAVE_GLIBC_STACKTRACE AND NOT DEAL_II_STATIC_EXECUTABLE)
+  ENABLE_IF_SUPPORTED(DEAL_II_LINKER_FLAGS "-rdynamic")
 ENDIF()
 
 

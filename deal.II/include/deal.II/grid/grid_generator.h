@@ -1,14 +1,19 @@
-//---------------------------------------------------------------------------
-//    $Id$
+// ---------------------------------------------------------------------
+// $Id$
 //
-//    Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013 by the deal.II authors
+// Copyright (C) 1999 - 2013 by the deal.II authors
 //
-//    This file is subject to QPL and may not be  distributed
-//    without copyright and license information. Please refer
-//    to the file deal.II/doc/license.html for the  text  and
-//    further information on this license.
+// This file is part of the deal.II library.
 //
-//---------------------------------------------------------------------------
+// The deal.II library is free software; you can use it, redistribute
+// it, and/or modify it under the terms of the GNU Lesser General
+// Public License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+// The full text of the license can be found in the file LICENSE at
+// the top level of the deal.II distribution.
+//
+// ---------------------------------------------------------------------
+
 #ifndef __deal2__grid_generator_h
 #define __deal2__grid_generator_h
 
@@ -28,34 +33,25 @@ template <typename number> class SparseMatrix;
 
 
 /**
- * This class provides a collection of functions for generating basic
- * triangulations. Below, we try to provide some pictures in order to
- * illustrate at least the more complex ones.
+ * This namespace provides a collection of functions for generating
+ * triangulations for some basic geometries.
  *
  * Some of these functions receive a flag @p colorize. If this is
- * set, parts of the boundary receive different boundary numbers,
- * allowing them to be distinguished by application programs. See the
- * documentation of the functions for details.
+ * set, parts of the boundary receive different boundary indicators
+ * (@ref GlossBoundaryIndicator),
+ * allowing them to be distinguished for the purpose of attaching geometry
+ * objects and evaluating different boundary conditions.
  *
- * Additionally this class provides a function
- * (@p laplace_transformation) that smoothly transforms a grid
- * according to given new boundary points. This can be used to
- * transform (simple-shaped) grids to a more complicated ones, like a
- * shell onto a grid of an airfoil, for example.
- *
- * No meshes for the codimension one case are provided at the moment.
- *
+ * This namespace also provides a function
+ * GridGenerator::laplace_transformation that smoothly transforms a domain
+ * into another one. This can be used to
+ * transform basic geometries to more complicated ones, like a
+ * shell to a grid of an airfoil, for example.
  *
  * @ingroup grid
  */
-class GridGenerator
+namespace GridGenerator
 {
-public:
-  /**
-   * Declare type for number of cell.
-   */
-  typedef types::global_dof_index size_type;
-
   /**
    * Initialize the given triangulation with a hypercube (line in 1D, square
    * in 2D, etc) consisting of exactly one cell. The hypercube volume is the
@@ -74,9 +70,9 @@ public:
    * @note The triangulation needs to be void upon calling this function.
    */
   template <int dim, int spacedim>
-  static void hyper_cube (Triangulation<dim,spacedim>  &tria,
-                          const double        left = 0.,
-                          const double        right= 1.);
+  void hyper_cube (Triangulation<dim,spacedim>  &tria,
+                   const double                  left = 0.,
+                   const double                  right= 1.);
 
   /**
    * Same as hyper_cube(), but with the difference that not only one cell is
@@ -92,10 +88,10 @@ public:
    * @note The triangulation needs to be void upon calling this function.
    */
   template <int dim>
-  static void subdivided_hyper_cube (Triangulation<dim>  &tria,
-                                     const unsigned int  repetitions,
-                                     const double        left = 0.,
-                                     const double        right= 1.);
+  void subdivided_hyper_cube (Triangulation<dim>  &tria,
+                              const unsigned int   repetitions,
+                              const double         left = 0.,
+                              const double         right= 1.);
 
   /**
    * Create a coordinate-parallel brick from the two diagonally opposite
@@ -113,10 +109,10 @@ public:
    * @note The triangulation needs to be void upon calling this function.
    */
   template <int dim, int spacedim>
-  static void hyper_rectangle (Triangulation<dim,spacedim> &tria,
-                               const Point<spacedim>       &p1,
-                               const Point<spacedim>       &p2,
-                               const bool                  colorize = false);
+  void hyper_rectangle (Triangulation<dim,spacedim> &tria,
+                        const Point<spacedim>       &p1,
+                        const Point<spacedim>       &p2,
+                        const bool                   colorize = false);
 
   /**
    * Create a coordinate-parallel parallelepiped from the two diagonally
@@ -150,13 +146,12 @@ public:
    * program.
    */
   template <int dim>
-  static
   void
   subdivided_hyper_rectangle (Triangulation<dim>              &tria,
                               const std::vector<unsigned int> &repetitions,
                               const Point<dim>                &p1,
                               const Point<dim>                &p2,
-                              const bool                      colorize=false);
+                              const bool                       colorize=false);
 
   /**
    * Like the previous function. However, here the second argument does not
@@ -174,13 +169,12 @@ public:
    * specified by the points @p p1 and @p p2.
    */
   template <int dim>
-  static
   void
-  subdivided_hyper_rectangle(Triangulation<dim>                      &tria,
-                             const std::vector<std::vector<double> > &step_sizes,
-                             const Point<dim>                        &p_1,
-                             const Point<dim>                        &p_2,
-                             const bool                              colorize);
+  subdivided_hyper_rectangle (Triangulation<dim>                      &tria,
+                              const std::vector<std::vector<double> > &step_sizes,
+                              const Point<dim>                        &p_1,
+                              const Point<dim>                        &p_2,
+                              const bool                               colorize);
 
   /**
    * Like the previous function, but with the following twist: the @p
@@ -191,13 +185,12 @@ public:
    * i.e. the domain will have a void there.
    */
   template <int dim>
-  static
   void
   subdivided_hyper_rectangle (Triangulation<dim>                       &tria,
                               const std::vector< std::vector<double> > &spacing,
                               const Point<dim>                         &p,
-                              const Table<dim,types::material_id>           &material_id,
-                              const bool                               colorize=false);
+                              const Table<dim,types::material_id>      &material_id,
+                              const bool                                colorize=false);
 
   /**
    * A parallelogram. The first corner point is the origin. The <tt>dim</tt>
@@ -210,21 +203,19 @@ public:
    * @note The triangulation needs to be void upon calling this function.
    */
   template <int dim>
-  static
   void
-  parallelogram(Triangulation<dim> &tria,
-                const Point<dim> (&corners)[dim],
-                const bool           colorize=false);
+  parallelogram (Triangulation<dim> &tria,
+                 const Point<dim>  (&corners) [dim],
+                 const bool          colorize=false);
 
   /**
    * @deprecated Use the other function of same name.
    */
   template <int dim>
-  static
   void
-  parallelogram(Triangulation<dim> &tria,
-                const Tensor<2,dim> &corners,
-                const bool           colorize=false) DEAL_II_DEPRECATED;
+  parallelogram (Triangulation<dim>  &tria,
+                 const Tensor<2,dim> &corners,
+                 const bool           colorize=false) DEAL_II_DEPRECATED;
 
   /**
    * A parallelepiped. The first corner point is the origin. The
@@ -244,11 +235,10 @@ public:
    * function.
    */
   template <int dim>
-  static
   void
-  parallelepiped (Triangulation<dim>  &tria,
-                  const Point<dim>   (&corners) [dim],
-                  const bool           colorize = false);
+  parallelepiped (Triangulation<dim> &tria,
+                  const Point<dim>  (&corners) [dim],
+                  const bool          colorize = false);
 
   /**
    * A subdivided parallelepiped. The first corner point is the
@@ -263,10 +253,9 @@ public:
    * function.
    */
   template <int dim>
-  static
   void
   subdivided_parallelepiped (Triangulation<dim>  &tria,
-                             const size_type     n_subdivisions,
+                             const unsigned int   n_subdivisions,
                              const Point<dim>   (&corners) [dim],
                              const bool           colorize = false);
 
@@ -279,10 +268,9 @@ public:
    * function.
    */
   template <int dim>
-  static
   void
   subdivided_parallelepiped (Triangulation<dim>  &tria,
-                             const size_type    ( n_subdivisions) [dim],
+                             const unsigned int  (n_subdivisions) [dim],
                              const Point<dim>   (&corners) [dim],
                              const bool           colorize = false);
 
@@ -302,11 +290,11 @@ public:
    * @note The triangulation needs to be void upon calling this function.
    */
   template <int dim>
-  static void enclosed_hyper_cube (Triangulation<dim> &tria,
-                                   const double      left = 0.,
-                                   const double      right= 1.,
-                                   const double      thickness = 1.,
-                                   const bool        colorize = false);
+  void enclosed_hyper_cube (Triangulation<dim> &tria,
+                            const double        left = 0.,
+                            const double        right= 1.,
+                            const double        thickness = 1.,
+                            const bool          colorize = false);
 
   /**
    * Initialize the given triangulation with a hyperball, i.e. a circle or a
@@ -323,9 +311,9 @@ public:
    * @note The triangulation needs to be void upon calling this function.
    */
   template <int dim>
-  static void hyper_ball (Triangulation<dim> &tria,
-                          const Point<dim>   &center = Point<dim>(),
-                          const double      radius = 1.);
+  void hyper_ball (Triangulation<dim> &tria,
+                   const Point<dim>   &center = Point<dim>(),
+                   const double        radius = 1.);
 
   /**
    * This class produces a half hyper-ball around <tt>center</tt>, which
@@ -341,9 +329,9 @@ public:
    * @note The triangulation needs to be void upon calling this function.
    */
   template <int dim>
-  static void half_hyper_ball (Triangulation<dim> &tria,
-                               const Point<dim>   &center = Point<dim>(),
-                               const double      radius = 1.);
+  void half_hyper_ball (Triangulation<dim> &tria,
+                        const Point<dim>   &center = Point<dim>(),
+                        const double        radius = 1.);
 
   /**
    * Create a cylinder around the x-axis.  The cylinder extends from
@@ -361,9 +349,9 @@ public:
    * @note The triangulation needs to be void upon calling this function.
    */
   template <int dim>
-  static void cylinder (Triangulation<dim> &tria,
-                        const double      radius = 1.,
-                        const double      half_length = 1.);
+  void cylinder (Triangulation<dim> &tria,
+                 const double        radius = 1.,
+                 const double        half_length = 1.);
 
   /**
    * Create a cutted cone around the x-axis.  The cone extends from
@@ -390,11 +378,11 @@ public:
    * @author Markus B&uuml;rg, 2009
    */
   template <int dim>
-  static void
+  void
   truncated_cone (Triangulation<dim> &tria,
-                  const double radius_0 = 1.0,
-                  const double radius_1 = 0.5,
-                  const double half_length = 1.0);
+                  const double        radius_0 = 1.0,
+                  const double        radius_1 = 0.5,
+                  const double        half_length = 1.0);
 
   /**
    * Initialize the given triangulation with a hyper-L consisting of exactly
@@ -412,9 +400,9 @@ public:
    * @note The triangulation needs to be void upon calling this function.
    */
   template <int dim>
-  static void hyper_L (Triangulation<dim> &tria,
-                       const double      left = -1.,
-                       const double      right= 1.);
+  void hyper_L (Triangulation<dim> &tria,
+                const double        left = -1.,
+                const double        right= 1.);
 
   /**
    * Initialize the given Triangulation with a hypercube with a slit. In each
@@ -432,10 +420,10 @@ public:
    * @note The triangulation needs to be void upon calling this function.
    */
   template <int dim>
-  static void hyper_cube_slit (Triangulation<dim> &tria,
-                               const double      left = 0.,
-                               const double      right= 1.,
-                               const bool colorize = false);
+  void hyper_cube_slit (Triangulation<dim> &tria,
+                        const double        left = 0.,
+                        const double        right = 1.,
+                        const bool          colorize = false);
 
   /**
    * Produce a hyper-shell, the region between two spheres around
@@ -486,12 +474,12 @@ public:
    * @note The triangulation needs to be void upon calling this function.
    */
   template <int dim>
-  static void hyper_shell (Triangulation<dim>   &tria,
-                           const Point<dim>     &center,
-                           const double        inner_radius,
-                           const double        outer_radius,
-                           const size_type     n_cells = 0,
-                           bool colorize = false);
+  void hyper_shell (Triangulation<dim> &tria,
+                    const Point<dim>   &center,
+                    const double        inner_radius,
+                    const double        outer_radius,
+                    const unsigned int  n_cells = 0,
+                    bool                colorize = false);
 
   /**
    * Produce a half hyper-shell, i.e. the space between two circles in two
@@ -515,12 +503,12 @@ public:
    * @note The triangulation needs to be void upon calling this function.
    */
   template <int dim>
-  static void half_hyper_shell (Triangulation<dim>   &tria,
-                                const Point<dim>     &center,
-                                const double        inner_radius,
-                                const double        outer_radius,
-                                const size_type     n_cells = 0,
-                                const bool colorize = false);
+  void half_hyper_shell (Triangulation<dim> &tria,
+                         const Point<dim>   &center,
+                         const double        inner_radius,
+                         const double        outer_radius,
+                         const unsigned int  n_cells = 0,
+                         const bool          colorize = false);
 
 
   /**
@@ -544,12 +532,12 @@ public:
    * @note The triangulation needs to be void upon calling this function.
    */
   template <int dim>
-  static void quarter_hyper_shell (Triangulation<dim>   &tria,
-                                   const Point<dim>     &center,
-                                   const double        inner_radius,
-                                   const double        outer_radius,
-                                   const size_type     n_cells = 0,
-                                   const bool colorize = false);
+  void quarter_hyper_shell (Triangulation<dim> &tria,
+                            const Point<dim>   &center,
+                            const double        inner_radius,
+                            const double        outer_radius,
+                            const unsigned int  n_cells = 0,
+                            const bool          colorize = false);
 
   /**
    * Produce a domain that is the space between two cylinders in 3d, with
@@ -564,12 +552,12 @@ public:
    * @note The triangulation needs to be void upon calling this function.
    */
   template <int dim>
-  static void cylinder_shell (Triangulation<dim>   &tria,
-                              const double        length,
-                              const double        inner_radius,
-                              const double        outer_radius,
-                              const size_type     n_radial_cells = 0,
-                              const size_type     n_axial_cells = 0);
+  void cylinder_shell (Triangulation<dim> &tria,
+                       const double        length,
+                       const double        inner_radius,
+                       const double        outer_radius,
+                       const unsigned int  n_radial_cells = 0,
+                       const unsigned int  n_axial_cells = 0);
 
 
 
@@ -587,9 +575,9 @@ public:
    * torus.
    */
 
-  static void torus (Triangulation<2,3>  &tria,
-                     const double         R,
-                     const double         r);
+  void torus (Triangulation<2,3> &tria,
+              const double        R,
+              const double        r);
 
 
   /**
@@ -607,7 +595,7 @@ public:
    * @arg @p L: extension in @p z-direction (only used in 3d)
    * @arg @p repetitions: number of subdivisions
    *      along the @p z-direction
-   * @arg @p colorize: wether to assign different
+   * @arg @p colorize: whether to assign different
    *     boundary indicators to different faces.
    *    The colors are given in lexicographic
    *    ordering for the flat faces (0 to 3 in 2d,
@@ -617,12 +605,13 @@ public:
    *    get the number 0 and the hole gets number 1.
    */
   template<int dim>
-  static void hyper_cube_with_cylindrical_hole (Triangulation<dim> &triangulation,
-                                                const double inner_radius = .25,
-                                                const double outer_radius = .5,
-                                                const double L = .5,
-                                                const size_type repetition = 1,
-                                                const bool colorize = false);
+  void hyper_cube_with_cylindrical_hole (
+      Triangulation<dim> &triangulation,
+      const double        inner_radius = .25,
+      const double        outer_radius = .5,
+      const double        L = .5,
+      const unsigned int  repetition = 1,
+      const bool          colorize = false);
 
   /**
    * Produce a ring of cells in 3D that is cut open, twisted and glued
@@ -634,11 +623,11 @@ public:
    * @param R           The radius of the circle, which forms the middle line of the torus containing the loop of cells. Must be greater than @p r.
    * @param r           The radius of the cylinder bend together as loop.
    */
-  static void moebius (Triangulation<3,3>  &tria,
-                       const size_type      n_cells,
-                       const unsigned int   n_rotations,
-                       const double         R,
-                       const double         r);
+  void moebius (Triangulation<3,3> &tria,
+                const unsigned int  n_cells,
+                const unsigned int  n_rotations,
+                const double        R,
+                const double        r);
 
   /**
    * Given the two triangulations specified as the first two arguments, create
@@ -671,7 +660,6 @@ public:
    * GridTools::create_union_triangulation .
    */
   template <int dim, int spacedim>
-  static
   void
   merge_triangulations (const Triangulation<dim, spacedim> &triangulation_1,
                         const Triangulation<dim, spacedim> &triangulation_2,
@@ -685,12 +673,11 @@ public:
    * to the corresponding side walls in z direction. The bottom and top
    * get the next two free boundary indicators.
    */
-  static
   void
-  extrude_triangulation(const Triangulation<2, 2> & input,
-                        const size_type n_slices,
-                        const double height,
-                        Triangulation<3,3> &result);
+  extrude_triangulation (const Triangulation<2, 2> &input,
+                         const unsigned int         n_slices,
+                         const double               height,
+                         Triangulation<3,3>        &result);
 
   /**
    * This function transformes the @p Triangulation @p tria smoothly to a
@@ -707,9 +694,8 @@ public:
    * @deprecated This function has been moved to GridTools::laplace_transform
    */
   template <int dim>
-  static
   void laplace_transformation (Triangulation<dim> &tria,
-                               const std::map<size_type,Point<dim> > &new_points) DEAL_II_DEPRECATED;
+                               const std::map<unsigned int,Point<dim> > &new_points) DEAL_II_DEPRECATED;
 
   /**
    * Exception
@@ -729,67 +715,7 @@ public:
                   int,
                   << "The vector of repetitions  must have "
                   << arg1 <<" elements.");
-
-private:
-  /**
-   * Perform the action specified by the @p colorize flag of the
-   * hyper_rectangle() function of this class.
-   */
-  template <int dim, int spacedim>
-  static
-  void
-  colorize_hyper_rectangle (Triangulation<dim,spacedim> &tria);
-
-  /**
-   * Perform the action specified by the @p colorize flag of the
-   * subdivided_hyper_rectangle() function of this class. This function is
-   * singled out because it is dimension specific.
-   */
-  template <int dim>
-  static
-  void
-  colorize_subdivided_hyper_rectangle (Triangulation<dim> &tria,
-                                       const Point<dim>   &p1,
-                                       const Point<dim>   &p2,
-                                       const double        epsilon);
-
-  /**
-   * Assign boundary number zero to the inner shell boundary and 1 to the
-   * outer.
-   */
-  template<int dim>
-  static
-  void
-  colorize_hyper_shell (Triangulation<dim> &tria,
-                        const Point<dim> &center,
-                        const double inner_radius,
-                        const double outer_radius);
-
-
-  /**
-   * Assign boundary number zero the inner shell boundary, one to the outer
-   * shell boundary, two to the face with x=0, three to the face with y=0,
-   * four to the face with z=0.
-   */
-  template<int dim>
-  static
-  void
-  colorize_quarter_hyper_shell(Triangulation<dim> &tria,
-                               const Point<dim> &center,
-                               const double inner_radius,
-                               const double outer_radius);
-
-  /**
-   * Solve the Laplace equation for @p laplace_transformation function for one
-   * of the @p dim space dimensions. Externalized into a function of its own
-   * in order to allow parallel execution.
-   */
-  static
-  void
-  laplace_solve (const SparseMatrix<double>          &S,
-                 const std::map<size_type,double> &m,
-                 Vector<double>                      &u);
-};
+}
 
 
 

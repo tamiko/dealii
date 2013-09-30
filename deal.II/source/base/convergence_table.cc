@@ -1,16 +1,18 @@
-//---------------------------------------------------------------------------
-//    $Id$
-//    Version: $Name$
+// ---------------------------------------------------------------------
+// $Id$
 //
-//    Copyright (C) 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2011, 2012, 2013 by the deal.II authors
+// Copyright (C) 1999 - 2013 by the deal.II authors
 //
-//    This file is subject to QPL and may not be  distributed
-//    without copyright and license information. Please refer
-//    to the file deal.II/doc/license.html for the  text  and
-//    further information on this license.
+// This file is part of the deal.II library.
 //
-//---------------------------------------------------------------------------
-
+// The deal.II library is free software; you can use it, redistribute
+// it, and/or modify it under the terms of the GNU Lesser General
+// Public License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+// The full text of the license can be found in the file LICENSE at
+// the top level of the deal.II distribution.
+//
+// ---------------------------------------------------------------------
 
 #include <deal.II/base/convergence_table.h>
 #include <cmath>
@@ -67,7 +69,7 @@ void ConvergenceTable::evaluate_convergence_rates(const std::string &data_column
       // Calculate all missing rate values:
       for (unsigned int i = no_rate_entries; i<n; ++i)
         {
-          if(i == 0)
+          if (i == 0)
             {
               // no value available for the first row
               add_value(rate_key, std::string("-"));
@@ -85,7 +87,7 @@ void ConvergenceTable::evaluate_convergence_rates(const std::string &data_column
       // Calculate all missing rate values:
       for (unsigned int i = no_rate_entries; i<n; ++i)
         {
-          if(i == 0)
+          if (i == 0)
             {
               // no value available for the first row
               add_value(rate_key, std::string("-"));
@@ -113,7 +115,7 @@ void ConvergenceTable::evaluate_convergence_rates(const std::string &data_column
     }
 
   // only add rate_key to the supercolumn once
-  if(no_rate_entries == 0)
+  if (no_rate_entries == 0)
     {
       add_column_to_supercolumn(rate_key, superkey);
     }
@@ -154,7 +156,7 @@ ConvergenceTable::evaluate_convergence_rates(const std::string &data_column_key,
       // Calculate all missing rate values:
       for (unsigned int i = no_rate_entries; i<n; ++i)
         {
-          if(i == 0)
+          if (i == 0)
             {
               // no value available for the first row
               add_value(rate_key, std::string("-"));
@@ -172,7 +174,7 @@ ConvergenceTable::evaluate_convergence_rates(const std::string &data_column_key,
       // Calculate all missing rate values:
       for (unsigned int i = no_rate_entries; i<n; ++i)
         {
-          if(i == 0)
+          if (i == 0)
             {
               // no value available for the first row
               add_value(rate_key, std::string("-"));
@@ -203,7 +205,7 @@ ConvergenceTable::evaluate_convergence_rates(const std::string &data_column_key,
     }
 
   // only add rate_key to the supercolumn once
-  if(no_rate_entries == 0)
+  if (no_rate_entries == 0)
     {
       add_column_to_supercolumn(rate_key, superkey);
     }

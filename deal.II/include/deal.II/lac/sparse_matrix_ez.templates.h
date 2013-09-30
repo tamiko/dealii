@@ -1,14 +1,19 @@
-//---------------------------------------------------------------------------
-//    $Id$
+// ---------------------------------------------------------------------
+// $Id$
 //
-//    Copyright (C) 2002, 2003, 2004, 2005, 2006, 2007, 2010, 2011, 2012 by the deal.II authors
+// Copyright (C) 2002 - 2013 by the deal.II authors
 //
-//    This file is subject to QPL and may not be  distributed
-//    without copyright and license information. Please refer
-//    to the file deal.II/doc/license.html for the  text  and
-//    further information on this license.
+// This file is part of the deal.II library.
 //
-//---------------------------------------------------------------------------
+// The deal.II library is free software; you can use it, redistribute
+// it, and/or modify it under the terms of the GNU Lesser General
+// Public License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+// The full text of the license can be found in the file LICENSE at
+// the top level of the deal.II distribution.
+//
+// ---------------------------------------------------------------------
+
 #ifndef __deal2__sparse_matrix_ez_templates_h
 #define __deal2__sparse_matrix_ez_templates_h
 
@@ -254,7 +259,7 @@ SparseMatrixEZ<number>::precondition_Jacobi (Vector<somenumber>       &dst,
   for (; ri != end; ++dst_ptr, ++src_ptr, ++ri)
     {
       Assert (ri->diagonal != RowInfo::invalid_diagonal, ExcNoDiagonal());
-      *dst_ptr = om * *src_ptr / data[ri->start + ri->diagonal].value;
+      *dst_ptr = om **src_ptr / data[ri->start + ri->diagonal].value;
     }
 }
 
@@ -388,7 +393,7 @@ SparseMatrixEZ<number>::memory_consumption() const
 
 
 template <typename number>
-typename SparseMatrixEZ<number>::size_type 
+typename SparseMatrixEZ<number>::size_type
 SparseMatrixEZ<number>::get_row_length (const size_type row) const
 {
   return row_info[row].length;
@@ -397,7 +402,7 @@ SparseMatrixEZ<number>::get_row_length (const size_type row) const
 
 
 template <typename number>
-typename SparseMatrixEZ<number>::size_type 
+typename SparseMatrixEZ<number>::size_type
 SparseMatrixEZ<number>::n_nonzero_elements() const
 {
   typename std::vector<RowInfo>::const_iterator row = row_info.begin();

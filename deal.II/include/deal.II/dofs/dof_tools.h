@@ -1,14 +1,19 @@
-//---------------------------------------------------------------------------
-//    $Id$
+// ---------------------------------------------------------------------
+// $Id$
 //
-//    Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013 by the deal.II authors
+// Copyright (C) 1999 - 2013 by the deal.II authors
 //
-//    This file is subject to QPL and may not be  distributed
-//    without copyright and license information. Please refer
-//    to the file deal.II/doc/license.html for the  text  and
-//    further information on this license.
+// This file is part of the deal.II library.
 //
-//---------------------------------------------------------------------------
+// The deal.II library is free software; you can use it, redistribute
+// it, and/or modify it under the terms of the GNU Lesser General
+// Public License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+// The full text of the license can be found in the file LICENSE at
+// the top level of the deal.II distribution.
+//
+// ---------------------------------------------------------------------
+
 #ifndef __deal2__dof_tools_h
 #define __deal2__dof_tools_h
 
@@ -48,6 +53,7 @@ class ConstraintMatrix;
 template <class GridClass> class InterGridMap;
 template <int dim, int spacedim> class Mapping;
 
+namespace GridTools {template <typename CellIterator> struct PeriodicFacePair;}
 
 //TODO: map_support_points_to_dofs should generate a multimap, rather than just a map, since several dofs may be located at the same support point
 
@@ -1073,21 +1079,24 @@ namespace DoFTools
    * More information on the topic can be found in the
    * @ref GlossFaceOrientation "glossary" article.
    *
-   * @note This function will not work for DoFHandler objects that are
-   * built on a parallel::distributed::Triangulation object unless both
-   * faces (or their children) are owned by the current processor.
+   * @note For DoFHandler objects that are built on a
+   * parallel::distributed::Triangulation object
+   * parallel::distributed::Triangulation::add_periodicity has to be called
+   * before.
    *
    * @author Matthias Maier, 2012
    */
   template<typename FaceIterator>
   void
-  make_periodicity_constraints (const FaceIterator                          &face_1,
-                                const typename identity<FaceIterator>::type &face_2,
-                                dealii::ConstraintMatrix                    &constraint_matrix,
-                                const ComponentMask                         &component_mask = ComponentMask(),
-                                const bool face_orientation = true,
-                                const bool face_flip = false,
-                                const bool face_rotation = false);
+  make_periodicity_constraints
+  (const FaceIterator                          &face_1,
+   const typename identity<FaceIterator>::type &face_2,
+   dealii::ConstraintMatrix                    &constraint_matrix,
+   const ComponentMask                         &component_mask = ComponentMask(),
+   const bool                                  face_orientation = true,
+   const bool                                  face_flip = false,
+   const bool                                  face_rotation = false);
+
 
 
   /**
@@ -1126,8 +1135,10 @@ namespace DoFTools
    * function will be used for which the respective flag was set in the
    * component mask.
    *
-   * @note This function will not work for DoFHandler objects that are
-   * built on a parallel::distributed::Triangulation object.
+   * @note For DoFHandler objects that are built on a
+   * parallel::distributed::Triangulation object
+   * parallel::distributed::Triangulation::add_periodicity has to be called
+   * before.
    *
    * @see @ref GlossBoundaryIndicator "Glossary entry on boundary indicators"
    *
@@ -1135,12 +1146,13 @@ namespace DoFTools
    */
   template<typename DH>
   void
-  make_periodicity_constraints (const DH                 &dof_handler,
-                                const types::boundary_id b_id1,
-                                const types::boundary_id b_id2,
-                                const int                direction,
-                                dealii::ConstraintMatrix &constraint_matrix,
-                                const ComponentMask      &component_mask = ComponentMask());
+  make_periodicity_constraints
+  (const DH                 &dof_handler,
+   const types::boundary_id b_id1,
+   const types::boundary_id b_id2,
+   const int                direction,
+   dealii::ConstraintMatrix &constraint_matrix,
+   const ComponentMask      &component_mask = ComponentMask());
 
 
   /**
@@ -1152,22 +1164,25 @@ namespace DoFTools
    * @p orthogonal_equality. This can be used to implement conditions such
    * as $u(0,y)=u(1,y+1)$.
    *
-   * @note This function will not work for DoFHandler objects that are
-   * built on a parallel::distributed::Triangulation object.
+   * @note For DoFHandler objects that are built on a
+   * parallel::distributed::Triangulation object
+   * parallel::distributed::Triangulation::add_periodicity has to be called
+   * before.
    *
    * @see @ref GlossBoundaryIndicator "Glossary entry on boundary indicators"
    *
-   * @author Matthias Maier, 2012
+   * @author Daniel Arndt, 2013, Matthias Maier, 2012
    */
   template<typename DH>
   void
-  make_periodicity_constraints (const DH                 &dof_handler,
-                                const types::boundary_id b_id1,
-                                const types::boundary_id b_id2,
-                                const int                direction,
-                                dealii::Tensor<1,DH::space_dimension> &offset,
-                                dealii::ConstraintMatrix &constraint_matrix,
-                                const ComponentMask      &component_mask = ComponentMask());
+  make_periodicity_constraints
+  (const DH                              &dof_handler,
+   const types::boundary_id              b_id1,
+   const types::boundary_id              b_id2,
+   const int                             direction,
+   dealii::Tensor<1,DH::space_dimension> &offset,
+   dealii::ConstraintMatrix              &constraint_matrix,
+   const ComponentMask                   &component_mask = ComponentMask());
 
 
   /**
@@ -1185,18 +1200,21 @@ namespace DoFTools
    * meshes with cells not in @ref GlossFaceOrientation
    * "standard orientation".
    *
-   * @note This function will not work for DoFHandler objects that are
-   * built on a parallel::distributed::Triangulation object.
+   * @note For DoFHandler objects that are built on a
+   * parallel::distributed::Triangulation object
+   * parallel::distributed::Triangulation::add_periodicity has to be called
+   * before.
    *
    * @see @ref GlossBoundaryIndicator "Glossary entry on boundary indicators"
    */
   template<typename DH>
   void
-  make_periodicity_constraints (const DH                 &dof_handler,
-                                const types::boundary_id b_id,
-                                const int                direction,
-                                dealii::ConstraintMatrix &constraint_matrix,
-                                const ComponentMask      &component_mask = ComponentMask());
+  make_periodicity_constraints
+  (const DH                 &dof_handler,
+   const types::boundary_id b_id,
+   const int                direction,
+   dealii::ConstraintMatrix &constraint_matrix,
+   const ComponentMask      &component_mask = ComponentMask());
 
 
   /**
@@ -1212,19 +1230,40 @@ namespace DoFTools
    * meshes with cells not in @ref GlossFaceOrientation
    * "standard orientation".
    *
-   * @note This function will not work for DoFHandler objects that are
-   * built on a parallel::distributed::Triangulation object.
+   * @note For DoFHandler objects that are built on a
+   * parallel::distributed::Triangulation object
+   * parallel::distributed::Triangulation::add_periodicity has to be called
+   * before.
    *
    * @see @ref GlossBoundaryIndicator "Glossary entry on boundary indicators"
    */
   template<typename DH>
   void
-  make_periodicity_constraints (const DH                 &dof_handler,
-                                const types::boundary_id b_id,
-                                const int                direction,
-                                dealii::Tensor<1,DH::space_dimension> &offset,
-                                dealii::ConstraintMatrix &constraint_matrix,
-                                const ComponentMask      &component_mask = ComponentMask());
+  make_periodicity_constraints
+  (const DH                              &dof_handler,
+   const types::boundary_id              b_id,
+   const int                             direction,
+   dealii::Tensor<1,DH::space_dimension> &offset,
+   dealii::ConstraintMatrix              &constraint_matrix,
+   const ComponentMask                   &component_mask = ComponentMask());
+
+  /**
+   * Same as above but the periodicity information is given by
+   * @p periodic_faces. This std::vector can be created by
+   * GridTools::collect_periodic_faces.
+   *
+   * @note For DoFHandler objects that are built on a
+   * parallel::distributed::Triangulation object
+   * parallel::distributed::Triangulation::add_periodicity has to be called
+   * before.
+   */
+  template<typename DH>
+  void
+  make_periodicity_constraints
+  (const std::vector<GridTools::PeriodicFacePair<typename DH::cell_iterator> > 
+     &periodic_faces,
+   dealii::ConstraintMatrix &constraint_matrix,
+   const ComponentMask      &component_mask = ComponentMask());
 
 
   //@}
@@ -1384,7 +1423,7 @@ namespace DoFTools
 
   /**
    * Do the same thing as the corresponding
-   * extract_dofs() functino for one level
+   * extract_dofs() function for one level
    * of a multi-grid DoF numbering.
    */
   template <class DH>
@@ -1396,7 +1435,7 @@ namespace DoFTools
 
   /**
    * Do the same thing as the corresponding
-   * extract_dofs() functino for one level
+   * extract_dofs() function for one level
    * of a multi-grid DoF numbering.
    */
   template <class DH>

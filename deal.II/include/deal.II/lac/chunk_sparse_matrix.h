@@ -1,14 +1,19 @@
-//---------------------------------------------------------------------------
-//    $Id$
+// ---------------------------------------------------------------------
+// $Id$
 //
-//    Copyright (C) 2008, 2009, 2010, 2012 by the deal.II authors
+// Copyright (C) 2008 - 2013 by the deal.II authors
 //
-//    This file is subject to QPL and may not be  distributed
-//    without copyright and license information. Please refer
-//    to the file deal.II/doc/license.html for the  text  and
-//    further information on this license.
+// This file is part of the deal.II library.
 //
-//---------------------------------------------------------------------------
+// The deal.II library is free software; you can use it, redistribute
+// it, and/or modify it under the terms of the GNU Lesser General
+// Public License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+// The full text of the license can be found in the file LICENSE at
+// the top level of the deal.II distribution.
+//
+// ---------------------------------------------------------------------
+
 #ifndef __deal2__chunk_sparse_matrix_h
 #define __deal2__chunk_sparse_matrix_h
 
@@ -294,7 +299,7 @@ namespace ChunkSparseMatrixIterators
      * of the current kind.
      */
     typedef
-    const Accessor<number,Constness> & value_type;
+    const Accessor<number,Constness> &value_type;
 
     /**
      * Constructor. Create an iterator into the matrix @p matrix for the given
@@ -1346,7 +1351,7 @@ ChunkSparseMatrix<number>::m () const
 
 template <typename number>
 inline
-typename ChunkSparseMatrix<number>::size_type 
+typename ChunkSparseMatrix<number>::size_type
 ChunkSparseMatrix<number>::n () const
 {
   Assert (cols != 0, ExcNotInitialized());
@@ -1368,13 +1373,13 @@ ChunkSparseMatrix<number>::get_sparsity_pattern () const
 
 template <typename number>
 inline
-typename ChunkSparseMatrix<number>::size_type 
+typename ChunkSparseMatrix<number>::size_type
 ChunkSparseMatrix<number>::compute_location (const size_type i,
                                              const size_type j) const
 {
   const size_type chunk_size = cols->get_chunk_size();
   const size_type chunk_index
-  = cols->sparsity_pattern(i/chunk_size, j/chunk_size);
+    = cols->sparsity_pattern(i/chunk_size, j/chunk_size);
 
   if (chunk_index == ChunkSparsityPattern::invalid_entry)
     return ChunkSparsityPattern::invalid_entry;

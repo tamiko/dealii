@@ -1,16 +1,18 @@
-//---------------------------------------------------------------------------
-//    $Id$
-//    Version: $Name$
+// ---------------------------------------------------------------------
+// $Id$
 //
-//    Copyright (C) 2008, 2009, 2011, 2012, 2013 by the deal.II authors
+// Copyright (C) 2008 - 2013 by the deal.II authors
 //
-//    This file is subject to QPL and may not be  distributed
-//    without copyright and license information. Please refer
-//    to the file deal.II/doc/license.html for the  text  and
-//    further information on this license.
+// This file is part of the deal.II library.
 //
-//---------------------------------------------------------------------------
-
+// The deal.II library is free software; you can use it, redistribute
+// it, and/or modify it under the terms of the GNU Lesser General
+// Public License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+// The full text of the license can be found in the file LICENSE at
+// the top level of the deal.II distribution.
+//
+// ---------------------------------------------------------------------
 
 #include <deal.II/lac/trilinos_block_vector.h>
 
@@ -57,6 +59,11 @@ namespace TrilinosWrappers
     BlockVector &
     BlockVector::operator = (const BlockVector &v)
     {
+      // we only allow assignment to vectors with the same number of blocks
+      // or to an empty BlockVector
+      Assert (n_blocks() == 0 || n_blocks() == v.n_blocks(),
+                    ExcDimensionMismatch(n_blocks(), v.n_blocks()));
+
       if (this->n_blocks() != v.n_blocks())
         reinit(v.n_blocks());
 
@@ -136,6 +143,28 @@ namespace TrilinosWrappers
       collect_sizes();
     }
 
+    void
+    BlockVector::reinit (const std::vector<IndexSet> &parallel_partitioning,
+                         const std::vector<IndexSet> &ghost_values,
+                         const MPI_Comm              &communicator)
+    {
+      const size_type no_blocks = parallel_partitioning.size();
+      std::vector<size_type> block_sizes (no_blocks);
+
+      for (size_type i=0; i<no_blocks; ++i)
+        {
+          block_sizes[i] = parallel_partitioning[i].size();
+        }
+
+      this->block_indices.reinit (block_sizes);
+      if (components.size() != n_blocks())
+        components.resize(n_blocks());
+
+      for (size_type i=0; i<n_blocks(); ++i)
+        components[i].reinit(parallel_partitioning[i], ghost_values[i], communicator);
+
+      collect_sizes();
+    }
 
 
     void

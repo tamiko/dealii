@@ -1,16 +1,18 @@
-//---------------------------------------------------------------------------
-//    $Id$
-//    Version: $name$
+// ---------------------------------------------------------------------
+// $Id$
 //
-//    Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013 by the deal.II authors
+// Copyright (C) 1999 - 2013 by the deal.II authors
 //
-//    This file is subject to QPL and may not be  distributed
-//    without copyright and license information. Please refer
-//    to the file deal.II/doc/license.html for the  text  and
-//    further information on this license.
+// This file is part of the deal.II library.
 //
-//---------------------------------------------------------------------------
-
+// The deal.II library is free software; you can use it, redistribute
+// it, and/or modify it under the terms of the GNU Lesser General
+// Public License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+// The full text of the license can be found in the file LICENSE at
+// the top level of the deal.II distribution.
+//
+// ---------------------------------------------------------------------
 
 #include <deal.II/base/thread_management.h>
 #include <deal.II/base/utilities.h>
@@ -437,12 +439,24 @@ namespace DoFRenumbering
   {
     Assert(dof_handler.n_dofs(level) != numbers::invalid_dof_index,
            ExcNotInitialized());
-//TODO: we should be doing the same here as in the other compute_CMK function to preserve some memory
 
     // make the connection graph
-    SparsityPattern sparsity (dof_handler.n_dofs(level),
-                              dof_handler.max_couplings_between_dofs());
-    MGTools::make_sparsity_pattern (dof_handler, sparsity, level);
+    SparsityPattern sparsity;
+    if (DH::dimension < 2)
+      {
+        sparsity.reinit (dof_handler.n_dofs(level),
+                         dof_handler.n_dofs(level),
+                         dof_handler.max_couplings_between_dofs());
+        MGTools::make_sparsity_pattern (dof_handler, sparsity, level);
+        sparsity.compress();
+      }
+    else
+      {
+        CompressedSimpleSparsityPattern csp (dof_handler.n_dofs(level),
+                                             dof_handler.n_dofs(level));
+        MGTools::make_sparsity_pattern (dof_handler, csp, level);
+        sparsity.copy_from (csp);
+      }
 
     std::vector<types::global_dof_index> new_indices(sparsity.n_rows());
     SparsityTools::reorder_Cuthill_McKee (sparsity, new_indices,
@@ -521,7 +535,7 @@ namespace DoFRenumbering
   {
 //TODO: Merge with previous function
     std::vector<types::global_dof_index> renumbering (dof_handler.n_dofs(),
-                                           hp::DoFHandler<dim>::invalid_dof_index);
+                                                      hp::DoFHandler<dim>::invalid_dof_index);
 
     typename hp::DoFHandler<dim>::active_cell_iterator
     start = dof_handler.begin_active();
@@ -554,7 +568,7 @@ namespace DoFRenumbering
            ExcNotInitialized());
 
     std::vector<types::global_dof_index> renumbering (dof_handler.n_dofs(level),
-                                           DH::invalid_dof_index);
+                                                      DH::invalid_dof_index);
 
     typename DH::level_cell_iterator start =dof_handler.begin(level);
     typename DH::level_cell_iterator end = dof_handler.end(level);
@@ -747,10 +761,10 @@ namespace DoFRenumbering
                        Utilities::MPI::n_mpi_processes (tria->get_communicator()));
 
         MPI_Allgather ( &local_dof_count[0],
-			n_buckets, DEAL_II_DOF_INDEX_MPI_TYPE,
-			&all_dof_counts[0],
                         n_buckets, DEAL_II_DOF_INDEX_MPI_TYPE,
-			tria->get_communicator());
+                        &all_dof_counts[0],
+                        n_buckets, DEAL_II_DOF_INDEX_MPI_TYPE,
+                        tria->get_communicator());
 
         for (unsigned int i=0; i<n_buckets; ++i)
           Assert (all_dof_counts[n_buckets*tria->locally_owned_subdomain()+i]
@@ -820,7 +834,7 @@ namespace DoFRenumbering
   block_wise (DoFHandler<dim,spacedim> &dof_handler)
   {
     std::vector<types::global_dof_index> renumbering (dof_handler.n_locally_owned_dofs(),
-                                           DoFHandler<dim>::invalid_dof_index);
+                                                      DoFHandler<dim>::invalid_dof_index);
 
     typename DoFHandler<dim,spacedim>::active_cell_iterator
     start = dof_handler.begin_active();
@@ -889,7 +903,7 @@ namespace DoFRenumbering
            ExcNotInitialized());
 
     std::vector<types::global_dof_index> renumbering (dof_handler.n_dofs(level),
-                                           DoFHandler<dim>::invalid_dof_index);
+                                                      DoFHandler<dim>::invalid_dof_index);
 
     typename DoFHandler<dim>::level_cell_iterator
     start =dof_handler.begin(level);
@@ -1044,13 +1058,13 @@ namespace DoFRenumbering
         all_dof_counts(fe_collection.n_components() *
                        Utilities::MPI::n_mpi_processes (tria->get_communicator()));
 
-	Assert (sizeof(types::global_dof_index) == sizeof(unsigned int),
-		ExcNotImplemented());
+        Assert (sizeof(types::global_dof_index) == sizeof(unsigned int),
+                ExcNotImplemented());
         MPI_Allgather ( &local_dof_count[0],
-			n_buckets, DEAL_II_DOF_INDEX_MPI_TYPE,
-			&all_dof_counts[0],
                         n_buckets, DEAL_II_DOF_INDEX_MPI_TYPE,
-			tria->get_communicator());
+                        &all_dof_counts[0],
+                        n_buckets, DEAL_II_DOF_INDEX_MPI_TYPE,
+                        tria->get_communicator());
 
         for (unsigned int i=0; i<n_buckets; ++i)
           Assert (all_dof_counts[n_buckets*tria->locally_owned_subdomain()+i]
@@ -1172,7 +1186,7 @@ namespace DoFRenumbering
   hierarchical (DoFHandler<dim> &dof_handler)
   {
     std::vector<types::global_dof_index> renumbering (dof_handler.n_locally_owned_dofs(),
-                                           DoFHandler<dim>::invalid_dof_index);
+                                                      DoFHandler<dim>::invalid_dof_index);
 
     typename DoFHandler<dim>::level_cell_iterator cell;
 
@@ -1186,11 +1200,11 @@ namespace DoFRenumbering
     if (tria)
       {
 #ifdef DEAL_II_WITH_P4EST
-        //this is a distributed Triangulation. We need to traverse the coarse
-        //cells in the order p4est does
+        // this is a distributed Triangulation. We need to traverse the coarse
+        // cells in the order p4est does
         for (unsigned int c = 0; c < tria->n_cells (0); ++c)
           {
-            unsigned int coarse_cell_index =
+            const unsigned int coarse_cell_index =
               tria->get_p4est_tree_to_coarse_cell_permutation() [c];
 
             const typename DoFHandler<dim>::level_cell_iterator
@@ -1265,7 +1279,7 @@ namespace DoFRenumbering
            ExcNotInitialized());
 
     std::vector<types::global_dof_index> renumbering(dof_handler.n_dofs(level),
-                                          DH::invalid_dof_index);
+                                                     DH::invalid_dof_index);
     compute_sort_selected_dofs_back(renumbering, dof_handler, selected_dofs, level);
 
     dof_handler.renumber_dofs(level, renumbering);
@@ -1540,14 +1554,18 @@ namespace DoFRenumbering
   {
     if (dof_wise_renumbering == false)
       {
-        std::vector<typename DH::active_cell_iterator>
-        ordered_cells(dof.get_tria().n_active_cells());
+        std::vector<typename DH::active_cell_iterator> ordered_cells;
+        ordered_cells.reserve(dof.get_tria().n_active_cells());
         const CompareDownstream<typename DH::active_cell_iterator, DH::space_dimension> comparator(direction);
 
-        typename DH::active_cell_iterator begin = dof.begin_active();
+        typename DH::active_cell_iterator p = dof.begin_active();
         typename DH::active_cell_iterator end = dof.end();
 
-        copy (begin, end, ordered_cells.begin());
+        while (p!=end)
+          {
+            ordered_cells.push_back(p);
+            ++p;
+          }
         std::sort (ordered_cells.begin(), ordered_cells.end(), comparator);
 
         compute_cell_wise(new_indices, reverse, dof, ordered_cells);
@@ -1643,14 +1661,18 @@ namespace DoFRenumbering
   {
     if (dof_wise_renumbering == false)
       {
-        std::vector<typename DH::level_cell_iterator>
-        ordered_cells(dof.get_tria().n_cells(level));
+        std::vector<typename DH::level_cell_iterator> ordered_cells;
+        ordered_cells.reserve (dof.get_tria().n_cells(level));
         const CompareDownstream<typename DH::level_cell_iterator, DH::space_dimension> comparator(direction);
 
-        typename DH::level_cell_iterator begin = dof.begin(level);
+        typename DH::level_cell_iterator p = dof.begin(level);
         typename DH::level_cell_iterator end = dof.end(level);
 
-        std::copy (begin, end, ordered_cells.begin());
+        while (p!=end)
+          {
+            ordered_cells.push_back(p);
+            ++p;
+          }
         std::sort (ordered_cells.begin(), ordered_cells.end(), comparator);
 
         compute_cell_wise(new_indices, reverse, dof, level, ordered_cells);
@@ -1796,14 +1818,18 @@ namespace DoFRenumbering
     const Point<DH::space_dimension> &center,
     const bool counter)
   {
-    std::vector<typename DH::active_cell_iterator>
-    ordered_cells(dof.get_tria().n_active_cells());
+    std::vector<typename DH::active_cell_iterator> ordered_cells;
+    ordered_cells.reserve (dof.get_tria().n_active_cells());
     internal::ClockCells<DH::space_dimension> comparator(center, counter);
 
-    typename DH::active_cell_iterator begin = dof.begin_active();
+    typename DH::active_cell_iterator p = dof.begin_active();
     typename DH::active_cell_iterator end = dof.end();
 
-    std::copy (begin, end, ordered_cells.begin());
+    while (p!=end)
+      {
+        ordered_cells.push_back(p);
+        ++p;
+      }
     std::sort (ordered_cells.begin(), ordered_cells.end(), comparator);
 
     std::vector<types::global_dof_index> reverse(new_indices.size());
@@ -1818,14 +1844,18 @@ namespace DoFRenumbering
                      const Point<DH::space_dimension> &center,
                      const bool counter)
   {
-    std::vector<typename DH::level_cell_iterator>
-    ordered_cells(dof.get_tria().n_cells(level));
+    std::vector<typename DH::level_cell_iterator> ordered_cells;
+    ordered_cells.reserve(dof.get_tria().n_active_cells());
     internal::ClockCells<DH::space_dimension> comparator(center, counter);
 
-    typename DH::level_cell_iterator begin = dof.begin(level);
+    typename DH::level_cell_iterator p = dof.begin(level);
     typename DH::level_cell_iterator end = dof.end(level);
 
-    std::copy (begin, end, ordered_cells.begin());
+    while (p!=end)
+      {
+        ordered_cells.push_back(p);
+        ++p;
+      }
     std::sort (ordered_cells.begin(), ordered_cells.end(), comparator);
 
     cell_wise(dof, level, ordered_cells);

@@ -1,14 +1,19 @@
-//---------------------------------------------------------------------------
-//    $Id$
+// ---------------------------------------------------------------------
+// $Id$
 //
-//    Copyright (C) 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2008, 2009, 2011, 2012 by the deal.II authors
+// Copyright (C) 1998 - 2013 by the deal.II authors
 //
-//    This file is subject to QPL and may not be  distributed
-//    without copyright and license information. Please refer
-//    to the file deal.II/doc/license.html for the  text  and
-//    further information on this license.
+// This file is part of the deal.II library.
 //
-//---------------------------------------------------------------------------
+// The deal.II library is free software; you can use it, redistribute
+// it, and/or modify it under the terms of the GNU Lesser General
+// Public License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+// The full text of the license can be found in the file LICENSE at
+// the top level of the deal.II distribution.
+//
+// ---------------------------------------------------------------------
+
 #ifndef __deal2__tensor_h
 #define __deal2__tensor_h
 
@@ -70,6 +75,14 @@ public:
    * the outside world.
    */
   static const unsigned int rank      = rank_;
+
+  /**
+   * Number of independent components of a
+   * tensor of current rank. This is dim times the
+   * number of independent components of each sub-tensor.
+   */
+  static const unsigned int
+  n_independent_components = Tensor<rank_-1,dim>::n_independent_components *dim;
 
   /**
    * Type of stored objects. This
@@ -134,6 +147,16 @@ public:
    * Read-only access operator.
    */
   const Tensor<rank_-1,dim,Number> &operator [] (const unsigned int i) const;
+
+  /**
+   * Read access using TableIndices <tt>indices</tt>
+   */
+  Number operator [](const TableIndices<rank_> &indices) const;
+
+  /**
+   * Read and write access using TableIndices <tt>indices</tt>
+   */
+  Number &operator [](const TableIndices<rank_> &indices);
 
   /**
    *  Assignment operator.
@@ -241,6 +264,24 @@ public:
    */
   template <typename Number2>
   void unroll (Vector<Number2> &result) const;
+
+  /**
+   * Returns an unrolled index in
+   * the range [0,dim^rank-1] for the element of the tensor indexed by
+   * the argument to the function.
+   */
+  static
+  unsigned int
+  component_to_unrolled_index(const TableIndices<rank_> &indices);
+
+  /**
+   * Opposite of  component_to_unrolled_index: For an index in the
+   * range [0,dim^rank-1], return which set of indices it would
+   * correspond to.
+   */
+  static
+  TableIndices<rank_> unrolled_to_component_indices(const unsigned int i);
+
 
 
   /**
@@ -379,7 +420,33 @@ Tensor<rank_,dim,Number>::operator[] (const unsigned int i) const
   return subtensor[i];
 }
 
+template <int rank_, int dim, typename Number>
+inline
+Number
+Tensor<rank_,dim,Number>::operator[] (const TableIndices<rank_> &indices) const
+{
+  const unsigned int inner_ind = indices[0];
+  Assert (inner_ind<dim, ExcIndexRange(inner_ind, 0, dim));
 
+  TableIndices<rank_-1> indices1;
+  for (unsigned int i = 0; i < rank_-1; i++)
+    indices1[i] = indices[i+1];
+  return (subtensor[inner_ind])[indices1];
+}
+
+template <int rank_, int dim, typename Number>
+inline
+Number &
+Tensor<rank_,dim,Number>::operator[] (const TableIndices<rank_> &indices)
+{
+  const unsigned int inner_ind = indices[0];
+  Assert (inner_ind<dim, ExcIndexRange(inner_ind, 0, dim));
+
+  TableIndices<rank_-1> indices1;
+  for (unsigned int i = 0; i < rank_-1; i++)
+    indices1[i] = indices[i+1];
+  return (subtensor[inner_ind])[indices1];
+}
 
 template <int rank_, int dim, typename Number>
 inline
@@ -572,6 +639,41 @@ Tensor<rank_, dim, Number>::unroll_recursion (Vector<Number2> &result,
     {
       operator[](i).unroll_recursion(result, index);
     }
+}
+
+template <int rank_, int dim, typename Number>
+inline
+unsigned int
+Tensor<rank_, dim, Number>::component_to_unrolled_index(const TableIndices<rank_> &indices)
+{
+  TableIndices<rank_-1> indices1;
+  for (unsigned int i = 0; i < rank_-1; i++)
+    indices1[i] = indices[i];
+
+  Assert (indices[rank_-1] < dim,
+          ExcIndexRange (indices[rank_-1], 0, dim));
+  return ( Tensor<rank_-1,dim,Number>::component_to_unrolled_index(indices1) * dim + indices[rank_-1]);
+}
+
+template <int rank_, int dim, typename Number>
+inline
+TableIndices<rank_>
+Tensor<rank_, dim, Number>::unrolled_to_component_indices(const unsigned int i)
+{
+  Assert (i < n_independent_components,
+          ExcIndexRange (i, 0, n_independent_components));
+
+  TableIndices<rank_>   indices;
+
+  unsigned int remainder = i;
+  for (int r=rank_-1; r>=0; --r)
+    {
+      indices[r] = (remainder % dim);
+      remainder /= dim;
+    }
+  Assert (remainder == 0, ExcInternalError());
+
+  return indices;
 }
 
 

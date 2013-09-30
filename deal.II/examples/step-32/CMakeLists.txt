@@ -11,9 +11,6 @@ SET(TARGET_SRC
   # You can specify additional files here!
   )
 
-# A custom command line to run the program
-SET(TARGET_RUN mpirun -np 2 ${TARGET})
-
 # Define the output that should be cleaned:
 SET(CLEAN_UP_FILES *.vtu *.pvtu *.visit)
 
@@ -43,7 +40,7 @@ Error! The deal.II library found at ${DEAL_II_PATH} was not configured with
     DEAL_II_WITH_MPI = ON
     DEAL_II_WITH_P4EST = ON
     DEAL_II_WITH_TRILINOS = ON
-which is required for this tutorial step."
+One or all of these are OFF in your installation but are required for this tutorial step."
     )
 ENDIF()
 

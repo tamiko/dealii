@@ -1,16 +1,18 @@
-#####
+## ---------------------------------------------------------------------
+## $Id$
 ##
-## Copyright (C) 2012, 2013 by the deal.II authors
+## Copyright (C) 2012 - 2013 by the deal.II authors
 ##
 ## This file is part of the deal.II library.
 ##
-## <TODO: Full License information>
-## This file is dual licensed under QPL 1.0 and LGPL 2.1 or any later
-## version of the LGPL license.
+## The deal.II library is free software; you can use it, redistribute
+## it, and/or modify it under the terms of the GNU Lesser General
+## Public License as published by the Free Software Foundation; either
+## version 2.1 of the License, or (at your option) any later version.
+## The full text of the license can be found in the file LICENSE at
+## the top level of the deal.II distribution.
 ##
-## Author: Matthias Maier <matthias.maier@iwr.uni-heidelberg.de>
-##
-#####
+## ---------------------------------------------------------------------
 
 
 #
@@ -24,10 +26,46 @@
 # The macro will be included in CONFIGURE_FEATURE_THREADS_EXTERNAL/BUNDLED.
 #
 MACRO(SETUP_THREADING)
-  FIND_PACKAGE(Threads)
+  #
+  # Unfortunately the FindThreads macro needs a working C compiler
+  #
+  IF(CMAKE_C_COMPILER_WORKS)
+    #
+    # Switch the library preference back to prefer dynamic libraries if
+    # DEAL_II_PREFER_STATIC_LIBS=TRUE but DEAL_II_STATIC_EXECUTABLE=FALSE. In
+    # this case system libraries should be linked dynamically.
+    #
+    SWITCH_LIBRARY_PREFERENCE()
+
+    #
+    # Clear the test flags because FindThreads.cmake will use a C compiler:
+    #
+    CLEAR_CMAKE_REQUIRED()
+
+    FIND_PACKAGE(Threads)
+
+    RESET_CMAKE_REQUIRED()
+    SWITCH_LIBRARY_PREFERENCE()
+
+  ELSE()
+
+    #
+    # We have no way to query for thread support. Just assume that it is
+    # provided by Pthreads...
+    #
+    MESSAGE(STATUS
+      "No suitable C compiler was found! Assuming threading is provided by Pthreads."
+      )
+    SET_IF_EMPTY(Threads_FOUND TRUE)
+    SET_IF_EMPTY(CMAKE_THREAD_LIBS_INIT "-lpthread")
+    SET_IF_EMPTY(CMAKE_USE_PTHREADS_INIT TRUE)
+  ENDIF()
 
   IF(NOT Threads_FOUND)
-    # TODO:
+    #
+    # TODO: This is a dead end. Threading might be setup with internal TBB
+    # so we have no way of returning unsuccessfully...
+    #
     MESSAGE(FATAL_ERROR
       "\nInternal configuration error: No Threading support found\n\n"
       )
@@ -50,7 +88,7 @@ MACRO(SETUP_THREADING)
     ENDIF()
   ENDIF()
 
-  ADD_FLAGS(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_THREAD_LIBS_INIT}")
+  ADD_FLAGS(DEAL_II_LINKER_FLAGS "${CMAKE_THREAD_LIBS_INIT}")
 
   #
   # Set up some posix thread specific configuration toggles:
@@ -82,7 +120,7 @@ MACRO(SETUP_THREADING)
     }
     "
     DEAL_II_HAVE_MT_POSIX_BARRIERS)
-    STRIP_FLAG(CMAKE_REQUIRED_FLAGS "${CMAKE_THREAD_LIBS_INIT}")
+    RESET_CMAKE_REQUIRED()
     IF(NOT DEAL_II_HAVE_MT_POSIX_BARRIERS)
       SET(DEAL_II_USE_MT_POSIX_NO_BARRIERS TRUE)
     ENDIF()
@@ -115,7 +153,7 @@ ENDMACRO()
 MACRO(FEATURE_THREADS_CONFIGURE_EXTERNAL)
   INCLUDE_DIRECTORIES(${TBB_INCLUDE_DIR})
 
-  SPLIT_DEBUG_RELEASE(_tbb_debug _tbb_release ${TBB_LIBRARIES})
+  DEAL_II_APPEND_LIBRARIES(${TBB_LIBRARIES})
 
   IF(CMAKE_BUILD_TYPE MATCHES "Debug")
     IF(TBB_WITH_DEBUG_LIB)
@@ -124,24 +162,11 @@ MACRO(FEATURE_THREADS_CONFIGURE_EXTERNAL)
         )
     ENDIF()
 
-    LIST(APPEND DEAL_II_EXTERNAL_LIBRARIES_DEBUG ${_tbb_debug})
   ENDIF()
 
-  IF(CMAKE_BUILD_TYPE MATCHES "Release")
-    LIST(APPEND DEAL_II_EXTERNAL_LIBRARIES_RELEASE ${_tbb_release})
-  ENDIF()
 
   SETUP_THREADING()
 ENDMACRO()
-
-
-#
-# Resolve a cache invalidation problem by searching for these flags
-# unconditionally. They're used in FEATURE_THREADS_CONFIGURE_BUNDLED
-# depending on cached variables.
-#
-ENABLE_IF_SUPPORTED(_dummy "-Wno-parentheses")
-ENABLE_IF_SUPPORTED(_dummy "-Wno-long-long")
 
 
 MACRO(FEATURE_THREADS_CONFIGURE_BUNDLED)
@@ -168,10 +193,10 @@ MACRO(FEATURE_THREADS_CONFIGURE_BUNDLED)
   #
   # tbb uses dlopen/dlclose, so link against libdl.so as well:
   #
-  FIND_LIBRARY(dl_lib NAMES dl)
-  MARK_AS_ADVANCED(dl_lib)
-  IF(NOT dl_lib MATCHES "-NOTFOUND")
-    LIST(APPEND DEAL_II_EXTERNAL_LIBRARIES ${dl_lib})
+  FIND_LIBRARY(dl_LIBRARY NAMES dl)
+  MARK_AS_ADVANCED(dl_LIBRARY)
+  IF(NOT dl_LIBRARY MATCHES "-NOTFOUND")
+    DEAL_II_APPEND_LIBRARIES(${dl_LIBRARY})
   ENDIF()
 
   INCLUDE_DIRECTORIES(${TBB_FOLDER}/include)

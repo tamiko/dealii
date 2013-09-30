@@ -1,15 +1,19 @@
-//---------------------------------------------------------------------------
-//    $Id$
-//    Version: $Name$
+// ---------------------------------------------------------------------
+// $Id$
 //
-//    Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012 by the deal.II authors
+// Copyright (C) 1999 - 2013 by the deal.II authors
 //
-//    This file is subject to QPL and may not be  distributed
-//    without copyright and license information. Please refer
-//    to the file deal.II/doc/license.html for the  text  and
-//    further information on this license.
+// This file is part of the deal.II library.
 //
-//---------------------------------------------------------------------------
+// The deal.II library is free software; you can use it, redistribute
+// it, and/or modify it under the terms of the GNU Lesser General
+// Public License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+// The full text of the license can be found in the file LICENSE at
+// the top level of the deal.II distribution.
+//
+// ---------------------------------------------------------------------
+
 
 //TODO: Do neighbors for dx and povray smooth triangles
 
@@ -269,6 +273,116 @@ namespace
 #endif
 }
 
+//----------------------------------------------------------------------//
+// DataOutFilter class member functions
+//----------------------------------------------------------------------//
+
+template<int dim>
+void DataOutBase::DataOutFilter::write_point(const unsigned int &index, const Point<dim> &p)
+{
+  Map3DPoint::const_iterator  it;
+  unsigned int      internal_ind;
+  Point<3>      int_pt;
+
+  for (int d=0; d<3; ++d) int_pt(d) = (d < dim ? p(d) : 0);
+  node_dim = dim;
+  it = existing_points.find(int_pt);
+
+  // If the point isn't in the set, or we're not filtering duplicate points, add it
+  if (it == existing_points.end() || !flags.filter_duplicate_vertices)
+    {
+      internal_ind = existing_points.size();
+      existing_points.insert(std::make_pair(int_pt, internal_ind));
+    }
+  else
+    {
+      internal_ind = it->second;
+    }
+  // Now add the index to the list of filtered points
+  filtered_points[index] = internal_ind;
+}
+
+void DataOutBase::DataOutFilter::internal_add_cell(const unsigned int &cell_index, const unsigned int &pt_index)
+{
+  filtered_cells[cell_index] = filtered_points[pt_index];
+}
+
+void DataOutBase::DataOutFilter::fill_node_data(std::vector<double> &node_data) const
+{
+  Map3DPoint::const_iterator  it;
+
+  node_data.resize(existing_points.size()*node_dim);
+
+  for (it=existing_points.begin(); it!=existing_points.end(); ++it)
+    {
+      for (int d=0; d<node_dim; ++d) node_data[node_dim*it->second+d] = it->first(d);
+    }
+}
+
+void DataOutBase::DataOutFilter::fill_cell_data(const unsigned int &local_node_offset, std::vector<unsigned int> &cell_data) const
+{
+  std::map<unsigned int, unsigned int>::const_iterator  it;
+
+  cell_data.resize(filtered_cells.size());
+
+  for (it=filtered_cells.begin(); it!=filtered_cells.end(); ++it)
+    {
+      cell_data[it->first] = it->second+local_node_offset;
+    }
+}
+
+template<int dim>
+void
+DataOutBase::DataOutFilter::write_cell(
+  unsigned int index,
+  unsigned int start,
+  unsigned int d1,
+  unsigned int d2,
+  unsigned int d3)
+{
+  unsigned int base_entry = index * GeometryInfo<dim>::vertices_per_cell;
+  n_cell_verts = GeometryInfo<dim>::vertices_per_cell;
+  internal_add_cell(base_entry+0, start);
+  internal_add_cell(base_entry+1, start+d1);
+  if (dim>=2)
+    {
+      internal_add_cell(base_entry+2, start+d2+d1);
+      internal_add_cell(base_entry+3, start+d2);
+      if (dim>=3)
+        {
+          internal_add_cell(base_entry+4, start+d3);
+          internal_add_cell(base_entry+5, start+d3+d1);
+          internal_add_cell(base_entry+6, start+d3+d2+d1);
+          internal_add_cell(base_entry+7, start+d3+d2);
+        }
+    }
+}
+
+void DataOutBase::DataOutFilter::write_data_set(const std::string &name, const unsigned int &dimension, const unsigned int &set_num, const Table<2,double> &data_vectors)
+{
+  unsigned int    num_verts = existing_points.size();
+  unsigned int    i, r, d, new_dim;
+
+  // HDF5/XDMF output only supports 1D or 3D output, so force rearrangement if needed
+  if (flags.xdmf_hdf5_output && dimension != 1) new_dim = 3;
+  else new_dim = dimension;
+
+  // Record the data set name, dimension, and allocate space for it
+  data_set_names.push_back(name);
+  data_set_dims.push_back(new_dim);
+  data_sets.push_back(std::vector<double>(new_dim*num_verts));
+
+  // TODO: averaging, min/max, etc for merged vertices
+  for (i=0; i<filtered_points.size(); ++i)
+    {
+      for (d=0; d<new_dim; ++d)
+        {
+          r = filtered_points[i];
+          if (d < dimension) data_sets.back()[r*new_dim+d] = data_vectors(set_num+d, i);
+          else data_sets.back()[r] = 0;
+        }
+    }
+}
 
 
 //----------------------------------------------------------------------//
@@ -300,9 +414,13 @@ namespace
   };
 #endif
 
-  static unsigned int vtk_cell_type[4] =
+  // NOTE: (UK) The dimension of the array is choosen to 5 to allow the choice
+  // DataOutBase<deal_II_dimension,deal_II_dimension+1> in general
+  // Wolfgang supposed that we don't need it in general, but however this
+  // choice avoids a -Warray-bounds check warning
+  static unsigned int vtk_cell_type[5] =
   {
-    0, 3, 9, 12
+    0, 3, 9, 12, static_cast<unsigned int>(-1)
   };
 
 //----------------------------------------------------------------------//
@@ -391,10 +509,6 @@ namespace
         n_cells += Utilities::fixed_power<dim>(patch->n_subdivisions);
       }
   }
-
-
-
-
 
   /**
    * Class for writing basic
@@ -971,81 +1085,6 @@ namespace
   };
 
 
-  class HDF5MemStream
-  {
-  public:
-    /**
-     * Constructor, storing
-     * persistent values for
-     * later use.
-     */
-    HDF5MemStream (const unsigned int local_points_cell_count[2], const unsigned int global_points_cell_offsets[2], const unsigned int dim);
-
-    /**
-     * Output operator for points.
-     */
-    template <int dim>
-    void write_point (const unsigned int index,
-                      const Point<dim> &);
-
-    /**
-     * Do whatever is necessary to
-     * terminate the list of points.
-     * In this case, nothing.
-     */
-    void flush_points () {};
-
-    /**
-     * Write dim-dimensional cell
-     * with first vertex at
-     * number start and further
-     * vertices offset by the
-     * specified values. Values
-     * not needed are ignored.
-     *
-     * The order of vertices for
-     * these cells in different
-     * dimensions is
-     * <ol>
-     * <li> [0,1]
-     * <li> []
-     * <li> []
-     * </ol>
-     */
-    template <int dim>
-    void write_cell(const unsigned int index,
-                    const unsigned int start,
-                    const unsigned int x_offset,
-                    const unsigned int y_offset,
-                    const unsigned int z_offset);
-
-    /**
-     * Do whatever is necessary to
-     * terminate the list of cells.
-     * In this case, nothing.
-     */
-    void flush_cells () {};
-
-    const double *node_data(void) const
-    {
-      return &vertices[0];
-    };
-    const unsigned int *cell_data(void) const
-    {
-      return &cells[0];
-    };
-
-  private:
-    /**
-     * A list of vertices and
-     * cells, used to write HDF5 data.
-     */
-    std::vector<double> vertices;
-    std::vector<unsigned int> cells;
-    unsigned int cell_offset;
-  };
-
-
 //----------------------------------------------------------------------//
 
   DXStream::DXStream(std::ostream &out,
@@ -1542,49 +1581,6 @@ namespace
     return stream;
   }
 
-  HDF5MemStream::HDF5MemStream(const unsigned int local_points_cell_count[2], const unsigned int global_points_cell_offsets[2], const unsigned int dim)
-  {
-    unsigned int entries_per_cell = (2 << (dim-1));
-
-    vertices.resize(local_points_cell_count[0]*dim);
-    cells.resize(local_points_cell_count[1]*entries_per_cell);
-    cell_offset = global_points_cell_offsets[1]*entries_per_cell;
-  }
-
-  template<int dim>
-  void
-  HDF5MemStream::write_point (const unsigned int index,
-                              const Point<dim> &p)
-  {
-    for (int i=0; i<dim; ++i) vertices[index*dim+i] = p(i);
-  }
-
-  template<int dim>
-  void
-  HDF5MemStream::write_cell(
-    unsigned int index,
-    unsigned int start,
-    unsigned int d1,
-    unsigned int d2,
-    unsigned int d3)
-  {
-    unsigned int base_entry = index * GeometryInfo<dim>::vertices_per_cell;
-    cells[base_entry+0] = cell_offset+start;
-    cells[base_entry+1] = cell_offset+start+d1;
-    if (dim>=2)
-      {
-        cells[base_entry+2] = cell_offset+start+d2+d1;
-        cells[base_entry+3] = cell_offset+start+d2;
-        if (dim>=3)
-          {
-            cells[base_entry+4] = cell_offset+start+d3;
-            cells[base_entry+5] = cell_offset+start+d3+d1;
-            cells[base_entry+6] = cell_offset+start+d3+d2+d1;
-            cells[base_entry+7] = cell_offset+start+d3+d2;
-          }
-      }
-  }
-
   template <typename T>
   std::ostream &
   DXStream::operator<< (const T &t)
@@ -1724,6 +1720,41 @@ DataOutBase::PovrayFlags::PovrayFlags (const bool smooth,
   bicubic_patch(bicubic_patch),
   external_data(external_data)
 {}
+
+
+DataOutBase::DataOutFilterFlags::DataOutFilterFlags (const bool filter_duplicate_vertices,
+                                                     const bool xdmf_hdf5_output) :
+  filter_duplicate_vertices(filter_duplicate_vertices),
+  xdmf_hdf5_output(xdmf_hdf5_output) {}
+
+void DataOutBase::DataOutFilterFlags::declare_parameters (ParameterHandler &prm)
+{
+  prm.declare_entry ("Filter duplicate vertices", "false",
+                     Patterns::Bool(),
+                     "Whether to remove duplicate vertex values.");
+  prm.declare_entry ("XDMF HDF5 output", "false",
+                     Patterns::Bool(),
+                     "Whether the data will be used in an XDMF/HDF5 combination.");
+}
+
+
+
+void DataOutBase::DataOutFilterFlags::parse_parameters (const ParameterHandler &prm)
+{
+  filter_duplicate_vertices = prm.get_bool ("Filter duplicate vertices");
+  xdmf_hdf5_output = prm.get_bool ("XDMF HDF5 output");
+}
+
+
+
+std::size_t
+DataOutBase::DataOutFilterFlags::memory_consumption () const
+{
+  // only simple data elements, so
+  // use sizeof operator
+  return sizeof (*this);
+}
+
 
 
 DataOutBase::DXFlags::DXFlags (const bool write_neighbors,
@@ -2186,10 +2217,12 @@ DataOutBase::TecplotFlags::memory_consumption () const
 
 
 DataOutBase::VtkFlags::VtkFlags (const double time,
-                                 const unsigned int cycle)
+                                 const unsigned int cycle,
+                                 const bool print_date_and_time)
   :
   time (time),
-  cycle (cycle)
+  cycle (cycle),
+  print_date_and_time (print_date_and_time)
 {}
 
 
@@ -2214,17 +2247,20 @@ DataOutBase::VtkFlags::memory_consumption () const
 
 
 DataOutBase::SvgFlags::SvgFlags (const unsigned int height_vector,
-                                 const int azimuth_angle, 
+                                 const int azimuth_angle,
                                  const int polar_angle,
                                  const unsigned int line_thickness,
                                  const bool margin,
-                                 const bool draw_colorbar) :
-height_vector(height_vector),
-azimuth_angle(azimuth_angle),
-polar_angle(polar_angle),
-line_thickness(line_thickness),
-margin(margin),
-draw_colorbar(draw_colorbar)
+                                 const bool draw_colorbar)
+  :
+  height(4000),
+  width(0),
+  height_vector(height_vector),
+  azimuth_angle(azimuth_angle),
+  polar_angle(polar_angle),
+  line_thickness(line_thickness),
+  margin(margin),
+  draw_colorbar(draw_colorbar)
 {}
 
 
@@ -2537,17 +2573,17 @@ Point<6> DataOutBase::svg_get_gradient_parameters(Point<3> points[])
   int i, j;
 
   for (i = 0; i < 2; ++i)
-  {
-    for (j = 0; j < 2-i; ++j)
     {
-      if (points[j][2] > points[j + 1][2])
-      {
-        Point<3> temp = points[j];
-        points[j] = points[j+1];
-        points[j+1] = temp;
-      }
+      for (j = 0; j < 2-i; ++j)
+        {
+          if (points[j][2] > points[j + 1][2])
+            {
+              Point<3> temp = points[j];
+              points[j] = points[j+1];
+              points[j+1] = temp;
+            }
+        }
     }
-  }
 
   // save the related three-dimensional vectors v_min, v_inter, and v_max
   v_min = points[0];
@@ -2570,47 +2606,47 @@ Point<6> DataOutBase::svg_get_gradient_parameters(Point<3> points[])
   bool col_change = false;
 
   if (A[0][0] == 0)
-  {
-    col_change = true;
-
-    A[0][0] = A[0][1];
-    A[0][1] = 0;
-
-    double temp = A[1][0];
-    A[1][0] = A[1][1];
-    A[1][1] = temp;
-  }
-
-  for (unsigned int k = 0; k < 1; k++) 
-  {
-    for (unsigned int i = k+1; i < 2; i++) 
     {
-      x = A[i][k] / A[k][k];
+      col_change = true;
 
-      for (unsigned int j = k+1; j < 2; j++) A[i][j] = A[i][j] - A[k][j] * x;
+      A[0][0] = A[0][1];
+      A[0][1] = 0;
 
-      b[i] = b[i] - b[k]*x;
-
+      double temp = A[1][0];
+      A[1][0] = A[1][1];
+      A[1][1] = temp;
     }
-  }
+
+  for (unsigned int k = 0; k < 1; k++)
+    {
+      for (unsigned int i = k+1; i < 2; i++)
+        {
+          x = A[i][k] / A[k][k];
+
+          for (unsigned int j = k+1; j < 2; j++) A[i][j] = A[i][j] - A[k][j] * x;
+
+          b[i] = b[i] - b[k]*x;
+
+        }
+    }
 
   b[1] = b[1] / A[1][1];
 
-  for (int i = 0; i >= 0; i--) 
-  {
-    sum = b[i];
+  for (int i = 0; i >= 0; i--)
+    {
+      sum = b[i];
 
-    for (unsigned int j = i+1; j < 2; j++) sum = sum - A[i][j] * b[j];
+      for (unsigned int j = i+1; j < 2; j++) sum = sum - A[i][j] * b[j];
 
-    b[i] = sum / A[i][i];
-  }
+      b[i] = sum / A[i][i];
+    }
 
   if (col_change)
-  {
-    double temp = b[0];
-    b[0] = b[1];
-    b[1] = temp;
-  }
+    {
+      double temp = b[0];
+      b[0] = b[1];
+      b[1] = temp;
+    }
 
   double c = b[0] * (v_max[2] - v_min[2]) + b[1] * (v_inter[2] - v_min[2]) + v_min[2];
 
@@ -2626,47 +2662,47 @@ Point<6> DataOutBase::svg_get_gradient_parameters(Point<3> points[])
   col_change = false;
 
   if (A[0][0] == 0)
-  {
-    col_change = true;
-
-    A[0][0] = A[0][1];
-    A[0][1] = 0;
-
-    double temp = A[1][0];
-    A[1][0] = A[1][1];
-    A[1][1] = temp;
-  }
-
-  for (unsigned int k = 0; k < 1; k++) 
-  {
-    for (unsigned int i = k+1; i < 2; i++) 
     {
-      x = A[i][k] / A[k][k];
+      col_change = true;
 
-      for (unsigned int j = k+1; j < 2; j++) A[i][j] = A[i][j] - A[k][j] * x;
+      A[0][0] = A[0][1];
+      A[0][1] = 0;
 
-      b[i] = b[i] - b[k] * x;
-
+      double temp = A[1][0];
+      A[1][0] = A[1][1];
+      A[1][1] = temp;
     }
-  }
+
+  for (unsigned int k = 0; k < 1; k++)
+    {
+      for (unsigned int i = k+1; i < 2; i++)
+        {
+          x = A[i][k] / A[k][k];
+
+          for (unsigned int j = k+1; j < 2; j++) A[i][j] = A[i][j] - A[k][j] * x;
+
+          b[i] = b[i] - b[k] * x;
+
+        }
+    }
 
   b[1]=b[1] / A[1][1];
 
-  for (int i = 0; i >= 0; i--) 
-  {
-    sum = b[i];
+  for (int i = 0; i >= 0; i--)
+    {
+      sum = b[i];
 
-    for (unsigned int j = i+1; j < 2; j++) sum = sum - A[i][j]*b[j];
+      for (unsigned int j = i+1; j < 2; j++) sum = sum - A[i][j]*b[j];
 
-    b[i] = sum / A[i][i];
-  }
+      b[i] = sum / A[i][i];
+    }
 
   if (col_change)
-  {
-    double temp = b[0];
-    b[0] = b[1];
-    b[1] = temp;
-  }
+    {
+      double temp = b[0];
+      b[0] = b[1];
+      b[1] = temp;
+    }
 
   gradient[0] = b[0] * (v_max[2] - v_min[2]) + b[1] * (v_inter[2] - v_min[2]) - c + v_min[2];
 
@@ -2682,46 +2718,46 @@ Point<6> DataOutBase::svg_get_gradient_parameters(Point<3> points[])
   col_change = false;
 
   if (A[0][0] == 0)
-  {
-    col_change = true;
-
-    A[0][0] = A[0][1];
-    A[0][1] = 0;
-
-    double temp = A[1][0];
-    A[1][0] = A[1][1];
-    A[1][1] = temp;
-  }
-
-  for (unsigned int k = 0; k < 1; k++) 
-  {
-    for (unsigned int i = k+1; i < 2; i++) 
     {
-      x = A[i][k] / A[k][k];
+      col_change = true;
 
-      for (unsigned int j = k+1; j < 2; j++) A[i][j] = A[i][j] - A[k][j] * x;
+      A[0][0] = A[0][1];
+      A[0][1] = 0;
 
-      b[i] = b[i] - b[k] * x;
+      double temp = A[1][0];
+      A[1][0] = A[1][1];
+      A[1][1] = temp;
     }
-  }
+
+  for (unsigned int k = 0; k < 1; k++)
+    {
+      for (unsigned int i = k+1; i < 2; i++)
+        {
+          x = A[i][k] / A[k][k];
+
+          for (unsigned int j = k+1; j < 2; j++) A[i][j] = A[i][j] - A[k][j] * x;
+
+          b[i] = b[i] - b[k] * x;
+        }
+    }
 
   b[1] = b[1] / A[1][1];
 
-  for (int i = 0; i >= 0; i--) 
-  {
-    sum = b[i];
+  for (int i = 0; i >= 0; i--)
+    {
+      sum = b[i];
 
-    for (unsigned int j = i+1; j < 2; j++) sum = sum - A[i][j] * b[j];
+      for (unsigned int j = i+1; j < 2; j++) sum = sum - A[i][j] * b[j];
 
-    b[i] = sum / A[i][i];
-  }
+      b[i] = sum / A[i][i];
+    }
 
   if (col_change)
-  {
-    double temp = b[0];
-    b[0] = b[1];
-    b[1] = temp;
-  }
+    {
+      double temp = b[0];
+      b[0] = b[1];
+      b[1] = temp;
+    }
 
   gradient[1] = b[0] * (v_max[2] - v_min[2]) + b[1] * (v_inter[2] - v_min[2]) - c + v_min[2];
 
@@ -2736,7 +2772,7 @@ Point<6> DataOutBase::svg_get_gradient_parameters(Point<3> points[])
 
   gradient_parameters[0] = v_min[0];
   gradient_parameters[1] = v_min[1];
-  
+
   gradient_parameters[2] = v_min[0] + lambda * gradient[0];
   gradient_parameters[3] = v_min[1] + lambda * gradient[1];
 
@@ -4937,14 +4973,18 @@ DataOutBase::write_vtk (const std::vector<Patch<dim,spacedim> > &patches,
     std::tm     *time = std::localtime(&time1);
     out << "# vtk DataFile Version 3.0"
         << '\n'
-        << "#This file was generated by the deal.II library on "
-        << time->tm_year+1900 << "/"
-        << time->tm_mon+1 << "/"
-        << time->tm_mday << " at "
-        << time->tm_hour << ":"
-        << std::setw(2) << time->tm_min << ":"
-        << std::setw(2) << time->tm_sec
-        << '\n'
+        << "#This file was generated by the deal.II library";
+    if (flags.print_date_and_time)
+      out << " on "
+          << time->tm_year+1900 << "/"
+          << time->tm_mon+1 << "/"
+          << time->tm_mday << " at "
+          << time->tm_hour << ":"
+          << std::setw(2) << time->tm_min << ":"
+          << std::setw(2) << time->tm_sec;
+    else
+      out << ".";
+    out << '\n'
         << "ASCII"
         << '\n';
     // now output the data header
@@ -5154,7 +5194,8 @@ DataOutBase::write_vtk (const std::vector<Patch<dim,spacedim> > &patches,
 }
 
 
-void DataOutBase::write_vtu_header (std::ostream &out)
+void DataOutBase::write_vtu_header (std::ostream &out,
+                                    const VtkFlags &flags)
 {
   AssertThrow (out, ExcIO());
   std::time_t  time1= std::time (0);
@@ -5163,15 +5204,18 @@ void DataOutBase::write_vtu_header (std::ostream &out)
   out << "<!-- \n";
   out << "# vtk DataFile Version 3.0"
       << '\n'
-      << "#This file was generated by the deal.II library on "
-      << time->tm_year+1900 << "/"
-      << time->tm_mon+1 << "/"
-      << time->tm_mday << " at "
-      << time->tm_hour << ":"
-      << std::setw(2) << time->tm_min << ":"
-      << std::setw(2) << time->tm_sec
-      << "\n-->\n";
-
+      << "#This file was generated by the deal.II library";
+  if (flags.print_date_and_time)
+    out << " on "
+        << time->tm_year+1900 << "/"
+        << time->tm_mon+1 << "/"
+        << time->tm_mday << " at "
+        << time->tm_hour << ":"
+        << std::setw(2) << time->tm_min << ":"
+        << std::setw(2) << time->tm_sec;
+  else
+    out << ".";
+  out << "\n-->\n";
   out << "<VTKFile type=\"UnstructuredGrid\" version=\"0.1\"";
 #ifdef DEAL_II_WITH_ZLIB
   out << " compressor=\"vtkZLibDataCompressor\"";
@@ -5206,7 +5250,7 @@ DataOutBase::write_vtu (const std::vector<Patch<dim,spacedim> > &patches,
                         const VtkFlags                          &flags,
                         std::ostream                            &out)
 {
-  write_vtu_header(out);
+  write_vtu_header(out, flags);
   write_vtu_main (patches, data_names, vector_data_ranges, flags, out);
   write_vtu_footer(out);
 
@@ -5325,7 +5369,7 @@ void DataOutBase::write_vtu_main (const std::vector<Patch<dim,spacedim> > &patch
 
     if (n_metadata > 0)
       out << "</FieldData>\n";
-}
+  }
 
 
   VtuStream vtu_out(out, flags);
@@ -5593,12 +5637,12 @@ void DataOutBase::write_svg (const std::vector<Patch<dim,spacedim> > &patches,
   // do not allow volume rendering
   AssertThrow (dim==2, ExcNotImplemented());
 
-  const unsigned int height = 4000;
-  unsigned int width;
+  const unsigned int height = flags.height;
+  unsigned int width = flags.width;
 
   // margin around the plotted area
   unsigned int margin_in_percent = 0;
-  if(flags.margin) margin_in_percent = 5;
+  if (flags.margin) margin_in_percent = 5;
 
 
 // determine the bounding box in the model space
@@ -5619,8 +5663,8 @@ void DataOutBase::write_svg (const std::vector<Patch<dim,spacedim> > &patches,
   Point<2> projection_decomposition;
   Point<2> projection_decompositions[4];
 
-  compute_node(projected_point, &*patch, 0, 0, 0, n_subdivisions); 
- 
+  compute_node(projected_point, &*patch, 0, 0, 0, n_subdivisions);
+
   Assert ((flags.height_vector < patch->data.n_rows()) ||
           patch->data.n_rows() == 0,
           ExcIndexRange (flags.height_vector, 0, patch->data.n_rows()));
@@ -5634,55 +5678,55 @@ void DataOutBase::write_svg (const std::vector<Patch<dim,spacedim> > &patches,
 
   // iterate over the patches
   for (; patch != patches.end(); ++patch)
-  {
-    n_subdivisions = patch->n_subdivisions;
-    n = n_subdivisions + 1;
+    {
+      n_subdivisions = patch->n_subdivisions;
+      n = n_subdivisions + 1;
 
-    for (unsigned int i2 = 0; i2 < n_subdivisions; ++i2)
-    {  
-      for (unsigned int i1 = 0; i1 < n_subdivisions; ++i1)
-      {
-        compute_node(projected_points[0], &*patch, i1, i2, 0, n_subdivisions);
-        compute_node(projected_points[1], &*patch, i1+1, i2, 0, n_subdivisions);
-        compute_node(projected_points[2], &*patch, i1, i2+1, 0, n_subdivisions);
-        compute_node(projected_points[3], &*patch, i1+1, i2+1, 0, n_subdivisions);
+      for (unsigned int i2 = 0; i2 < n_subdivisions; ++i2)
+        {
+          for (unsigned int i1 = 0; i1 < n_subdivisions; ++i1)
+            {
+              compute_node(projected_points[0], &*patch, i1, i2, 0, n_subdivisions);
+              compute_node(projected_points[1], &*patch, i1+1, i2, 0, n_subdivisions);
+              compute_node(projected_points[2], &*patch, i1, i2+1, 0, n_subdivisions);
+              compute_node(projected_points[3], &*patch, i1+1, i2+1, 0, n_subdivisions);
 
-        x_min = std::min(x_min, (double)projected_points[0][0]);
-        x_min = std::min(x_min, (double)projected_points[1][0]);
-        x_min = std::min(x_min, (double)projected_points[2][0]);
-        x_min = std::min(x_min, (double)projected_points[3][0]);
+              x_min = std::min(x_min, (double)projected_points[0][0]);
+              x_min = std::min(x_min, (double)projected_points[1][0]);
+              x_min = std::min(x_min, (double)projected_points[2][0]);
+              x_min = std::min(x_min, (double)projected_points[3][0]);
 
-        x_max = std::max(x_max, (double)projected_points[0][0]);
-        x_max = std::max(x_max, (double)projected_points[1][0]);
-        x_max = std::max(x_max, (double)projected_points[2][0]);
-        x_max = std::max(x_max, (double)projected_points[3][0]);   
+              x_max = std::max(x_max, (double)projected_points[0][0]);
+              x_max = std::max(x_max, (double)projected_points[1][0]);
+              x_max = std::max(x_max, (double)projected_points[2][0]);
+              x_max = std::max(x_max, (double)projected_points[3][0]);
 
-        y_min = std::min(y_min, (double)projected_points[0][1]);
-        y_min = std::min(y_min, (double)projected_points[1][1]);
-        y_min = std::min(y_min, (double)projected_points[2][1]);
-        y_min = std::min(y_min, (double)projected_points[3][1]);
+              y_min = std::min(y_min, (double)projected_points[0][1]);
+              y_min = std::min(y_min, (double)projected_points[1][1]);
+              y_min = std::min(y_min, (double)projected_points[2][1]);
+              y_min = std::min(y_min, (double)projected_points[3][1]);
 
-        y_max = std::max(y_max, (double)projected_points[0][1]);
-        y_max = std::max(y_max, (double)projected_points[1][1]);
-        y_max = std::max(y_max, (double)projected_points[2][1]);
-        y_max = std::max(y_max, (double)projected_points[3][1]);
- 
-        Assert ((flags.height_vector < patch->data.n_rows()) ||
-                patch->data.n_rows() == 0,
-                ExcIndexRange (flags.height_vector, 0, patch->data.n_rows()));
+              y_max = std::max(y_max, (double)projected_points[0][1]);
+              y_max = std::max(y_max, (double)projected_points[1][1]);
+              y_max = std::max(y_max, (double)projected_points[2][1]);
+              y_max = std::max(y_max, (double)projected_points[3][1]);
 
-        z_min = std::min(z_min, (double)patch->data(flags.height_vector, i1*d1 + i2*d2));
-        z_min = std::min(z_min, (double)patch->data(flags.height_vector, (i1+1)*d1 + i2*d2));
-        z_min = std::min(z_min, (double)patch->data(flags.height_vector, i1*d1 + (i2+1)*d2));
-        z_min = std::min(z_min, (double)patch->data(flags.height_vector, (i1+1)*d1 + (i2+1)*d2));
+              Assert ((flags.height_vector < patch->data.n_rows()) ||
+                      patch->data.n_rows() == 0,
+                      ExcIndexRange (flags.height_vector, 0, patch->data.n_rows()));
 
-        z_max = std::max(z_max, (double)patch->data(flags.height_vector, i1*d1 + i2*d2));
-        z_max = std::max(z_max, (double)patch->data(flags.height_vector, (i1+1)*d1 + i2*d2));
-        z_max = std::max(z_max, (double)patch->data(flags.height_vector, i1*d1 + (i2+1)*d2));
-        z_max = std::max(z_max, (double)patch->data(flags.height_vector, (i1+1)*d1 + (i2+1)*d2));
-      }
+              z_min = std::min(z_min, (double)patch->data(flags.height_vector, i1*d1 + i2*d2));
+              z_min = std::min(z_min, (double)patch->data(flags.height_vector, (i1+1)*d1 + i2*d2));
+              z_min = std::min(z_min, (double)patch->data(flags.height_vector, i1*d1 + (i2+1)*d2));
+              z_min = std::min(z_min, (double)patch->data(flags.height_vector, (i1+1)*d1 + (i2+1)*d2));
+
+              z_max = std::max(z_max, (double)patch->data(flags.height_vector, i1*d1 + i2*d2));
+              z_max = std::max(z_max, (double)patch->data(flags.height_vector, (i1+1)*d1 + i2*d2));
+              z_max = std::max(z_max, (double)patch->data(flags.height_vector, i1*d1 + (i2+1)*d2));
+              z_max = std::max(z_max, (double)patch->data(flags.height_vector, (i1+1)*d1 + (i2+1)*d2));
+            }
+        }
     }
-  }
 
   x_dimension = x_max - x_min;
   y_dimension = y_max - y_min;
@@ -5762,7 +5806,7 @@ void DataOutBase::write_svg (const std::vector<Patch<dim,spacedim> > &patches,
   camera_position[1] -= (z_min + 2. * z_dimension) * sin(angle_factor * flags.polar_angle) * cos(angle_factor * flags.azimuth_angle);
 
 
-// determine the bounding box on the projection plane 
+// determine the bounding box on the projection plane
   double x_min_perspective, y_min_perspective;
   double x_max_perspective, y_max_perspective;
   double x_dimension_perspective, y_dimension_perspective;
@@ -5774,8 +5818,8 @@ void DataOutBase::write_svg (const std::vector<Patch<dim,spacedim> > &patches,
 
   Point<3> point(true);
 
-  compute_node(projected_point, &*patch, 0, 0, 0, n_subdivisions);  
-  
+  compute_node(projected_point, &*patch, 0, 0, 0, n_subdivisions);
+
   Assert ((flags.height_vector < patch->data.n_rows()) ||
           patch->data.n_rows() == 0,
           ExcIndexRange (flags.height_vector, 0, patch->data.n_rows()));
@@ -5793,69 +5837,69 @@ void DataOutBase::write_svg (const std::vector<Patch<dim,spacedim> > &patches,
 
   // iterate over the patches
   for (; patch != patches.end(); ++patch)
-  {
-    n_subdivisions = patch->n_subdivisions;
-    n = n_subdivisions + 1;
+    {
+      n_subdivisions = patch->n_subdivisions;
+      n = n_subdivisions + 1;
 
-    for (unsigned int i2 = 0; i2 < n_subdivisions; ++i2)
-    {  
-      for (unsigned int i1 = 0; i1 < n_subdivisions; ++i1)
-      {
-        Point<spacedim> projected_vertices[4];
-        Point<3> vertices[4];
+      for (unsigned int i2 = 0; i2 < n_subdivisions; ++i2)
+        {
+          for (unsigned int i1 = 0; i1 < n_subdivisions; ++i1)
+            {
+              Point<spacedim> projected_vertices[4];
+              Point<3> vertices[4];
 
-        compute_node(projected_vertices[0], &*patch, i1, i2, 0, n_subdivisions);
-        compute_node(projected_vertices[1], &*patch, i1+1, i2, 0, n_subdivisions);
-        compute_node(projected_vertices[2], &*patch, i1, i2+1, 0, n_subdivisions);
-        compute_node(projected_vertices[3], &*patch, i1+1, i2+1, 0, n_subdivisions);
+              compute_node(projected_vertices[0], &*patch, i1, i2, 0, n_subdivisions);
+              compute_node(projected_vertices[1], &*patch, i1+1, i2, 0, n_subdivisions);
+              compute_node(projected_vertices[2], &*patch, i1, i2+1, 0, n_subdivisions);
+              compute_node(projected_vertices[3], &*patch, i1+1, i2+1, 0, n_subdivisions);
 
-        Assert ((flags.height_vector < patch->data.n_rows()) ||
-                patch->data.n_rows() == 0,
-                ExcIndexRange (flags.height_vector, 0, patch->data.n_rows()));
+              Assert ((flags.height_vector < patch->data.n_rows()) ||
+                      patch->data.n_rows() == 0,
+                      ExcIndexRange (flags.height_vector, 0, patch->data.n_rows()));
 
-        vertices[0][0] = projected_vertices[0][0];
-        vertices[0][1] = projected_vertices[0][1]; 
-        vertices[0][2] = patch->data.n_rows() != 0 ? patch->data(0,i1*d1 + i2*d2) : 0;
-               
-        vertices[1][0] = projected_vertices[1][0];
-        vertices[1][1] = projected_vertices[1][1]; 
-        vertices[1][2] = patch->data.n_rows() != 0 ? patch->data(0,(i1+1)*d1 + i2*d2) : 0;
-        
-        vertices[2][0] = projected_vertices[2][0];
-        vertices[2][1] = projected_vertices[2][1]; 
-        vertices[2][2] = patch->data.n_rows() != 0 ? patch->data(0,i1*d1 + (i2+1)*d2) : 0;
+              vertices[0][0] = projected_vertices[0][0];
+              vertices[0][1] = projected_vertices[0][1];
+              vertices[0][2] = patch->data.n_rows() != 0 ? patch->data(0,i1*d1 + i2*d2) : 0;
 
-        vertices[3][0] = projected_vertices[3][0];
-        vertices[3][1] = projected_vertices[3][1];         
-        vertices[3][2] = patch->data.n_rows() != 0 ? patch->data(0,(i1+1)*d1 + (i2+1)*d2) : 0;
+              vertices[1][0] = projected_vertices[1][0];
+              vertices[1][1] = projected_vertices[1][1];
+              vertices[1][2] = patch->data.n_rows() != 0 ? patch->data(0,(i1+1)*d1 + i2*d2) : 0;
 
-        projection_decompositions[0] = svg_project_point(vertices[0], camera_position, camera_direction, camera_horizontal, camera_focus);
-        projection_decompositions[1] = svg_project_point(vertices[1], camera_position, camera_direction, camera_horizontal, camera_focus);
-        projection_decompositions[2] = svg_project_point(vertices[2], camera_position, camera_direction, camera_horizontal, camera_focus);
-        projection_decompositions[3] = svg_project_point(vertices[3], camera_position, camera_direction, camera_horizontal, camera_focus);
+              vertices[2][0] = projected_vertices[2][0];
+              vertices[2][1] = projected_vertices[2][1];
+              vertices[2][2] = patch->data.n_rows() != 0 ? patch->data(0,i1*d1 + (i2+1)*d2) : 0;
 
-        x_min_perspective = std::min(x_min_perspective, (double)projection_decompositions[0][0]);
-        x_min_perspective = std::min(x_min_perspective, (double)projection_decompositions[1][0]);
-        x_min_perspective = std::min(x_min_perspective, (double)projection_decompositions[2][0]);
-        x_min_perspective = std::min(x_min_perspective, (double)projection_decompositions[3][0]);
+              vertices[3][0] = projected_vertices[3][0];
+              vertices[3][1] = projected_vertices[3][1];
+              vertices[3][2] = patch->data.n_rows() != 0 ? patch->data(0,(i1+1)*d1 + (i2+1)*d2) : 0;
 
-        x_max_perspective = std::max(x_max_perspective, (double)projection_decompositions[0][0]);
-        x_max_perspective = std::max(x_max_perspective, (double)projection_decompositions[1][0]);
-        x_max_perspective = std::max(x_max_perspective, (double)projection_decompositions[2][0]);
-        x_max_perspective = std::max(x_max_perspective, (double)projection_decompositions[3][0]);
+              projection_decompositions[0] = svg_project_point(vertices[0], camera_position, camera_direction, camera_horizontal, camera_focus);
+              projection_decompositions[1] = svg_project_point(vertices[1], camera_position, camera_direction, camera_horizontal, camera_focus);
+              projection_decompositions[2] = svg_project_point(vertices[2], camera_position, camera_direction, camera_horizontal, camera_focus);
+              projection_decompositions[3] = svg_project_point(vertices[3], camera_position, camera_direction, camera_horizontal, camera_focus);
 
-        y_min_perspective = std::min(y_min_perspective, (double)projection_decompositions[0][1]);
-        y_min_perspective = std::min(y_min_perspective, (double)projection_decompositions[1][1]);
-        y_min_perspective = std::min(y_min_perspective, (double)projection_decompositions[2][1]);
-        y_min_perspective = std::min(y_min_perspective, (double)projection_decompositions[3][1]);
+              x_min_perspective = std::min(x_min_perspective, (double)projection_decompositions[0][0]);
+              x_min_perspective = std::min(x_min_perspective, (double)projection_decompositions[1][0]);
+              x_min_perspective = std::min(x_min_perspective, (double)projection_decompositions[2][0]);
+              x_min_perspective = std::min(x_min_perspective, (double)projection_decompositions[3][0]);
 
-        y_max_perspective = std::max(y_max_perspective, (double)projection_decompositions[0][1]);
-        y_max_perspective = std::max(y_max_perspective, (double)projection_decompositions[1][1]);
-        y_max_perspective = std::max(y_max_perspective, (double)projection_decompositions[2][1]);
-        y_max_perspective = std::max(y_max_perspective, (double)projection_decompositions[3][1]);
-      }
+              x_max_perspective = std::max(x_max_perspective, (double)projection_decompositions[0][0]);
+              x_max_perspective = std::max(x_max_perspective, (double)projection_decompositions[1][0]);
+              x_max_perspective = std::max(x_max_perspective, (double)projection_decompositions[2][0]);
+              x_max_perspective = std::max(x_max_perspective, (double)projection_decompositions[3][0]);
+
+              y_min_perspective = std::min(y_min_perspective, (double)projection_decompositions[0][1]);
+              y_min_perspective = std::min(y_min_perspective, (double)projection_decompositions[1][1]);
+              y_min_perspective = std::min(y_min_perspective, (double)projection_decompositions[2][1]);
+              y_min_perspective = std::min(y_min_perspective, (double)projection_decompositions[3][1]);
+
+              y_max_perspective = std::max(y_max_perspective, (double)projection_decompositions[0][1]);
+              y_max_perspective = std::max(y_max_perspective, (double)projection_decompositions[1][1]);
+              y_max_perspective = std::max(y_max_perspective, (double)projection_decompositions[2][1]);
+              y_max_perspective = std::max(y_max_perspective, (double)projection_decompositions[3][1]);
+            }
+        }
     }
-  }
 
   x_dimension_perspective = x_max_perspective - x_min_perspective;
   y_dimension_perspective = y_max_perspective - y_min_perspective;
@@ -5864,290 +5908,361 @@ void DataOutBase::write_svg (const std::vector<Patch<dim,spacedim> > &patches,
 
   // iterate over the patches
   for (patch = patches.begin(); patch != patches.end(); ++patch)
-  {
-    n_subdivisions = patch->n_subdivisions;
-    n = n_subdivisions + 1;
+    {
+      n_subdivisions = patch->n_subdivisions;
+      n = n_subdivisions + 1;
 
-    for (unsigned int i2 = 0; i2 < n_subdivisions; ++i2)
-    {  
-      for (unsigned int i1 = 0; i1 < n_subdivisions; ++i1)
-      {
-        Point<spacedim> projected_vertices[4];
-        SvgCell cell;
+      for (unsigned int i2 = 0; i2 < n_subdivisions; ++i2)
+        {
+          for (unsigned int i1 = 0; i1 < n_subdivisions; ++i1)
+            {
+              Point<spacedim> projected_vertices[4];
+              SvgCell cell;
 
-        compute_node(projected_vertices[0], &*patch, i1, i2, 0, n_subdivisions);
-        compute_node(projected_vertices[1], &*patch, i1+1, i2, 0, n_subdivisions);
-        compute_node(projected_vertices[2], &*patch, i1, i2+1, 0, n_subdivisions);
-        compute_node(projected_vertices[3], &*patch, i1+1, i2+1, 0, n_subdivisions);
+              compute_node(projected_vertices[0], &*patch, i1, i2, 0, n_subdivisions);
+              compute_node(projected_vertices[1], &*patch, i1+1, i2, 0, n_subdivisions);
+              compute_node(projected_vertices[2], &*patch, i1, i2+1, 0, n_subdivisions);
+              compute_node(projected_vertices[3], &*patch, i1+1, i2+1, 0, n_subdivisions);
 
-        Assert ((flags.height_vector < patch->data.n_rows()) ||
-                patch->data.n_rows() == 0,
-                ExcIndexRange (flags.height_vector, 0, patch->data.n_rows()));
+              Assert ((flags.height_vector < patch->data.n_rows()) ||
+                      patch->data.n_rows() == 0,
+                      ExcIndexRange (flags.height_vector, 0, patch->data.n_rows()));
 
-        cell.vertices[0][0] = projected_vertices[0][0];
-        cell.vertices[0][1] = projected_vertices[0][1]; 
-        cell.vertices[0][2] = patch->data.n_rows() != 0 ? patch->data(0,i1*d1 + i2*d2) : 0;
-               
-        cell.vertices[1][0] = projected_vertices[1][0];
-        cell.vertices[1][1] = projected_vertices[1][1]; 
-        cell.vertices[1][2] = patch->data.n_rows() != 0 ? patch->data(0,(i1+1)*d1 + i2*d2) : 0;
-        
-        cell.vertices[2][0] = projected_vertices[2][0];
-        cell.vertices[2][1] = projected_vertices[2][1]; 
-        cell.vertices[2][2] = patch->data.n_rows() != 0 ? patch->data(0,i1*d1 + (i2+1)*d2) : 0;
+              cell.vertices[0][0] = projected_vertices[0][0];
+              cell.vertices[0][1] = projected_vertices[0][1];
+              cell.vertices[0][2] = patch->data.n_rows() != 0 ? patch->data(0,i1*d1 + i2*d2) : 0;
 
-        cell.vertices[3][0] = projected_vertices[3][0];
-        cell.vertices[3][1] = projected_vertices[3][1];         
-        cell.vertices[3][2] = patch->data.n_rows() != 0 ? patch->data(0,(i1+1)*d1 + (i2+1)*d2) : 0;
+              cell.vertices[1][0] = projected_vertices[1][0];
+              cell.vertices[1][1] = projected_vertices[1][1];
+              cell.vertices[1][2] = patch->data.n_rows() != 0 ? patch->data(0,(i1+1)*d1 + i2*d2) : 0;
 
-        cell.projected_vertices[0] = svg_project_point(cell.vertices[0], camera_position, camera_direction, camera_horizontal, camera_focus);
-        cell.projected_vertices[1] = svg_project_point(cell.vertices[1], camera_position, camera_direction, camera_horizontal, camera_focus);
-        cell.projected_vertices[2] = svg_project_point(cell.vertices[2], camera_position, camera_direction, camera_horizontal, camera_focus);
-        cell.projected_vertices[3] = svg_project_point(cell.vertices[3], camera_position, camera_direction, camera_horizontal, camera_focus);
+              cell.vertices[2][0] = projected_vertices[2][0];
+              cell.vertices[2][1] = projected_vertices[2][1];
+              cell.vertices[2][2] = patch->data.n_rows() != 0 ? patch->data(0,i1*d1 + (i2+1)*d2) : 0;
 
-        cell.center = .25 * (cell.vertices[0] + cell.vertices[1] + cell.vertices[2] + cell.vertices[3]);
-        cell.projected_center = svg_project_point(cell.center, camera_position, camera_direction, camera_horizontal, camera_focus);
+              cell.vertices[3][0] = projected_vertices[3][0];
+              cell.vertices[3][1] = projected_vertices[3][1];
+              cell.vertices[3][2] = patch->data.n_rows() != 0 ? patch->data(0,(i1+1)*d1 + (i2+1)*d2) : 0;
 
-        cell.depth = cell.center.distance(camera_position);
- 
-        cells.insert(cell);
-      }
+              cell.projected_vertices[0] = svg_project_point(cell.vertices[0], camera_position, camera_direction, camera_horizontal, camera_focus);
+              cell.projected_vertices[1] = svg_project_point(cell.vertices[1], camera_position, camera_direction, camera_horizontal, camera_focus);
+              cell.projected_vertices[2] = svg_project_point(cell.vertices[2], camera_position, camera_direction, camera_horizontal, camera_focus);
+              cell.projected_vertices[3] = svg_project_point(cell.vertices[3], camera_position, camera_direction, camera_horizontal, camera_focus);
+
+              cell.center = .25 * (cell.vertices[0] + cell.vertices[1] + cell.vertices[2] + cell.vertices[3]);
+              cell.projected_center = svg_project_point(cell.center, camera_position, camera_direction, camera_horizontal, camera_focus);
+
+              cell.depth = cell.center.distance(camera_position);
+
+              cells.insert(cell);
+            }
+        }
     }
-  }
 
 
 // write the svg file
-  width = static_cast<unsigned int>(.5 + height * (x_dimension_perspective / y_dimension_perspective));
+  if (width==0)
+    width = static_cast<unsigned int>(.5 + height * (x_dimension_perspective / y_dimension_perspective));
   unsigned int additional_width = 0;
 
-  if(flags.draw_colorbar) additional_width = static_cast<unsigned int>(.5 + height * .3); // additional width for colorbar
-  
+  if (flags.draw_colorbar) additional_width = static_cast<unsigned int>(.5 + height * .3); // additional width for colorbar
+
   // basic svg header and background rectangle
-  out << "<svg width=\"" << width + additional_width << "\" height=\"" << height << "\" xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\">" << '\n' 
+  out << "<svg width=\"" << width + additional_width << "\" height=\"" << height << "\" xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\">" << '\n'
       << " <rect width=\"" << width + additional_width << "\" height=\"" << height << "\" style=\"fill:white\"/>" << '\n' << '\n';
 
   unsigned int triangle_counter = 0;
- 
+
   // write the cells in the correct order
   for (typename std::multiset<SvgCell>::const_iterator cell = cells.begin(); cell != cells.end(); ++cell)
-  {
-    Point<3> points3d_triangle[3];
-
-    for (unsigned int triangle_index = 0; triangle_index < 4; triangle_index++)
     {
-      switch (triangle_index)
-      {
-        case 0: points3d_triangle[0] = cell->vertices[0], points3d_triangle[1] = cell->vertices[1], points3d_triangle[2] = cell->center; break;
-        case 1: points3d_triangle[0] = cell->vertices[1], points3d_triangle[1] = cell->vertices[3], points3d_triangle[2] = cell->center; break;
-        case 2: points3d_triangle[0] = cell->vertices[3], points3d_triangle[1] = cell->vertices[2], points3d_triangle[2] = cell->center; break;
-        case 3: points3d_triangle[0] = cell->vertices[2], points3d_triangle[1] = cell->vertices[0], points3d_triangle[2] = cell->center; break;
-        default: break;
-      }
+      Point<3> points3d_triangle[3];
 
-      Point<6> gradient_param = svg_get_gradient_parameters(points3d_triangle);
+      for (unsigned int triangle_index = 0; triangle_index < 4; triangle_index++)
+        {
+          switch (triangle_index)
+            {
+            case 0:
+              points3d_triangle[0] = cell->vertices[0], points3d_triangle[1] = cell->vertices[1], points3d_triangle[2] = cell->center;
+              break;
+            case 1:
+              points3d_triangle[0] = cell->vertices[1], points3d_triangle[1] = cell->vertices[3], points3d_triangle[2] = cell->center;
+              break;
+            case 2:
+              points3d_triangle[0] = cell->vertices[3], points3d_triangle[1] = cell->vertices[2], points3d_triangle[2] = cell->center;
+              break;
+            case 3:
+              points3d_triangle[0] = cell->vertices[2], points3d_triangle[1] = cell->vertices[0], points3d_triangle[2] = cell->center;
+              break;
+            default:
+              break;
+            }
 
-      double start_h = .667 - ((gradient_param[4] - z_min) / z_dimension) * .667;
-      double stop_h = .667 - ((gradient_param[5] - z_min) / z_dimension) * .667;  
+          Point<6> gradient_param = svg_get_gradient_parameters(points3d_triangle);
 
-      unsigned int start_r = 0;
-      unsigned int start_g = 0;
-      unsigned int start_b = 0;
+          double start_h = .667 - ((gradient_param[4] - z_min) / z_dimension) * .667;
+          double stop_h = .667 - ((gradient_param[5] - z_min) / z_dimension) * .667;
 
-      unsigned int stop_r = 0;
-      unsigned int stop_g = 0;
-      unsigned int stop_b = 0;
+          unsigned int start_r = 0;
+          unsigned int start_g = 0;
+          unsigned int start_b = 0;
 
-      unsigned int start_i = static_cast<unsigned int>(start_h * 6.);
-      unsigned int stop_i = static_cast<unsigned int>(stop_h * 6.);
+          unsigned int stop_r = 0;
+          unsigned int stop_g = 0;
+          unsigned int stop_b = 0;
 
-      double start_f = start_h * 6. - start_i;
-      double start_q = 1. - start_f;
+          unsigned int start_i = static_cast<unsigned int>(start_h * 6.);
+          unsigned int stop_i = static_cast<unsigned int>(stop_h * 6.);
 
-      double stop_f = stop_h * 6. - stop_i;
-      double stop_q = 1. - stop_f;
+          double start_f = start_h * 6. - start_i;
+          double start_q = 1. - start_f;
 
-      switch (start_i % 6)
-      {
-        case 0: start_r = 255, start_g = static_cast<unsigned int>(.5 + 255. * start_f); break;
-        case 1: start_r = static_cast<unsigned int>(.5 + 255. * start_q), start_g = 255; break;
-        case 2: start_g = 255, start_b = static_cast<unsigned int>(.5 + 255. * start_f); break;
-        case 3: start_g = static_cast<unsigned int>(.5 + 255. * start_q), start_b = 255; break; 
-        case 4: start_r = static_cast<unsigned int>(.5 + 255. * start_f), start_b = 255; break;
-        case 5: start_r = 255, start_b = static_cast<unsigned int>(.5 + 255. * start_q); break;
-        default: break;
-      }
+          double stop_f = stop_h * 6. - stop_i;
+          double stop_q = 1. - stop_f;
 
-      switch (stop_i % 6)
-      {
-        case 0: stop_r = 255, stop_g = static_cast<unsigned int>(.5 + 255. * stop_f); break;
-        case 1: stop_r = static_cast<unsigned int>(.5 + 255. * stop_q), stop_g = 255; break;
-        case 2: stop_g = 255, stop_b = static_cast<unsigned int>(.5 + 255. * stop_f); break;
-        case 3: stop_g = static_cast<unsigned int>(.5 + 255. * stop_q), stop_b = 255; break; 
-        case 4: stop_r = static_cast<unsigned int>(.5 + 255. * stop_f), stop_b = 255; break;
-        case 5: stop_r = 255, stop_b = static_cast<unsigned int>(.5 + 255. * stop_q); break;
-        default: break;
-      }
+          switch (start_i % 6)
+            {
+            case 0:
+              start_r = 255, start_g = static_cast<unsigned int>(.5 + 255. * start_f);
+              break;
+            case 1:
+              start_r = static_cast<unsigned int>(.5 + 255. * start_q), start_g = 255;
+              break;
+            case 2:
+              start_g = 255, start_b = static_cast<unsigned int>(.5 + 255. * start_f);
+              break;
+            case 3:
+              start_g = static_cast<unsigned int>(.5 + 255. * start_q), start_b = 255;
+              break;
+            case 4:
+              start_r = static_cast<unsigned int>(.5 + 255. * start_f), start_b = 255;
+              break;
+            case 5:
+              start_r = 255, start_b = static_cast<unsigned int>(.5 + 255. * start_q);
+              break;
+            default:
+              break;
+            }
 
-      Point<3> gradient_start_point_3d, gradient_stop_point_3d;
+          switch (stop_i % 6)
+            {
+            case 0:
+              stop_r = 255, stop_g = static_cast<unsigned int>(.5 + 255. * stop_f);
+              break;
+            case 1:
+              stop_r = static_cast<unsigned int>(.5 + 255. * stop_q), stop_g = 255;
+              break;
+            case 2:
+              stop_g = 255, stop_b = static_cast<unsigned int>(.5 + 255. * stop_f);
+              break;
+            case 3:
+              stop_g = static_cast<unsigned int>(.5 + 255. * stop_q), stop_b = 255;
+              break;
+            case 4:
+              stop_r = static_cast<unsigned int>(.5 + 255. * stop_f), stop_b = 255;
+              break;
+            case 5:
+              stop_r = 255, stop_b = static_cast<unsigned int>(.5 + 255. * stop_q);
+              break;
+            default:
+              break;
+            }
 
-      gradient_start_point_3d[0] = gradient_param[0];     
-      gradient_start_point_3d[1] = gradient_param[1];    
-      gradient_start_point_3d[2] = gradient_param[4];    
+          Point<3> gradient_start_point_3d, gradient_stop_point_3d;
 
-      gradient_stop_point_3d[0] = gradient_param[2];     
-      gradient_stop_point_3d[1] = gradient_param[3];    
-      gradient_stop_point_3d[2] = gradient_param[5];  
+          gradient_start_point_3d[0] = gradient_param[0];
+          gradient_start_point_3d[1] = gradient_param[1];
+          gradient_start_point_3d[2] = gradient_param[4];
 
-      Point<2> gradient_start_point = svg_project_point(gradient_start_point_3d, camera_position, camera_direction, camera_horizontal, camera_focus);
-      Point<2> gradient_stop_point = svg_project_point(gradient_stop_point_3d, camera_position, camera_direction, camera_horizontal, camera_focus);
+          gradient_stop_point_3d[0] = gradient_param[2];
+          gradient_stop_point_3d[1] = gradient_param[3];
+          gradient_stop_point_3d[2] = gradient_param[5];
 
-      // define linear gradient
-      out << "  <linearGradient id=\"" << triangle_counter << "\" gradientUnits=\"userSpaceOnUse\" "
-          << "x1=\"" 
-          << static_cast<unsigned int>(.5 + ((gradient_start_point[0] - x_min_perspective) / x_dimension_perspective) * (width - (width/100.) * 2. * margin_in_percent) + ((width/100.) * margin_in_percent)) 
-          << "\" " 
-          << "y1=\"" 
-          << static_cast<unsigned int>(.5 + height - (height/100.) * margin_in_percent - ((gradient_start_point[1] - y_min_perspective) / y_dimension_perspective) * (height - (height/100.) * 2. * margin_in_percent)) 
-          << "\" "
-          << "x2=\"" 
-          << static_cast<unsigned int>(.5 + ((gradient_stop_point[0] - x_min_perspective) / x_dimension_perspective) * (width - (width/100.) * 2. * margin_in_percent) + ((width/100.) * margin_in_percent)) 
-          << "\" "
-          << "y2=\"" 
-          << static_cast<unsigned int>(.5 + height - (height/100.) * margin_in_percent - ((gradient_stop_point[1] - y_min_perspective) / y_dimension_perspective) * (height - (height/100.) * 2. * margin_in_percent)) 
-          << "\""
-          << ">" << '\n'
-          << "   <stop offset=\"0\" style=\"stop-color:rgb(" << start_r << "," << start_g << "," << start_b << ")\"/>" << '\n'
-          << "   <stop offset=\"1\" style=\"stop-color:rgb(" << stop_r << "," << stop_g << "," << stop_b << ")\"/>" << '\n'
-          << "  </linearGradient>" << '\n';
+          Point<2> gradient_start_point = svg_project_point(gradient_start_point_3d, camera_position, camera_direction, camera_horizontal, camera_focus);
+          Point<2> gradient_stop_point = svg_project_point(gradient_stop_point_3d, camera_position, camera_direction, camera_horizontal, camera_focus);
 
-      // draw current triangle
-      double x1 = 0, y1 = 0, x2 = 0, y2 = 0;
-      double x3 = cell->projected_center[0];
-      double y3 = cell->projected_center[1];
-   
-      switch (triangle_index)
-      {
-        case 0: x1 = cell->projected_vertices[0][0], y1 = cell->projected_vertices[0][1], x2 = cell->projected_vertices[1][0], y2 = cell->projected_vertices[1][1]; break;
-        case 1: x1 = cell->projected_vertices[1][0], y1 = cell->projected_vertices[1][1], x2 = cell->projected_vertices[3][0], y2 = cell->projected_vertices[3][1]; break;
-        case 2: x1 = cell->projected_vertices[3][0], y1 = cell->projected_vertices[3][1], x2 = cell->projected_vertices[2][0], y2 = cell->projected_vertices[2][1]; break;
-        case 3: x1 = cell->projected_vertices[2][0], y1 = cell->projected_vertices[2][1], x2 = cell->projected_vertices[0][0], y2 = cell->projected_vertices[0][1]; break;
-        default: break;
-      }
+          // define linear gradient
+          out << "  <linearGradient id=\"" << triangle_counter << "\" gradientUnits=\"userSpaceOnUse\" "
+              << "x1=\""
+              << static_cast<unsigned int>(.5 + ((gradient_start_point[0] - x_min_perspective) / x_dimension_perspective) * (width - (width/100.) * 2. * margin_in_percent) + ((width/100.) * margin_in_percent))
+              << "\" "
+              << "y1=\""
+              << static_cast<unsigned int>(.5 + height - (height/100.) * margin_in_percent - ((gradient_start_point[1] - y_min_perspective) / y_dimension_perspective) * (height - (height/100.) * 2. * margin_in_percent))
+              << "\" "
+              << "x2=\""
+              << static_cast<unsigned int>(.5 + ((gradient_stop_point[0] - x_min_perspective) / x_dimension_perspective) * (width - (width/100.) * 2. * margin_in_percent) + ((width/100.) * margin_in_percent))
+              << "\" "
+              << "y2=\""
+              << static_cast<unsigned int>(.5 + height - (height/100.) * margin_in_percent - ((gradient_stop_point[1] - y_min_perspective) / y_dimension_perspective) * (height - (height/100.) * 2. * margin_in_percent))
+              << "\""
+              << ">" << '\n'
+              << "   <stop offset=\"0\" style=\"stop-color:rgb(" << start_r << "," << start_g << "," << start_b << ")\"/>" << '\n'
+              << "   <stop offset=\"1\" style=\"stop-color:rgb(" << stop_r << "," << stop_g << "," << stop_b << ")\"/>" << '\n'
+              << "  </linearGradient>" << '\n';
 
-      out << "  <path d=\"M " 
-          << static_cast<unsigned int>(.5 + ((x1 - x_min_perspective) / x_dimension_perspective) * (width - (width/100.) * 2. * margin_in_percent) + ((width/100.) * margin_in_percent)) 
-          << ' ' 
-          << static_cast<unsigned int>(.5 + height - (height/100.) * margin_in_percent - ((y1 - y_min_perspective) / y_dimension_perspective) * (height - (height/100.) * 2. * margin_in_percent)) 
-          << " L " 
-          << static_cast<unsigned int>(.5 + ((x2 - x_min_perspective) / x_dimension_perspective) * (width - (width/100.) * 2. * margin_in_percent) + ((width/100.) * margin_in_percent)) 
-          << ' ' 
-          << static_cast<unsigned int>(.5 + height - (height/100.) * margin_in_percent - ((y2 - y_min_perspective) / y_dimension_perspective) * (height - (height/100.) * 2. * margin_in_percent))
-          << " L " 
-          << static_cast<unsigned int>(.5 + ((x3 - x_min_perspective) / x_dimension_perspective) * (width - (width/100.) * 2. * margin_in_percent) + ((width/100.) * margin_in_percent)) 
-          << ' ' 
-          << static_cast<unsigned int>(.5 + height - (height/100.) * margin_in_percent - ((y3 - y_min_perspective) / y_dimension_perspective) * (height - (height/100.) * 2. * margin_in_percent)) 
-          << " L " 
-          << static_cast<unsigned int>(.5 + ((x1 - x_min_perspective) / x_dimension_perspective) * (width - (width/100.) * 2. * margin_in_percent) + ((width/100.) * margin_in_percent))
-          << ' ' 
-          << static_cast<unsigned int>(.5 + height - (height/100.) * margin_in_percent - ((y1 - y_min_perspective) / y_dimension_perspective) * (height - (height/100.) * 2. * margin_in_percent)) 
-          << "\" style=\"stroke:black; fill:url(#" << triangle_counter << "); stroke-width:" << flags.line_thickness << "\"/>" << '\n';
+          // draw current triangle
+          double x1 = 0, y1 = 0, x2 = 0, y2 = 0;
+          double x3 = cell->projected_center[0];
+          double y3 = cell->projected_center[1];
 
-      triangle_counter++;
+          switch (triangle_index)
+            {
+            case 0:
+              x1 = cell->projected_vertices[0][0], y1 = cell->projected_vertices[0][1], x2 = cell->projected_vertices[1][0], y2 = cell->projected_vertices[1][1];
+              break;
+            case 1:
+              x1 = cell->projected_vertices[1][0], y1 = cell->projected_vertices[1][1], x2 = cell->projected_vertices[3][0], y2 = cell->projected_vertices[3][1];
+              break;
+            case 2:
+              x1 = cell->projected_vertices[3][0], y1 = cell->projected_vertices[3][1], x2 = cell->projected_vertices[2][0], y2 = cell->projected_vertices[2][1];
+              break;
+            case 3:
+              x1 = cell->projected_vertices[2][0], y1 = cell->projected_vertices[2][1], x2 = cell->projected_vertices[0][0], y2 = cell->projected_vertices[0][1];
+              break;
+            default:
+              break;
+            }
+
+          out << "  <path d=\"M "
+              << static_cast<unsigned int>(.5 + ((x1 - x_min_perspective) / x_dimension_perspective) * (width - (width/100.) * 2. * margin_in_percent) + ((width/100.) * margin_in_percent))
+              << ' '
+              << static_cast<unsigned int>(.5 + height - (height/100.) * margin_in_percent - ((y1 - y_min_perspective) / y_dimension_perspective) * (height - (height/100.) * 2. * margin_in_percent))
+              << " L "
+              << static_cast<unsigned int>(.5 + ((x2 - x_min_perspective) / x_dimension_perspective) * (width - (width/100.) * 2. * margin_in_percent) + ((width/100.) * margin_in_percent))
+              << ' '
+              << static_cast<unsigned int>(.5 + height - (height/100.) * margin_in_percent - ((y2 - y_min_perspective) / y_dimension_perspective) * (height - (height/100.) * 2. * margin_in_percent))
+              << " L "
+              << static_cast<unsigned int>(.5 + ((x3 - x_min_perspective) / x_dimension_perspective) * (width - (width/100.) * 2. * margin_in_percent) + ((width/100.) * margin_in_percent))
+              << ' '
+              << static_cast<unsigned int>(.5 + height - (height/100.) * margin_in_percent - ((y3 - y_min_perspective) / y_dimension_perspective) * (height - (height/100.) * 2. * margin_in_percent))
+              << " L "
+              << static_cast<unsigned int>(.5 + ((x1 - x_min_perspective) / x_dimension_perspective) * (width - (width/100.) * 2. * margin_in_percent) + ((width/100.) * margin_in_percent))
+              << ' '
+              << static_cast<unsigned int>(.5 + height - (height/100.) * margin_in_percent - ((y1 - y_min_perspective) / y_dimension_perspective) * (height - (height/100.) * 2. * margin_in_percent))
+              << "\" style=\"stroke:black; fill:url(#" << triangle_counter << "); stroke-width:" << flags.line_thickness << "\"/>" << '\n';
+
+          triangle_counter++;
+        }
     }
-  }
 
 
 // draw the colorbar
   if (flags.draw_colorbar)
-  {
-    out << '\n' << " <!-- colorbar -->" << '\n';
-
-    unsigned int element_height = static_cast<unsigned int>(((height/100.) * (71. - 2.*margin_in_percent)) / 4);
-    unsigned int element_width = static_cast<unsigned int>(.5 + (height/100.) * 2.5);
-
-    additional_width = 0;
-    if (!flags.margin) additional_width = static_cast<unsigned int>(.5 + (height/100.) * 2.5);
-
-    for (unsigned int index = 0; index < 4; index++)
     {
-      double start_h = .667 - ((index+1) / 4.) * .667;
-      double stop_h = .667 - (index / 4.) * .667;  
+      out << '\n' << " <!-- colorbar -->" << '\n';
 
-      unsigned int start_r = 0;
-      unsigned int start_g = 0;
-      unsigned int start_b = 0;
+      unsigned int element_height = static_cast<unsigned int>(((height/100.) * (71. - 2.*margin_in_percent)) / 4);
+      unsigned int element_width = static_cast<unsigned int>(.5 + (height/100.) * 2.5);
 
-      unsigned int stop_r = 0;
-      unsigned int stop_g = 0;
-      unsigned int stop_b = 0;
+      additional_width = 0;
+      if (!flags.margin) additional_width = static_cast<unsigned int>(.5 + (height/100.) * 2.5);
 
-      unsigned int start_i = static_cast<unsigned int>(start_h * 6.);
-      unsigned int stop_i = static_cast<unsigned int>(stop_h * 6.);
+      for (unsigned int index = 0; index < 4; index++)
+        {
+          double start_h = .667 - ((index+1) / 4.) * .667;
+          double stop_h = .667 - (index / 4.) * .667;
 
-      double start_f = start_h * 6. - start_i;
-      double start_q = 1. - start_f;
+          unsigned int start_r = 0;
+          unsigned int start_g = 0;
+          unsigned int start_b = 0;
 
-      double stop_f = stop_h * 6. - stop_i;
-      double stop_q = 1. - stop_f;
+          unsigned int stop_r = 0;
+          unsigned int stop_g = 0;
+          unsigned int stop_b = 0;
 
-      switch (start_i % 6)
-      {
-        case 0: start_r = 255, start_g = static_cast<unsigned int>(.5 + 255. * start_f); break;
-        case 1: start_r = static_cast<unsigned int>(.5 + 255. * start_q), start_g = 255; break;
-        case 2: start_g = 255, start_b = static_cast<unsigned int>(.5 + 255. * start_f); break;
-        case 3: start_g = static_cast<unsigned int>(.5 + 255. * start_q), start_b = 255; break; 
-        case 4: start_r = static_cast<unsigned int>(.5 + 255. * start_f), start_b = 255; break;
-        case 5: start_r = 255, start_b = static_cast<unsigned int>(.5 + 255. * start_q); break;
-        default: break;
-      }
+          unsigned int start_i = static_cast<unsigned int>(start_h * 6.);
+          unsigned int stop_i = static_cast<unsigned int>(stop_h * 6.);
 
-      switch (stop_i % 6)
-      {
-        case 0: stop_r = 255, stop_g = static_cast<unsigned int>(.5 + 255. * stop_f); break;
-        case 1: stop_r = static_cast<unsigned int>(.5 + 255. * stop_q), stop_g = 255; break;
-        case 2: stop_g = 255, stop_b = static_cast<unsigned int>(.5 + 255. * stop_f); break;
-        case 3: stop_g = static_cast<unsigned int>(.5 + 255. * stop_q), stop_b = 255; break; 
-        case 4: stop_r = static_cast<unsigned int>(.5 + 255. * stop_f), stop_b = 255; break;
-        case 5: stop_r = 255, stop_b = static_cast<unsigned int>(.5 + 255. * stop_q); break;
-        default: break;
-      }
+          double start_f = start_h * 6. - start_i;
+          double start_q = 1. - start_f;
 
-      // define gradient
-      out << "  <linearGradient id=\"colorbar_" << index << "\" gradientUnits=\"userSpaceOnUse\" "
-          << "x1=\"" << width + additional_width << "\" " 
-          << "y1=\"" << static_cast<unsigned int>(.5 + (height/100.) * (margin_in_percent + 29)) + (3-index) * element_height << "\" "
-          << "x2=\"" << width + additional_width << "\" "
-          << "y2=\"" << static_cast<unsigned int>(.5 + (height/100.) * (margin_in_percent + 29)) + (4-index) * element_height << "\""
-          << ">" << '\n'
-          << "   <stop offset=\"0\" style=\"stop-color:rgb(" << start_r << "," << start_g << "," << start_b << ")\"/>" << '\n'
-          << "   <stop offset=\"1\" style=\"stop-color:rgb(" << stop_r << "," << stop_g << "," << stop_b << ")\"/>" << '\n'
-          << "  </linearGradient>" << '\n';          
+          double stop_f = stop_h * 6. - stop_i;
+          double stop_q = 1. - stop_f;
 
-      // draw box corresponding to the gradient above
-      out << "  <rect" 
-          << " x=\"" << width + additional_width
-          << "\" y=\"" << static_cast<unsigned int>(.5 + (height/100.) * (margin_in_percent + 29)) + (3-index) * element_height
-          << "\" width=\"" << element_width
-          << "\" height=\"" << element_height
-          << "\" style=\"stroke:black; stroke-width:2; fill:url(#colorbar_" << index << ")\"/>" << '\n';
+          switch (start_i % 6)
+            {
+            case 0:
+              start_r = 255, start_g = static_cast<unsigned int>(.5 + 255. * start_f);
+              break;
+            case 1:
+              start_r = static_cast<unsigned int>(.5 + 255. * start_q), start_g = 255;
+              break;
+            case 2:
+              start_g = 255, start_b = static_cast<unsigned int>(.5 + 255. * start_f);
+              break;
+            case 3:
+              start_g = static_cast<unsigned int>(.5 + 255. * start_q), start_b = 255;
+              break;
+            case 4:
+              start_r = static_cast<unsigned int>(.5 + 255. * start_f), start_b = 255;
+              break;
+            case 5:
+              start_r = 255, start_b = static_cast<unsigned int>(.5 + 255. * start_q);
+              break;
+            default:
+              break;
+            }
+
+          switch (stop_i % 6)
+            {
+            case 0:
+              stop_r = 255, stop_g = static_cast<unsigned int>(.5 + 255. * stop_f);
+              break;
+            case 1:
+              stop_r = static_cast<unsigned int>(.5 + 255. * stop_q), stop_g = 255;
+              break;
+            case 2:
+              stop_g = 255, stop_b = static_cast<unsigned int>(.5 + 255. * stop_f);
+              break;
+            case 3:
+              stop_g = static_cast<unsigned int>(.5 + 255. * stop_q), stop_b = 255;
+              break;
+            case 4:
+              stop_r = static_cast<unsigned int>(.5 + 255. * stop_f), stop_b = 255;
+              break;
+            case 5:
+              stop_r = 255, stop_b = static_cast<unsigned int>(.5 + 255. * stop_q);
+              break;
+            default:
+              break;
+            }
+
+          // define gradient
+          out << "  <linearGradient id=\"colorbar_" << index << "\" gradientUnits=\"userSpaceOnUse\" "
+              << "x1=\"" << width + additional_width << "\" "
+              << "y1=\"" << static_cast<unsigned int>(.5 + (height/100.) * (margin_in_percent + 29)) + (3-index) * element_height << "\" "
+              << "x2=\"" << width + additional_width << "\" "
+              << "y2=\"" << static_cast<unsigned int>(.5 + (height/100.) * (margin_in_percent + 29)) + (4-index) * element_height << "\""
+              << ">" << '\n'
+              << "   <stop offset=\"0\" style=\"stop-color:rgb(" << start_r << "," << start_g << "," << start_b << ")\"/>" << '\n'
+              << "   <stop offset=\"1\" style=\"stop-color:rgb(" << stop_r << "," << stop_g << "," << stop_b << ")\"/>" << '\n'
+              << "  </linearGradient>" << '\n';
+
+          // draw box corresponding to the gradient above
+          out << "  <rect"
+              << " x=\"" << width + additional_width
+              << "\" y=\"" << static_cast<unsigned int>(.5 + (height/100.) * (margin_in_percent + 29)) + (3-index) * element_height
+              << "\" width=\"" << element_width
+              << "\" height=\"" << element_height
+              << "\" style=\"stroke:black; stroke-width:2; fill:url(#colorbar_" << index << ")\"/>" << '\n';
+        }
+
+      for (unsigned int index = 0; index < 5; index++)
+        {
+          out << "  <text x=\"" << width + additional_width + static_cast<unsigned int>(1.5 * element_width)
+              << "\" y=\"" << static_cast<unsigned int>(.5 + (height/100.) * (margin_in_percent + 29) + (4.-index) * element_height + 30.) << "\""
+              << " style=\"text-anchor:start; font-size:80; font-family:Helvetica";
+
+          if (index == 0 || index == 4) out << "; font-weight:bold";
+
+          out << "\">" << (float)(((int)((z_min + index * (z_dimension / 4.))*10000))/10000.);
+
+          if (index == 4) out << " max";
+          if (index == 0) out << " min";
+
+          out << "</text>" << '\n';
+        }
     }
-    
-    for (unsigned int index = 0; index < 5; index++)
-    {
-      out << "  <text x=\"" << width + additional_width + static_cast<unsigned int>(1.5 * element_width)
-          << "\" y=\"" << static_cast<unsigned int>(.5 + (height/100.) * (margin_in_percent + 29) + (4.-index) * element_height + 30.) << "\""
-          << " style=\"text-anchor:start; font-size:80; font-family:Helvetica";
-
-      if (index == 0 || index == 4) out << "; font-weight:bold";
-
-      out << "\">" << (float)(((int)((z_min + index * (z_dimension / 4.))*10000))/10000.);
-
-      if (index == 4) out << " max";
-      if (index == 0) out << " min";
-
-      out << "</text>" << '\n';
-    }
-  }
 
   // finalize the svg file
   out << '\n' << "</svg>";
@@ -6406,7 +6521,7 @@ void DataOutInterface<dim,spacedim>::write_vtu_in_parallel (const char *filename
   MPI_Info info;
   MPI_Info_create(&info);
   MPI_File fh;
-  MPI_File_open(MPI_COMM_WORLD, const_cast<char *>(filename),
+  MPI_File_open(comm, const_cast<char *>(filename),
                 MPI_MODE_CREATE | MPI_MODE_WRONLY, info, &fh);
   MPI_File_set_size(fh, 0); // delete the file contents
   // this barrier is necessary, because otherwise others might already
@@ -6420,7 +6535,7 @@ void DataOutInterface<dim,spacedim>::write_vtu_in_parallel (const char *filename
   if (myrank==0)
     {
       std::stringstream ss;
-      DataOutBase::write_vtu_header(ss);
+      DataOutBase::write_vtu_header(ss, vtk_flags);
       header_size = ss.str().size();
       MPI_File_write(fh, const_cast<char *>(ss.str().c_str()), header_size, MPI_CHAR, NULL);
     }
@@ -6607,6 +6722,32 @@ DataOutInterface<dim,spacedim>::write_visit_record (std::ostream &out,
 
 
 template <int dim, int spacedim>
+void
+DataOutInterface<dim,spacedim>::write_visit_record (std::ostream &out,
+                                                    const std::vector<std::vector<std::string> > &piece_names) const
+{
+  AssertThrow (out, ExcIO());
+
+  if (piece_names.size() == 0)
+    return;
+
+  const double nblocks = piece_names[0].size();
+  Assert(nblocks > 0, ExcMessage("piece_names should be a vector of nonempty vectors.") )
+
+  out << "!NBLOCKS " << nblocks << '\n';
+  for (std::vector<std::vector<std::string> >::const_iterator domain = piece_names.begin(); domain != piece_names.end(); ++domain)
+    {
+      Assert(domain->size() == nblocks, ExcMessage("piece_names should be a vector of equal sized vectors.") )
+      for (std::vector<std::string>::const_iterator subdomain = domain->begin(); subdomain != domain->end(); ++subdomain)
+        out << *subdomain << '\n';
+    }
+
+  out << std::flush;
+}
+
+
+
+template <int dim, int spacedim>
 void DataOutInterface<dim,spacedim>::
 write_deal_II_intermediate (std::ostream &out) const
 {
@@ -6618,39 +6759,42 @@ write_deal_II_intermediate (std::ostream &out) const
 
 template <int dim, int spacedim>
 XDMFEntry DataOutInterface<dim,spacedim>::
-create_xdmf_entry (const char *h5_filename, const double cur_time, MPI_Comm comm) const
+create_xdmf_entry (const std::string &h5_filename, const double cur_time, MPI_Comm comm) const
 {
-  return DataOutBase::create_xdmf_entry(get_patches(), get_dataset_names(), get_vector_data_ranges(),
-                                        h5_filename, cur_time, comm);
+  DataOutBase::DataOutFilter  data_filter(DataOutBase::DataOutFilterFlags(false, true));
+  write_filtered_data(data_filter);
+  return create_xdmf_entry(data_filter, h5_filename, cur_time, comm);
 }
 
 template <int dim, int spacedim>
-XDMFEntry DataOutBase::create_xdmf_entry (const std::vector<Patch<dim,spacedim> > &patches,
-                                          const std::vector<std::string>          &data_names,
-                                          const std::vector<std_cxx1x::tuple<unsigned int, unsigned int, std::string> > &vector_data_ranges,
-                                          const char *h5_filename,
-                                          const double cur_time,
-                                          MPI_Comm comm)
+XDMFEntry DataOutInterface<dim,spacedim>::
+create_xdmf_entry (const DataOutFilter &data_filter, const std::string &h5_filename, const double cur_time, MPI_Comm comm) const
+{
+  return create_xdmf_entry(data_filter, h5_filename, h5_filename, cur_time, comm);
+}
+
+template <int dim, int spacedim>
+XDMFEntry DataOutInterface<dim,spacedim>::
+create_xdmf_entry (const DataOutFilter &data_filter, const std::string &h5_mesh_filename, const std::string &h5_solution_filename, const double cur_time, MPI_Comm comm) const
 {
   unsigned int    local_node_cell_count[2], global_node_cell_count[2];
-  const unsigned int n_data_sets = data_names.size();
   int             myrank;
 
 #ifndef DEAL_II_WITH_HDF5
   // throw an exception, but first make
   // sure the compiler does not warn about
   // the now unused function arguments
-  (void)patches;
-  (void)data_names;
-  (void)vector_data_ranges;
-  (void)h5_filename;
+  (void)data_filter;
+  (void)h5_mesh_filename;
+  (void)h5_solution_filename;
   (void)cur_time;
   (void)comm;
   AssertThrow(false, ExcMessage ("XDMF support requires HDF5 to be turned on."));
 #endif
   AssertThrow(dim == 2 || dim == 3, ExcMessage ("XDMF only supports 2 or 3 dimensions."));
 
-  compute_sizes<dim,spacedim>(patches, local_node_cell_count[0], local_node_cell_count[1]);
+  local_node_cell_count[0] = data_filter.n_nodes();
+  local_node_cell_count[1] = data_filter.n_cells();
 
   // And compute the global total
 #ifdef DEAL_II_WITH_MPI
@@ -6665,56 +6809,14 @@ XDMFEntry DataOutBase::create_xdmf_entry (const std::vector<Patch<dim,spacedim> 
   // Output the XDMF file only on the root process
   if (myrank == 0)
     {
-      XDMFEntry       entry(h5_filename, cur_time, global_node_cell_count[0], global_node_cell_count[1], dim);
+      XDMFEntry       entry(h5_mesh_filename, h5_solution_filename, cur_time, global_node_cell_count[0], global_node_cell_count[1], dim);
+      unsigned int  n_data_sets = data_filter.n_data_sets();
 
       // The vector names generated here must match those generated in the HDF5 file
-      unsigned int    i, n_th_vector, data_set, pt_data_vector_dim;
-      std::string     vector_name;
-      for (n_th_vector=0,data_set=0; data_set<n_data_sets;)
+      unsigned int    i;
+      for (i=0; i<n_data_sets; ++i)
         {
-          // Advance n_th_vector to at least the current data set we are on
-          while (n_th_vector < vector_data_ranges.size() && std_cxx1x::get<0>(vector_data_ranges[n_th_vector]) < data_set) n_th_vector++;
-
-          // Determine whether the data is multiple dimensions or one
-          if (std_cxx1x::get<0>(vector_data_ranges[n_th_vector]) == data_set)
-            {
-              // Multiple dimensions
-              pt_data_vector_dim = std_cxx1x::get<1>(vector_data_ranges[n_th_vector]) - std_cxx1x::get<0>(vector_data_ranges[n_th_vector])+1;
-
-              // Ensure the dimensionality of the data is correct
-              AssertThrow (std_cxx1x::get<1>(vector_data_ranges[n_th_vector]) >= std_cxx1x::get<0>(vector_data_ranges[n_th_vector]),
-                           ExcLowerRange (std_cxx1x::get<1>(vector_data_ranges[n_th_vector]), std_cxx1x::get<0>(vector_data_ranges[n_th_vector])));
-              AssertThrow (std_cxx1x::get<1>(vector_data_ranges[n_th_vector]) < n_data_sets,
-                           ExcIndexRange (std_cxx1x::get<1>(vector_data_ranges[n_th_vector]), 0, n_data_sets));
-
-              // Determine the vector name
-              // Concatenate all the
-              // component names with double
-              // underscores unless a vector
-              // name has been specified
-              if (std_cxx1x::get<2>(vector_data_ranges[n_th_vector]) != "")
-                {
-                  vector_name = std_cxx1x::get<2>(vector_data_ranges[n_th_vector]);
-                }
-              else
-                {
-                  vector_name = "";
-                  for (i=std_cxx1x::get<0>(vector_data_ranges[n_th_vector]); i<std_cxx1x::get<1>(vector_data_ranges[n_th_vector]); ++i)
-                    vector_name += data_names[i] + "__";
-                  vector_name += data_names[std_cxx1x::get<1>(vector_data_ranges[n_th_vector])];
-                }
-            }
-          else
-            {
-              // One dimension
-              pt_data_vector_dim = 1;
-              vector_name = data_names[data_set];
-            }
-
-          entry.add_attribute(vector_name, pt_data_vector_dim);
-
-          // Advance the current data set
-          data_set += pt_data_vector_dim;
+          entry.add_attribute(data_filter.get_data_set_name(i), data_filter.get_data_set_dim(i));
         }
 
       return entry;
@@ -6728,19 +6830,8 @@ XDMFEntry DataOutBase::create_xdmf_entry (const std::vector<Patch<dim,spacedim> 
 template <int dim, int spacedim>
 void DataOutInterface<dim,spacedim>::
 write_xdmf_file (const std::vector<XDMFEntry> &entries,
-                 const char *filename,
+                 const std::string &filename,
                  MPI_Comm comm) const
-{
-  DataOutBase::write_xdmf_file(get_patches(), entries, filename, comm);
-}
-
-
-
-template <int dim, int spacedim>
-void DataOutBase::write_xdmf_file (const std::vector<Patch<dim,spacedim> > &,
-                                   const std::vector<XDMFEntry> &entries,
-                                   const char *filename,
-                                   MPI_Comm comm)
 {
   int             myrank;
 
@@ -6754,7 +6845,7 @@ void DataOutBase::write_xdmf_file (const std::vector<Patch<dim,spacedim> > &,
   // Only rank 0 process writes the XDMF file
   if (myrank == 0)
     {
-      std::ofstream                               xdmf_file(filename);
+      std::ofstream                               xdmf_file(filename.c_str());
       std::vector<XDMFEntry>::const_iterator      it;
 
       xdmf_file << "<?xml version=\"1.0\" ?>\n";
@@ -6776,8 +6867,10 @@ void DataOutBase::write_xdmf_file (const std::vector<Patch<dim,spacedim> > &,
 }
 
 
-// Get the XDMF content associated with this entry
-// If the entry is not valid, this returns false
+/*
+ * Get the XDMF content associated with this entry.
+ * If the entry is not valid, this returns an empty string.
+ */
 std::string XDMFEntry::get_xdmf_content(const unsigned int indent_level) const
 {
   std::stringstream   ss;
@@ -6789,7 +6882,7 @@ std::string XDMFEntry::get_xdmf_content(const unsigned int indent_level) const
   ss << indent(indent_level+1) << "<Time Value=\"" << entry_time << "\"/>\n";
   ss << indent(indent_level+1) << "<Geometry GeometryType=\"" << (dimension == 2 ? "XY" : "XYZ" ) << "\">\n";
   ss << indent(indent_level+2) << "<DataItem Dimensions=\"" << num_nodes << " " << dimension << "\" NumberType=\"Float\" Precision=\"8\" Format=\"HDF\">\n";
-  ss << indent(indent_level+3) << h5_filename << ":/nodes\n";
+  ss << indent(indent_level+3) << h5_mesh_filename << ":/nodes\n";
   ss << indent(indent_level+2) << "</DataItem>\n";
   ss << indent(indent_level+1) << "</Geometry>\n";
   // If we have cells defined, use a quadrilateral (2D) or hexahedron (3D) topology
@@ -6797,7 +6890,7 @@ std::string XDMFEntry::get_xdmf_content(const unsigned int indent_level) const
     {
       ss << indent(indent_level+1) << "<Topology TopologyType=\"" << (dimension == 2 ? "Quadrilateral" : "Hexahedron") << "\" NumberOfElements=\"" << num_cells << "\">\n";
       ss << indent(indent_level+2) << "<DataItem Dimensions=\"" << num_cells << " " << (2 << (dimension-1)) << "\" NumberType=\"UInt\" Format=\"HDF\">\n";
-      ss << indent(indent_level+3) << h5_filename << ":/cells\n";
+      ss << indent(indent_level+3) << h5_mesh_filename << ":/cells\n";
       ss << indent(indent_level+2) << "</DataItem>\n";
       ss << indent(indent_level+1) << "</Topology>\n";
     }
@@ -6813,7 +6906,7 @@ std::string XDMFEntry::get_xdmf_content(const unsigned int indent_level) const
       ss << indent(indent_level+1) << "<Attribute Name=\"" << it->first << "\" AttributeType=\"" << (it->second > 1 ? "Vector" : "Scalar") << "\" Center=\"Node\">\n";
       // Vectors must have 3 elements even for 2D models
       ss << indent(indent_level+2) << "<DataItem Dimensions=\"" << num_nodes << " " << (it->second > 1 ? 3 : 1) << "\" NumberType=\"Float\" Precision=\"8\" Format=\"HDF\">\n";
-      ss << indent(indent_level+3) << h5_filename << ":/" << it->first << "\n";
+      ss << indent(indent_level+3) << h5_sol_filename << ":/" << it->first << "\n";
       ss << indent(indent_level+2) << "</DataItem>\n";
       ss << indent(indent_level+1) << "</Attribute>\n";
     }
@@ -6823,37 +6916,31 @@ std::string XDMFEntry::get_xdmf_content(const unsigned int indent_level) const
   return ss.str();
 }
 
+/*
+ * Write the data in this DataOutInterface to a DataOutFilter object.
+ * Filtering is performed based on the DataOutFilter flags.
+ */
 template <int dim, int spacedim>
 void DataOutInterface<dim,spacedim>::
-write_hdf5_parallel (const char *filename, MPI_Comm comm) const
+write_filtered_data (DataOutFilter &filtered_data) const
 {
-#ifndef DEAL_II_WITH_HDF5
-  AssertThrow(false, ExcMessage ("HDF5 support is disabled."));
-#endif
-  DataOutBase::write_hdf5_parallel(get_patches(), get_dataset_names(),
+  DataOutBase::write_filtered_data(get_patches(), get_dataset_names(),
                                    get_vector_data_ranges(),
-                                   filename, comm);
+                                   filtered_data);
 }
 
 template <int dim, int spacedim>
-void DataOutBase::write_hdf5_parallel (const std::vector<Patch<dim,spacedim> > &patches,
+void DataOutBase::write_filtered_data (const std::vector<Patch<dim,spacedim> > &patches,
                                        const std::vector<std::string>          &data_names,
                                        const std::vector<std_cxx1x::tuple<unsigned int, unsigned int, std::string> > &vector_data_ranges,
-                                       const char *filename,
-                                       MPI_Comm comm)
+                                       DataOutFilter &filtered_data)
 {
-#ifndef DEAL_II_WITH_HDF5
-  // throw an exception, but first make
-  // sure the compiler does not warn about
-  // the now unused function arguments
-  (void)patches;
-  (void)data_names;
-  (void)vector_data_ranges;
-  (void)filename;
-  (void)comm;
-  AssertThrow(false, ExcMessage ("HDF5 support is disabled."));
-#else
-#ifndef DEAL_II_COMPILER_SUPPORTS_MPI
+  const unsigned int n_data_sets = data_names.size();
+  unsigned int    n_node, n_cell;
+  Table<2,double> data_vectors;
+  Threads::Task<> reorder_task;
+
+#ifndef DEAL_II_WITH_MPI
   // verify that there are indeed
   // patches to be written out. most
   // of the times, people just forget
@@ -6868,163 +6955,26 @@ void DataOutBase::write_hdf5_parallel (const std::vector<Patch<dim,spacedim> > &
   // that case it is legit if there
   // are no patches
   Assert (patches.size() > 0, ExcNoPatches());
-#else
-  hid_t           h5_file_id, plist_id;
-  hid_t           node_dataspace, node_dataset, node_file_dataspace, node_memory_dataspace;
-  hid_t           cell_dataspace, cell_dataset, cell_file_dataspace, cell_memory_dataspace;
-  hid_t           pt_data_dataspace, pt_data_dataset, pt_data_file_dataspace, pt_data_memory_dataspace;
-  herr_t          status;
-  unsigned int    local_node_cell_count[2], global_node_cell_count[2], global_node_cell_offsets[2];
-  hsize_t         count[2], offset[2], node_ds_dim[2], cell_ds_dim[2];
-  const unsigned int n_data_sets = data_names.size();
-  bool            empty_proc = false;
-  Table<2,double> data_vectors;
-  Threads::Task<> reorder_task;
-
-  if (patches.size() == 0) empty_proc = true;
-
-  // If HDF5 is not parallel and we're using multiple processes, abort
-#ifndef H5_HAVE_PARALLEL
-#ifdef DEAL_II_WITH_MPI
-  int world_size;
-  MPI_Comm_size(comm, &world_size);
-  AssertThrow (world_size <= 1,
-               ExcMessage ("Serial HDF5 output on multiple processes is not yet supported."));
-#endif
 #endif
 
-  if (empty_proc)
-    {
-      local_node_cell_count[0] = local_node_cell_count[1] = 0;
-    }
-  else
-    {
-      compute_sizes<dim,spacedim>(patches, local_node_cell_count[0], local_node_cell_count[1]);
+  compute_sizes<dim,spacedim>(patches, n_node, n_cell);
 
-      data_vectors = Table<2,double> (n_data_sets, local_node_cell_count[0]);
-      void (*fun_ptr) (const std::vector<Patch<dim,spacedim> > &, Table<2,double> &) = &DataOutBase::template write_gmv_reorder_data_vectors<dim,spacedim>;
-      reorder_task = Threads::new_task (fun_ptr, patches, data_vectors);
-    }
+  data_vectors = Table<2,double> (n_data_sets, n_node);
+  void (*fun_ptr) (const std::vector<Patch<dim,spacedim> > &, Table<2,double> &) = &DataOutBase::template write_gmv_reorder_data_vectors<dim,spacedim>;
+  reorder_task = Threads::new_task (fun_ptr, patches, data_vectors);
 
-  // Create file access properties
-  plist_id = H5Pcreate(H5P_FILE_ACCESS);
-  AssertThrow(plist_id != -1, ExcIO());
-  // If MPI is enabled *and* HDF5 is parallel, we can do parallel output
-#ifdef DEAL_II_WITH_MPI
-#ifdef H5_HAVE_PARALLEL
-  // Set the access to use the specified MPI_Comm object
-  status = H5Pset_fapl_mpio(plist_id, comm, MPI_INFO_NULL);
-  AssertThrow(status >= 0, ExcIO());
-#endif
-#endif
+  // Write the nodes/cells to the DataOutFilter object.
+  write_nodes(patches, filtered_data);
+  write_cells(patches, filtered_data);
 
-  // Overwrite any existing files (change this to an option?) and close the property list
-  h5_file_id = H5Fcreate(filename, H5F_ACC_TRUNC, H5P_DEFAULT, plist_id);
-  AssertThrow(h5_file_id >= 0, ExcIO());
-  status = H5Pclose(plist_id);
-  AssertThrow(status >= 0, ExcIO());
-
-  // Compute the global total number of nodes/cells
-  // And determine the offset of the data for this process
-#ifdef DEAL_II_WITH_MPI
-  MPI_Allreduce(local_node_cell_count, global_node_cell_count, 2, MPI_UNSIGNED, MPI_SUM, comm);
-  MPI_Scan(local_node_cell_count, global_node_cell_offsets, 2, MPI_UNSIGNED, MPI_SUM, comm);
-  global_node_cell_offsets[0] -= local_node_cell_count[0];
-  global_node_cell_offsets[1] -= local_node_cell_count[1];
-#else
-  global_node_cell_offsets[0] = global_node_cell_offsets[1] = 0;
-#endif
-
-  // Write the nodes/cells to the HDF5 "stream" object. Record the process offset
-  // so that node reference indices are correctly calculated
-  HDF5MemStream   hdf5_data(local_node_cell_count, global_node_cell_offsets, dim);
-  write_nodes(patches, hdf5_data);
-  write_cells(patches, hdf5_data);
-
-  // Create the dataspace for the nodes and cells
-  node_ds_dim[0] = global_node_cell_count[0];
-  node_ds_dim[1] = dim;
-  node_dataspace = H5Screate_simple(2, node_ds_dim, NULL);
-  AssertThrow(node_dataspace >= 0, ExcIO());
-
-  cell_ds_dim[0] = global_node_cell_count[1];
-  cell_ds_dim[1] = GeometryInfo<dim>::vertices_per_cell;
-  cell_dataspace = H5Screate_simple(2, cell_ds_dim, NULL);
-  AssertThrow(cell_dataspace >= 0, ExcIO());
-
-  // Create the dataset for the nodes and cells
-#if H5Gcreate_vers == 1
-  node_dataset = H5Dcreate(h5_file_id, "nodes", H5T_NATIVE_DOUBLE, node_dataspace, H5P_DEFAULT);
-#else
-  node_dataset = H5Dcreate(h5_file_id, "nodes", H5T_NATIVE_DOUBLE, node_dataspace, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
-#endif
-  AssertThrow(node_dataset >= 0, ExcIO());
-#if H5Gcreate_vers == 1
-  cell_dataset = H5Dcreate(h5_file_id, "cells", H5T_NATIVE_UINT, cell_dataspace, H5P_DEFAULT);
-#else
-  cell_dataset = H5Dcreate(h5_file_id, "cells", H5T_NATIVE_UINT, cell_dataspace, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
-#endif
-  AssertThrow(cell_dataset >= 0, ExcIO());
-
-  // Close the node and cell dataspaces since we're done with them
-  status = H5Sclose(node_dataspace);
-  AssertThrow(status >= 0, ExcIO());
-  status = H5Sclose(cell_dataspace);
-  AssertThrow(status >= 0, ExcIO());
-
-  // Create the data subset we'll use to read from memory
-  count[0] = local_node_cell_count[0];
-  count[1] = dim;
-  offset[0] = global_node_cell_offsets[0];
-  offset[1] = 0;
-  node_memory_dataspace = H5Screate_simple(2, count, NULL);
-  AssertThrow(node_memory_dataspace >= 0, ExcIO());
-
-  // Select the hyperslab in the file
-  node_file_dataspace = H5Dget_space(node_dataset);
-  AssertThrow(node_file_dataspace >= 0, ExcIO());
-  status = H5Sselect_hyperslab(node_file_dataspace, H5S_SELECT_SET, offset, NULL, count, NULL);
-  AssertThrow(status >= 0, ExcIO());
-
-  // And repeat for cells
-  count[0] = local_node_cell_count[1];
-  count[1] = GeometryInfo<dim>::vertices_per_cell;
-  offset[0] = global_node_cell_offsets[1];
-  offset[1] = 0;
-  cell_memory_dataspace = H5Screate_simple(2, count, NULL);
-  AssertThrow(cell_memory_dataspace >= 0, ExcIO());
-
-  cell_file_dataspace = H5Dget_space(cell_dataset);
-  AssertThrow(cell_file_dataspace >= 0, ExcIO());
-  status = H5Sselect_hyperslab(cell_file_dataspace, H5S_SELECT_SET, offset, NULL, count, NULL);
-  AssertThrow(status >= 0, ExcIO());
-
-  // Create the property list for a collective write
-  plist_id = H5Pcreate(H5P_DATASET_XFER);
-  AssertThrow(plist_id >= 0, ExcIO());
-#ifdef DEAL_II_WITH_MPI
-#ifdef H5_HAVE_PARALLEL
-  status = H5Pset_dxpl_mpio(plist_id, H5FD_MPIO_COLLECTIVE);
-  AssertThrow(status >= 0, ExcIO());
-#endif
-#endif
-
-  // And finally, write the node data
-  status = H5Dwrite(node_dataset, H5T_NATIVE_DOUBLE, node_memory_dataspace, node_file_dataspace, plist_id, hdf5_data.node_data());
-  AssertThrow(status >= 0, ExcIO());
-
-  // And the cell data
-  status = H5Dwrite(cell_dataset, H5T_NATIVE_UINT, cell_memory_dataspace, cell_file_dataspace, plist_id, hdf5_data.cell_data());
-  AssertThrow(status >= 0, ExcIO());
-
-  if (!empty_proc) reorder_task.join ();
+  // Ensure reordering is done before we output data set values
+  reorder_task.join ();
 
   // when writing, first write out
   // all vector data, then handle the
   // scalar data sets that have been
   // left over
   unsigned int    i, n, q, r, n_th_vector, data_set, pt_data_vector_dim, mem_vector_dim;
-  double          *pt_data;
   std::string     vector_name;
   for (n_th_vector=0,data_set=0; data_set<n_data_sets;)
     {
@@ -7067,27 +7017,284 @@ void DataOutBase::write_hdf5_parallel (const std::vector<Patch<dim,spacedim> > &
           vector_name = data_names[data_set];
         }
 
+      // Write data to the filter object
+      filtered_data.write_data_set(vector_name, pt_data_vector_dim, data_set, data_vectors);
+
+      // Advance the current data set
+      data_set += pt_data_vector_dim;
+    }
+}
+
+template <int dim, int spacedim>
+void DataOutInterface<dim,spacedim>::
+write_hdf5_parallel (const std::string &filename, MPI_Comm comm) const
+{
+  DataOutBase::DataOutFilter  data_filter(DataOutBase::DataOutFilterFlags(false, true));
+  write_filtered_data(data_filter);
+  write_hdf5_parallel(data_filter, filename, comm);
+}
+
+template <int dim, int spacedim>
+void DataOutInterface<dim,spacedim>::
+write_hdf5_parallel (const DataOutFilter &data_filter, const std::string &filename, MPI_Comm comm) const
+{
+  DataOutBase::write_hdf5_parallel(get_patches(), data_filter, filename, comm);
+}
+
+template <int dim, int spacedim>
+void DataOutInterface<dim,spacedim>::
+write_hdf5_parallel (const DataOutFilter &data_filter, const bool write_mesh_file, const std::string &mesh_filename, const std::string &solution_filename, MPI_Comm comm) const
+{
+  DataOutBase::write_hdf5_parallel(get_patches(), data_filter, write_mesh_file, mesh_filename, solution_filename, comm);
+}
+
+template <int dim, int spacedim>
+void DataOutBase::write_hdf5_parallel (const std::vector<Patch<dim,spacedim> > &patches,
+                                       const DataOutFilter &data_filter,
+                                       const std::string &filename,
+                                       MPI_Comm comm)
+{
+  write_hdf5_parallel(patches, data_filter, true, filename, filename, comm);
+}
+
+template <int dim, int spacedim>
+void DataOutBase::write_hdf5_parallel (const std::vector<Patch<dim,spacedim> > &patches,
+                                       const DataOutFilter &data_filter,
+                                       const bool write_mesh_file,
+                                       const std::string &mesh_filename,
+                                       const std::string &solution_filename,
+                                       MPI_Comm comm)
+{
+#ifndef DEAL_II_WITH_HDF5
+  // throw an exception, but first make
+  // sure the compiler does not warn about
+  // the now unused function arguments
+  (void)patches;
+  (void)data_filter;
+  (void)write_mesh_file;
+  (void)mesh_filename;
+  (void)solution_filename;
+  (void)comm;
+  AssertThrow(false, ExcMessage ("HDF5 support is disabled."));
+#else
+#ifndef DEAL_II_COMPILER_SUPPORTS_MPI
+  // verify that there are indeed
+  // patches to be written out. most
+  // of the times, people just forget
+  // to call build_patches when there
+  // are no patches, so a warning is
+  // in order. that said, the
+  // assertion is disabled if we
+  // support MPI since then it can
+  // happen that on the coarsest
+  // mesh, a processor simply has no
+  // cells it actually owns, and in
+  // that case it is legit if there
+  // are no patches
+  Assert (data_filter.n_nodes() > 0, ExcNoPatches());
+#else
+  hid_t           h5_mesh_file_id=-1, h5_solution_file_id, file_plist_id, plist_id;
+  hid_t           node_dataspace, node_dataset, node_file_dataspace, node_memory_dataspace;
+  hid_t           cell_dataspace, cell_dataset, cell_file_dataspace, cell_memory_dataspace;
+  hid_t           pt_data_dataspace, pt_data_dataset, pt_data_file_dataspace, pt_data_memory_dataspace;
+  herr_t          status;
+  unsigned int    local_node_cell_count[2], global_node_cell_count[2], global_node_cell_offsets[2];
+  hsize_t         count[2], offset[2], node_ds_dim[2], cell_ds_dim[2];
+  bool            empty_proc = false;
+  std::vector<double>          node_data_vec;
+  std::vector<unsigned int>    cell_data_vec;
+
+  if (data_filter.n_nodes() == 0) empty_proc = true;
+
+  // If HDF5 is not parallel and we're using multiple processes, abort
+#ifndef H5_HAVE_PARALLEL
+#ifdef DEAL_II_WITH_MPI
+  int world_size;
+  MPI_Comm_size(comm, &world_size);
+  AssertThrow (world_size <= 1,
+               ExcMessage ("Serial HDF5 output on multiple processes is not yet supported."));
+#endif
+#endif
+
+  local_node_cell_count[0] = data_filter.n_nodes();
+  local_node_cell_count[1] = data_filter.n_cells();
+
+  // Create file access properties
+  file_plist_id = H5Pcreate(H5P_FILE_ACCESS);
+  AssertThrow(file_plist_id != -1, ExcIO());
+  // If MPI is enabled *and* HDF5 is parallel, we can do parallel output
+#ifdef DEAL_II_WITH_MPI
+#ifdef H5_HAVE_PARALLEL
+  // Set the access to use the specified MPI_Comm object
+  status = H5Pset_fapl_mpio(file_plist_id, comm, MPI_INFO_NULL);
+  AssertThrow(status >= 0, ExcIO());
+#endif
+#endif
+
+  // Compute the global total number of nodes/cells
+  // And determine the offset of the data for this process
+#ifdef DEAL_II_WITH_MPI
+  MPI_Allreduce(local_node_cell_count, global_node_cell_count, 2, MPI_UNSIGNED, MPI_SUM, comm);
+  MPI_Scan(local_node_cell_count, global_node_cell_offsets, 2, MPI_UNSIGNED, MPI_SUM, comm);
+  global_node_cell_offsets[0] -= local_node_cell_count[0];
+  global_node_cell_offsets[1] -= local_node_cell_count[1];
+#else
+  global_node_cell_offsets[0] = global_node_cell_offsets[1] = 0;
+#endif
+
+  // Create the property list for a collective write
+  plist_id = H5Pcreate(H5P_DATASET_XFER);
+  AssertThrow(plist_id >= 0, ExcIO());
+#ifdef DEAL_II_WITH_MPI
+#ifdef H5_HAVE_PARALLEL
+  status = H5Pset_dxpl_mpio(plist_id, H5FD_MPIO_COLLECTIVE);
+  AssertThrow(status >= 0, ExcIO());
+#endif
+#endif
+
+  if (write_mesh_file)
+    {
+      // Overwrite any existing files (change this to an option?)
+      h5_mesh_file_id = H5Fcreate(mesh_filename.c_str(), H5F_ACC_TRUNC, H5P_DEFAULT, file_plist_id);
+      AssertThrow(h5_mesh_file_id >= 0, ExcIO());
+
+      // Create the dataspace for the nodes and cells
+      node_ds_dim[0] = global_node_cell_count[0];
+      node_ds_dim[1] = dim;
+      node_dataspace = H5Screate_simple(2, node_ds_dim, NULL);
+      AssertThrow(node_dataspace >= 0, ExcIO());
+
+      cell_ds_dim[0] = global_node_cell_count[1];
+      cell_ds_dim[1] = GeometryInfo<dim>::vertices_per_cell;
+      cell_dataspace = H5Screate_simple(2, cell_ds_dim, NULL);
+      AssertThrow(cell_dataspace >= 0, ExcIO());
+
+      // Create the dataset for the nodes and cells
+#if H5Gcreate_vers == 1
+      node_dataset = H5Dcreate(h5_mesh_file_id, "nodes", H5T_NATIVE_DOUBLE, node_dataspace, H5P_DEFAULT);
+#else
+      node_dataset = H5Dcreate(h5_mesh_file_id, "nodes", H5T_NATIVE_DOUBLE, node_dataspace, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+#endif
+      AssertThrow(node_dataset >= 0, ExcIO());
+#if H5Gcreate_vers == 1
+      cell_dataset = H5Dcreate(h5_mesh_file_id, "cells", H5T_NATIVE_UINT, cell_dataspace, H5P_DEFAULT);
+#else
+      cell_dataset = H5Dcreate(h5_mesh_file_id, "cells", H5T_NATIVE_UINT, cell_dataspace, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+#endif
+      AssertThrow(cell_dataset >= 0, ExcIO());
+
+      // Close the node and cell dataspaces since we're done with them
+      status = H5Sclose(node_dataspace);
+      AssertThrow(status >= 0, ExcIO());
+      status = H5Sclose(cell_dataspace);
+      AssertThrow(status >= 0, ExcIO());
+
+      // Create the data subset we'll use to read from memory
+      count[0] = local_node_cell_count[0];
+      count[1] = dim;
+      offset[0] = global_node_cell_offsets[0];
+      offset[1] = 0;
+      node_memory_dataspace = H5Screate_simple(2, count, NULL);
+      AssertThrow(node_memory_dataspace >= 0, ExcIO());
+
+      // Select the hyperslab in the file
+      node_file_dataspace = H5Dget_space(node_dataset);
+      AssertThrow(node_file_dataspace >= 0, ExcIO());
+      status = H5Sselect_hyperslab(node_file_dataspace, H5S_SELECT_SET, offset, NULL, count, NULL);
+      AssertThrow(status >= 0, ExcIO());
+
+      // And repeat for cells
+      count[0] = local_node_cell_count[1];
+      count[1] = GeometryInfo<dim>::vertices_per_cell;
+      offset[0] = global_node_cell_offsets[1];
+      offset[1] = 0;
+      cell_memory_dataspace = H5Screate_simple(2, count, NULL);
+      AssertThrow(cell_memory_dataspace >= 0, ExcIO());
+
+      cell_file_dataspace = H5Dget_space(cell_dataset);
+      AssertThrow(cell_file_dataspace >= 0, ExcIO());
+      status = H5Sselect_hyperslab(cell_file_dataspace, H5S_SELECT_SET, offset, NULL, count, NULL);
+      AssertThrow(status >= 0, ExcIO());
+
+      // And finally, write the node data
+      data_filter.fill_node_data(node_data_vec);
+      status = H5Dwrite(node_dataset, H5T_NATIVE_DOUBLE, node_memory_dataspace, node_file_dataspace, plist_id, &node_data_vec[0]);
+      AssertThrow(status >= 0, ExcIO());
+      node_data_vec.clear();
+
+      // And the cell data
+      data_filter.fill_cell_data(global_node_cell_offsets[0], cell_data_vec);
+      status = H5Dwrite(cell_dataset, H5T_NATIVE_UINT, cell_memory_dataspace, cell_file_dataspace, plist_id, &cell_data_vec[0]);
+      AssertThrow(status >= 0, ExcIO());
+      cell_data_vec.clear();
+
+      // Close the file dataspaces
+      status = H5Sclose(node_file_dataspace);
+      AssertThrow(status >= 0, ExcIO());
+      status = H5Sclose(cell_file_dataspace);
+      AssertThrow(status >= 0, ExcIO());
+
+      // Close the memory dataspaces
+      status = H5Sclose(node_memory_dataspace);
+      AssertThrow(status >= 0, ExcIO());
+      status = H5Sclose(cell_memory_dataspace);
+      AssertThrow(status >= 0, ExcIO());
+
+      // Close the datasets
+      status = H5Dclose(node_dataset);
+      AssertThrow(status >= 0, ExcIO());
+      status = H5Dclose(cell_dataset);
+      AssertThrow(status >= 0, ExcIO());
+
+      // If the filenames are different, we need to close the mesh file
+      if (mesh_filename != solution_filename)
+        {
+          status = H5Fclose(h5_mesh_file_id);
+          AssertThrow(status >= 0, ExcIO());
+        }
+    }
+
+  // If the filenames are identical, continue with the same file
+  if (mesh_filename == solution_filename && write_mesh_file)
+    {
+      h5_solution_file_id = h5_mesh_file_id;
+    }
+  else
+    {
+      // Otherwise we need to open a new file
+      h5_solution_file_id = H5Fcreate(solution_filename.c_str(), H5F_ACC_TRUNC, H5P_DEFAULT, file_plist_id);
+      AssertThrow(h5_solution_file_id >= 0, ExcIO());
+    }
+
+  // when writing, first write out
+  // all vector data, then handle the
+  // scalar data sets that have been
+  // left over
+  unsigned int    i, n, q, r, pt_data_vector_dim;
+  std::string     vector_name;
+  for (i=0; i<data_filter.n_data_sets(); ++i)
+    {
       // Allocate space for the point data
       // Must be either 1D or 3D
-      mem_vector_dim = (pt_data_vector_dim>1?3:1);
-      pt_data = new double[local_node_cell_count[0]*mem_vector_dim];
+      pt_data_vector_dim = data_filter.get_data_set_dim(i);
+      vector_name = data_filter.get_data_set_name(i);
 
       // Create the dataspace for the point data
       node_ds_dim[0] = global_node_cell_count[0];
-      node_ds_dim[1] = mem_vector_dim;
+      node_ds_dim[1] = pt_data_vector_dim;
       pt_data_dataspace = H5Screate_simple(2, node_ds_dim, NULL);
       AssertThrow(pt_data_dataspace >= 0, ExcIO());
 
 #if H5Gcreate_vers == 1
-      pt_data_dataset = H5Dcreate(h5_file_id, vector_name.c_str(), H5T_NATIVE_DOUBLE, pt_data_dataspace, H5P_DEFAULT);
+      pt_data_dataset = H5Dcreate(h5_solution_file_id, vector_name.c_str(), H5T_NATIVE_DOUBLE, pt_data_dataspace, H5P_DEFAULT);
 #else
-      pt_data_dataset = H5Dcreate(h5_file_id, vector_name.c_str(), H5T_NATIVE_DOUBLE, pt_data_dataspace, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+      pt_data_dataset = H5Dcreate(h5_solution_file_id, vector_name.c_str(), H5T_NATIVE_DOUBLE, pt_data_dataspace, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
 #endif
       AssertThrow(pt_data_dataset >= 0, ExcIO());
 
       // Create the data subset we'll use to read from memory
       count[0] = local_node_cell_count[0];
-      count[1] = mem_vector_dim;
+      count[1] = pt_data_vector_dim;
       offset[0] = global_node_cell_offsets[0];
       offset[1] = 0;
       pt_data_memory_dataspace = H5Screate_simple(2, count, NULL);
@@ -7099,23 +7306,9 @@ void DataOutBase::write_hdf5_parallel (const std::vector<Patch<dim,spacedim> > &
       status = H5Sselect_hyperslab(pt_data_file_dataspace, H5S_SELECT_SET, offset, NULL, count, NULL);
       AssertThrow(status >= 0, ExcIO());
 
-      // Write point data to the memory array
-      r = 0;
-      for (i=0; !empty_proc && i<local_node_cell_count[0]; ++i)
-        {
-          // Get the offset to the vector
-          q = data_set;
-          // Write the data vector
-          for (n=0; n<pt_data_vector_dim; ++n) pt_data[r++] = data_vectors(q+n, i);
-          // Write 0 for the remainder of entries in 2D
-          for (; n<mem_vector_dim; ++n) pt_data[r++] = 0;
-        }
-
       // And finally, write the data
-      status = H5Dwrite(pt_data_dataset, H5T_NATIVE_DOUBLE, pt_data_memory_dataspace, pt_data_file_dataspace, plist_id, pt_data);
+      status = H5Dwrite(pt_data_dataset, H5T_NATIVE_DOUBLE, pt_data_memory_dataspace, pt_data_file_dataspace, plist_id, data_filter.get_data_set(i));
       AssertThrow(status >= 0, ExcIO());
-
-      delete pt_data;
 
       // Close the dataspaces
       status = H5Sclose(pt_data_dataspace);
@@ -7127,27 +7320,10 @@ void DataOutBase::write_hdf5_parallel (const std::vector<Patch<dim,spacedim> > &
       // Close the dataset
       status = H5Dclose(pt_data_dataset);
       AssertThrow(status >= 0, ExcIO());
-
-      // Advance the current data set
-      data_set += pt_data_vector_dim;
     }
 
-  // Close the file dataspaces
-  status = H5Sclose(node_file_dataspace);
-  AssertThrow(status >= 0, ExcIO());
-  status = H5Sclose(cell_file_dataspace);
-  AssertThrow(status >= 0, ExcIO());
-
-  // Close the memory dataspaces
-  status = H5Sclose(node_memory_dataspace);
-  AssertThrow(status >= 0, ExcIO());
-  status = H5Sclose(cell_memory_dataspace);
-  AssertThrow(status >= 0, ExcIO());
-
-  // Close the datasets
-  status = H5Dclose(node_dataset);
-  AssertThrow(status >= 0, ExcIO());
-  status = H5Dclose(cell_dataset);
+  // Close the file property list
+  status = H5Pclose(file_plist_id);
   AssertThrow(status >= 0, ExcIO());
 
   // Close the parallel access
@@ -7155,7 +7331,7 @@ void DataOutBase::write_hdf5_parallel (const std::vector<Patch<dim,spacedim> > &
   AssertThrow(status >= 0, ExcIO());
 
   // Close the file
-  status = H5Fclose(h5_file_id);
+  status = H5Fclose(h5_solution_file_id);
   AssertThrow(status >= 0, ExcIO());
 #endif
 #endif

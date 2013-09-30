@@ -1,14 +1,19 @@
-//---------------------------------------------------------------------------
-//    $Id$
+// ---------------------------------------------------------------------
+// $Id$
 //
-//    Copyright (C) 2007, 2011, 2012, 2013 by the deal.II authors
+// Copyright (C) 2007 - 2013 by the deal.II authors
 //
-//    This file is subject to QPL and may not be  distributed
-//    without copyright and license information. Please refer
-//    to the file deal.II/doc/license.html for the  text  and
-//    further information on this license.
+// This file is part of the deal.II library.
 //
-//---------------------------------------------------------------------------
+// The deal.II library is free software; you can use it, redistribute
+// it, and/or modify it under the terms of the GNU Lesser General
+// Public License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+// The full text of the license can be found in the file LICENSE at
+// the top level of the deal.II distribution.
+//
+// ---------------------------------------------------------------------
+
 
 #include <deal.II/base/utilities.h>
 #include <deal.II/base/logstream.h>
@@ -61,16 +66,16 @@ namespace Functions
     typename DH::active_cell_iterator cell = cell_hint.get();
     if (cell == dh->end())
       cell = dh->begin_active();
-    
+
     boost::optional<Point<dim> >
     qp = get_reference_coordinates (cell, p);
     if (!qp)
       {
         const std::pair<typename DH::active_cell_iterator, Point<dim> > my_pair
           = GridTools::find_active_cell_around_point (mapping, *dh, p);
-	AssertThrow (my_pair.first->is_locally_owned(),
-		     ExcPointNotAvailableHere());
-	
+        AssertThrow (my_pair.first->is_locally_owned(),
+                     ExcPointNotAvailableHere());
+
         cell = my_pair.first;
         qp = my_pair.second;
       }
@@ -119,9 +124,9 @@ namespace Functions
       {
         const std::pair<typename DH::active_cell_iterator, Point<dim> > my_pair
           = GridTools::find_active_cell_around_point (mapping, *dh, p);
-	AssertThrow (my_pair.first->is_locally_owned(),
-		     ExcPointNotAvailableHere());
-	
+        AssertThrow (my_pair.first->is_locally_owned(),
+                     ExcPointNotAvailableHere());
+
         cell = my_pair.first;
         qp = my_pair.second;
       }
@@ -172,9 +177,9 @@ namespace Functions
       {
         const std::pair<typename DH::active_cell_iterator, Point<dim> > my_pair
           = GridTools::find_active_cell_around_point (mapping, *dh, p);
-	AssertThrow (my_pair.first->is_locally_owned(),
-		     ExcPointNotAvailableHere());
-	
+        AssertThrow (my_pair.first->is_locally_owned(),
+                     ExcPointNotAvailableHere());
+
         cell = my_pair.first;
         qp = my_pair.second;
       }
@@ -440,9 +445,9 @@ namespace Functions
           const std::pair<typename DH::active_cell_iterator, Point<dim> >
           my_pair  = GridTools::find_active_cell_around_point
                      (mapping, *dh, points[0]);
-	  AssertThrow (my_pair.first->is_locally_owned(),
-		       ExcPointNotAvailableHere());
-	
+          AssertThrow (my_pair.first->is_locally_owned(),
+                       ExcPointNotAvailableHere());
+
           cell = my_pair.first;
           qp = my_pair.second;
           point_flags[0] = true;
@@ -504,9 +509,9 @@ namespace Functions
           {
             const std::pair<typename DH::active_cell_iterator, Point<dim> > my_pair
               = GridTools::find_active_cell_around_point (mapping, *dh, points[first_outside]);
-	    AssertThrow (my_pair.first->is_locally_owned(),
-			 ExcPointNotAvailableHere());
-	
+            AssertThrow (my_pair.first->is_locally_owned(),
+                         ExcPointNotAvailableHere());
+
             cells.push_back(my_pair.first);
             qpoints.push_back(std::vector<Point<dim> >(1, my_pair.second));
             maps.push_back(std::vector<unsigned int>(1, first_outside));

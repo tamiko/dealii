@@ -1,14 +1,19 @@
-//---------------------------------------------------------------------------
-//    $Id$
+// ---------------------------------------------------------------------
+// $Id$
 //
-//    Copyright (C) 2008, 2009, 2010, 2011, 2012, 2013 by the deal.II authors
+// Copyright (C) 2008 - 2013 by the deal.II authors
 //
-//    This file is subject to QPL and may not be  distributed
-//    without copyright and license information. Please refer
-//    to the file deal.II/doc/license.html for the  text  and
-//    further information on this license.
+// This file is part of the deal.II library.
 //
-//---------------------------------------------------------------------------
+// The deal.II library is free software; you can use it, redistribute
+// it, and/or modify it under the terms of the GNU Lesser General
+// Public License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+// The full text of the license can be found in the file LICENSE at
+// the top level of the deal.II distribution.
+//
+// ---------------------------------------------------------------------
+
 #ifndef __deal2__trilinos_sparsity_pattern_h
 #define __deal2__trilinos_sparsity_pattern_h
 
@@ -81,6 +86,11 @@ namespace TrilinosWrappers
       Accessor (const SparsityPattern *sparsity_pattern,
                 const size_type        row,
                 const size_type        index);
+
+      /**
+       * Copy constructor.
+       */
+      Accessor (const Accessor &a);
 
       /**
        * Row number of the element
@@ -197,6 +207,11 @@ namespace TrilinosWrappers
       Iterator (const SparsityPattern *sparsity_pattern,
                 const size_type        row,
                 const size_type        index);
+
+      /**
+       * Copy constructor.
+       */
+      Iterator (const Iterator &i);
 
       /**
        * Prefix increment.
@@ -1408,6 +1423,16 @@ namespace TrilinosWrappers
 
 
     inline
+    Accessor::Accessor (const Accessor &a)
+      :
+      sparsity_pattern(a.sparsity_pattern),
+      a_row(a.a_row),
+      a_index(a.a_index),
+      colnum_cache (a.colnum_cache)
+    {}
+
+
+    inline
     Accessor::size_type
     Accessor::row() const
     {
@@ -1443,6 +1468,13 @@ namespace TrilinosWrappers
                        const size_type        index)
       :
       accessor(sp, row, index)
+    {}
+
+
+    inline
+    Iterator::Iterator(const Iterator &i)
+      :
+      accessor(i.accessor)
     {}
 
 
@@ -1656,8 +1688,8 @@ namespace TrilinosWrappers
     // from it which we can by evaluating an expression such as when
     // multiplying the value produced by 2
     Assert (sizeof(TrilinosWrappers::types::int_type) ==
-	    sizeof((*begin)*2),
-	    ExcNotImplemented());
+            sizeof((*begin)*2),
+            ExcNotImplemented());
 
     TrilinosWrappers::types::int_type *col_index_ptr =
       (TrilinosWrappers::types::int_type *)(&*begin);

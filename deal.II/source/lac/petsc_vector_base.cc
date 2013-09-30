@@ -1,16 +1,18 @@
-//---------------------------------------------------------------------------
-//    $Id$
-//    Version: $Name$
+// ---------------------------------------------------------------------
+// $Id$
 //
-//    Copyright (C) 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013 by the deal.II authors
+// Copyright (C) 2004 - 2013 by the deal.II authors
 //
-//    This file is subject to QPL and may not be  distributed
-//    without copyright and license information. Please refer
-//    to the file deal.II/doc/license.html for the  text  and
-//    further information on this license.
+// This file is part of the deal.II library.
 //
-//---------------------------------------------------------------------------
-
+// The deal.II library is free software; you can use it, redistribute
+// it, and/or modify it under the terms of the GNU Lesser General
+// Public License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+// The full text of the license can be found in the file LICENSE at
+// the top level of the deal.II distribution.
+//
+// ---------------------------------------------------------------------
 
 #include <deal.II/lac/petsc_vector_base.h>
 
@@ -152,8 +154,8 @@ namespace PETScWrappers
     attained_ownership(true)
   {
     Assert( multithread_info.is_running_single_threaded(),
-        ExcMessage("PETSc does not support multi-threaded access, set "
-            "the thread limit to 1 in MPI_InitFinalize()."));
+            ExcMessage("PETSc does not support multi-threaded access, set "
+                       "the thread limit to 1 in MPI_InitFinalize()."));
   }
 
 
@@ -167,8 +169,8 @@ namespace PETScWrappers
     attained_ownership(true)
   {
     Assert( multithread_info.is_running_single_threaded(),
-        ExcMessage("PETSc does not support multi-threaded access, set "
-            "the thread limit to 1 in MPI_InitFinalize()."));
+            ExcMessage("PETSc does not support multi-threaded access, set "
+                       "the thread limit to 1 in MPI_InitFinalize()."));
 
     int ierr = VecDuplicate (v.vector, &vector);
     AssertThrow (ierr == 0, ExcPETScError(ierr));
@@ -188,8 +190,8 @@ namespace PETScWrappers
     attained_ownership(false)
   {
     Assert( multithread_info.is_running_single_threaded(),
-        ExcMessage("PETSc does not support multi-threaded access, set "
-            "the thread limit to 1 in MPI_InitFinalize()."));
+            ExcMessage("PETSc does not support multi-threaded access, set "
+                       "the thread limit to 1 in MPI_InitFinalize()."));
   }
 
 
@@ -267,7 +269,7 @@ namespace PETScWrappers
 
 
 
-  VectorBase::size_type 
+  VectorBase::size_type
   VectorBase::size () const
   {
     PetscInt sz;
@@ -279,7 +281,7 @@ namespace PETScWrappers
 
 
 
-  VectorBase::size_type 
+  VectorBase::size_type
   VectorBase::local_size () const
   {
     PetscInt sz;
@@ -467,13 +469,13 @@ namespace PETScWrappers
     return mean;
 
 #else // PETSC_USE_COMPLEX
-  Assert ((false),
-	  ExcMessage ("Your PETSc/SLEPc installation was configured with scalar-type complex "
-		      "but this function is not defined for complex types."));
+    Assert ((false),
+            ExcMessage ("Your PETSc/SLEPc installation was configured with scalar-type complex "
+                        "but this function is not defined for complex types."));
 
-  // Prevent compiler warning about no return value
-  PetscScalar dummy;
-  return dummy;
+    // Prevent compiler warning about no return value
+    PetscScalar dummy;
+    return dummy;
 #endif
   }
 

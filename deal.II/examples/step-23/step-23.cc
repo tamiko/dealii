@@ -1,14 +1,22 @@
-/* Author: Wolfgang Bangerth, Texas A&M University, 2006 */
+/* ---------------------------------------------------------------------
+ * $Id$
+ *
+ * Copyright (C) 2006 - 2013 by the deal.II authors
+ *
+ * This file is part of the deal.II library.
+ *
+ * The deal.II library is free software; you can use it, redistribute
+ * it, and/or modify it under the terms of the GNU Lesser General
+ * Public License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ * The full text of the license can be found in the file LICENSE at
+ * the top level of the deal.II distribution.
+ *
+ * ---------------------------------------------------------------------
 
-/*    $Id$       */
-/*    Version: $Name:  $                                          */
-/*                                                                */
-/*    Copyright (C) 2006-2009, 2011-2012 by the deal.II authors */
-/*                                                                */
-/*    This file is subject to QPL and may not be  distributed     */
-/*    without copyright and license information. Please refer     */
-/*    to the file deal.II/doc/license.html for the  text  and     */
-/*    further information on this license.                        */
+ *
+ * Author: Wolfgang Bangerth, Texas A&M University, 2006
+ */
 
 
 // @sect3{Include files}
@@ -46,7 +54,7 @@
 // Here are the only three include files of some new interest: The first one
 // is already used, for example, for the
 // VectorTools::interpolate_boundary_values and
-// VectorTools::apply_boundary_values functions. However, we here use another
+// MatrixTools::apply_boundary_values functions. However, we here use another
 // function in that class, VectorTools::project to compute our initial values
 // as the $L^2$ projection of the continuous initial values. Furthermore, we
 // use VectorTools::create_right_hand_side to generate the integrals
@@ -60,8 +68,8 @@
 // mass and Laplace matrices, although it would have only taken copying the
 // relevant code from any number of previous tutorial programs. Rather, we
 // want to focus on the things that are truly new to this program and
-// therefore use the MatrixTools::create_mass_matrix and
-// MatrixTools::create_laplace_matrix functions. They are declared here:
+// therefore use the MatrixCreator::create_mass_matrix and
+// MatrixCreator::create_laplace_matrix functions. They are declared here:
 #include <deal.II/numerics/matrix_tools.h>
 
 // Finally, here is an include file that contains all sorts of tool functions
@@ -332,7 +340,7 @@ namespace Step23
     sparsity_pattern.compress();
 
     // Then comes a block where we have to initialize the 3 matrices we need
-    // in the course of the program: the mass matrix, the laplace matrix, and
+    // in the course of the program: the mass matrix, the Laplace matrix, and
     // the matrix $M+k^2\theta^2A$ used when solving for $U^n$ in each time
     // step.
     //

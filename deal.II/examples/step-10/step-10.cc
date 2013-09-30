@@ -1,13 +1,23 @@
-/* Author: Wolfgang Bangerth, Ralf Hartmann, University of Heidelberg, 2001 */
+/* ---------------------------------------------------------------------
+ * $Id$
+ *
+ * Copyright (C) 2001 - 2013 by the deal.II authors
+ *
+ * This file is part of the deal.II library.
+ *
+ * The deal.II library is free software; you can use it, redistribute
+ * it, and/or modify it under the terms of the GNU Lesser General
+ * Public License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ * The full text of the license can be found in the file LICENSE at
+ * the top level of the deal.II distribution.
+ *
+ * ---------------------------------------------------------------------
 
-/*    $Id$       */
-/*                                                                */
-/*    Copyright (C) 2001-2004, 2006-2007, 2011-2012 by the deal.II authors */
-/*                                                                */
-/*    This file is subject to QPL and may not be  distributed     */
-/*    without copyright and license information. Please refer     */
-/*    to the file deal.II/doc/license.html for the  text  and     */
-/*    further information on this license.                        */
+ *
+ * Authors: Wolfgang Bangerth, Ralf Hartmann, University of Heidelberg, 2001
+ */
+
 
 // The first of the following include files are probably well-known by now and
 // need no further explanation.
@@ -124,7 +134,7 @@ namespace Step10
             // will generate Gnuplot output, which consists of a set of lines
             // describing the mapped triangulation. By default, only one line
             // is drawn for each face of the triangulation, but since we want
-            // to explicitely see the effect of the mapping, we want to have
+            // to explicitly see the effect of the mapping, we want to have
             // the faces in more detail. This can be done by passing the
             // output object a structure which contains some flags. In the
             // present case, since Gnuplot can only draw straight lines, we

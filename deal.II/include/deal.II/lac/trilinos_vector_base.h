@@ -1,14 +1,19 @@
-//---------------------------------------------------------------------------
-//    $Id$
+// ---------------------------------------------------------------------
+// $Id$
 //
-//    Copyright (C) 2008, 2009, 2010, 2011, 2012, 2013 by the deal.II authors
+// Copyright (C) 2008 - 2013 by the deal.II authors
 //
-//    This file is subject to QPL and may not be  distributed
-//    without copyright and license information. Please refer
-//    to the file deal.II/doc/license.html for the  text  and
-//    further information on this license.
+// This file is part of the deal.II library.
 //
-//---------------------------------------------------------------------------
+// The deal.II library is free software; you can use it, redistribute
+// it, and/or modify it under the terms of the GNU Lesser General
+// Public License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+// The full text of the license can be found in the file LICENSE at
+// the top level of the deal.II distribution.
+//
+// ---------------------------------------------------------------------
+
 #ifndef __deal2__trilinos_vector_base_h
 #define __deal2__trilinos_vector_base_h
 
@@ -670,6 +675,28 @@ namespace TrilinosWrappers
     operator [] (const size_type index) const;
 
     /**
+     * A collective get operation: instead
+     * of getting individual elements of a
+     * vector, this function allows to get
+     * a whole set of elements at once. The
+     * indices of the elements to be read
+     * are stated in the first argument,
+     * the corresponding values are returned in the
+     * second.
+     */
+    void extract_subvector_to (const std::vector<size_type> &indices,
+                               std::vector<TrilinosScalar> &values) const;
+
+    /**
+     * Just as the above, but with pointers.
+     * Useful in minimizing copying of data around.
+     */
+    template <typename ForwardIterator, typename OutputIterator>
+    void extract_subvector_to (ForwardIterator          indices_begin,
+                               const ForwardIterator    indices_end,
+                               OutputIterator           values_begin) const;
+
+    /**
      * Return the value of the vector
      * entry <i>i</i>. Note that this
      * function does only work
@@ -685,7 +712,7 @@ namespace TrilinosWrappers
     /**
      * Make the Vector class a bit like the <tt>vector<></tt> class of
      * the C++ standard library by returning iterators to the start and end
-     * of the locally owned elements of this vector. The ordering of local elements corresponds to the one given 
+     * of the locally owned elements of this vector. The ordering of local elements corresponds to the one given
      *
      * It holds that end() - begin() == local_size().
      */
@@ -1263,9 +1290,9 @@ namespace TrilinosWrappers
       {
         const size_type n_indices = vector->Map().NumMyElements();
 #ifndef DEAL_II_USE_LARGE_INDEX_TYPE
-        unsigned int * vector_indices = (unsigned int*)vector->Map().MyGlobalElements();
+        unsigned int *vector_indices = (unsigned int *)vector->Map().MyGlobalElements();
 #else
-        size_type * vector_indices = (size_type*)vector->Map().MyGlobalElements64();
+        size_type *vector_indices = (size_type *)vector->Map().MyGlobalElements64();
 #endif
         is.add_indices(vector_indices, vector_indices+n_indices);
         is.compress();
@@ -1307,6 +1334,30 @@ namespace TrilinosWrappers
   VectorBase::operator [] (const size_type index) const
   {
     return operator() (index);
+  }
+
+
+
+  inline
+  void VectorBase::extract_subvector_to (const std::vector<size_type> &indices,
+                                         std::vector<TrilinosScalar>  &values) const
+  {
+    for (size_type i = 0; i < indices.size(); ++i)
+      values[i] = operator()(indices[i]);
+  }
+
+
+
+  template <typename ForwardIterator, typename OutputIterator>
+  inline
+  void VectorBase::extract_subvector_to (ForwardIterator          indices_begin,
+                                         const ForwardIterator    indices_end,
+                                         OutputIterator           values_begin) const
+  {
+    while (indices_begin != indices_end) {
+      *values_begin = operator()(*indices_begin);
+      indices_begin++; values_begin++;
+    }
   }
 
 

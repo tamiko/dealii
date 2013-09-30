@@ -1,16 +1,18 @@
-#####
+## ---------------------------------------------------------------------
+## $Id$
 ##
-## Copyright (C) 2012 by the deal.II authors
+## Copyright (C) 2012 - 2013 by the deal.II authors
 ##
 ## This file is part of the deal.II library.
 ##
-## <TODO: Full License information>
-## This file is dual licensed under QPL 1.0 and LGPL 2.1 or any later
-## version of the LGPL license.
+## The deal.II library is free software; you can use it, redistribute
+## it, and/or modify it under the terms of the GNU Lesser General
+## Public License as published by the Free Software Foundation; either
+## version 2.1 of the License, or (at your option) any later version.
+## The full text of the license can be found in the file LICENSE at
+## the top level of the deal.II distribution.
 ##
-## Author: Matthias Maier <matthias.maier@iwr.uni-heidelberg.de>
-##
-#####
+## ---------------------------------------------------------------------
 
 #
 # This file implements the DEAL_II_INITIALIZE_VARIABLES macro, which is
@@ -49,23 +51,39 @@ MACRO(DEAL_II_INITIALIZE_CACHED_VARIABLES)
   ENDIF()
 
   #
-  # Bail out if build type is unknown...
+  # Reset build type if unsupported, i.e. if it is not (case insensitively
+  # equal to Debug or Release or unsupported by the current build type:
   #
-  IF( NOT "${CMAKE_BUILD_TYPE}" STREQUAL "Release" AND
-      NOT "${CMAKE_BUILD_TYPE}" STREQUAL "Debug" )
-    MESSAGE(FATAL_ERROR
-      "\nCMAKE_BUILD_TYPE does neither match Release nor Debug!\n\n"
+  STRING(TOLOWER "${CMAKE_BUILD_TYPE}" _cmake_build_type)
+  STRING(TOLOWER "${DEAL_II_BUILD_TYPE}" _deal_ii_build_type)
+
+  IF( NOT "${_cmake_build_type}" MATCHES "^(debug|release)$"
+      OR NOT _deal_ii_build_type MATCHES "${_cmake_build_type}" )
+
+    IF("${DEAL_II_BUILD_TYPE}" STREQUAL "DebugRelease")
+      SET(_new_build_type "Debug")
+    ELSE()
+      SET(_new_build_type "${DEAL_II_BUILD_TYPE}")
+    ENDIF()
+
+    MESSAGE(
+"###
+#
+#  WARNING:
+#
+#  CMAKE_BUILD_TYPE \"${CMAKE_BUILD_TYPE}\" unsupported by current installation!
+#  deal.II was built with CMAKE_BUILD_TYPE \"${DEAL_II_BUILD_TYPE}\".
+#
+#  CMAKE_BUILD_TYPE is forced to \"${_new_build_type}\".
+#
+###"
+      )
+    SET(CMAKE_BUILD_TYPE "${_new_build_type}" CACHE STRING
+      "Choose the type of build, options are: Debug, Release"
+      FORCE
       )
   ENDIF()
-  #
-  # ... or unsupported
-  #
-  IF(NOT DEAL_II_BUILD_TYPE MATCHES "${CMAKE_BUILD_TYPE}")
-    MESSAGE(FATAL_ERROR "\n"
-      "CMAKE_BUILD_TYPE \"${CMAKE_BUILD_TYPE}\" unsupported by current installation!\n"
-      "deal.II was build with \"${DEAL_II_BUILD_TYPE}\" only build type.\n\n"
-      )
-  ENDIF()
+
 
   SET(CMAKE_CXX_COMPILER ${DEAL_II_CXX_COMPILER} CACHE STRING
     "CXX Compiler.")

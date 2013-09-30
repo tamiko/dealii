@@ -1,14 +1,19 @@
-//---------------------------------------------------------------------------
-//    $Id$
+// ---------------------------------------------------------------------
+// $Id$
 //
-//    Copyright (C) 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2012 by the deal.II authors
+// Copyright (C) 1998 - 2013 by the deal.II authors
 //
-//    This file is subject to QPL and may not be  distributed
-//    without copyright and license information. Please refer
-//    to the file deal.II/doc/license.html for the  text  and
-//    further information on this license.
+// This file is part of the deal.II library.
 //
-//---------------------------------------------------------------------------
+// The deal.II library is free software; you can use it, redistribute
+// it, and/or modify it under the terms of the GNU Lesser General
+// Public License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+// The full text of the license can be found in the file LICENSE at
+// the top level of the deal.II distribution.
+//
+// ---------------------------------------------------------------------
+
 #ifndef __deal2__tria_iterator_h
 #define __deal2__tria_iterator_h
 
@@ -264,7 +269,7 @@ public:
    *   = accessor;
    * @endcode
    */
-  TriaRawIterator (const Accessor &a);
+  explicit TriaRawIterator (const Accessor &a);
 
   /**
    * Constructor. Assumes that the
@@ -273,7 +278,7 @@ public:
    * one.
    */
   template <typename OtherAccessor>
-  TriaRawIterator (const OtherAccessor &a);
+  explicit TriaRawIterator (const OtherAccessor &a);
 
   /**
    *  Proper constructor, initialized
@@ -436,21 +441,36 @@ public:
   bool operator != (const TriaRawIterator &) const;
 
   /**
-   * Offer a weak ordering of iterators,
-   * which is needed to make @p maps with
-   * iterators being keys. An iterator
-   * pointing to an element @p a is
-   * less than another iterator pointing
-   * to an element @p b if
-   * level(a)<level(b) or
-   * (level(a)==level(b) and index(a)<index(b)).
+   * Ordering relation for iterators.
    *
-   * Comparing iterators of which one or
-   * both are invalid is an error. The
-   * past-the-end iterator is always
-   * ordered last. Two past-the-end
-   * iterators rank the same, thus false
-   * is returned in that case.
+   * This relation attempts a total ordering of cells. For lower
+   * dimensional objects on distributed meshes, we only attempt a
+   * partial ordering.
+   *
+   * The relation is defined as follows:
+   *
+   * For objects of <tt>Accessor::structure_dimension <
+   * Accessor::dimension</tt>, we simply compare the index of such an
+   * object. This consitutes an ordering of the elements of same
+   * dimension on a mesh on a single process. For a distributed mesh,
+   * the result of the ordering relation between faces across
+   * processes is not defined, but most likely irrelevant.
+   *
+   * For cells, there is a total ordering even in a
+   * distributed::parallel::Triangulation. The ordering is lexicographic
+   * according to the following hierarchy (in the sense, that the next
+   * test is only applied if the previous was inconclusive):
+   *
+   * <ol>
+   * <li> The past-the-end iterator is always ordered last. Two
+   * past-the-end iterators rank the same, thus false is returned in
+   * that case.</li>
+   *
+   * <li> The level subdomain id</li>
+   * <li> If both cells are active, the subdomain id.</li>
+   * <li> The level of the cell.</li>
+   * <li> The index of a cell inside the level.</li>
+   * </ol>
    */
   bool operator < (const TriaRawIterator &) const;
 
@@ -669,6 +689,13 @@ public:
                 const int                 level,
                 const int                 index,
                 const typename Accessor::AccessorData *local_data = 0);
+
+  /**
+   * Construct from an accessor of type OtherAccessor that is convertible
+   * to the type Accessor.
+   */
+  template <typename OtherAccessor>
+  explicit TriaIterator (const OtherAccessor &a);
 
   /**
    * This is a conversion operator
@@ -1155,39 +1182,21 @@ TriaRawIterator<Accessor>::state () const
 template <typename Accessor>
 inline
 bool
-TriaRawIterator<Accessor>::operator < (const TriaRawIterator &i) const
+TriaRawIterator<Accessor>::operator < (const TriaRawIterator<Accessor> &other) const
 {
-  Assert (Accessor::structure_dimension!=Accessor::dimension ||
-          state() != IteratorState::invalid,
-          ExcDereferenceInvalidCell(accessor));
-  Assert (Accessor::structure_dimension==Accessor::dimension ||
-          state() != IteratorState::invalid,
-          ExcDereferenceInvalidObject(accessor));
+  Assert (state() != IteratorState::invalid, ExcDereferenceInvalidObject(accessor));
+  Assert (other.state() != IteratorState::invalid, ExcDereferenceInvalidObject(other.accessor));
 
-  Assert (Accessor::structure_dimension!=Accessor::dimension ||
-          i.state() != IteratorState::invalid,
-          ExcDereferenceInvalidCell(i.accessor));
-  Assert (Accessor::structure_dimension==Accessor::dimension ||
-          i.state() != IteratorState::invalid,
-          ExcDereferenceInvalidObject(i.accessor));
-
-  Assert (&accessor.get_triangulation() == &i.accessor.get_triangulation(),
+  Assert (&accessor.get_triangulation() == &other.accessor.get_triangulation(),
           ExcInvalidComparison());
 
-  if (Accessor::structure_dimension==Accessor::dimension)
-    return ((((accessor.level() < i.accessor.level()) ||
-              ((accessor.level() == i.accessor.level()) &&
-               (accessor.index() < i.accessor.index()))        ) &&
-             (state()==IteratorState::valid)                     &&
-             (i.state()==IteratorState::valid)                 ) ||
-            ((state()==IteratorState::valid) &&
-             (i.state()==IteratorState::past_the_end)));
-  else
-    return ((((accessor.index() < i.accessor.index())          ) &&
-             (state()==IteratorState::valid)                     &&
-             (i.state()==IteratorState::valid)                 ) ||
-            ((state()==IteratorState::valid) &&
-             (i.state()==IteratorState::past_the_end)));
+  // Deal with iterators past end
+  if (state()==IteratorState::past_the_end)
+    return false;
+  if (other.state()==IteratorState::past_the_end)
+    return true;
+
+  return ((**this) < (*other));
 }
 
 
@@ -1281,7 +1290,24 @@ TriaIterator<Accessor>::TriaIterator (const TriaRawIterator<OtherAccessor> &i)
 #endif
 }
 
-
+template <typename Accessor>
+template <typename OtherAccessor>
+TriaIterator<Accessor>::TriaIterator (const OtherAccessor &a)
+  :
+  TriaRawIterator<Accessor> (a)
+{
+#ifdef DEBUG
+  // do this like this, because:
+  // if we write
+  // "Assert (IteratorState::past_the_end || used)"
+  // used() is called anyway, even if
+  // state==IteratorState::past_the_end, and will then
+  // throw the exception!
+  if (this->state() != IteratorState::past_the_end)
+    Assert (this->accessor.used(),
+            ExcAssignmentOfUnusedObject());
+#endif
+}
 
 template <typename Accessor>
 template <typename OtherAccessor>

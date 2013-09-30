@@ -1,14 +1,19 @@
-//---------------------------------------------------------------------------
-//    $Id$
+// ---------------------------------------------------------------------
+// $Id$
 //
-//    Copyright (C) 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013 by the deal.II authors
+// Copyright (C) 2006 - 2013 by the deal.II authors
 //
-//    This file is subject to QPL and may not be  distributed
-//    without copyright and license information. Please refer
-//    to the file deal.II/doc/license.html for the  text  and
-//    further information on this license.
+// This file is part of the deal.II library.
 //
-//---------------------------------------------------------------------------
+// The deal.II library is free software; you can use it, redistribute
+// it, and/or modify it under the terms of the GNU Lesser General
+// Public License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+// The full text of the license can be found in the file LICENSE at
+// the top level of the deal.II distribution.
+//
+// ---------------------------------------------------------------------
+
 
 #include <deal.II/meshworker/local_results.h>
 #include <deal.II/meshworker/local_integrator.h>
@@ -62,8 +67,44 @@ namespace MeshWorker
 
 
   template <int dim, int spacedim, typename number>
+  LocalIntegrator<dim, spacedim, number>::LocalIntegrator (bool c, bool b, bool f)
+    :
+    use_cell(c), use_boundary(b), use_face(f)
+  {}
+
+
+  template <int dim, int spacedim, typename number>
   LocalIntegrator<dim, spacedim, number>::~LocalIntegrator ()
   {}
+
+  template <int dim, int spacedim, typename number>
+  void
+  LocalIntegrator<dim, spacedim, number>::cell (DoFInfo<dim, spacedim, number> &,
+                                                IntegrationInfo<dim, spacedim> &) const
+  {
+    Assert(false, ExcPureFunction());
+  }
+
+
+  template <int dim, int spacedim, typename number>
+  void
+  LocalIntegrator<dim, spacedim, number>::boundary (DoFInfo<dim, spacedim, number> &,
+                                                    IntegrationInfo<dim, spacedim> &) const
+  {
+    Assert(false, ExcPureFunction());
+  }
+
+
+  template <int dim, int spacedim, typename number>
+  void
+  LocalIntegrator<dim, spacedim, number>::face (DoFInfo<dim, spacedim, number> &,
+                                                DoFInfo<dim, spacedim, number> &,
+                                                IntegrationInfo<dim, spacedim> &,
+                                                IntegrationInfo<dim, spacedim> &) const
+  {
+    Assert(false, ExcPureFunction());
+  }
+
 
   template class LocalIntegrator<1,1,float>;
   template class LocalIntegrator<1,1,double>;

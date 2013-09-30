@@ -1,22 +1,20 @@
-#####
+## ---------------------------------------------------------------------
+## $Id$
 ##
-## Copyright (C) 2012 by the deal.II authors
+## Copyright (C) 2012 - 2013 by the deal.II authors
 ##
 ## This file is part of the deal.II library.
 ##
-## <TODO: Full License information>
-## This file is dual licensed under QPL 1.0 and LGPL 2.1 or any later
-## version of the LGPL license.
+## The deal.II library is free software; you can use it, redistribute
+## it, and/or modify it under the terms of the GNU Lesser General
+## Public License as published by the Free Software Foundation; either
+## version 2.1 of the License, or (at your option) any later version.
+## The full text of the license can be found in the file LICENSE at
+## the top level of the deal.II distribution.
 ##
-## Author: Matthias Maier <matthias.maier@iwr.uni-heidelberg.de>
-##
-#####
+## ---------------------------------------------------------------------
 
 INCLUDE_DIRECTORIES(BEFORE ${CMAKE_CURRENT_BINARY_DIR})
-
-FILE(GLOB _header
-  ${CMAKE_SOURCE_DIR}/include/deal.II/fe/*.h
-  )
 
 SET(_src
   block_mask.cc
@@ -35,8 +33,8 @@ SET(_src
   fe_nothing.cc
   fe_poly.cc
   fe_poly_tensor.cc
-  fe_q.cc
   fe_q_base.cc
+  fe_q.cc
   fe_q_dg0.cc
   fe_q_hierarchical.cc
   fe_q_iso_q1.cc
@@ -44,6 +42,7 @@ SET(_src
   fe_raviart_thomas_nodal.cc
   fe_system.cc
   fe_tools.cc
+  fe_tools_interpolate.cc
   fe_values.cc
   fe_values_inst2.cc
   mapping_c1.cc
@@ -69,7 +68,7 @@ SET(_inst
   fe_nothing.inst.in
   fe_poly.inst.in
   fe_poly_tensor.inst.in
-  fe_q_base.inst.in  
+  fe_q_base.inst.in
   fe_q_dg0.inst.in
   fe_q_hierarchical.inst.in
   fe_q.inst.in
@@ -78,6 +77,7 @@ SET(_inst
   fe_raviart_thomas_nodal.inst.in
   fe_system.inst.in
   fe_tools.inst.in
+  fe_tools_interpolate.inst.in
   fe_values.decl.1.inst.in
   fe_values.decl.2.inst.in
   fe_values.impl.1.inst.in
@@ -92,6 +92,9 @@ SET(_inst
   mapping_q.inst.in
   )
 
+FILE(GLOB _header
+  ${CMAKE_SOURCE_DIR}/include/deal.II/fe/*.h
+  )
+
 DEAL_II_ADD_LIBRARY(obj_fe OBJECT ${_src} ${_header} ${_inst})
 EXPAND_INSTANTIATIONS(obj_fe "${_inst}")
-

@@ -1,16 +1,18 @@
-//---------------------------------------------------------------------------
-//    $Id$
-//    Version: $Name$
+// ---------------------------------------------------------------------
+// $Id$
 //
-//    Copyright (C) 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2008, 2009, 2010, 2011, 2012, 2013 by the deal.II authors
+// Copyright (C) 1998 - 2013 by the deal.II authors
 //
-//    This file is subject to QPL and may not be  distributed
-//    without copyright and license information. Please refer
-//    to the file deal.II/doc/license.html for the  text  and
-//    further information on this license.
+// This file is part of the deal.II library.
 //
-//---------------------------------------------------------------------------
-
+// The deal.II library is free software; you can use it, redistribute
+// it, and/or modify it under the terms of the GNU Lesser General
+// Public License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+// The full text of the license can be found in the file LICENSE at
+// the top level of the deal.II distribution.
+//
+// ---------------------------------------------------------------------
 
 #include <deal.II/base/logstream.h>
 #include <deal.II/base/job_identifier.h>
@@ -135,23 +137,65 @@ LogStream::operator<< (std::ostream& (*p) (std::ostream &))
   // Print to the internal stringstream:
   stream << p;
 
-  // Next check whether this is the <tt>flush</tt> or <tt>endl</tt>
-  // manipulator, and if so print out the message.
-  std::ostream & (* const p_flush) (std::ostream &) = &std::flush;
-  std::ostream & (* const p_endl) (std::ostream &) = &std::endl;
-  if (p == p_flush || p == p_endl)
+
+  // This is a bloody hack until LogStream got reimplemented as a proper
+  // child of std::streambuf (or similar).
+  //
+  // The problem is that at this point we would like to know whether an
+  // std::flush or std::endl has called us, however, there is no way to
+  // detect this in a sane manner.
+  //
+  // The obvious idea to compare function pointers,
+  //   std::ostream & (* const p_flush) (std::ostream &) = &std::flush;
+  //   p == p_flush ? ...,
+  // is wrong as there doesn't has to be a _single_ std::flush instance...
+  // there could be multiple of it. And in fact, LLVM's libc++ implements
+  // std::flush and std::endl in a way that every shared library and
+  // executable has its local copy... fun...
+  //
+  // - Maier, 2013
+
+  class QueryStreambuf : public std::streambuf
+  {
+    // Implement a minimalistic stream buffer that only stores the fact
+    // whether overflow or sync was called
+    public:
+      QueryStreambuf()
+        : flushed_(false), newline_written_(false)
+      {
+      }
+      bool flushed() { return flushed_; }
+      bool newline_written() { return newline_written_; }
+    private:
+      int_type overflow(int_type ch)
+        {
+          newline_written_ = true;
+          return ch;
+        }
+      int sync()
+        {
+          flushed_ = true;
+          return 0;
+        }
+      bool flushed_;
+      bool newline_written_;
+  } query_streambuf;
+
+  {
+    // and initialize an ostream with this streambuf:
+    std::ostream inject (&query_streambuf);
+    inject << p;
+  }
+
+  if (query_streambuf.flushed())
     {
       Threads::Mutex::ScopedLock lock(write_lock);
 
-      // Print the line head in case of a newline:
+      // Print the line head in case of a previous newline:
       if (at_newline)
         print_line_head();
 
-      if(p == p_flush)
-        at_newline = false;
-
-      if(p == p_endl)
-        at_newline = true;
+      at_newline = query_streambuf.newline_written();
 
       if (get_prefixes().size() <= std_depth)
         *std_out << stream.str();
@@ -159,7 +203,7 @@ LogStream::operator<< (std::ostream& (*p) (std::ostream &))
       if (file && (get_prefixes().size() <= file_depth))
         *file << stream.str() << std::flush;
 
-      // Start a new string
+      // Start a new string:
       stream.str("");
     }
 
@@ -226,14 +270,22 @@ LogStream::has_file() const
 const std::string &
 LogStream::get_prefix() const
 {
-  return get_prefixes().top();
+  static std::string empty_string;
+
+  if (get_prefixes().size() > 0)
+    return get_prefixes().top();
+  else
+    return empty_string;
 }
 
 
 void
 LogStream::push (const std::string &text)
 {
-  std::string pre=get_prefixes().top();
+  std::string pre;
+  if (get_prefixes().size() > 0)
+    pre = get_prefixes().top();
+
   pre += text;
   pre += std::string(":");
   get_prefixes().push(pre);
@@ -242,7 +294,7 @@ LogStream::push (const std::string &text)
 
 void LogStream::pop ()
 {
-  if (get_prefixes().size() > 1)
+  if (get_prefixes().size() > 0)
     get_prefixes().pop();
 }
 
@@ -342,7 +394,7 @@ LogStream::get_prefixes() const
 
   // If this is a new locally stored stack, copy the "blessed" prefixes
   // from the initial thread that created logstream.
-  if(! exists)
+  if (! exists)
     {
       const tbb::enumerable_thread_specific<std::stack<std::string> > &impl
         = prefixes.get_implementation();
@@ -436,7 +488,8 @@ LogStream::print_line_head()
       if (print_thread_id)
         *std_out << '[' << thread << ']';
 
-      *std_out <<  head << ':';
+      if (head.size() > 0)
+        *std_out <<  head << ':';
     }
 
   if (file && (get_prefixes().size() <= file_depth))
@@ -453,7 +506,8 @@ LogStream::print_line_head()
       if (print_thread_id)
         *file << '[' << thread << ']';
 
-      *file << head << ':';
+      if (head.size() > 0)
+        *file << head << ':';
     }
 }
 

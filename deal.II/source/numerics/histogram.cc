@@ -1,16 +1,18 @@
-//---------------------------------------------------------------------------
-//    $Id$
-//    Version: $Name$
+// ---------------------------------------------------------------------
+// $Id$
 //
-//    Copyright (C) 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2010, 2011, 2012 by the deal.II authors
+// Copyright (C) 1999 - 2013 by the deal.II authors
 //
-//    This file is subject to QPL and may not be  distributed
-//    without copyright and license information. Please refer
-//    to the file deal.II/doc/license.html for the  text  and
-//    further information on this license.
+// This file is part of the deal.II library.
 //
-//---------------------------------------------------------------------------
-
+// The deal.II library is free software; you can use it, redistribute
+// it, and/or modify it under the terms of the GNU Lesser General
+// Public License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+// The full text of the license can be found in the file LICENSE at
+// the top level of the deal.II distribution.
+//
+// ---------------------------------------------------------------------
 
 #include <deal.II/base/memory_consumption.h>
 #include <deal.II/lac/vector.h>
@@ -22,7 +24,6 @@ DEAL_II_NAMESPACE_OPEN
 
 
 template <typename number>
-inline
 bool Histogram::logarithmic_less (const number n1,
                                   const number n2)
 {
@@ -118,14 +119,14 @@ void Histogram::evaluate (const std::vector<Vector<number> > &values,
                                                   values[i].end(),
                                                   logarithmic_less_function),
                                 logarithmic_less_function);
-        };
+        }
 
       break;
-    };
+    }
 
     default:
       Assert (false, ExcInternalError());
-    };
+    }
 
   // move right bound arbitrarily if
   // necessary. sometimes in logarithmic

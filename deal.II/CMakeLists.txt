@@ -1,30 +1,32 @@
-#####
+## ---------------------------------------------------------------------
+## $Id$
 ##
-## Copyright (C) 2012, 2013 by the deal.II authors
+## Copyright (C) 2012 - 2013 by the deal.II authors
 ##
 ## This file is part of the deal.II library.
 ##
-## <TODO: Full License information>
-## This file is dual licensed under QPL 1.0 and LGPL 2.1 or any later
-## version of the LGPL license.
+## The deal.II library is free software; you can use it, redistribute
+## it, and/or modify it under the terms of the GNU Lesser General
+## Public License as published by the Free Software Foundation; either
+## version 2.1 of the License, or (at your option) any later version.
+## The full text of the license can be found in the file LICENSE at
+## the top level of the deal.II distribution.
 ##
-## Author: Matthias Maier <matthias.maier@iwr.uni-heidelberg.de>
-##
-#####
-
-##                                                                       ##
-#             The cmake build system for the deal.II project              #
-#                                                                         #
-#     See doc/readme.html and doc/development/cmake.html for further      #
-#     details on how to use the cmake build system of deal.II.            #
-##                                                                       ##
+## ---------------------------------------------------------------------
 
 
-###########################################################################
-#                                                                         #
-#                             Configuration:                              #
-#                                                                         #
-###########################################################################
+##                                                                    ##
+#            The cmake build system for the deal.II project            #
+#                                                                      #
+#    See doc/readme.html and doc/development/cmake.html for further    #
+#    details on how to use the cmake build system of deal.II.          #
+##                                                                    ##
+
+########################################################################
+#                                                                      #
+#                            Configuration:                            #
+#                                                                      #
+########################################################################
 
 #
 # General configuration for cmake:
@@ -47,7 +49,7 @@ FOREACH(_file ${_macro_files})
 ENDFOREACH()
 
 #
-# Check whether the doc and bundled folders are available:
+# Check for the existence of various optional folders:
 #
 IF(EXISTS ${CMAKE_SOURCE_DIR}/bundled/CMakeLists.txt)
   SET(DEAL_II_HAVE_BUNDLED_DIRECTORY TRUE)
@@ -55,6 +57,14 @@ ENDIF()
 
 IF(EXISTS ${CMAKE_SOURCE_DIR}/doc/CMakeLists.txt)
   SET(DEAL_II_HAVE_DOC_DIRECTORY TRUE)
+ENDIF()
+
+IF(NOT DEFINED TEST_DIR)
+  GET_FILENAME_COMPONENT(TEST_DIR "${CMAKE_SOURCE_DIR}" PATH)
+  SET(TEST_DIR "${TEST_DIR}/tests")
+ENDIF()
+IF(EXISTS ${TEST_DIR}/CMakeLists.txt)
+  SET(DEAL_II_HAVE_TESTS_DIRECTORY TRUE)
 ENDIF()
 
 #
@@ -66,7 +76,12 @@ INCLUDE(setup_cached_variables)
 #
 # Now, set the project and set up the rest:
 #
-PROJECT(deal.II)
+PROJECT(deal.II CXX)
+ENABLE_LANGUAGE_OPTIONAL(C)
+ENABLE_LANGUAGE_OPTIONAL(Fortran)
+
+INCLUDE(setup_post_project_call)
+
 INCLUDE(setup_deal_ii)
 INCLUDE(setup_compiler_flags)
 
@@ -105,11 +120,11 @@ ENDFOREACH()
 INCLUDE(setup_finalize)
 
 
-###########################################################################
-#                                                                         #
-#                      Compilation and installation:                      #
-#                                                                         #
-###########################################################################
+########################################################################
+#                                                                      #
+#                     Compilation and installation:                    #
+#                                                                      #
+########################################################################
 
 MESSAGE(STATUS "")
 MESSAGE(STATUS "Configuring done. Proceed to target definitions now.")
@@ -130,10 +145,9 @@ ADD_SUBDIRECTORY(cmake/config) # has to be included after source
 ADD_SUBDIRECTORY(contrib) # has to be included after source
 ADD_SUBDIRECTORY(examples)
 
-#
-# Define some custom targets for convenience
-#
-INCLUDE(setup_custom_targets)
+IF(DEAL_II_HAVE_TESTS_DIRECTORY)
+  ADD_SUBDIRECTORY(${TEST_DIR} ${CMAKE_BINARY_DIR}/tests)
+ENDIF()
 
 #
 # And finally, print the configuration:

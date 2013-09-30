@@ -1,16 +1,18 @@
-//---------------------------------------------------------------------------
-//    $Id$
-//    Version: $Name$
+// ---------------------------------------------------------------------
+// $Id$
 //
-//    Copyright (C) 2008, 2010, 2012 by the deal.II authors
+// Copyright (C) 2008 - 2013 by the deal.II authors
 //
-//    This file is subject to QPL and may not be  distributed
-//    without copyright and license information. Please refer
-//    to the file deal.II/doc/license.html for the  text  and
-//    further information on this license.
+// This file is part of the deal.II library.
 //
-//---------------------------------------------------------------------------
-
+// The deal.II library is free software; you can use it, redistribute
+// it, and/or modify it under the terms of the GNU Lesser General
+// Public License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+// The full text of the license can be found in the file LICENSE at
+// the top level of the deal.II distribution.
+//
+// ---------------------------------------------------------------------
 
 #include <deal.II/lac/trilinos_solver.h>
 
@@ -73,8 +75,6 @@ namespace TrilinosWrappers
                      const VectorBase       &b,
                      const PreconditionBase &preconditioner)
   {
-    int ierr;
-
     linear_problem.reset();
 
     // We need an
@@ -86,6 +86,99 @@ namespace TrilinosWrappers
     (new Epetra_LinearProblem(const_cast<Epetra_CrsMatrix *>(&A.trilinos_matrix()),
                               &x.trilinos_vector(),
                               const_cast<Epetra_MultiVector *>(&b.trilinos_vector())));
+
+    execute_solve(preconditioner);
+  }
+
+
+
+  void
+  SolverBase::solve (Epetra_Operator        &A,
+                     VectorBase             &x,
+                     const VectorBase       &b,
+                     const PreconditionBase &preconditioner)
+  {
+    linear_problem.reset();
+
+    // We need an
+    // Epetra_LinearProblem object
+    // to let the AztecOO solver
+    // know about the matrix and
+    // vectors.
+    linear_problem.reset
+    (new Epetra_LinearProblem(&A,
+                              &x.trilinos_vector(),
+                              const_cast<Epetra_MultiVector *>(&b.trilinos_vector())));
+
+    execute_solve(preconditioner);
+  }
+
+
+
+  void
+  SolverBase::solve (const SparseMatrix           &A,
+                     dealii::Vector<double>       &x,
+                     const dealii::Vector<double> &b,
+                     const PreconditionBase       &preconditioner)
+  {
+    linear_problem.reset();
+
+    // In case we call the solver with
+    // deal.II vectors, we create views
+    // of the vectors in Epetra format.
+    Assert (x.size() == A.n(),
+            ExcDimensionMismatch(x.size(), A.n()));
+    Assert (b.size() == A.m(),
+            ExcDimensionMismatch(b.size(), A.m()));
+    Assert (A.local_range ().second == A.m(),
+            ExcMessage ("Can only work in serial when using deal.II vectors."));
+    Assert (A.trilinos_matrix().Filled(),
+            ExcMessage ("Matrix is not compressed. Call compress() method."));
+
+    Epetra_Vector ep_x (View, A.domain_partitioner(), x.begin());
+    Epetra_Vector ep_b (View, A.range_partitioner(), const_cast<double *>(b.begin()));
+
+    // We need an
+    // Epetra_LinearProblem object
+    // to let the AztecOO solver
+    // know about the matrix and
+    // vectors.
+    linear_problem.reset (new Epetra_LinearProblem
+                          (const_cast<Epetra_CrsMatrix *>(&A.trilinos_matrix()),
+                           &ep_x, &ep_b));
+
+    execute_solve(preconditioner);
+  }
+
+
+
+  void
+  SolverBase::solve (Epetra_Operator              &A,
+                     dealii::Vector<double>       &x,
+                     const dealii::Vector<double> &b,
+                     const PreconditionBase       &preconditioner)
+  {
+    linear_problem.reset();
+
+    Epetra_Vector ep_x (View, A.OperatorDomainMap(), x.begin());
+    Epetra_Vector ep_b (View, A.OperatorRangeMap(), const_cast<double *>(b.begin()));
+
+    // We need an
+    // Epetra_LinearProblem object
+    // to let the AztecOO solver
+    // know about the matrix and
+    // vectors.
+    linear_problem.reset (new Epetra_LinearProblem(&A,&ep_x, &ep_b));
+
+    execute_solve(preconditioner);
+  }
+
+
+
+  void
+  SolverBase::execute_solve(const PreconditionBase &preconditioner)
+  {
+    int ierr;
 
     // Next we can allocate the
     // AztecOO solver...
@@ -115,11 +208,17 @@ namespace TrilinosWrappers
         Assert (false, ExcNotImplemented());
       }
 
-    // Introduce the
-    // preconditioner, ...
-    ierr = solver.SetPrecOperator (const_cast<Epetra_Operator *>
-                                   (preconditioner.preconditioner.get()));
-    AssertThrow (ierr == 0, ExcTrilinosError(ierr));
+    // Introduce the preconditioner, 
+    // if the identity preconditioner is used,
+    // the precondioner is set to none, ...
+    if (preconditioner.preconditioner.use_count()!=0)
+    {
+      ierr = solver.SetPrecOperator (const_cast<Epetra_Operator *>
+                                     (preconditioner.preconditioner.get()));
+      AssertThrow (ierr == 0, ExcTrilinosError(ierr));
+    }
+    else
+      solver.SetAztecOption(AZ_precond,AZ_none);
 
     // ... set some options, ...
     solver.SetAztecOption (AZ_output, additional_data.output_solver_details ?
@@ -154,100 +253,6 @@ namespace TrilinosWrappers
       default:
         AssertThrow (ierr >= 0, ExcTrilinosError(ierr));
       }
-
-    // Finally, let the deal.II
-    // SolverControl object know
-    // what has happened. If the
-    // solve succeeded, the status
-    // of the solver control will
-    // turn into
-    // SolverControl::success.
-    solver_control.check (solver.NumIters(), solver.TrueResidual());
-
-    if (solver_control.last_check() != SolverControl::success)
-      throw SolverControl::NoConvergence (solver_control.last_step(),
-                                          solver_control.last_value());
-  }
-
-
-
-  void
-  SolverBase::solve (const SparseMatrix           &A,
-                     dealii::Vector<double>       &x,
-                     const dealii::Vector<double> &b,
-                     const PreconditionBase       &preconditioner)
-  {
-    int ierr;
-
-    linear_problem.reset();
-
-    // In case we call the solver with
-    // deal.II vectors, we create views
-    // of the vectors in Epetra format.
-    Assert (x.size() == A.n(),
-            ExcDimensionMismatch(x.size(), A.n()));
-    Assert (b.size() == A.m(),
-            ExcDimensionMismatch(b.size(), A.m()));
-    Assert (A.local_range ().second == A.m(),
-            ExcMessage ("Can only work in serial when using deal.II vectors."));
-    Assert (A.trilinos_matrix().Filled(),
-            ExcMessage ("Matrix is not compressed. Call compress() method."));
-
-    Epetra_Vector ep_x (View, A.domain_partitioner(), x.begin());
-    Epetra_Vector ep_b (View, A.range_partitioner(), const_cast<double *>(b.begin()));
-
-    // We need an
-    // Epetra_LinearProblem object
-    // to let the AztecOO solver
-    // know about the matrix and
-    // vectors.
-    linear_problem.reset (new Epetra_LinearProblem
-                          (const_cast<Epetra_CrsMatrix *>(&A.trilinos_matrix()),
-                           &ep_x, &ep_b));
-
-    // Next we can allocate the
-    // AztecOO solver...
-    solver.SetProblem(*linear_problem);
-
-    // ... and we can specify the
-    // solver to be used.
-    switch (solver_name)
-      {
-      case cg:
-        solver.SetAztecOption(AZ_solver, AZ_cg);
-        break;
-      case cgs:
-        solver.SetAztecOption(AZ_solver, AZ_cgs);
-        break;
-      case gmres:
-        solver.SetAztecOption(AZ_solver, AZ_gmres);
-        solver.SetAztecOption(AZ_kspace, additional_data.gmres_restart_parameter);
-        break;
-      case bicgstab:
-        solver.SetAztecOption(AZ_solver, AZ_bicgstab);
-        break;
-      case tfqmr:
-        solver.SetAztecOption(AZ_solver, AZ_tfqmr);
-        break;
-      default:
-        Assert (false, ExcNotImplemented());
-      }
-
-    // Introduce the
-    // preconditioner, ...
-    ierr = solver.SetPrecOperator (const_cast<Epetra_Operator *>
-                                   (preconditioner.preconditioner.get()));
-    AssertThrow (ierr == 0, ExcTrilinosError(ierr));
-
-    // ... set some options, ...
-    solver.SetAztecOption (AZ_output, additional_data.output_solver_details ?
-                           AZ_all : AZ_none);
-    solver.SetAztecOption (AZ_conv, AZ_noscaled);
-
-    // ... and then solve!
-    ierr = solver.Iterate (solver_control.max_steps(),
-                           solver_control.tolerance());
-    AssertThrow (ierr >= 0, ExcTrilinosError(ierr));
 
     // Finally, let the deal.II
     // SolverControl object know

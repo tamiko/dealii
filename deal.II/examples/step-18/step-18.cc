@@ -1,13 +1,22 @@
-/* Author: Wolfgang Bangerth, University of Texas at Austin, 2000, 2004, 2005 */
+/* ---------------------------------------------------------------------
+ * $Id$
+ *
+ * Copyright (C) 2000 - 2013 by the deal.II authors
+ *
+ * This file is part of the deal.II library.
+ *
+ * The deal.II library is free software; you can use it, redistribute
+ * it, and/or modify it under the terms of the GNU Lesser General
+ * Public License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ * The full text of the license can be found in the file LICENSE at
+ * the top level of the deal.II distribution.
+ *
+ * ---------------------------------------------------------------------
 
-/*    $Id$       */
-/*                                                                */
-/*    Copyright (C) 2000, 2004-2009, 2011-2012 by the deal.II authors */
-/*                                                                */
-/*    This file is subject to QPL and may not be  distributed     */
-/*    without copyright and license information. Please refer     */
-/*    to the file deal.II/doc/license.html for the  text  and     */
-/*    further information on this license.                        */
+ *
+ * Author: Wolfgang Bangerth, University of Texas at Austin, 2000, 2004, 2005
+ */
 
 
 // First the usual list of header files that have already been used in
@@ -97,8 +106,8 @@ namespace Step18
   // in the form $C_{ijkl} = \mu (\delta_{ik} \delta_{jl} + \delta_{il}
   // \delta_{jk}) + \lambda \delta_{ij} \delta_{kl}$. This tensor maps
   // symmetric tensor of rank 2 to symmetric tensors of rank 2. A function
-  // implementing its creation for given values of the Lame constants lambda
-  // and mu is straightforward:
+  // implementing its creation for given values of the Lame constants $\lambda$
+  // and $\mu$ is straightforward:
   template <int dim>
   SymmetricTensor<4,dim>
   get_stress_strain_tensor (const double lambda, const double mu)
@@ -374,7 +383,7 @@ namespace Step18
     // the system, direct what has to be solved in each time step, a function
     // that solves the linear system that arises in each timestep (and returns
     // the number of iterations it took), and finally output the solution
-    // vector on the currect mesh:
+    // vector on the correct mesh:
     void create_coarse_grid ();
 
     void setup_system ();
@@ -434,7 +443,7 @@ namespace Step18
     // One difference of this program is that we declare the quadrature
     // formula in the class declaration. The reason is that in all the other
     // programs, it didn't do much harm if we had used different quadrature
-    // formulas when computing the matrix and the righ hand side, for
+    // formulas when computing the matrix and the right hand side, for
     // example. However, in the present case it does: we store information in
     // the quadrature points, so we have to make sure all parts of the program
     // agree on where they are and how many there are on each cell. Thus, let
@@ -734,7 +743,7 @@ namespace Step18
 
   // @sect4{The public interface}
 
-  // The next step is the definition of constructors and descructors. There
+  // The next step is the definition of constructors and destructors. There
   // are no surprises here: we choose linear and continuous finite elements
   // for each of the <code>dim</code> vector components of the solution, and a
   // Gaussian quadrature formula with 2 points in each coordinate
@@ -901,7 +910,7 @@ namespace Step18
   // The next function is the one that sets up the data structures for a given
   // mesh. This is done in most the same way as in step-17: distribute the
   // degrees of freedom, then sort these degrees of freedom in such a way that
-  // each processor gets a contiguous chunk of them. Note that subdivions into
+  // each processor gets a contiguous chunk of them. Note that subdivisions into
   // chunks for each processor is handled in the functions that create or
   // refine grids, unlike in the previous example program (the point where
   // this happens is mostly a matter of taste; here, we chose to do it when
@@ -1000,7 +1009,7 @@ namespace Step18
     // adaptively refined).
     //
     // With this data structure, we can then go to the PETSc sparse matrix and
-    // tell it to pre-allocate all the entries we will later want to write to:
+    // tell it to preallocate all the entries we will later want to write to:
     system_matrix.reinit (mpi_communicator,
                           sparsity_pattern,
                           local_dofs_per_process,
@@ -1135,16 +1144,16 @@ namespace Step18
           cell->get_dof_indices (local_dof_indices);
 
           hanging_node_constraints
-	    .distribute_local_to_global (cell_matrix, cell_rhs,
+          .distribute_local_to_global (cell_matrix, cell_rhs,
                                        local_dof_indices,
-					 system_matrix, system_rhs);
+                                       system_matrix, system_rhs);
         }
 
     // Now compress the vector and the system matrix:
     system_matrix.compress(VectorOperation::add);
     system_rhs.compress(VectorOperation::add);
 
-    
+
     // The last step is to again fix up boundary values, just as we already
     // did in previous programs. A slight complication is that the
     // <code>apply_boundary_values</code> function wants to have a solution
@@ -1321,10 +1330,10 @@ namespace Step18
       subdomain_id (subdomain_id)
     {}
 
-    virtual typename DoFHandler<dim>::cell_iterator
+    virtual typename DataOut<dim>::cell_iterator
     first_cell ()
     {
-      typename DoFHandler<dim>::active_cell_iterator
+      typename DataOut<dim>::active_cell_iterator
       cell = this->dofs->begin_active();
       while ((cell != this->dofs->end()) &&
              (cell->subdomain_id() != subdomain_id))
@@ -1333,8 +1342,8 @@ namespace Step18
       return cell;
     }
 
-    virtual typename DoFHandler<dim>::cell_iterator
-    next_cell (const typename DoFHandler<dim>::cell_iterator &old_cell)
+    virtual typename DataOut<dim>::cell_iterator
+    next_cell (const typename DataOut<dim>::cell_iterator &old_cell)
     {
       if (old_cell != this->dofs->end())
         {
@@ -1343,7 +1352,7 @@ namespace Step18
 
           return
             ++(FilteredIterator
-               <typename DoFHandler<dim>::active_cell_iterator>
+               <typename DataOut<dim>::active_cell_iterator>
                (predicate,old_cell));
         }
       else
@@ -1447,7 +1456,7 @@ namespace Step18
     // As a last piece of data, let us also add the partitioning of the domain
     // into subdomains associated with the processors if this is a parallel
     // job. This works in the exact same way as in the step-17 program:
-    std::vector<unsigned int> partition_int (triangulation.n_active_cells());
+    std::vector<types::subdomain_id> partition_int (triangulation.n_active_cells());
     GridTools::get_subdomain_association (triangulation, partition_int);
     const Vector<double> partitioning(partition_int.begin(),
                                       partition_int.end());
@@ -1671,13 +1680,13 @@ namespace Step18
   // <code>cell-@>vertex_dof_index(v,d)</code> function that returns the index
   // of the <code>d</code>th degree of freedom at vertex <code>v</code> of the
   // given cell. In the present case, displacement in the k-th coordinate
-  // direction corresonds to the kth component of the finite element. Using a
+  // direction corresponds to the k-th component of the finite element. Using a
   // function like this bears a certain risk, because it uses knowledge of the
   // order of elements that we have taken together for this program in the
   // <code>FESystem</code> element. If we decided to add an additional
   // variable, for example a pressure variable for stabilization, and happened
   // to insert it as the first variable of the element, then the computation
-  // below will start to produce non-sensical results. In addition, this
+  // below will start to produce nonsensical results. In addition, this
   // computation rests on other assumptions: first, that the element we use
   // has, indeed, degrees of freedom that are associated with vertices. This
   // is indeed the case for the present Q1 element, as would be for all Qp
@@ -1764,7 +1773,7 @@ namespace Step18
   // To put this into larger perspective, we note that if we had previously
   // available stresses in our model (which we assume do not exist for the
   // purpose of this program), then we would need to interpolate the field of
-  // pre-existing stresses to the quadrature points. Likewise, if we were to
+  // preexisting stresses to the quadrature points. Likewise, if we were to
   // simulate elasto-plastic materials with hardening/softening, then we would
   // have to store additional history variables like the present yield stress
   // of the accumulated plastic strains in each quadrature
@@ -1847,9 +1856,9 @@ namespace Step18
   // displacement update so that the material in its new configuration
   // accommodates for the difference between the external body and boundary
   // forces applied during this time step minus the forces exerted through
-  // pre-existing internal stresses. In order to have the pre-existing
+  // preexisting internal stresses. In order to have the preexisting
   // stresses available at the next time step, we therefore have to update the
-  // pre-existing stresses with the stresses due to the incremental
+  // preexisting stresses with the stresses due to the incremental
   // displacement computed during the present time step. Ideally, the
   // resulting sum of internal stresses would exactly counter all external
   // forces. Indeed, a simple experiment can make sure that this is so: if we
@@ -1960,7 +1969,7 @@ namespace Step18
               // three matrices should be symmetric, it is not due to floating
               // point round off: we get an asymmetry on the order of 1e-16 of
               // the off-diagonal elements of the result. When assigning the
-              // result to a <code>SymmetricTensor</code>, the constuctor of
+              // result to a <code>SymmetricTensor</code>, the constructor of
               // that class checks the symmetry and realizes that it isn't
               // exactly symmetric; it will then raise an exception. To avoid
               // that, we explicitly symmetrize the result to make it exactly

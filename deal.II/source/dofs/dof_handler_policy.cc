@@ -1,15 +1,19 @@
-//---------------------------------------------------------------------------
-//    $Id$
-//    Version: $Name$
+// ---------------------------------------------------------------------
+// $Id$
 //
-//    Copyright (C) 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013 by the deal.II authors
+// Copyright (C) 1998 - 2013 by the deal.II authors
 //
-//    This file is subject to QPL and may not be  distributed
-//    without copyright and license information. Please refer
-//    to the file deal.II/doc/license.html for the  text  and
-//    further information on this license.
+// This file is part of the deal.II library.
 //
-//---------------------------------------------------------------------------
+// The deal.II library is free software; you can use it, redistribute
+// it, and/or modify it under the terms of the GNU Lesser General
+// Public License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+// The full text of the license can be found in the file LICENSE at
+// the top level of the deal.II distribution.
+//
+// ---------------------------------------------------------------------
+
 
 //TODO [TH]: renumber DoFs for multigrid is not done yet
 
@@ -585,16 +589,16 @@ namespace internal
                           const bool check_validity)
         {
           for (typename std::vector<typename DoFHandler<1,spacedim>::MGVertexDoFs>::iterator
-		 i=dof_handler.mg_vertex_dofs.begin();
+               i=dof_handler.mg_vertex_dofs.begin();
                i!=dof_handler.mg_vertex_dofs.end();
-	       ++i)
+               ++i)
             // if the present vertex lives on
             // the current level
             if ((i->get_coarsest_level() <= level) &&
                 (i->get_finest_level() >= level))
               for (unsigned int d=0; d<dof_handler.get_fe().dofs_per_vertex; ++d)
                 {
-                  unsigned int idx = i->get_index (level, d);
+                  dealii::types::global_dof_index idx = i->get_index (level, d);
                   if (idx != DoFHandler<1>::invalid_dof_index)
                     i->set_index (level, d,
                                   (indices.n_elements() == 0)?
@@ -607,9 +611,9 @@ namespace internal
 
 
           for (std::vector<types::global_dof_index>::iterator
-		 i=dof_handler.mg_levels[level]->dof_object.dofs.begin();
+               i=dof_handler.mg_levels[level]->dof_object.dofs.begin();
                i!=dof_handler.mg_levels[level]->dof_object.dofs.end();
-	       ++i)
+               ++i)
             {
               if (*i != DoFHandler<1>::invalid_dof_index)
                 {
@@ -739,7 +743,7 @@ namespace internal
                     {
                       for (unsigned int d=0; d<dof_handler.get_fe().dofs_per_line; ++d)
                         {
-                          unsigned int idx = cell->line(l)->mg_dof_index(level, d);
+                          dealii::types::global_dof_index idx = cell->line(l)->mg_dof_index(level, d);
                           if (idx != DoFHandler<1>::invalid_dof_index)
                             cell->line(l)->set_mg_dof_index (level, d, ((indices.n_elements() == 0) ?
                                                                         new_numbers[idx] :
@@ -842,8 +846,8 @@ namespace internal
         static
         void
         renumber_mg_dofs (const std::vector<dealii::types::global_dof_index> &,
-                          const IndexSet                  &,
-                          DoFHandler<3,spacedim>          &,
+                          const IndexSet &,
+                          DoFHandler<3,spacedim> &,
                           const unsigned int               ,
                           const bool                       )
         {
@@ -1208,6 +1212,33 @@ namespace internal
                     }
                 }
 
+              //additionally (multigrid only), we can have the case that children of our neighbor
+              //have us as a neighbor. In this case we and the children are active.
+              if (dealii_cell->active())
+                {
+                  for (unsigned int f=0;f<GeometryInfo<dim>::faces_per_cell;++f)
+                    {
+                      if (dealii_cell->at_boundary(f))
+                        continue;
+                      typename DoFHandler<dim,spacedim>::level_cell_iterator neighbor = dealii_cell->neighbor(f);
+                      if (!neighbor->has_children())
+                        continue;
+
+                      for (unsigned int subface=0; subface<GeometryInfo<dim>::max_children_per_face; ++subface)
+                        {
+                          typename DoFHandler<dim,spacedim>::level_cell_iterator child = dealii_cell->neighbor_child_on_subface(f,subface);
+                          dealii::types::subdomain_id dest = child->subdomain_id();
+                          Assert(dest != dealii::numbers::artificial_subdomain_id, ExcInternalError());
+                          if (dest != tria.locally_owned_subdomain())
+                            send_to.insert(dest);
+                        }
+
+                    }
+
+                }
+
+
+              // send if we have something to send
               if (send_to.size() > 0)
                 {
                   // this cell's dof_indices
@@ -1323,7 +1354,7 @@ namespace internal
           const typename dealii::internal::p4est::types<dim>::quadrant &p4est_cell,
           const typename DoFHandler<dim,spacedim>::level_cell_iterator &dealii_cell,
           const typename dealii::internal::p4est::types<dim>::quadrant &quadrant,
-          dealii::types::global_dof_index* dofs,
+          dealii::types::global_dof_index *dofs,
           unsigned int level)
         {
           if (internal::p4est::quadrant_is_equal<dim>(p4est_cell, quadrant))
@@ -1578,10 +1609,10 @@ namespace internal
                 =reinterpret_cast<typename dealii::internal::p4est::types<dim>::quadrant *>(ptr);
               ptr+=cells*sizeof(typename dealii::internal::p4est::types<dim>::quadrant);
               dealii::types::global_dof_index *dofs
-		= reinterpret_cast<dealii::types::global_dof_index*>(ptr);
+                = reinterpret_cast<dealii::types::global_dof_index *>(ptr);
 
-	      // the dofs pointer contains for each cell the number of dofs
-	      // on that cell (dofs[0]) followed by the dof indices itself.
+              // the dofs pointer contains for each cell the number of dofs
+              // on that cell (dofs[0]) followed by the dof indices itself.
               for (unsigned int c=0; c<cells; ++c, dofs+=1+dofs[0])
                 {
                   typename DoFHandler<dim,spacedim>::level_cell_iterator
@@ -1802,6 +1833,10 @@ namespace internal
               MPI_Get_count(&status, MPI_BYTE, &len);
               receive.resize(len);
 
+#ifdef DEBUG
+              Assert(senders.find(status.MPI_SOURCE)!=senders.end(), ExcInternalError());
+#endif
+
               char *ptr = &receive[0];
               MPI_Recv(ptr, len, MPI_BYTE, status.MPI_SOURCE, status.MPI_TAG,
                        tr->get_communicator(), &status);
@@ -1817,10 +1852,10 @@ namespace internal
                 =reinterpret_cast<typename dealii::internal::p4est::types<dim>::quadrant *>(ptr);
               ptr+=cells*sizeof(typename dealii::internal::p4est::types<dim>::quadrant);
               dealii::types::global_dof_index *dofs
-		= reinterpret_cast<dealii::types::global_dof_index*>(ptr);
+                = reinterpret_cast<dealii::types::global_dof_index *>(ptr);
 
-	      // the dofs pointer contains for each cell the number of dofs
-	      // on that cell (dofs[0]) followed by the dof indices itself.
+              // the dofs pointer contains for each cell the number of dofs
+              // on that cell (dofs[0]) followed by the dof indices itself.
               for (unsigned int c=0; c<cells; ++c, dofs+=1+dofs[0])
                 {
                   typename DoFHandler<dim,spacedim>::level_cell_iterator
@@ -1857,8 +1892,8 @@ namespace internal
             unsigned int sent=needs_to_get_cells.size();
             unsigned int recv=senders.size();
 
-            MPI_Reduce(&sent, &sum_send, 1, MPI_UNSIGNED, MPI_SUM, 0, tr->get_communicator());
-            MPI_Reduce(&recv, &sum_recv, 1, MPI_UNSIGNED, MPI_SUM, 0, tr->get_communicator());
+            MPI_Reduce(&sent, &sum_send, 1, MPI_UNSIGNED, MPI_SUM, 56345, tr->get_communicator());
+            MPI_Reduce(&recv, &sum_recv, 1, MPI_UNSIGNED, MPI_SUM, 56346, tr->get_communicator());
             Assert(sum_send==sum_recv, ExcInternalError());
           }
 #endif
@@ -2054,25 +2089,14 @@ namespace internal
           if (!cell->is_artificial())
             cell->set_user_flag();
 
-        //mark the vertices we are interested
-        //in, i.e. belonging to own and marked cells
-        const std::vector<bool> locally_active_vertices
-          = mark_locally_active_vertices (*tr);
-
         // add each ghostcells'
         // subdomain to the vertex and
         // keep track of interesting
         // neighbors
         std::map<unsigned int, std::set<dealii::types::subdomain_id> >
         vertices_with_ghost_neighbors;
-        for (typename DoFHandler<dim,spacedim>::active_cell_iterator
-             cell = dof_handler.begin_active();
-             cell != dof_handler.end(); ++cell)
-          if (cell->is_ghost ())
-            for (unsigned int v=0; v<GeometryInfo<dim>::vertices_per_cell; ++v)
-              if (locally_active_vertices[cell->vertex_index(v)])
-                vertices_with_ghost_neighbors[cell->vertex_index(v)]
-                .insert (cell->subdomain_id());
+
+        tr->fill_vertices_with_ghost_neighbors (vertices_with_ghost_neighbors);
 
 
         /* Send and receive cells. After this,
@@ -2316,7 +2340,8 @@ namespace internal
               for (typename DoFHandler<dim,spacedim>::level_cell_iterator
                    cell = dof_handler.begin(level);
                    cell != dof_handler.end(level); ++cell)
-                if (cell->level_subdomain_id() != dealii::numbers::artificial_subdomain_id && cell->level_subdomain_id() != tr->locally_owned_subdomain())
+                if (cell->level_subdomain_id() != dealii::numbers::artificial_subdomain_id
+                    && cell->level_subdomain_id() != tr->locally_owned_subdomain())
                   for (unsigned int v=0; v<GeometryInfo<dim>::vertices_per_cell; ++v)
                     if (locally_active_vertices[cell->vertex_index(v)])
                       vertices_with_ghost_neighbors[cell->vertex_index(v)]
@@ -2360,7 +2385,7 @@ namespace internal
                                      local_dof_indices.end(),
                                      DoFHandler<dim,spacedim>::invalid_dof_index))
                         {
-                          Assert(false, ExcMessage ("not all dofs got distributed!"));
+                          Assert(false, ExcMessage ("not all DoFs got distributed!"));
                         }
                     }
               }
@@ -2451,7 +2476,7 @@ namespace internal
             // to blocks. If yes, we can add the block
             // ranges to the IndexSet, otherwise we need
             // to go through the indices once again and
-            // add each element individually (slow!)
+            // add each element individually
             unsigned int sum = 0;
             for (unsigned int i=0; i<n_filled_blocks; ++i)
               sum += block_indices[i].second;
@@ -2461,8 +2486,7 @@ namespace internal
                                                            block_indices[i].first+
                                                            block_indices[i].second);
             else
-              for (it=new_numbers.begin() ; it != new_numbers.end(); ++it)
-                number_cache.locally_owned_dofs.add_index (*it);
+              number_cache.locally_owned_dofs.add_indices(new_numbers.begin(), new_numbers.end());
           }
 
 
@@ -2543,10 +2567,6 @@ namespace internal
           for (cell = dof_handler.begin_active(); cell != endc; ++cell)
             if (!cell->is_artificial())
               cell->set_user_flag();
-          //mark the vertices we are interested
-          //in, i.e. belonging to own and marked cells
-          const std::vector<bool> locally_active_vertices
-            = mark_locally_active_vertices (*tr);
 
           // add each ghostcells'
           // subdomain to the vertex and
@@ -2554,14 +2574,8 @@ namespace internal
           // neighbors
           std::map<unsigned int, std::set<dealii::types::subdomain_id> >
           vertices_with_ghost_neighbors;
-          for (typename DoFHandler<dim,spacedim>::active_cell_iterator
-               cell = dof_handler.begin_active();
-               cell != dof_handler.end(); ++cell)
-            if (cell->is_ghost ())
-              for (unsigned int v=0; v<GeometryInfo<dim>::vertices_per_cell; ++v)
-                if (locally_active_vertices[cell->vertex_index(v)])
-                  vertices_with_ghost_neighbors[cell->vertex_index(v)]
-                  .insert (cell->subdomain_id());
+
+          tr->fill_vertices_with_ghost_neighbors (vertices_with_ghost_neighbors);
 
           // Send and receive cells. After this, only
           // the local cells are marked, that received

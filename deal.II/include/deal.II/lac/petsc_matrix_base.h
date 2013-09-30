@@ -1,14 +1,19 @@
-//---------------------------------------------------------------------------
-//    $Id$
+// ---------------------------------------------------------------------
+// $Id$
 //
-//    Copyright (C) 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012 by the deal.II authors
+// Copyright (C) 2004 - 2013 by the deal.II authors
 //
-//    This file is subject to QPL and may not be  distributed
-//    without copyright and license information. Please refer
-//    to the file deal.II/doc/license.html for the  text  and
-//    further information on this license.
+// This file is part of the deal.II library.
 //
-//---------------------------------------------------------------------------
+// The deal.II library is free software; you can use it, redistribute
+// it, and/or modify it under the terms of the GNU Lesser General
+// Public License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+// The full text of the license can be found in the file LICENSE at
+// the top level of the deal.II distribution.
+//
+// ---------------------------------------------------------------------
+
 #ifndef __deal2__petsc_matrix_base_h
 #define __deal2__petsc_matrix_base_h
 
@@ -64,11 +69,11 @@ namespace PETScWrappers
       class Accessor
       {
       public:
-      /**
-       * Declare type for container size.
-       */
-      typedef types::global_dof_index size_type;
-	  
+        /**
+         * Declare type for container size.
+         */
+        typedef types::global_dof_index size_type;
+
         /**
          * Constructor. Since we use
          * accessors only for read
@@ -78,6 +83,11 @@ namespace PETScWrappers
         Accessor (const MatrixBase *matrix,
                   const size_type   row,
                   const size_type   index);
+
+	/**
+	 * Copy constructor.
+	 */
+	Accessor (const Accessor &a);
 
         /**
          * Row number of the element
@@ -188,7 +198,7 @@ namespace PETScWrappers
        * Declare type for container size.
        */
       typedef types::global_dof_index size_type;
-	
+
       /**
        * Constructor. Create an iterator
        * into the matrix @p matrix for the
@@ -301,11 +311,11 @@ namespace PETScWrappers
      * class.
      */
     typedef MatrixIterators::const_iterator const_iterator;
-      
-      /**
-       * Declare type for container size.
-       */
-      typedef types::global_dof_index size_type;
+
+    /**
+     * Declare type for container size.
+     */
+    typedef types::global_dof_index size_type;
 
     /**
      * Declare a typedef in analogy to all
@@ -949,8 +959,8 @@ namespace PETScWrappers
      * Add the matrix @p other scaled by the factor @p factor to the current
      * matrix.
      */
-    MatrixBase & add (const MatrixBase &other,
-		      const PetscScalar factor);
+    MatrixBase &add (const MatrixBase &other,
+                     const PetscScalar factor);
 
     /**
      * Matrix-vector multiplication:
@@ -1173,6 +1183,13 @@ namespace PETScWrappers
     void write_ascii (const PetscViewerFormat format = PETSC_VIEWER_DEFAULT);
 
     /**
+     * print command, similar to write_ascii, but the same format as
+     * produced by Trilinos
+     */
+    void print (std::ostream &out,
+                const bool    alternative_output = false) const;
+
+    /**
      *  Returns the number bytes consumed
      *  by this matrix on this CPU.
      */
@@ -1292,6 +1309,16 @@ namespace PETScWrappers
 
 
   private:
+
+    /**
+     * purposefully not implemented
+     */
+    MatrixBase(const MatrixBase &);
+    /**
+     * purposefully not implemented
+     */
+    MatrixBase &operator=(const MatrixBase &);
+
     /**
      * An internal array of integer
      * values that is used to store the
@@ -1343,7 +1370,19 @@ namespace PETScWrappers
 
 
     inline
-    const_iterator::Accessor::size_type 
+    const_iterator::Accessor::
+    Accessor (const Accessor &a)
+      :
+      matrix(a.matrix),
+      a_row(a.a_row),
+      a_index(a.a_index),
+      colnum_cache (a.colnum_cache),
+      value_cache (a.value_cache)
+    {}
+
+
+    inline
+    const_iterator::Accessor::size_type
     const_iterator::Accessor::row() const
     {
       Assert (a_row < matrix->m(), ExcBeyondEndOfMatrix());
@@ -1352,7 +1391,7 @@ namespace PETScWrappers
 
 
     inline
-    const_iterator::Accessor::size_type 
+    const_iterator::Accessor::size_type
     const_iterator::Accessor::column() const
     {
       Assert (a_row < matrix->m(), ExcBeyondEndOfMatrix());
@@ -1361,7 +1400,7 @@ namespace PETScWrappers
 
 
     inline
-    const_iterator::Accessor::size_type 
+    const_iterator::Accessor::size_type
     const_iterator::Accessor::index() const
     {
       Assert (a_row < matrix->m(), ExcBeyondEndOfMatrix());

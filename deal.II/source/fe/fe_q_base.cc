@@ -1,15 +1,19 @@
-//---------------------------------------------------------------------------
-//    $Id$
-//    Version: $Name$
+// ---------------------------------------------------------------------
+// $Id$
 //
-//    Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013 by the deal.II authors
+// Copyright (C) 2000 - 2013 by the deal.II authors
 //
-//    This file is subject to QPL and may not be  distributed
-//    without copyright and license information. Please refer
-//    to the file deal.II/doc/license.html for the  text  and
-//    further information on this license.
+// This file is part of the deal.II library.
 //
-//---------------------------------------------------------------------------
+// The deal.II library is free software; you can use it, redistribute
+// it, and/or modify it under the terms of the GNU Lesser General
+// Public License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+// The full text of the license can be found in the file LICENSE at
+// the top level of the deal.II distribution.
+//
+// ---------------------------------------------------------------------
+
 
 #include <deal.II/base/quadrature.h>
 #include <deal.II/base/qprojector.h>
@@ -455,71 +459,90 @@ FE_Q_Base<POLY,dim,spacedim>::
 get_interpolation_matrix (const FiniteElement<dim,spacedim> &x_source_fe,
                           FullMatrix<double>       &interpolation_matrix) const
 {
-  // this is only implemented, if the source FE is also a Q element
-  AssertThrow ((dynamic_cast<const FE_Q_Base<POLY,dim,spacedim> *>(&x_source_fe) != 0),
-               (typename FiniteElement<dim,spacedim>::ExcInterpolationNotImplemented()));
-
-  Assert (interpolation_matrix.m() == this->dofs_per_cell,
-          ExcDimensionMismatch (interpolation_matrix.m(),
-                                this->dofs_per_cell));
-  Assert (interpolation_matrix.n() == x_source_fe.dofs_per_cell,
-          ExcDimensionMismatch (interpolation_matrix.m(),
-                                x_source_fe.dofs_per_cell));
-
-  // ok, source is a Q element, so we will be able to do the work
-  const FE_Q_Base<POLY,dim,spacedim> &source_fe
-    = dynamic_cast<const FE_Q_Base<POLY,dim,spacedim>&>(x_source_fe);
-
-  // only evaluate Q dofs
-  const unsigned int q_dofs_per_cell = Utilities::fixed_power<dim>(this->degree+1);
-  const unsigned int source_q_dofs_per_cell = Utilities::fixed_power<dim>(source_fe.degree+1);
-
-  // evaluation is simply done by evaluating the other FE's basis functions on
-  // the unit support points (FE_Q has the property that the cell
-  // interpolation matrix is a unit matrix, so no need to evaluate it and
-  // invert it)
-  for (unsigned int j=0; j<q_dofs_per_cell; ++j)
+  // go through the list of elements we can interpolate from
+  if (const FE_Q_Base<POLY,dim,spacedim> *source_fe
+      = dynamic_cast<const FE_Q_Base<POLY,dim,spacedim>*>(&x_source_fe))
     {
-      // read in a point on this cell and evaluate the shape functions there
-      const Point<dim> p = this->unit_support_points[j];
+      // ok, source is a Q element, so we will be able to do the work
+      Assert (interpolation_matrix.m() == this->dofs_per_cell,
+              ExcDimensionMismatch (interpolation_matrix.m(),
+                                    this->dofs_per_cell));
+      Assert (interpolation_matrix.n() == x_source_fe.dofs_per_cell,
+              ExcDimensionMismatch (interpolation_matrix.m(),
+                                    x_source_fe.dofs_per_cell));
 
-      // FE_Q element evaluates to 1 in unit support point and to zero in all
-      // other points by construction
-      Assert(std::abs(this->poly_space.compute_value (j, p)-1.)<1e-13,
-             ExcInternalError());
+      // only evaluate Q dofs
+      const unsigned int q_dofs_per_cell = Utilities::fixed_power<dim>(this->degree+1);
+      const unsigned int source_q_dofs_per_cell = Utilities::fixed_power<dim>(source_fe->degree+1);
 
-      for (unsigned int i=0; i<source_q_dofs_per_cell; ++i)
-        interpolation_matrix(j,i) = source_fe.poly_space.compute_value (i, p);
-    }
-
-  // for FE_Q_DG0, add one last row of identity
-  if (q_dofs_per_cell < this->dofs_per_cell)
-    {
-      AssertDimension(source_q_dofs_per_cell+1, source_fe.dofs_per_cell);
-      for (unsigned int i=0; i<source_q_dofs_per_cell; ++i)
-        interpolation_matrix(q_dofs_per_cell, i) = 0.;
+      // evaluation is simply done by evaluating the other FE's basis functions on
+      // the unit support points (FE_Q has the property that the cell
+      // interpolation matrix is a unit matrix, so no need to evaluate it and
+      // invert it)
       for (unsigned int j=0; j<q_dofs_per_cell; ++j)
-        interpolation_matrix(j, source_q_dofs_per_cell) = 0.;
-      interpolation_matrix(q_dofs_per_cell, source_q_dofs_per_cell) = 1.;
+        {
+          // read in a point on this cell and evaluate the shape functions there
+          const Point<dim> p = this->unit_support_points[j];
+
+          // FE_Q element evaluates to 1 in unit support point and to zero in all
+          // other points by construction
+          Assert(std::abs(this->poly_space.compute_value (j, p)-1.)<1e-13,
+                 ExcInternalError());
+
+          for (unsigned int i=0; i<source_q_dofs_per_cell; ++i)
+            interpolation_matrix(j,i) = source_fe->poly_space.compute_value (i, p);
+        }
+
+      // for FE_Q_DG0, add one last row of identity
+      if (q_dofs_per_cell < this->dofs_per_cell)
+        {
+          AssertDimension(source_q_dofs_per_cell+1, source_fe->dofs_per_cell);
+          for (unsigned int i=0; i<source_q_dofs_per_cell; ++i)
+            interpolation_matrix(q_dofs_per_cell, i) = 0.;
+          for (unsigned int j=0; j<q_dofs_per_cell; ++j)
+            interpolation_matrix(j, source_q_dofs_per_cell) = 0.;
+          interpolation_matrix(q_dofs_per_cell, source_q_dofs_per_cell) = 1.;
+        }
+
+      // cut off very small values
+      const double eps = 2e-13*this->degree*dim;
+      for (unsigned int i=0; i<this->dofs_per_cell; ++i)
+        for (unsigned int j=0; j<source_fe->dofs_per_cell; ++j)
+          if (std::fabs(interpolation_matrix(i,j)) < eps)
+            interpolation_matrix(i,j) = 0.;
+
+      // make sure that the row sum of each of the matrices is 1 at this
+      // point. this must be so since the shape functions sum up to 1
+      for (unsigned int i=0; i<this->dofs_per_cell; ++i)
+        {
+          double sum = 0.;
+          for (unsigned int j=0; j<source_fe->dofs_per_cell; ++j)
+            sum += interpolation_matrix(i,j);
+
+          Assert (std::fabs(sum-1) < eps, ExcInternalError());
+        }
     }
-
-  // cut off very small values
-  const double eps = 2e-13*this->degree*dim;
-  for (unsigned int i=0; i<this->dofs_per_cell; ++i)
-    for (unsigned int j=0; j<source_fe.dofs_per_cell; ++j)
-      if (std::fabs(interpolation_matrix(i,j)) < eps)
-        interpolation_matrix(i,j) = 0.;
-
-  // make sure that the row sum of each of the matrices is 1 at this
-  // point. this must be so since the shape functions sum up to 1
-  for (unsigned int i=0; i<this->dofs_per_cell; ++i)
+  else if (dynamic_cast<const FE_Nothing<dim>*>(&x_source_fe))
     {
-      double sum = 0.;
-      for (unsigned int j=0; j<source_fe.dofs_per_cell; ++j)
-        sum += interpolation_matrix(i,j);
+      // the element we want to interpolate from is an FE_Nothing. this
+      // element represents a function that is constant zero and has no
+      // degrees of freedom, so the interpolation is simply a multiplication
+      // with a n_dofs x 0 matrix. there is nothing to do here
 
-      Assert (std::fabs(sum-1) < eps, ExcInternalError());
+      // we would like to verify that the number of rows and columns of
+      // the matrix equals this->dofs_per_cell and zero. unfortunately,
+      // whenever we do FullMatrix::reinit(m,0), it sets both rows and
+      // columns to zero, instead of m and zero. thus, only test the
+      // number of columns
+      Assert (interpolation_matrix.n() == x_source_fe.dofs_per_cell,
+              ExcDimensionMismatch (interpolation_matrix.m(),
+                                    x_source_fe.dofs_per_cell));
+
     }
+  else
+    AssertThrow (false,
+                 (typename FiniteElement<dim,spacedim>::ExcInterpolationNotImplemented()));
+
 }
 
 
@@ -527,84 +550,12 @@ get_interpolation_matrix (const FiniteElement<dim,spacedim> &x_source_fe,
 template <class POLY, int dim, int spacedim>
 void
 FE_Q_Base<POLY,dim,spacedim>::
-get_face_interpolation_matrix (const FiniteElement<dim,spacedim> &x_source_fe,
+get_face_interpolation_matrix (const FiniteElement<dim,spacedim> &source_fe,
                                FullMatrix<double>       &interpolation_matrix) const
 {
   Assert (dim > 1, ExcImpossibleInDim(1));
-
-  // this is only implemented, if the source FE is also a Q element
-  AssertThrow ((dynamic_cast<const FE_Q_Base<POLY,dim,spacedim> *>(&x_source_fe) != 0),
-               (typename FiniteElement<dim,spacedim>::
-                ExcInterpolationNotImplemented()));
-
-  Assert (interpolation_matrix.n() == this->dofs_per_face,
-          ExcDimensionMismatch (interpolation_matrix.n(),
-                                this->dofs_per_face));
-  Assert (interpolation_matrix.m() == x_source_fe.dofs_per_face,
-          ExcDimensionMismatch (interpolation_matrix.m(),
-                                x_source_fe.dofs_per_face));
-
-  // ok, source is a Q element, so we will be able to do the work
-  const FE_Q_Base<POLY,dim,spacedim> &source_fe
-    = dynamic_cast<const FE_Q_Base<POLY,dim,spacedim>&>(x_source_fe);
-
-  // Make sure that the element for which the DoFs should be constrained is
-  // the one with the higher polynomial degree.  Actually the procedure will
-  // work also if this assertion is not satisfied. But the matrices produced
-  // in that case might lead to problems in the hp procedures, which use this
-  // method.
-  Assert (this->dofs_per_face <= source_fe.dofs_per_face,
-          (typename FiniteElement<dim,spacedim>::
-           ExcInterpolationNotImplemented ()));
-
-  // generate a quadrature with the unit support points.  This is later based
-  // as a basis for the QProjector, which returns the support points on the
-  // face.
-  Quadrature<dim-1> quad_face_support (source_fe.get_unit_face_support_points ());
-
-  // Rule of thumb for FP accuracy, that can be expected for a given
-  // polynomial degree.  This value is used to cut off values close to zero.
-  const double eps = 2e-13*this->degree*(dim-1);
-
-  // compute the interpolation matrix by simply taking the value at the
-  // support points.
-//TODO: Verify that all faces are the same with respect to
-// these support points. Furthermore, check if something has to
-// be done for the face orientation flag in 3D.
-  const Quadrature<dim> face_quadrature
-    = QProjector<dim>::project_to_face (quad_face_support, 0);
-  for (unsigned int i=0; i<source_fe.dofs_per_face; ++i)
-    {
-      const Point<dim> &p = face_quadrature.point (i);
-
-      for (unsigned int j=0; j<this->dofs_per_face; ++j)
-        {
-          double matrix_entry = this->poly_space.compute_value (this->face_to_cell_index(j, 0), p);
-
-          // Correct the interpolated value. I.e. if it is close to 1 or 0,
-          // make it exactly 1 or 0. Unfortunately, this is required to avoid
-          // problems with higher order elements.
-          if (std::fabs (matrix_entry - 1.0) < eps)
-            matrix_entry = 1.0;
-          if (std::fabs (matrix_entry) < eps)
-            matrix_entry = 0.0;
-
-          interpolation_matrix(i,j) = matrix_entry;
-        }
-    }
-
-  // make sure that the row sum of each of the matrices is 1 at this
-  // point. this must be so since the shape functions sum up to 1
-  for (unsigned int j=0; j<source_fe.dofs_per_face; ++j)
-    {
-      double sum = 0.;
-
-      for (unsigned int i=0; i<this->dofs_per_face; ++i)
-        sum += interpolation_matrix(j,i);
-
-      Assert (std::fabs(sum-1) < 2e-13*this->degree*(dim-1),
-              ExcInternalError());
-    }
+  get_subface_interpolation_matrix (source_fe, numbers::invalid_unsigned_int,
+                                    interpolation_matrix);
 }
 
 
@@ -654,7 +605,11 @@ get_subface_interpolation_matrix (const FiniteElement<dim,spacedim> &x_source_fe
 // these support points. Furthermore, check if something has to
 // be done for the face orientation flag in 3D.
       const Quadrature<dim> subface_quadrature
-        = QProjector<dim>::project_to_subface (quad_face_support, 0, subface);
+        = subface == numbers::invalid_unsigned_int
+        ?
+        QProjector<dim>::project_to_face (quad_face_support, 0)
+        :
+        QProjector<dim>::project_to_subface (quad_face_support, 0, subface);
       for (unsigned int i=0; i<source_fe->dofs_per_face; ++i)
         {
           const Point<dim> &p = subface_quadrature.point (i);
@@ -684,8 +639,7 @@ get_subface_interpolation_matrix (const FiniteElement<dim,spacedim> &x_source_fe
           for (unsigned int i=0; i<this->dofs_per_face; ++i)
             sum += interpolation_matrix(j,i);
 
-          Assert (std::fabs(sum-1) < 2e-13*this->degree*dim,
-                  ExcInternalError());
+          Assert (std::fabs(sum-1) < eps, ExcInternalError());
         }
     }
   else if (dynamic_cast<const FE_Nothing<dim> *>(&x_source_fe) != 0)
@@ -750,7 +704,7 @@ hp_line_dof_identities (const FiniteElement<dim,spacedim> &fe_other) const
     {
       // dofs are located along lines, so two dofs are identical if they are
       // located at identical positions. if we had only equidistant points, we
-      // could simple check for similarity like (i+1)*q == (j+1)*p, but we
+      // could simply check for similarity like (i+1)*q == (j+1)*p, but we
       // might have other support points (e.g. Gauss-Lobatto
       // points). Therefore, read the points in unit_support_points for the
       // first coordinate direction. We take the lexicographic ordering of the
@@ -984,11 +938,132 @@ FE_Q_Base<POLY,dim,spacedim>::initialize_quad_dof_index_permutation ()
 
 
 
+template <class POLY, int dim, int spacedim>
+unsigned int
+FE_Q_Base<POLY,dim,spacedim>::
+face_to_cell_index (const unsigned int face_index,
+                    const unsigned int face,
+                    const bool face_orientation,
+                    const bool face_flip,
+                    const bool face_rotation) const
+{
+  Assert (face_index < this->dofs_per_face,
+          ExcIndexRange(face_index, 0, this->dofs_per_face));
+  Assert (face < GeometryInfo<dim>::faces_per_cell,
+          ExcIndexRange(face, 0, GeometryInfo<dim>::faces_per_cell));
+
+//TODO: we could presumably solve the 3d case below using the
+// adjust_quad_dof_index_for_face_orientation_table field. for the
+// 2d case, we can't use adjust_line_dof_index_for_line_orientation_table
+// since that array is empty (presumably because we thought that
+// there are no flipped edges in 2d, but these can happen in
+// DoFTools::make_periodicity_constraints, for example). so we
+// would need to either fill this field, or rely on derived classes
+// implementing this function, as we currently do
+
+  // we need to distinguish between DoFs on vertices, lines and in 3d quads.
+  // do so in a sequence of if-else statements
+  if (face_index < this->first_face_line_index)
+    // DoF is on a vertex
+    {
+      // get the number of the vertex on the face that corresponds to this DoF,
+      // along with the number of the DoF on this vertex
+      const unsigned int face_vertex         = face_index / this->dofs_per_vertex;
+      const unsigned int dof_index_on_vertex = face_index % this->dofs_per_vertex;
+
+      // then get the number of this vertex on the cell and translate
+      // this to a DoF number on the cell
+      return (GeometryInfo<dim>::face_to_cell_vertices(face, face_vertex,
+                                                       face_orientation,
+                                                       face_flip,
+                                                       face_rotation)
+              * this->dofs_per_vertex
+              +
+              dof_index_on_vertex);
+    }
+  else if (face_index < this->first_face_quad_index)
+    // DoF is on a face
+    {
+      // do the same kind of translation as before. we need to only consider
+      // DoFs on the lines, i.e., ignoring those on the vertices
+      const unsigned int index = face_index - this->first_face_line_index;
+
+      const unsigned int face_line         = index / this->dofs_per_line;
+      const unsigned int dof_index_on_line = index % this->dofs_per_line;
+
+      // we now also need to adjust the line index for the case of
+      // face orientation, face flips, etc
+      unsigned int adjusted_dof_index_on_line;
+      switch (dim)
+      {
+      case 1:
+        Assert (false, ExcInternalError());
+
+      case 2:
+        // in 2d, only face_flip has a meaning. if it is set, consider
+        // dofs in reverse order
+        if (face_flip == false)
+          adjusted_dof_index_on_line = dof_index_on_line;
+        else
+          adjusted_dof_index_on_line = this->dofs_per_line - dof_index_on_line - 1;
+        break;
+
+      case 3:
+        // in 3d, things are difficult. someone will have to think
+        // about how this code here should look like, by drawing a bunch
+        // of pictures of how all the faces can look like with the various
+        // flips and rotations.
+        //
+        // that said, the Q2 case is easy enough to implement, as is the case
+        // where everything is in standard orientation
+        Assert ((this->dofs_per_line <= 1) ||
+                ((face_orientation == true) &&
+                 (face_flip == false) &&
+                 (face_rotation == false)),
+                ExcNotImplemented());
+        adjusted_dof_index_on_line = dof_index_on_line;
+        break;
+      }
+
+      return (this->first_line_index
+              + GeometryInfo<dim>::face_to_cell_lines(face, face_line,
+                                                      face_orientation,
+                                                      face_flip,
+                                                      face_rotation)
+              * this->dofs_per_line
+              +
+              adjusted_dof_index_on_line);
+    }
+  else
+    // DoF is on a quad
+    {
+      Assert (dim >= 3, ExcInternalError());
+
+      // ignore vertex and line dofs
+      const unsigned int index = face_index - this->first_face_quad_index;
+
+      // the same is true here as above for the 3d case -- someone will
+      // just have to draw a bunch of pictures. in the meantime,
+      // we can implement the Q2 case in which it is simple
+      Assert ((this->dofs_per_quad <= 1) ||
+              ((face_orientation == true) &&
+               (face_flip == false) &&
+               (face_rotation == false)),
+              ExcNotImplemented());
+      return (this->first_quad_index
+              + face * this->dofs_per_quad
+              + index);
+    }
+}
+
+
+
 
 template <class POLY, int dim, int spacedim>
 std::vector<unsigned int>
 FE_Q_Base<POLY,dim,spacedim>::get_dpo_vector(const unsigned int deg)
 {
+  AssertThrow(deg>0,ExcMessage("FE_Q needs to be of degree > 0."));
   std::vector<unsigned int> dpo(dim+1, 1U);
   for (unsigned int i=1; i<dpo.size(); ++i)
     dpo[i]=dpo[i-1]*(deg-1);
@@ -1007,7 +1082,7 @@ FE_Q_Base<POLY,dim,spacedim>::initialize_constraints (const std::vector<Point<1>
 
 
 template <class POLY, int dim, int spacedim>
-const FullMatrix<double>&
+const FullMatrix<double> &
 FE_Q_Base<POLY,dim,spacedim>
 ::get_prolongation_matrix (const unsigned int child,
                            const RefinementCase<dim> &refinement_case) const
@@ -1062,7 +1137,7 @@ FE_Q_Base<POLY,dim,spacedim>
       // almost negligible also for high order elements
       const unsigned int dofs1d = this->degree+1;
       std::vector<Table<2,double> >
-        subcell_evaluations (dim, Table<2,double>(dofs1d, dofs1d));
+      subcell_evaluations (dim, Table<2,double>(dofs1d, dofs1d));
       const std::vector<unsigned int> &index_map_inverse =
         this->poly_space.get_numbering_inverse();
 
@@ -1184,7 +1259,7 @@ FE_Q_Base<POLY,dim,spacedim>
 
 
 template <class POLY, int dim, int spacedim>
-const FullMatrix<double>&
+const FullMatrix<double> &
 FE_Q_Base<POLY,dim,spacedim>
 ::get_restriction_matrix (const unsigned int child,
                           const RefinementCase<dim> &refinement_case) const

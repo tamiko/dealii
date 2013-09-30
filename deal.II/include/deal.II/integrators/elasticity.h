@@ -1,14 +1,19 @@
-//---------------------------------------------------------------------------
-//    $Id$
+// ---------------------------------------------------------------------
+// $Id$
 //
-//    Copyright (C) 2010, 2011, 2012, 2013 by the deal.II authors
+// Copyright (C) 2010 - 2013 by the deal.II authors
 //
-//    This file is subject to QPL and may not be  distributed
-//    without copyright and license information. Please refer
-//    to the file deal.II/doc/license.html for the  text  and
-//    further information on this license.
+// This file is part of the deal.II library.
 //
-//---------------------------------------------------------------------------
+// The deal.II library is free software; you can use it, redistribute
+// it, and/or modify it under the terms of the GNU Lesser General
+// Public License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+// The full text of the license can be found in the file LICENSE at
+// the top level of the deal.II distribution.
+//
+// ---------------------------------------------------------------------
+
 #ifndef __deal2__integrators_elasticity_h
 #define __deal2__integrators_elasticity_h
 
@@ -95,12 +100,12 @@ namespace LocalIntegrators
           const double dx = factor * fe.JxW(k);
           for (unsigned int i=0; i<n_dofs; ++i)
             for (unsigned int d1=0; d1<dim; ++d1)
-	      for (unsigned int d2=0; d2<dim; ++d2)
-		{
-		  result(i) += dx * .25 *
-		    (input[d1][k][d2] + input[d2][k][d1]) *
-		    (fe.shape_grad_component(i,k,d1)[d2] + fe.shape_grad_component(i,k,d2)[d1]);
-		}
+              for (unsigned int d2=0; d2<dim; ++d2)
+                {
+                  result(i) += dx * .25 *
+                               (input[d1][k][d2] + input[d2][k][d1]) *
+                               (fe.shape_grad_component(i,k,d1)[d2] + fe.shape_grad_component(i,k,d2)[d1]);
+                }
         }
     }
 
@@ -135,7 +140,7 @@ namespace LocalIntegrators
                 {
                   const double u = fe.shape_value_component(j,k,d1);
                   const double v = fe.shape_value_component(i,k,d1);
-                  M(i,j) += dx * penalty * u * v;
+                  M(i,j) += dx * 2. * penalty * u * v;
                   for (unsigned int d2=0; d2<dim; ++d2)
                     {
                       // v . nabla u n
@@ -191,24 +196,78 @@ namespace LocalIntegrators
               {
                 const double u= input[d1][k];
                 const double v= fe.shape_value_component(i,k,d1);
-		const double g= data[d1][k];
-		result(i) += dx + 2.*penalty * (u-g) * v;
-		
-		for (unsigned int d2=0; d2<dim; ++d2)
-		  {
-		    // v . nabla u n
-		    result(i) -= .5*dx* v * Dinput[d1][k][d2] * n(d2);
-		    // v . (nabla u)^T n
-		    result(i) -= .5*dx* v * Dinput[d2][k][d1] * n(d2);
-		    // u  nabla v n
-		    result(i) -= .5*dx * (u-g) * fe.shape_grad_component(i,k,d1)[d2] * n(d2);
-		    // u  (nabla v)^T n
-		    result(i) -= .5*dx * (u-g) * fe.shape_grad_component(i,k,d2)[d1] * n(d2);
-		  }
-	      }
-	}
+                const double g= data[d1][k];
+                result(i) += dx * 2.*penalty * (u-g) * v;
+
+                for (unsigned int d2=0; d2<dim; ++d2)
+                  {
+                    // v . nabla u n
+                    result(i) -= .5*dx* v * Dinput[d1][k][d2] * n(d2);
+                    // v . (nabla u)^T n
+                    result(i) -= .5*dx* v * Dinput[d2][k][d1] * n(d2);
+                    // u  nabla v n
+                    result(i) -= .5*dx * (u-g) * fe.shape_grad_component(i,k,d1)[d2] * n(d2);
+                    // u  (nabla v)^T n
+                    result(i) -= .5*dx * (u-g) * fe.shape_grad_component(i,k,d2)[d1] * n(d2);
+                  }
+              }
+        }
     }
-    
+
+    /**
+     * Homogeneous weak boundary condition for the elasticity operator by Nitsche,
+     * namely on the face <i>F</i> the vector
+     * @f[
+     * \int_F \Bigl(\gamma u \cdot v - n^T \epsilon(u) v - u \epsilon(v) n^T\Bigr)\;ds.
+     * @f]
+     *
+     * Here, <i>u</i> is the finite element function whose values and
+     * gradient are given in the arguments <tt>input</tt> and
+     * <tt>Dinput</tt>, respectively. $n$ is the outer
+     * normal vector and $\gamma$ is the usual penalty parameter.
+     *
+     * @author Guido Kanschat
+     * @date 2013
+     */
+    template <int dim, typename number>
+    void nitsche_residual_homogeneous (
+      Vector<number> &result,
+      const FEValuesBase<dim> &fe,
+      const VectorSlice<const std::vector<std::vector<double> > > &input,
+      const VectorSlice<const std::vector<std::vector<Tensor<1,dim> > > > &Dinput,
+      double penalty,
+      double factor = 1.)
+    {
+      const unsigned int n_dofs = fe.dofs_per_cell;
+      AssertVectorVectorDimension(input, dim, fe.n_quadrature_points);
+      AssertVectorVectorDimension(Dinput, dim, fe.n_quadrature_points);
+
+      for (unsigned int k=0; k<fe.n_quadrature_points; ++k)
+        {
+          const double dx = factor * fe.JxW(k);
+          const Point<dim> &n = fe.normal_vector(k);
+          for (unsigned int i=0; i<n_dofs; ++i)
+            for (unsigned int d1=0; d1<dim; ++d1)
+              {
+                const double u= input[d1][k];
+                const double v= fe.shape_value_component(i,k,d1);
+                result(i) += dx * 2.*penalty * u * v;
+
+                for (unsigned int d2=0; d2<dim; ++d2)
+                  {
+                    // v . nabla u n
+                    result(i) -= .5*dx* v * Dinput[d1][k][d2] * n(d2);
+                    // v . (nabla u)^T n
+                    result(i) -= .5*dx* v * Dinput[d2][k][d1] * n(d2);
+                    // u  nabla v n
+                    result(i) -= .5*dx * u * fe.shape_grad_component(i,k,d1)[d2] * n(d2);
+                    // u  (nabla v)^T n
+                    result(i) -= .5*dx * u * fe.shape_grad_component(i,k,d2)[d1] * n(d2);
+                  }
+              }
+        }
+    }
+
     /**
      * The interior penalty flux
      * for symmetric gradients.
@@ -308,7 +367,7 @@ namespace LocalIntegrators
       double ext_factor = -1.)
     {
       const unsigned int n1 = fe1.dofs_per_cell;
-      
+
       AssertDimension(fe1.get_fe().n_components(), dim);
       AssertDimension(fe2.get_fe().n_components(), dim);
       AssertVectorVectorDimension(input1, dim, fe1.n_quadrature_points);
@@ -325,7 +384,7 @@ namespace LocalIntegrators
         {
           const double dx = fe1.JxW(k);
           const Point<dim> &n = fe1.normal_vector(k);
-	  
+
           for (unsigned int i=0; i<n1; ++i)
             for (unsigned int d1=0; d1<dim; ++d1)
               {
@@ -333,27 +392,27 @@ namespace LocalIntegrators
                 const double v2 = fe2.shape_value_component(i,k,d1);
                 const double u1 = input1[d1][k];
                 const double u2 = input2[d1][k];
-		
+
                 result1(i) += dx * penalty * u1*v1;
-		result1(i) -= dx * penalty * u2*v1;
-		result2(i) -= dx * penalty * u1*v2;
+                result1(i) -= dx * penalty * u2*v1;
+                result2(i) -= dx * penalty * u1*v2;
                 result2(i) += dx * penalty * u2*v2;
-		
-		for (unsigned int d2=0; d2<dim; ++d2)
-		  {
-		    // v . nabla u n
-		    result1(i) -= .25*dx* (nu1*Dinput1[d1][k][d2]+nu2*Dinput1[d1][k][d2]) * n(d2) * v1;
-		    result2(i) += .25*dx* (nu1*Dinput1[d1][k][d2]+nu2*Dinput1[d1][k][d2]) * n(d2) * v1;
-		    // v . (nabla u)^T n
-		    result1(i) -= .25*dx* (nu1*Dinput1[d2][k][d1]+nu2*Dinput1[d2][k][d1]) * n(d2) * v1;
-		    result2(i) += .25*dx* (nu1*Dinput1[d2][k][d1]+nu2*Dinput1[d2][k][d1]) * n(d2) * v1;
-		    // u  nabla v n
-		    result1(i) -= .25*dx* nu1*fe1.shape_grad_component(i,k,d1)[d2] * n(d2) * (u1-u2);
-		    result2(i) -= .25*dx* nu2*fe2.shape_grad_component(i,k,d1)[d2] * n(d2) * (u1-u2);
-		    // u  (nabla v)^T n
-		    result1(i) -= .25*dx* nu1*fe1.shape_grad_component(i,k,d2)[d1] * n(d2) * (u1-u2);
-		    result2(i) -= .25*dx* nu2*fe2.shape_grad_component(i,k,d2)[d1] * n(d2) * (u1-u2);
-		  }
+
+                for (unsigned int d2=0; d2<dim; ++d2)
+                  {
+                    // v . nabla u n
+                    result1(i) -= .25*dx* (nu1*Dinput1[d1][k][d2]+nu2*Dinput2[d1][k][d2]) * n(d2) * v1;
+                    result2(i) += .25*dx* (nu1*Dinput1[d1][k][d2]+nu2*Dinput2[d1][k][d2]) * n(d2) * v2;
+                    // v . (nabla u)^T n
+                    result1(i) -= .25*dx* (nu1*Dinput1[d2][k][d1]+nu2*Dinput2[d2][k][d1]) * n(d2) * v1;
+                    result2(i) += .25*dx* (nu1*Dinput1[d2][k][d1]+nu2*Dinput2[d2][k][d1]) * n(d2) * v2;
+                    // u  nabla v n
+                    result1(i) -= .25*dx* nu1*fe1.shape_grad_component(i,k,d1)[d2] * n(d2) * (u1-u2);
+                    result2(i) -= .25*dx* nu2*fe2.shape_grad_component(i,k,d1)[d2] * n(d2) * (u1-u2);
+                    // u  (nabla v)^T n
+                    result1(i) -= .25*dx* nu1*fe1.shape_grad_component(i,k,d2)[d1] * n(d2) * (u1-u2);
+                    result2(i) -= .25*dx* nu2*fe2.shape_grad_component(i,k,d2)[d1] * n(d2) * (u1-u2);
+                  }
               }
         }
     }

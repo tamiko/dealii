@@ -38,9 +38,9 @@
 
     <h4>Installing <acronym>deal.II</acronym> with PETSc</h4>
 
-    <p>
-      For a general overview of building <acronym>deal.II</acronym> with
-      PETSc, first see the <a href="../readme.html">ReadMe file</a>.
+    <p style="color: red"><b>Note:</b> The latest version of PETSc tested is
+       3.4.2. Major releases after this version may cause problems, so we
+       recommend sticking to this version if at all possible.
     </p>
 
     <p>
@@ -66,16 +66,6 @@
       <acronym>deal.II</acronym> to be configured for PETSc use, you
       should specify <code>-DDEAL_II_WITH_PETSC=OFF</code> as a flag
       during configuration.
-    </p>
-
-    <p>
-      <b>Note:</b> PETSc appears not to co-operate
-      well when using threads and some programs crash when deal.II is
-      compiled in its usual mode supporting multithreading. If you see
-      this sort of behavior, disable
-      multithreading upon configuration of <acronym>deal.II</acronym>
-      using the <code>-DDEAL_II_WITH_THREADS=OFF</code> switch for
-      <code>cmake</code>.
     </p>
 
     <p><b>Note:</b> <acronym>deal.II</acronym> can be installed with both
@@ -113,7 +103,6 @@
         cd petsc-x-y-z
 	export PETSC_DIR=`pwd`
 	export PETSC_ARCH=x86_64       # or any other identifying text for your machine
-	export LD_LIBRARY_PATH=$PETSC_DIR/$PETSC_ARCH/lib:$LD_LIBRARY_PATH
 	./config/configure.py --with-shared=1 --with-x=0 --with-mpi=1 --download-hypre=1
 	make
       </pre>
@@ -121,7 +110,7 @@
 
     <p>
       This automatically builds PETSc with both MPI and the algebraic
-      multigrid preconditioner package Hypre (which we use in step-40). 
+      multigrid preconditioner package Hypre (which we use in step-40).
       <br>
       Now let PETSc check his own sanity:
       <pre>

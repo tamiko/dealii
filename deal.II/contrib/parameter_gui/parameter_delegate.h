@@ -1,13 +1,19 @@
-//---------------------------------------------------------------------------
+// ---------------------------------------------------------------------
+// $Id$
 //
-//    Copyright (C) 2010, 2011 by the deal.II authors
+// Copyright (C) 2010 - 2013 by Martin Steigemann and Wolfgang Bangerth
 //
-//    This file is subject to QPL and may not be  distributed
-//    without copyright and license information. Please refer
-//    to the file deal.II/doc/license.html for the  text  and
-//    further information on this license.
+// This file is part of the deal.II library.
 //
-//---------------------------------------------------------------------------
+// The deal.II library is free software; you can use it, redistribute
+// it, and/or modify it under the terms of the GNU Lesser General
+// Public License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+// The full text of the license can be found in the file LICENSE at
+// the top level of the deal.II distribution.
+//
+// ---------------------------------------------------------------------
+
 
 #ifndef PARAMETERDELEGATE_H
 #define PARAMETERDELEGATE_H
@@ -33,7 +39,7 @@ namespace dealii
  * The ParameterDelegate class implements special delegates for the QTreeWidget class used in the parameterGUI.
  * The QTreeWidget class provides some different standard delegates for editing parameters shown in the
  * tree structure. The ParameterDelegate class provides special editors for the different types of parameters defined in
- * the ParameterHandler class. For all parameter types based on strings as &quot;Anything&quot;, &quot;MultipleSelection&quot; and
+ * the ParameterHandler class. For all parameter types based on strings as &quot;Anything&quot;, &quot;MultipleSelection&quot; &quot;Map&quot; and
  * &quot;List&quot; a simple line editor will be shown up. In the case of integer and double type parameters the editor is a spin box and for
  * &quot;Selection&quot; type parameters a combo box will be shown up. For parameters of type &quot;FileName&quot; and &quot;DirectoryName&quot;
  * the delegate shows a @ref BrowseLineEdit editor. The column of the tree structure with the parameter values has to be set

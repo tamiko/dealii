@@ -1,14 +1,23 @@
-/* Author: Wolfgang Bangerth, Texas A&M University, 2009, 2010 */
-/*         Timo Heister, University of Goettingen, 2009, 2010 */
+/* ---------------------------------------------------------------------
+ * $Id$
+ *
+ * Copyright (C) 2009 - 2013 by the deal.II authors
+ *
+ * This file is part of the deal.II library.
+ *
+ * The deal.II library is free software; you can use it, redistribute
+ * it, and/or modify it under the terms of the GNU Lesser General
+ * Public License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ * The full text of the license can be found in the file LICENSE at
+ * the top level of the deal.II distribution.
+ *
+ * ---------------------------------------------------------------------
 
-/*    $Id$       */
-/*                                                                */
-/*    Copyright (C) 2009-2012 by Timo Heister and the deal.II authors */
-/*                                                                */
-/*    This file is subject to QPL and may not be  distributed     */
-/*    without copyright and license information. Please refer     */
-/*    to the file deal.II/doc/license.html for the  text  and     */
-/*    further information on this license.                        */
+ *
+ * Author: Wolfgang Bangerth, Texas A&M University, 2009, 2010
+ *         Timo Heister, University of Goettingen, 2009, 2010
+ */
 
 
 // @sect3{Include files}
@@ -18,6 +27,21 @@
 // already be familiar friends:
 #include <deal.II/base/quadrature_lib.h>
 #include <deal.II/base/function.h>
+#include <deal.II/base/timer.h>
+
+#include <deal.II/lac/generic_linear_algebra.h>
+
+#define USE_PETSC_LA
+
+namespace LA
+{
+#ifdef USE_PETSC_LA
+  using namespace dealii::LinearAlgebraPETSc;
+#else
+  using namespace dealii::LinearAlgebraTrilinos;
+#endif
+}
+
 #include <deal.II/lac/vector.h>
 #include <deal.II/lac/full_matrix.h>
 #include <deal.II/lac/solver_cg.h>
@@ -133,23 +157,24 @@ namespace Step40
     void refine_grid ();
     void output_results (const unsigned int cycle) const;
 
-    MPI_Comm mpi_communicator;
+    MPI_Comm                                  mpi_communicator;
 
-    parallel::distributed::Triangulation<dim>   triangulation;
+    parallel::distributed::Triangulation<dim> triangulation;
 
-    DoFHandler<dim>      dof_handler;
-    FE_Q<dim>            fe;
+    DoFHandler<dim>                           dof_handler;
+    FE_Q<dim>                                 fe;
 
-    IndexSet             locally_owned_dofs;
-    IndexSet             locally_relevant_dofs;
+    IndexSet                                  locally_owned_dofs;
+    IndexSet                                  locally_relevant_dofs;
 
-    ConstraintMatrix     constraints;
+    ConstraintMatrix                          constraints;
 
-    PETScWrappers::MPI::SparseMatrix system_matrix;
-    PETScWrappers::MPI::Vector locally_relevant_solution;
-    PETScWrappers::MPI::Vector system_rhs;
+    LA::MPI::SparseMatrix system_matrix;
+    LA::MPI::Vector locally_relevant_solution;
+    LA::MPI::Vector system_rhs;
 
-    ConditionalOStream                pcout;
+    ConditionalOStream                        pcout;
+    TimerOutput                               computing_timer;
   };
 
 
@@ -175,7 +200,10 @@ namespace Step40
     fe (2),
     pcout (std::cout,
            (Utilities::MPI::this_mpi_process(mpi_communicator)
-            == 0))
+            == 0)),
+    computing_timer (pcout,
+                     TimerOutput::summary,
+                     TimerOutput::wall_times)
   {}
 
 
@@ -206,9 +234,11 @@ namespace Step40
   template <int dim>
   void LaplaceProblem<dim>::setup_system ()
   {
+    TimerOutput::Scope t(computing_timer, "setup");
+
     dof_handler.distribute_dofs (fe);
 
-    // The next two lines extract some informatino we will need later on,
+    // The next two lines extract some information we will need later on,
     // namely two index sets that provide information about which degrees of
     // freedom are owned by the current processor (this information will be
     // used to initialize solution and right hand side vectors, and the system
@@ -230,12 +260,10 @@ namespace Step40
     // locally owned cells (of course the linear solvers will read from it,
     // but they do not care about the geometric location of degrees of
     // freedom).
-    locally_relevant_solution.reinit (mpi_communicator,
-                                      locally_owned_dofs,
-                                      locally_relevant_dofs);
-    system_rhs.reinit (mpi_communicator,
-                       dof_handler.n_dofs(),
-                       dof_handler.n_locally_owned_dofs());
+    locally_relevant_solution.reinit (locally_owned_dofs,
+                                      locally_relevant_dofs, mpi_communicator);
+    system_rhs.reinit (locally_owned_dofs, mpi_communicator);
+
     system_rhs = 0;
 
     // The next step is to compute hanging node and boundary value
@@ -287,21 +315,19 @@ namespace Step40
     // entries that will exist in that part of the finite element matrix that
     // it will own. The final step is to initialize the matrix with the
     // sparsity pattern.
-    CompressedSimpleSparsityPattern csp (dof_handler.n_dofs(),
-                                         dof_handler.n_dofs(),
-                                         locally_relevant_dofs);
-    DoFTools::make_sparsity_pattern (dof_handler,
-                                     csp,
+    CompressedSimpleSparsityPattern csp (locally_relevant_dofs);
+
+    DoFTools::make_sparsity_pattern (dof_handler, csp,
                                      constraints, false);
     SparsityTools::distribute_sparsity_pattern (csp,
                                                 dof_handler.n_locally_owned_dofs_per_processor(),
                                                 mpi_communicator,
                                                 locally_relevant_dofs);
-    system_matrix.reinit (mpi_communicator,
+
+    system_matrix.reinit (locally_owned_dofs,
+                          locally_owned_dofs,
                           csp,
-                          dof_handler.n_locally_owned_dofs_per_processor(),
-                          dof_handler.n_locally_owned_dofs_per_processor(),
-                          Utilities::MPI::this_mpi_process(mpi_communicator));
+                          mpi_communicator);
   }
 
 
@@ -334,6 +360,8 @@ namespace Step40
   template <int dim>
   void LaplaceProblem<dim>::assemble_system ()
   {
+    TimerOutput::Scope t(computing_timer, "assembly");
+
     const QGauss<dim>  quadrature_formula(3);
 
     FEValues<dim> fe_values (fe, quadrature_formula,
@@ -428,20 +456,23 @@ namespace Step40
   template <int dim>
   void LaplaceProblem<dim>::solve ()
   {
-    PETScWrappers::MPI::Vector
-    completely_distributed_solution (mpi_communicator,
-                                     dof_handler.n_dofs(),
-                                     dof_handler.n_locally_owned_dofs());
+    TimerOutput::Scope t(computing_timer, "solve");
+    LA::MPI::Vector
+    completely_distributed_solution (locally_owned_dofs, mpi_communicator);
 
     SolverControl solver_control (dof_handler.n_dofs(), 1e-12);
 
-    PETScWrappers::SolverCG solver(solver_control, mpi_communicator);
+    LA::SolverCG solver(solver_control, mpi_communicator);
+    LA::MPI::PreconditionAMG preconditioner;
 
-    // Ask for a symmetric preconditioner by setting the first parameter in
-    // AdditionalData to true.
-    PETScWrappers::PreconditionBoomerAMG
-    preconditioner(system_matrix,
-                   PETScWrappers::PreconditionBoomerAMG::AdditionalData(true));
+    LA::MPI::PreconditionAMG::AdditionalData data;
+
+#ifdef USE_PETSC_LA
+    data.symmetric_operator = true;
+#else
+    //trilinos defaults are good
+#endif
+    preconditioner.initialize(system_matrix, data);
 
     solver.solve (system_matrix, completely_distributed_solution, system_rhs,
                   preconditioner);
@@ -473,6 +504,8 @@ namespace Step40
   template <int dim>
   void LaplaceProblem<dim>::refine_grid ()
   {
+    TimerOutput::Scope t(computing_timer, "refine");
+
     Vector<float> estimated_error_per_cell (triangulation.n_active_cells());
     KellyErrorEstimator<dim>::estimate (dof_handler,
                                         QGauss<dim-1>(3),
@@ -511,7 +544,7 @@ namespace Step40
   // that stores, for each cell, the subdomain the cell belongs to. This is
   // slightly tricky, because of course not every processor knows about every
   // cell. The vector we attach therefore has an entry for every cell that the
-  // current processor has in its mesh (locally owned onces, ghost cells, and
+  // current processor has in its mesh (locally owned ones, ghost cells, and
   // artificial cells), but the DataOut class will ignore all entries that
   // correspond to cells that are not owned by the current processor. As a
   // consequence, it doesn't actually matter what values we write into these
@@ -620,10 +653,16 @@ namespace Step40
         solve ();
 
         if (Utilities::MPI::n_mpi_processes(mpi_communicator) <= 32)
-          output_results (cycle);
+          {
+            TimerOutput::Scope t(computing_timer, "output");
+            output_results (cycle);
+          }
 
         pcout << std::endl;
+        computing_timer.print_summary ();
+        computing_timer.reset ();
       }
+
   }
 }
 
@@ -633,12 +672,12 @@ namespace Step40
 
 // The final function, <code>main()</code>, again has the same structure as in
 // all other programs, in particular step-6. Like in the other programs that
-// use PETSc, we have to inialize and finalize PETSc, which is done using the
+// use PETSc, we have to initialize and finalize PETSc, which is done using the
 // helper object MPI_InitFinalize.
 //
 // Note how we enclose the use the use of the LaplaceProblem class in a pair
 // of braces. This makes sure that all member variables of the object are
-// destroyed by the time we destroy the mpi_intialization object. Not doing
+// destroyed by the time we destroy the mpi_initialization object. Not doing
 // this will lead to strange and hard to debug errors when
 // <code>PetscFinalize</code> first deletes all PETSc vectors that are still
 // around, and the destructor of the LaplaceProblem class then tries to delete

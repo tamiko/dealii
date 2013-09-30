@@ -1,14 +1,19 @@
-//---------------------------------------------------------------------------
-//    $Id$
+// ---------------------------------------------------------------------
+// $Id$
 //
-//    Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012 by the deal.II authors
+// Copyright (C) 1999 - 2013 by the deal.II authors
 //
-//    This file is subject to QPL and may not be  distributed
-//    without copyright and license information. Please refer
-//    to the file deal.II/doc/license.html for the  text  and
-//    further information on this license.
+// This file is part of the deal.II library.
 //
-//---------------------------------------------------------------------------
+// The deal.II library is free software; you can use it, redistribute
+// it, and/or modify it under the terms of the GNU Lesser General
+// Public License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+// The full text of the license can be found in the file LICENSE at
+// the top level of the deal.II distribution.
+//
+// ---------------------------------------------------------------------
+
 #ifndef __deal2__vector_templates_h
 #define __deal2__vector_templates_h
 
@@ -322,12 +327,10 @@ namespace internal
 {
   namespace Vector
   {
-    typedef types::global_dof_index size_type;
-
-    template<typename T>
+    template <typename T>
     void set_subrange (const T            s,
-                       const size_type begin,
-                       const size_type end,
+                       const typename dealii::Vector<T>::size_type begin,
+                       const typename dealii::Vector<T>::size_type end,
                        dealii::Vector<T> &dst)
     {
       if (s == T())
@@ -336,9 +339,10 @@ namespace internal
         std::fill (&*(dst.begin()+begin), &*(dst.begin()+end), s);
     }
 
-    template<typename T>
-    void copy_subrange (const size_type         begin,
-                        const size_type         end,
+    
+    template <typename T>
+    void copy_subrange (const typename dealii::Vector<T>::size_type         begin,
+                        const typename dealii::Vector<T>::size_type         end,
                         const dealii::Vector<T> &src,
                         dealii::Vector<T>       &dst)
     {
@@ -346,9 +350,10 @@ namespace internal
              (end-begin)*sizeof(T));
     }
 
-    template<typename T, typename U>
-    void copy_subrange (const size_type         begin,
-                        const size_type         end,
+    
+    template <typename T, typename U>
+    void copy_subrange (const typename dealii::Vector<T>::size_type         begin,
+                        const typename dealii::Vector<T>::size_type         end,
                         const dealii::Vector<T> &src,
                         dealii::Vector<U>       &dst)
     {
@@ -359,15 +364,17 @@ namespace internal
         *p = *q;
     }
 
+
     template<typename T, typename U>
-    void copy_subrange_wrap (const size_type         begin,
-                             const size_type         end,
+    void copy_subrange_wrap (const typename dealii::Vector<T>::size_type         begin,
+                             const typename dealii::Vector<T>::size_type         end,
                              const dealii::Vector<T> &src,
                              dealii::Vector<U>       &dst)
     {
       copy_subrange (begin, end, src, dst);
     }
 
+    
     template <typename T, typename U>
     void copy_vector (const dealii::Vector<T> &src,
                       dealii::Vector<U>       &dst)
@@ -375,8 +382,8 @@ namespace internal
       if (PointerComparison::equal(&src, &dst))
         return;
 
-      const size_type vec_size = src.size();
-      const size_type dst_size = dst.size();
+      const typename dealii::Vector<T>::size_type vec_size = src.size();
+      const typename dealii::Vector<U>::size_type dst_size = dst.size();
       if (dst_size != vec_size)
         dst.reinit (vec_size, true);
       if (vec_size>internal::Vector::minimum_parallel_grain_size)
@@ -573,7 +580,7 @@ namespace internal
     // The code returns the result as the last argument in order to make
     // spawning tasks simpler and use automatic template deduction.
     template <typename Operation, typename Number, typename Number2,
-             typename ResultType>
+	      typename ResultType, typename size_type>
     void accumulate (const Operation   &op,
                      const Number      *X,
                      const Number2     *Y,
@@ -674,18 +681,18 @@ namespace internal
           ResultType r0, r1, r2, r3;
           Threads::TaskGroup<> task_group;
           task_group += Threads::new_task(&accumulate<Operation,Number,Number2,
-                                          ResultType>,
+                                          ResultType,size_type>,
                                           op, X, Y, power, new_size, r0);
           task_group += Threads::new_task(&accumulate<Operation,Number,Number2,
-                                          ResultType>,
+                                          ResultType,size_type>,
                                           op, X+new_size, Y+new_size, power,
                                           new_size, r1);
           task_group += Threads::new_task(&accumulate<Operation,Number,Number2,
-                                          ResultType>,
+                                          ResultType,size_type>,
                                           op, X+2*new_size, Y+2*new_size, power,
                                           new_size, r2);
           task_group += Threads::new_task(&accumulate<Operation,Number,Number2,
-                                          ResultType>,
+                                          ResultType,size_type>,
                                           op, X+3*new_size, Y+3*new_size, power,
                                           vec_size-3*new_size, r3);
           task_group.join_all();

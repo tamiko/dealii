@@ -1,14 +1,23 @@
-/* $Id$ */
-/* Author: Katharina Kormann, Martin Kronbichler, Uppsala University, 2009-2012 */
+/* ---------------------------------------------------------------------
+ * $Id$
+ *
+ * Copyright (C) 2009 - 2013 by the deal.II authors
+ *
+ * This file is part of the deal.II library.
+ *
+ * The deal.II library is free software; you can use it, redistribute
+ * it, and/or modify it under the terms of the GNU Lesser General
+ * Public License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ * The full text of the license can be found in the file LICENSE at
+ * the top level of the deal.II distribution.
+ *
+ * ---------------------------------------------------------------------
 
-/*    $Id$    */
-/*                                                                */
-/*    Copyright (C) 2009-2013 by the deal.II authors */
-/*                                                                */
-/*    This file is subject to QPL and may not be  distributed     */
-/*    without copyright and license information. Please refer     */
-/*    to the file deal.II/doc/license.html for the  text  and     */
-/*    further information on this license.                        */
+ *
+ * Authors: Katharina Kormann, Martin Kronbichler, Uppsala University, 2009-2012
+ */
+
 
 // First include the necessary files from the deal.II library.
 #include <deal.II/base/quadrature_lib.h>
@@ -208,7 +217,7 @@ namespace Step37
   // would have to have two classes like the current one for each of the
   // operators (maybe with a common base class). However, in that case, we
   // would not store a MatrixFree object in this class to avoid doing the
-  // expensive work of pre-computing everything MatrixFree stores
+  // expensive work of precomputing everything MatrixFree stores
   // twice. Rather, we would keep this object in the main class and simply
   // store a reference.
   //
@@ -323,8 +332,8 @@ namespace Step37
 
   // @sect4{Initialization}
 
-  // Once we have created the multi-grid dof_handler and the constraints, we
-  // can call the reinit function for each level of the multi-grid routine
+  // Once we have created the multigrid dof_handler and the constraints, we
+  // can call the reinit function for each level of the multigrid routine
   // (and the active cells). The main purpose of the reinit function is to
   // setup the <code> MatrixFree </code> instance for the problem. Also, the
   // coefficient is evaluated. For this, we need to activate the update flag
@@ -587,7 +596,7 @@ namespace Step37
   {
     data.cell_loop (&LaplaceOperator::local_apply, this, dst, src);
 
-    const std::vector<types::global_dof_index> &
+    const std::vector<unsigned int> &
     constrained_dofs = data.get_constrained_dofs();
     for (unsigned int i=0; i<constrained_dofs.size(); ++i)
       dst(constrained_dofs[i]) += src(constrained_dofs[i]);
@@ -628,7 +637,7 @@ namespace Step37
 
     diagonal_values = diagonal;
 
-    const std::vector<types::global_dof_index> &
+    const std::vector<unsigned int> &
     constrained_dofs = data.get_constrained_dofs();
     for (unsigned int i=0; i<constrained_dofs.size(); ++i)
       diagonal_values(constrained_dofs[i]) = 1.0;
@@ -975,7 +984,7 @@ namespace Step37
 
     typedef PreconditionChebyshev<LevelMatrixType,Vector<double> > SMOOTHER;
     MGSmootherPrecondition<LevelMatrixType, SMOOTHER, Vector<double> >
-      mg_smoother;
+    mg_smoother;
 
     // Then, we initialize the smoother with our level matrices and the
     // mandatory additional data for the Chebyshev smoother. We use quite a

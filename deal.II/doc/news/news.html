@@ -32,19 +32,36 @@
       <dt><strong>Recent changes</strong></dt>
       <dd>
 	Changes in the library since the last major release are
-	<strong><a href="../doxygen/deal.II/changes_after_7_3.html">here.</a></strong>
+	<strong><a href="../doxygen/deal.II/changes_after_8_0.html">here.</a></strong>
       </dd>
     </p>
 
     <dl>
       <dt>
+          <strong style="color:red">2013/07/24: Version 8.0 released</strong>
+      </dt>
+      <dd>
+          deal.II version 8.0 was released today. This is a major new
+	  release, featuring the conversion of the configuration and
+	  build system to <a href="http://www.cmake.org/">CMake</a>,
+	  support for parallel computations with more than 4 billion
+	  unknowns, and many more. A full list of changes can be
+	  found <a href="../doxygen/deal.II/changes_between_7_3_and_8_0.html"
+	  target="body">here</a>.
+	  <br>
+	  deal.II can be downloaded at
+	  <a href="https://code.google.com/p/dealii/downloads/list"
+	  target="_top">this site</a>.
+      </dd>
+
+      <dt>
           <strong>2013/06/05: 64-bit version of deal.II</strong>
       </dt>
       <dd>
           Because the global dof index variables in deal.II were of type
-    unsigned int, it was not possible to create a dof_handler with more than
-    4.3 billions of unknowns. The 64-bit version of deal.II uses unsigned long
-    long int and thus, allows for 18e18 unknowns.
+	  unsigned int, it was not possible to create a dof_handler with more than
+	  4.3 billions of unknowns. The 64-bit version of deal.II uses unsigned long
+	  long int and thus, allows for 18e18 unknowns.
       </dd>
 
 
@@ -53,7 +70,7 @@
       </dt>
       <dd>
           After having used Autoconf as the configuration and build system
-	  since the beginning of deal.II in 1997, we have now switch to
+	  since the beginning of deal.II in 1997, we have now switched to
 	  <a href="http://www.cmake.org/">CMake</a>. This implementation,
 	  contributed by Matthias Maier of Heidelberg University, has taken
 	  more than half a year, consists of more than 10,000 lines, and
@@ -881,9 +898,6 @@
           library that, among much other functionality, offers some
           sparse direct solvers. We have added support for an
           interface to these solvers to the library.
-          (See the <a href="../readme.html#hsl" target="body">ReadMe</a>
-          file for more information on installation of HSL
-          subroutines.)
       </dd>
 
       <dt>

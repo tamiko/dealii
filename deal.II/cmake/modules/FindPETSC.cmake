@@ -1,16 +1,18 @@
-#####
+## ---------------------------------------------------------------------
+## $Id$
 ##
-## Copyright (C) 2012 by the deal.II authors
+## Copyright (C) 2012 - 2013 by the deal.II authors
 ##
 ## This file is part of the deal.II library.
 ##
-## <TODO: Full License information>
-## This file is dual licensed under QPL 1.0 and LGPL 2.1 or any later
-## version of the LGPL license.
+## The deal.II library is free software; you can use it, redistribute
+## it, and/or modify it under the terms of the GNU Lesser General
+## Public License as published by the Free Software Foundation; either
+## version 2.1 of the License, or (at your option) any later version.
+## The full text of the license can be found in the file LICENSE at
+## the top level of the deal.II distribution.
 ##
-## Author: Matthias Maier <matthias.maier@iwr.uni-heidelberg.de>
-##
-#####
+## ---------------------------------------------------------------------
 
 #
 # Try to find the petsc library
@@ -44,56 +46,10 @@ FIND_LIBRARY(PETSC_LIBRARY
   PATH_SUFFIXES lib${LIB_SUFFIX} lib64 lib
   )
 
-
-#
-# So, up to this point it was easy. Now, the tricky part. Search for
-# petscvariables and determine the link interface from that file:
-#
-FIND_FILE(PETSC_PETSCVARIABLES
-  NAMES petscvariables
-  HINTS
-    ${PETSC_DIR}
-    ${PETSC_DIR}/${PETSC_ARCH}
-  PATH_SUFFIXES conf
-  )
-
-IF(NOT PETSC_PETSCVARIABLES MATCHES "-NOTFOUND")
-
-  FILE(STRINGS "${PETSC_PETSCVARIABLES}" _external_link_line
-    REGEX "^PETSC_WITH_EXTERNAL_LIB =.*")
-  SEPARATE_ARGUMENTS(_external_link_line)
-
-  SET(_hints)
-  FOREACH(_token ${_external_link_line}})
-    IF(_token MATCHES "^-L")
-      # Build up hints with the help of all tokens passed with -L:
-      STRING(REGEX REPLACE "^-L" "" _token "${_token}")
-      LIST(APPEND _hints ${_token})
-    ELSEIF(_token MATCHES "^-l")
-      # Search for every library that was specified with -l:
-      STRING(REGEX REPLACE "^-l" "" _token "${_token}")
-      IF(NOT _token MATCHES "(petsc|stdc\\+\\+|gcc_s)")
-        FIND_LIBRARY(PETSC_LIBRARY_${_token}
-          NAMES ${_token}
-          HINTS ${_hintes}
-          )
-        IF(NOT PETSC_LIBRARY_${_token} MATCHES "-NOTFOUND")
-          LIST(APPEND _petsc_libraries ${PETSC_LIBRARY_${_token}})
-        ENDIF()
-        #
-        # Remove from cache, so that updating PETSC search paths will
-        # find a (possibly) new link interface
-        #
-        UNSET(PETSC_LIBRARY_${_token} CACHE)
-      ENDIF()
-    ENDIF()
-  ENDFOREACH()
-ENDIF()
-
-
 #
 # Search for the first part of the includes:
 #
+
 FIND_PATH(PETSC_INCLUDE_DIR_ARCH petscconf.h
   HINTS
     # petsc is special. Account for that
@@ -116,6 +72,7 @@ FIND_PATH(PETSC_INCLUDE_DIR_ARCH petscconf.h
 #
 # Either way, we must be able to find petscversion.h:
 #
+
 FIND_PATH(PETSC_INCLUDE_DIR_COMMON petscversion.h
   HINTS
     ${PETSC_DIR}
@@ -124,10 +81,94 @@ FIND_PATH(PETSC_INCLUDE_DIR_COMMON petscversion.h
   PATH_SUFFIXES petsc include include/petsc
 )
 
+#
+# So, up to this point it was easy. Now, the tricky part. Search for
+# petscvariables and determine the includes and the link interface from
+# that file:
+#
+
+FIND_FILE(PETSC_PETSCVARIABLES
+  NAMES petscvariables
+  HINTS
+    ${PETSC_DIR}/${PETSC_ARCH}
+    ${PETSC_DIR}
+  PATH_SUFFIXES conf
+  )
+
+IF(NOT PETSC_PETSCVARIABLES MATCHES "-NOTFOUND")
+
+  #
+  # Includes:
+  #
+
+  FILE(STRINGS "${PETSC_PETSCVARIABLES}" _external_includes
+    REGEX "^PETSC_CC_INCLUDES =.*")
+  SEPARATE_ARGUMENTS(_external_includes)
+
+  SET(_petsc_includes)
+  FOREACH(_token ${_external_includes})
+    IF(_token MATCHES "^-I")
+      STRING(REGEX REPLACE "^-I" "" _token "${_token}")
+      LIST(APPEND _petsc_includes ${_token})
+    ENDIF()
+  ENDFOREACH()
+
+  # Remove petsc's own include directories:
+  IF(NOT "${_petsc_includes}" STREQUAL "")
+    LIST(REMOVE_AT _petsc_includes 0 1)
+  ENDIF()
+
+  #
+  # Link line:
+  #
+
+  FILE(STRINGS "${PETSC_PETSCVARIABLES}" _external_link_line
+    REGEX "^PETSC_WITH_EXTERNAL_LIB =.*")
+  SEPARATE_ARGUMENTS(_external_link_line)
+
+  SET(_hints)
+  SET(_petsc_libraries)
+  FOREACH(_token ${_external_link_line}})
+    IF(_token MATCHES "^-L")
+      # Build up hints with the help of all tokens passed with -L:
+      STRING(REGEX REPLACE "^-L" "" _token "${_token}")
+      LIST(APPEND _hints ${_token})
+    ELSEIF(_token MATCHES "^-l")
+      # Search for every library that was specified with -l:
+      STRING(REGEX REPLACE "^-l" "" _token "${_token}")
+      IF(NOT _token MATCHES "(petsc|stdc\\+\\+|gcc_s)")
+        FIND_LIBRARY(PETSC_LIBRARY_${_token}
+          NAMES ${_token}
+          HINTS ${_hints}
+          )
+        IF(NOT PETSC_LIBRARY_${_token} MATCHES "-NOTFOUND")
+          LIST(APPEND _petsc_libraries ${PETSC_LIBRARY_${_token}})
+        ENDIF()
+        #
+        # Remove from cache, so that updating PETSC search paths will
+        # find a (possibly) new link interface
+        #
+        UNSET(PETSC_LIBRARY_${_token} CACHE)
+      ENDIF()
+    ENDIF()
+  ENDFOREACH()
+
+ENDIF()
+
+
+
 FIND_PACKAGE_HANDLE_STANDARD_ARGS(PETSC DEFAULT_MSG
   PETSC_LIBRARY
   PETSC_INCLUDE_DIR_ARCH
   PETSC_INCLUDE_DIR_COMMON
+  )
+
+MARK_AS_ADVANCED(
+  PETSC_INCLUDE_DIR_ARCH
+  PETSC_INCLUDE_DIR_COMMON
+  PETSC_INCLUDE_DIRS
+  PETSC_LIBRARY
+  PETSC_PETSCVARIABLES
   )
 
 IF(PETSC_FOUND)
@@ -136,8 +177,9 @@ IF(PETSC_FOUND)
     ${_petsc_libraries}
     )
   SET(PETSC_INCLUDE_DIRS
-    ${PETSC_INCLUDE_DIR_ARCH}
     ${PETSC_INCLUDE_DIR_COMMON}
+    ${PETSC_INCLUDE_DIR_ARCH}
+    ${_petsc_includes}
     )
 
   SET(PETSC_PETSCCONF_H "${PETSC_INCLUDE_DIR_ARCH}/petscconf.h")
@@ -189,17 +231,11 @@ IF(PETSC_FOUND)
     PETSC_VERSION_PATCH "${PETSC_VERSION_PATCH_STRING}"
     )
 
-  SET(PETSC_VERSION "${PETSC_VERSION_MAJOR}.${PETSC_VERSION_MINOR}.${PETSC_VERSION_SUBMINOR}")
+  SET(PETSC_VERSION
+    "${PETSC_VERSION_MAJOR}.${PETSC_VERSION_MINOR}.${PETSC_VERSION_SUBMINOR}.${PETSC_VERSION_PATCH}"
+    )
 
-  MARK_AS_ADVANCED(
-    PETSC_ARCH
-    PETSC_DIR
-    PETSC_INCLUDE_DIR_ARCH
-    PETSC_INCLUDE_DIR_COMMON
-    PETSC_INCLUDE_DIRS
-    PETSC_LIBRARY
-    PETSC_PETSCVARIABLES
-  )
+  MARK_AS_ADVANCED(PETSC_ARCH PETSC_DIR)
 ELSE()
   SET(PETSC_DIR "" CACHE PATH
     "An optional hint to a PETSc directory"

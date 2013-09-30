@@ -1,16 +1,18 @@
-//---------------------------------------------------------------------------
-//    $Id$
-//    Version: $Name$
+// ---------------------------------------------------------------------
+// $Id$
 //
-//    Copyright (C) 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2009, 2010, 2011, 2012 by the deal.II authors
+// Copyright (C) 1998 - 2013 by the deal.II authors
 //
-//    This file is subject to QPL and may not be  distributed
-//    without copyright and license information. Please refer
-//    to the file deal.II/doc/license.html for the  text  and
-//    further information on this license.
+// This file is part of the deal.II library.
 //
-//---------------------------------------------------------------------------
-
+// The deal.II library is free software; you can use it, redistribute
+// it, and/or modify it under the terms of the GNU Lesser General
+// Public License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+// The full text of the license can be found in the file LICENSE at
+// the top level of the deal.II distribution.
+//
+// ---------------------------------------------------------------------
 
 #include <deal.II/base/function.h>
 #include <deal.II/base/tensor_function.h>
@@ -591,7 +593,7 @@ vector_value (const Point<dim>   &p,
  * to be size <tt>n_components</tt>.
  */
 template <int dim>
-VectorFunctionFromTensorFunction<dim>::VectorFunctionFromTensorFunction (const TensorFunction<1,dim>& tensor_function,
+VectorFunctionFromTensorFunction<dim>::VectorFunctionFromTensorFunction (const TensorFunction<1,dim> &tensor_function,
     const unsigned int selected_component,
     const unsigned int n_components)
   :

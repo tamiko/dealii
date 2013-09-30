@@ -1,12 +1,22 @@
-/* Author: Xing Jin, Wolfgang Bangerth, Texas A&M University, 2006 */
+/* ---------------------------------------------------------------------
+ * $Id$
+ *
+ * Copyright (C) 2006 - 2013 by the deal.II authors
+ *
+ * This file is part of the deal.II library.
+ *
+ * The deal.II library is free software; you can use it, redistribute
+ * it, and/or modify it under the terms of the GNU Lesser General
+ * Public License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ * The full text of the license can be found in the file LICENSE at
+ * the top level of the deal.II distribution.
+ *
+ * ---------------------------------------------------------------------
 
-/*    $Id$ */
-/*    Copyright (C) 2006-2009, 2011-2012 by the deal.II authors */
-/*                                                                */
-/*    This file is subject to QPL and may not be  distributed     */
-/*    without copyright and license information. Please refer     */
-/*    to the file deal.II/doc/license.html for the  text  and     */
-/*    further information on this license.                        */
+ *
+ * Author: Xing Jin, Wolfgang Bangerth, Texas A&M University, 2006
+ */
 
 
 // @sect3{Include files}
@@ -122,7 +132,7 @@ namespace Step24
   // pressure. In the physical setting considered in this program, these are
   // small absorbers, which we model as a series of little circles where we
   // assume that the pressure surplus is one, whereas no absorption and
-  // therefore no pressure surplus is anywhere else. This is how we do things
+  // therefore no pressure surplus is everywhere else. This is how we do things
   // (note that if we wanted to expand this program to not only compile but
   // also to run, we would have to initialize the sources with
   // three-dimensional source locations):
@@ -301,7 +311,7 @@ namespace Step24
     //
     // A first observation would be that this matrix is much sparser than the
     // regular mass matrix, since none of the shape functions with purely
-    // interior support contributes to this matrix. We could therefore
+    // interior support contribute to this matrix. We could therefore
     // optimize the storage pattern to this situation and build up a second
     // sparsity pattern that only contains the nonzero entries that we
     // need. There is a trade-off to make here: first, we would have to have a
@@ -465,7 +475,7 @@ namespace Step24
   // consumption of the program, the introduction of a few temporary vectors
   // isn't doing much harm.
   //
-  // The only changes to this function are: First, that we do not have to
+  // The only changes to this function are: first, that we do not have to
   // project initial values for the velocity $v$, since we know that it is
   // zero. And second that we evaluate the solution at the detector locations
   // computed in the constructor. This is done using the

@@ -107,7 +107,7 @@ following, let us consider some of the tools one would employ when
 simulating problems in which the deformation becomes <i>large</i>.
 
 @note The model we will consider below is not founded on anything that
-would be mathematical sound: we will consider a model in which we
+would be mathematically sound: we will consider a model in which we
 produce a small deformation, deform the physical coordinates of the
 body by this deformation, and then consider the next loading step
 again as a linear problem. This isn't consistent, since the assumption
@@ -299,7 +299,7 @@ simply translated along. The dilational or compressional change produces a
 corresponding stress update. However, the rotational component does not
 necessarily induce a nonzero stress update (think, in 2d, for example of the
 situation where $\Delta\mathbf{u}=(y, -x)^T$, with which $\varepsilon(\Delta
-\mathbf{u})=0$). Nevertheless, if the the material was pre-stressed in a certain
+\mathbf{u})=0$). Nevertheless, if the the material was prestressed in a certain
 direction, then this direction will be rotated along with the material.  To
 this end, we have to define a rotation matrix $R(\Delta \mathbf{u}^n)$ that
 describes, in each point the rotation due to the displacement increments. It

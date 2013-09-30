@@ -1,16 +1,18 @@
-#####
+## ---------------------------------------------------------------------
+## $Id$
 ##
-## Copyright (C) 2012, 2013 by the deal.II authors
+## Copyright (C) 2012 - 2013 by the deal.II authors
 ##
 ## This file is part of the deal.II library.
 ##
-## <TODO: Full License information>
-## This file is dual licensed under QPL 1.0 and LGPL 2.1 or any later
-## version of the LGPL license.
+## The deal.II library is free software; you can use it, redistribute
+## it, and/or modify it under the terms of the GNU Lesser General
+## Public License as published by the Free Software Foundation; either
+## version 2.1 of the License, or (at your option) any later version.
+## The full text of the license can be found in the file LICENSE at
+## the top level of the deal.II distribution.
 ##
-## Author: Matthias Maier <matthias.maier@iwr.uni-heidelberg.de>
-##
-#####
+## ---------------------------------------------------------------------
 
 #
 # Compile the deal.II library
@@ -48,6 +50,8 @@ ADD_SUBDIRECTORY(matrix_free)
 ADD_SUBDIRECTORY(meshworker)
 
 
+ADD_CUSTOM_TARGET(library)
+
 FOREACH(build ${DEAL_II_BUILD_TYPES})
   STRING(TOLOWER ${build} build_lowercase)
 
@@ -59,9 +63,11 @@ FOREACH(build ${DEAL_II_BUILD_TYPES})
     deal_ii_objects_${build_lowercase}
     )
   ADD_LIBRARY(${DEAL_II_BASE_NAME}${DEAL_II_${build}_SUFFIX}
-    base/dummy.cc # Workaround for a bug in the Xcode generator
+    dummy.cc # Workaround for a bug in the Xcode generator
     ${deal_ii_objects_${build_lowercase}}
     )
+
+  ADD_DEPENDENCIES(library ${DEAL_II_BASE_NAME}${DEAL_II_${_build}_SUFFIX})
 
   SET_TARGET_PROPERTIES(${DEAL_II_BASE_NAME}${DEAL_II_${build}_SUFFIX}
     PROPERTIES
@@ -72,15 +78,26 @@ FOREACH(build ${DEAL_II_BUILD_TYPES})
     # a C++ library is still ABI backwards compatible :-]
     #
     SOVERSION "${DEAL_II_PACKAGE_VERSION}"
-    LINK_FLAGS "${DEAL_II_SHARED_LINKER_FLAGS_${build}}"
+    LINK_FLAGS "${DEAL_II_LINKER_FLAGS} ${DEAL_II_LINKER_FLAGS_${build}}"
     COMPILE_DEFINITIONS "${DEAL_II_DEFINITIONS};${DEAL_II_DEFINITIONS_${build}}"
     COMPILE_FLAGS "${DEAL_II_CXX_FLAGS_${build}}"
     INSTALL_NAME_DIR "${CMAKE_INSTALL_PREFIX}/${DEAL_II_LIBRARY_RELDIR}"
+    ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
+    LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
     )
 
   TARGET_LINK_LIBRARIES(${DEAL_II_BASE_NAME}${DEAL_II_${build}_SUFFIX}
-    ${DEAL_II_EXTERNAL_LIBRARIES}
     ${DEAL_II_EXTERNAL_LIBRARIES_${build}}
+    ${DEAL_II_EXTERNAL_LIBRARIES}
+    )
+
+  FILE(MAKE_DIRECTORY
+    ${CMAKE_BINARY_DIR}/${DEAL_II_PROJECT_CONFIG_RELDIR}
+    )
+  EXPORT(TARGETS ${DEAL_II_BASE_NAME}${DEAL_II_${build}_SUFFIX}
+    FILE ${CMAKE_BINARY_DIR}/${DEAL_II_PROJECT_CONFIG_RELDIR}/${DEAL_II_PROJECT_CONFIG_NAME}BuildTargets.cmake
+    APPEND
     )
 
   INSTALL(TARGETS ${DEAL_II_BASE_NAME}${DEAL_II_${build}_SUFFIX}

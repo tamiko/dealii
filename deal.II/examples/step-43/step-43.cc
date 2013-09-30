@@ -1,14 +1,23 @@
-/* Author: Chih-Che Chueh, University of Victoria, 2010 */
-/*         Wolfgang Bangerth, Texas A&M University, 2010 */
+/* ---------------------------------------------------------------------
+ * $Id$
+ *
+ * Copyright (C) 2010 - 2013 by the deal.II authors
+ *
+ * This file is part of the deal.II library.
+ *
+ * The deal.II library is free software; you can use it, redistribute
+ * it, and/or modify it under the terms of the GNU Lesser General
+ * Public License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ * The full text of the license can be found in the file LICENSE at
+ * the top level of the deal.II distribution.
+ *
+ * ---------------------------------------------------------------------
 
-/*    $Id$       */
-/*                                                                */
-/*    Copyright (C) 2010-2012 by Chih-Che Chueh and the deal.II authors */
-/*                                                                */
-/*    This file is subject to QPL and may not be  distributed     */
-/*    without copyright and license information. Please refer     */
-/*    to the file deal.II/doc/license.html for the  text  and     */
-/*    further information on this license.                        */
+ *
+ * Authors: Chih-Che Chueh, University of Victoria, 2010
+ *          Wolfgang Bangerth, Texas A&M University, 2010
+ */
 
 
 // @sect3{Include files}
@@ -474,7 +483,7 @@ namespace Step43
   // Unlike step-31, this step uses one more ConstraintMatrix object called
   // darcy_preconditioner_constraints. This constraint object is used only for
   // assembling the matrix for the Darcy preconditioner and includes hanging
-  // node constrants as well as Dirichlet boundary value constraints for the
+  // node constraints as well as Dirichlet boundary value constraints for the
   // pressure variable. We need this because we are building a Laplace matrix
   // for the pressure as an approximation of the Schur complement) which is
   // only positive definite if boundary conditions are applied.
@@ -1501,7 +1510,7 @@ namespace Step43
   // the run() function, the central one in this program.
   //
   // At the beginning of the function, we ask whether to solve the
-  // pressure-velocity part by evaluating the posteriori criterion (see the
+  // pressure-velocity part by evaluating the a posteriori criterion (see the
   // following function). If necessary, we will solve the pressure-velocity
   // part using the GMRES solver with the Schur complement block
   // preconditioner as is described in the introduction.
@@ -2163,7 +2172,7 @@ namespace Step43
   //
   // With the exception of the startup code that loops back to the beginning
   // of the function through the <code>goto start_time_iteration</code> label,
-  // everything should be relatively straightforward. In any case, it mimicks
+  // everything should be relatively straightforward. In any case, it mimics
   // the corresponding function in step-31.
   template <int dim>
   void TwoPhaseFlowProblem<dim>::run ()

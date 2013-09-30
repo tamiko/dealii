@@ -1,14 +1,19 @@
-//---------------------------------------------------------------------------
-//    $Id$
+// ---------------------------------------------------------------------
+// $Id$
 //
-//    Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013 by the deal.II authors
+// Copyright (C) 2000 - 2013 by the deal.II authors
 //
-//    This file is subject to QPL and may not be  distributed
-//    without copyright and license information. Please refer
-//    to the file deal.II/doc/license.html for the  text  and
-//    further information on this license.
+// This file is part of the deal.II library.
 //
-//---------------------------------------------------------------------------
+// The deal.II library is free software; you can use it, redistribute
+// it, and/or modify it under the terms of the GNU Lesser General
+// Public License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+// The full text of the license can be found in the file LICENSE at
+// the top level of the deal.II distribution.
+//
+// ---------------------------------------------------------------------
+
 #ifndef __deal2__sparsity_pattern_h
 #define __deal2__sparsity_pattern_h
 
@@ -61,7 +66,7 @@ namespace internals
      * the copy_from() function, if the inner iterator type points to plain
      * unsigned integers.
      */
-    size_type 
+    size_type
     get_column_index_from_iterator (const size_type i);
 
     /**
@@ -70,7 +75,7 @@ namespace internals
      * unsigned integers and some other value.
      */
     template <typename value>
-    size_type 
+    size_type
     get_column_index_from_iterator (const std::pair<size_type, value> &i);
 
     /**
@@ -79,7 +84,7 @@ namespace internals
      * <tt>std::map</tt>).
      */
     template <typename value>
-    size_type 
+    size_type
     get_column_index_from_iterator (const std::pair<const size_type, value> &i);
 
   }
@@ -1142,7 +1147,7 @@ public:
   /**
    * Write the data of this object en bloc to a file. This is done in a binary
    * mode, so the output is neither readable by humans nor (probably) by other
-   * computers using a different operating system of number format.
+   * computers using a different operating system or number format.
    *
    * The purpose of this function is that you can swap out matrices and
    * sparsity pattern if you are short of memory, want to communicate between
@@ -1390,7 +1395,7 @@ private:
    * <i>r</i> are stored within the index range
    * #rowstart[<i>r</i>]...#rowstart[<i>r+1</i>]. Therefore to find out
    * whether a given element (<i>r,c</i>) exists, we have to check whether the
-   * column number <i>c</i> exists in the abovementioned range within this
+   * column number <i>c</i> exists in the above-mentioned range within this
    * array. If it exists, say at position <i>p</i> within this array, the
    * value of the respective element in the sparse matrix will also be at
    * position <i>p</i> of the values array of that class.
@@ -1488,12 +1493,12 @@ namespace SparsityPatternIterators
 
 
   inline
-  size_type 
+  size_type
   Accessor::row() const
   {
     Assert (is_valid_entry() == true, ExcInvalidIterator());
 
-    const std::size_t * insert_point =
+    const std::size_t *insert_point =
       std::upper_bound(sparsity_pattern->rowstart,
                        sparsity_pattern->rowstart + sparsity_pattern->rows + 1,
                        index_within_sparsity);
@@ -1502,7 +1507,7 @@ namespace SparsityPatternIterators
 
 
   inline
-  size_type 
+  size_type
   Accessor::column() const
   {
     Assert (is_valid_entry() == true, ExcInvalidIterator());
@@ -1512,7 +1517,7 @@ namespace SparsityPatternIterators
 
 
   inline
-  size_type 
+  size_type
   Accessor::index() const
   {
     Assert (is_valid_entry() == true, ExcInvalidIterator());
@@ -1710,7 +1715,7 @@ SparsityPattern::row_end (const size_type r) const
 
 
 inline
-SparsityPattern::size_type 
+SparsityPattern::size_type
 SparsityPattern::n_rows () const
 {
   return rows;
@@ -1718,7 +1723,7 @@ SparsityPattern::n_rows () const
 
 
 inline
-SparsityPattern::size_type 
+SparsityPattern::size_type
 SparsityPattern::n_cols () const
 {
   return cols;
@@ -1777,7 +1782,7 @@ SparsityPattern::row_length (const size_type row) const
 
 
 inline
-SparsityPattern::size_type 
+SparsityPattern::size_type
 SparsityPattern::column_number (const size_type row,
                                 const unsigned int index) const
 {
@@ -1864,14 +1869,14 @@ SparsityPattern::operator == (const SparsityPattern &sp2)  const
 namespace internal
 {
   namespace SparsityPatternTools
-  { 
+  {
     /**
      * Declare type for container size.
      */
-    typedef types::global_dof_index size_type;       
-   
+    typedef types::global_dof_index size_type;
+
     inline
-    size_type 
+    size_type
     get_column_index_from_iterator (const size_type i)
     {
       return i;
@@ -1881,7 +1886,7 @@ namespace internal
 
     template <typename value>
     inline
-    size_type 
+    size_type
     get_column_index_from_iterator (const std::pair<size_type, value> &i)
     {
       return i.first;
@@ -1891,7 +1896,7 @@ namespace internal
 
     template <typename value>
     inline
-    size_type 
+    size_type
     get_column_index_from_iterator (const std::pair<const size_type, value> &i)
     {
       return i.first;

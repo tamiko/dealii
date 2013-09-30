@@ -1,14 +1,19 @@
-//---------------------------------------------------------------------------
-//    $Id$
+// ---------------------------------------------------------------------
+// $Id$
 //
-//    Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012 by the deal.II authors
+// Copyright (C) 1999 - 2013 by the deal.II authors
 //
-//    This file is subject to QPL and may not be  distributed
-//    without copyright and license information. Please refer
-//    to the file deal.II/doc/license.html for the  text  and
-//    further information on this license.
+// This file is part of the deal.II library.
 //
-//---------------------------------------------------------------------------
+// The deal.II library is free software; you can use it, redistribute
+// it, and/or modify it under the terms of the GNU Lesser General
+// Public License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+// The full text of the license can be found in the file LICENSE at
+// the top level of the deal.II distribution.
+//
+// ---------------------------------------------------------------------
+
 #ifndef __deal2__data_out_base_h
 #define __deal2__data_out_base_h
 
@@ -39,6 +44,7 @@ DEAL_II_NAMESPACE_OPEN
 
 class ParameterHandler;
 class XDMFEntry;
+class DataOutFilter;
 
 /**
  * This is a base class for output of data on meshes of very general
@@ -214,33 +220,24 @@ class DataOutBase
 {
 public:
   /**
-   * Data structure describing a patch of
-   * data in <tt>dim</tt> space
+   * Data structure describing a patch of data in <tt>dim</tt> space
    * dimensions.
    *
    * A patch consists of the following data:
    * <ul>
    * <li>the corner #vertices,
-   * <li> the number
-   * #n_subdivisions of the number
-   * of cells the Patch has in each
-   * space direction,
-   * <li> the #data attached to
-   * each vertex, in the usual
+   * <li> the number #n_subdivisions of the number of cells the Patch
+   * has in each space direction,
+   * <li> the #data attached to each vertex, in the usual
    * lexicographic ordering,
    * <li> Information on #neighbors.
    * </ul>
    *
-   * See the general
-   * documentation of the
-   * <tt>DataOutBase</tt> class for more
-   * information on its contents and
-   * purposes.  In the case of two
-   * dimensions, the next picture ist an
-   * example of <tt>n_subdivision</tt> = 4
-   * because the number of (sub)cells
-   * within each patch is equal to
-   * <tt>2^dim</tt>.
+   * See the general documentation of the DataOutBase class for more
+   * information on its contents and purposes.  In the case of two
+   * dimensions, the next picture ist an example of
+   * <tt>n_subdivision</tt> = 4 because the number of (sub)cells
+   * within each patch is equal to <tt>2<sup>dim</sup></tt>.
    *
    * @ingroup output
    *
@@ -250,34 +247,23 @@ public:
   struct Patch
   {
     /**
-     * Make the <tt>spacedim</tt> template
-     * parameter available.
+     * Make the <tt>spacedim</tt> template parameter available.
      */
     static const unsigned int space_dim=spacedim;
 
     /**
-     * Corner points of a patch.
-     * Inner points are computed by
-     * a multilinear transform of
-     * the unit cell to the cell
-     * specified by these corner
-     * points. The order of points
-     * is the same as for cells
-     * in the triangulation.
+     * Corner points of a patch.  Inner points are computed by a
+     * multilinear transform of the unit cell to the cell specified by
+     * these corner points. The order of points is the same as for
+     * cells in the triangulation.
      */
     Point<spacedim> vertices[GeometryInfo<dim>::vertices_per_cell];
 
     /**
-     * Numbers of neighbors of a patch.
-     * OpenDX format requires
-     * neighbor information for
-     * advanced output. Here the
-     * neighborship relationship
-     * of patches is
-     * stored. During output,
-     * this must be transformed
-     * into neighborship of
-     * sub-grid cells.
+     * Numbers of neighbors of a patch.  OpenDX format requires
+     * neighbor information for advanced output. Here the neighborship
+     * relationship of patches is stored. During output, this must be
+     * transformed into neighborship of sub-grid cells.
      */
     unsigned int neighbors[dim > 0
                            ?
@@ -286,124 +272,77 @@ public:
                            1];
 
     /**
-     * Number of this
-     * patch. Since we are not
-     * sure patches are handled
-     * in the same order, always,
-     * we better store this.
+     * Number of this patch. Since we are not sure patches are handled
+     * in the same order, always, we better store this.
      */
     unsigned int patch_index;
 
     /**
-     * Number of subdivisions with
-     * which this patch is to be
-     * written. <tt>1</tt> means no
-     * subdivision, <tt>2</tt> means
-     * bisection, <tt>3</tt> trisection,
-     * etc.
+     * Number of subdivisions with which this patch is to be
+     * written. <tt>1</tt> means no subdivision, <tt>2</tt> means
+     * bisection, <tt>3</tt> trisection, etc.
      */
     unsigned int n_subdivisions;
 
     /**
-     * Data vectors. The format is
-     * as follows:
-     * <tt>data(i,.)</tt> denotes the data
-     * belonging to the <tt>i</tt>th data
-     * vector. <tt>data.n()</tt>
-     * therefore equals the number
-     * of output points; this
-     * number is <tt>(subdivisions+1)^{dim</tt>}.
-     * <tt>data.m()</tt> equals the number of
-     * data vectors.
+     * Data vectors. The format is as follows: <tt>data(i,.)</tt>
+     * denotes the data belonging to the <tt>i</tt>th data
+     * vector. <tt>data.n()</tt> therefore equals the number of output
+     * points; this number is <tt>(subdivisions+1)^{dim</tt>}.
+     * <tt>data.m()</tt> equals the number of data vectors.
      *
-     * Within each column,
-     * <tt>data(.,j)</tt> are the
-     * data values at the output
-     * point <tt>j</tt>, where
-     * <tt>j</tt> denotes the
-     * usual lexicographic
-     * ordering in deal.II. This
-     * is also the order of
-     * points as provided by the
-     * <tt>QIterated</tt> class
-     * when used with the
-     * <tt>QTrapez</tt> class as
-     * subquadrature.
+     * Within each column, <tt>data(.,j)</tt> are the data values at
+     * the output point <tt>j</tt>, where <tt>j</tt> denotes the usual
+     * lexicographic ordering in deal.II. This is also the order of
+     * points as provided by the <tt>QIterated</tt> class when used
+     * with the <tt>QTrapez</tt> class as subquadrature.
      *
-     * Since the number of data vectors
-     * is usually the same for all
-     * patches to be printed,
-     * <tt>data.size()</tt> should yield
-     * the same value for all patches
-     * provided. The exception are
-     * patches for which
-     * points_are_available are set,
-     * where the actual coordinates of
-     * the point are appended to the
-     * 'data' field, see the
-     * documentation of the
-     * points_are_available flag.
+     * Since the number of data vectors is usually the same for all
+     * patches to be printed, <tt>data.size()</tt> should yield the
+     * same value for all patches provided. The exception are patches
+     * for which points_are_available are set, where the actual
+     * coordinates of the point are appended to the 'data' field, see
+     * the documentation of the points_are_available flag.
      */
     Table<2,float> data;
 
     /**
-     * Bool flag indicating, whether the
-     * coordinates of the inner patch
-     * points are appended to the @p data
-     * table (@ true) or not (@ false),
-     * where the second is the standard and
-     * can be found for all cells in the
-     * interior of a domain.
+     * Bool flag indicating, whether the coordinates of the inner
+     * patch points are appended to the @p data table (@p true) or not
+     * (@p false), where the second is the standard and can be found
+     * for all cells in the interior of a domain.
      *
-     * On the boundary of a domain, patch
-     * points are evaluated using a
-     * Mapping and therefore have to be
-     * stored inside the patch, as the
-     * Mapping and the corresponding
-     * boundary information are no longer
-     * available later on when we
-     * actually write the patch out to an
-     * output stream.
+     * On the boundary of a domain, patch points are evaluated using a
+     * Mapping and therefore have to be stored inside the patch, as
+     * the Mapping and the corresponding boundary information are no
+     * longer available later on when we actually write the patch out
+     * to an output stream.
      */
     bool points_are_available;
 
     /**
-     * Default constructor. Sets
-     * <tt>n_subdivisions</tt> to one.
+     * Default constructor. Sets #n_subdivisions to one.
      */
     Patch ();
 
     /**
-     * Compare the present patch
-     * for equality with another
-     * one. This is used in a few
-     * of the automated tests in
-     * our testsuite.
+     * Compare the present patch for equality with another one. This
+     * is used in a few of the automated tests in our testsuite.
      */
     bool operator == (const Patch &patch) const;
 
     /**
-     * Determine an estimate for
-     * the memory consumption (in
-     * bytes) of this
-     * object. Since sometimes
-     * the size of objects can
-     * not be determined exactly
-     * (for example: what is the
-     * memory consumption of an
-     * STL <tt>std::map</tt> type with a
-     * certain number of
-     * elements?), this is only
-     * an estimate. however often
-     * quite close to the true
-     * value.
+     * Determine an estimate for the memory consumption (in bytes) of
+     * this object. Since sometimes the size of objects can not be
+     * determined exactly (for example: what is the memory consumption
+     * of an STL <tt>std::map</tt> type with a certain number of
+     * elements?), this is only an estimate. however often quite close
+     * to the true value.
      */
     std::size_t memory_consumption () const;
 
     /**
-     * Value to be used if this
-     * patch has no neighbor on
-     * one side.
+     * Value to be used if this patch has no neighbor on one side.
      */
     static const unsigned int no_neighbor = numbers::invalid_unsigned_int;
     /** @addtogroup Exceptions
@@ -421,47 +360,36 @@ public:
   };
 
   /**
-   * Flags controlling the details of
-   * output in OpenDX format.
+   * Flags controlling the details of output in OpenDX format.
    *
    * @ingroup output
    */
   struct DXFlags
   {
     /**
-     * Write neighbor
-     * information. This
-     * information is necessary
-     * for instance, if OpenDX is
-     * supposed to compute
-     * integral curves
-     * (streamlines). If it is
-     * not present, streamlines
-     * end at cell boundaries.
+     * Write neighbor information. This information is necessary for
+     * instance, if OpenDX is supposed to compute integral curves
+     * (streamlines). If it is not present, streamlines end at cell
+     * boundaries.
      */
     bool write_neighbors;
     /**
-     * Write integer values of
-     * the Triangulation in
-     * binary format.
+     * Write integer values of the Triangulation in binary format.
      */
     bool int_binary;
     /**
-     * Write coordinate vectors in
-     * binary format.
+     * Write coordinate vectors in binary format.
      */
     bool coordinates_binary;
 
     /**
-     * Write data vectors in
-     * binary format.
+     * Write data vectors in binary format.
      */
     bool data_binary;
 
     /**
-     * Write binary coordinate
-     * vectors as double (64 bit)
-     * numbers instead of float (32 bit).
+     * Write binary coordinate vectors as double (64 bit) numbers
+     * instead of float (32 bit).
      */
     bool data_double;
 
@@ -472,6 +400,783 @@ public:
              const bool int_binary = false,
              const bool coordinates_binary = false,
              const bool data_binary = false);
+
+    /**
+     * Declare all flags with name and type as offered by this class,
+     * for use in input files.
+     */
+    static void declare_parameters (ParameterHandler &prm);
+
+    /**
+     * Read the parameters declared in declare_parameters() and set
+     * the flags for this output format accordingly.
+     *
+     * The flags thus obtained overwrite all previous contents of this
+     * object.
+     */
+    void parse_parameters (const ParameterHandler &prm);
+
+    /**
+     * Determine an estimate for the memory consumption (in bytes) of
+     * this object.
+     */
+    std::size_t memory_consumption () const;
+  };
+
+  /**
+   * Flags controlling the details of output in UCD format for AVS.
+   *
+   * @ingroup output
+   */
+  struct UcdFlags
+  {
+    /**
+     * Write a comment at the beginning of the file stating the date
+     * of creation and some other data.  While this is supported by
+     * the UCD format and AVS, some other programs get confused by
+     * this, so the default is to not write a preamble. However, a
+     * preamble can be written using this flag.
+     *
+     * Default: <code>false</code>.
+     */
+    bool write_preamble;
+
+    /**
+     * Constructor.
+     */
+    UcdFlags (const bool write_preamble = false);
+
+    /**
+     * Declare all flags with name and type as offered by this class,
+     * for use in input files.
+     */
+    static void declare_parameters (ParameterHandler &prm);
+
+    /**
+     * Read the parameters declared in declare_parameters() and
+     * set the flags for this output format accordingly.
+     *
+     * The flags thus obtained overwrite all previous contents of this
+     * object.
+     */
+    void parse_parameters (const ParameterHandler &prm);
+
+    /**
+     * Determine an estimate for the memory consumption (in bytes) of
+     * this object. Since sometimes the size of objects can not be
+     * determined exactly (for example: what is the memory consumption
+     * of an STL <tt>std::map</tt> type with a certain number of
+     * elements?), this is only an estimate. however often quite close
+     * to the true value.
+     */
+    std::size_t memory_consumption () const;
+  };
+
+  /**
+   * Flags controlling the details of output in Gnuplot format. At
+   * present no flags are implemented.
+   *
+   * @ingroup output
+   */
+  struct GnuplotFlags
+  {
+  private:
+    /**
+     * Dummy entry to suppress compiler warnings when copying an empty
+     * structure. Remove this member when adding the first flag to
+     * this structure (and remove the <tt>private</tt> as well).
+     */
+    int dummy;
+
+  public:
+    /**
+     * Constructor.
+     */
+    GnuplotFlags ();
+
+    /**
+     * Declare all flags with name and type as offered by this class,
+     * for use in input files.
+     */
+    static void declare_parameters (ParameterHandler &prm);
+
+    /**
+     * Read the parameters declared in declare_parameters() and set
+     * the flags for this output format accordingly.
+     *
+     * The flags thus obtained overwrite all previous contents of this
+     * object.
+     */
+    void parse_parameters (const ParameterHandler &prm) const;
+
+    /**
+     * Determine an estimate for the memory consumption (in bytes) of
+     * this object. Since sometimes the size of objects can not be
+     * determined exactly (for example: what is the memory consumption
+     * of an STL <tt>std::map</tt> type with a certain number of
+     * elements?), this is only an estimate. however often quite close
+     * to the true value.
+     */
+    std::size_t memory_consumption () const;
+  };
+
+  /**
+   * Flags controlling the details of output in Povray format. Several
+   * flags are implemented, see their respective documentation.
+   *
+   * @ingroup output
+   */
+  struct PovrayFlags
+  {
+    /**
+     * Normal vector interpolation, if set to true
+     *
+     * default = false
+     */
+    bool smooth;
+
+    /**
+     * Use bicubic patches (b-splines) instead of triangles.
+     *
+     * default = false
+     */
+    bool bicubic_patch;
+
+    /**
+     * include external "data.inc" with camera, light and texture
+     * definition for the scene.
+     *
+     * default = false
+     */
+    bool external_data;
+
+    /**
+     * Constructor.
+     */
+    PovrayFlags (const bool smooth = false,
+                 const bool bicubic_patch = false,
+                 const bool external_data = false);
+
+    /**
+     * Declare all flags with name and type as offered by this class,
+     * for use in input files.
+     */
+    static void declare_parameters (ParameterHandler &prm);
+
+    /**
+     * Read the parameters declared in declare_parameters() and
+     * set the flags for this output format accordingly.
+     *
+     * The flags thus obtained overwrite all previous contents of this
+     * object.
+     */
+    void parse_parameters (const ParameterHandler &prm);
+
+    /**
+     * Determine an estimate for the memory consumption (in bytes) of
+     * this object. Since sometimes the size of objects can not be
+     * determined exactly (for example: what is the memory consumption
+     * of an STL <tt>std::map</tt> type with a certain number of
+     * elements?), this is only an estimate. however often quite close
+     * to the true value.
+     */
+    std::size_t memory_consumption () const;
+  };
+
+
+  /**
+   * Flags controlling the details of output in encapsulated
+   * postscript format.
+   *
+   * @ingroup output
+   */
+  struct EpsFlags
+  {
+    /**
+     * This denotes the number of the data vector which shall be used
+     * for generating the height information. By default, the first
+     * data vector is taken, i.e. <tt>height_vector==0</tt>, if there
+     * is any data vector. If there is no data vector, no height
+     * information is generated.
+     */
+    unsigned int height_vector;
+
+    /**
+     * Number of the vector which is to be taken to colorize cells.
+     * The same applies as for #height_vector.
+     */
+    unsigned int color_vector;
+
+    /**
+     * Enum denoting the possibilities whether the scaling should be
+     * done such that the given <tt>size</tt> equals the width or the
+     * height of the resulting picture.
+     */
+    enum SizeType
+    {
+      /// Scale to given width
+      width,
+      /// Scale to given height
+      height
+    };
+
+    /**
+     * See above. Default is <tt>width</tt>.
+     */
+    SizeType size_type;
+
+    /**
+     * Width or height of the output as given in postscript units This
+     * usually is given by the strange unit 1/72 inch. Whether this is
+     * height or width is specified by the flag <tt>size_type</tt>.
+     *
+     * Default is 300, which represents a size of roughly 10 cm.
+     */
+    unsigned int size;
+
+    /**
+     * Width of a line in postscript units. Default is 0.5.
+     */
+    double line_width;
+
+    /**
+     * Angle of the line origin-viewer against the z-axis in degrees.
+     *
+     * Default is the Gnuplot-default of 60.
+     */
+    double azimut_angle;
+
+    /**
+     * Angle by which the viewers position projected onto the
+     * x-y-plane is rotated around the z-axis, in positive sense when
+     * viewed from above. The unit are degrees, and zero equals a
+     * position above or below the negative y-axis.
+     *
+     * Default is the Gnuplot-default of 30.  An example of a
+     * Gnuplot-default of 0 is the following:
+     *
+     * @verbatim
+     *
+     *          3________7
+     *          /       /|
+     *         /       / |
+     *       2/______6/  |
+     *       |   |   |   |
+     * O-->  |   0___|___4
+     *       |  /    |  /
+     *       | /     | /
+     *      1|/______5/
+     *
+     * @endverbatim
+     */
+    double turn_angle;
+
+    /**
+     * Factor by which the z-axis is to be stretched as compared to
+     * the x- and y-axes. This is to compensate for the different
+     * sizes that coordinate and solution values may have and to
+     * prevent that the plot looks to much out-of-place (no elevation
+     * at all if solution values are much smaller than coordinate
+     * values, or the common "extremely mountainous area" in the
+     * opposite case.
+     *
+     * Default is <tt>1.0</tt>.
+     */
+    double z_scaling;
+
+    /**
+     * Flag the determines whether the lines bounding the cells (or
+     * the parts of each patch) are to be plotted.
+     *
+     * Default: <tt>true</tt>.
+     */
+    bool   draw_mesh;
+
+    /**
+     * Flag whether to fill the regions between the lines bounding the
+     * cells or not. If not, no hidden line removal is performed,
+     * which in this crude implementation is done through writing the
+     * cells in a back-to-front order, thereby hiding the cells in the
+     * background by cells in the foreground.
+     *
+     * If this flag is <tt>false</tt> and #draw_mesh is <tt>false</tt>
+     * as well, nothing will be printed.
+     *
+     * If this flag is <tt>true</tt>, then the cells will be drawn
+     * either colored by one of the data sets (if #shade_cells is
+     * <tt>true</tt>), or pure white (if #shade_cells is false or if
+     * there are no data sets).
+     *
+     * Default is <tt>true</tt>.
+     */
+    bool   draw_cells;
+
+    /**
+     * Flag to determine whether the cells shall be colorized by the
+     * data set denoted by #color_vector, or simply be painted in
+     * white. This flag only makes sense if
+     * <tt>#draw_cells==true</tt>. Colorization is done through
+     * #color_function.
+     *
+     * Default is <tt>true</tt>.
+     */
+    bool   shade_cells;
+
+    /**
+     * Structure keeping the three color values in the RGB system.
+     */
+    struct RgbValues
+    {
+      float red;
+      float green;
+      float blue;
+
+      /**
+       * Return <tt>true</tt> if the color represented by the three
+       * color values is a grey scale, i.e. all components are equal.
+       */
+      bool is_grey () const;
+    };
+
+    /**
+     * Definition of a function pointer type taking a value and
+     * returning a triple of color values in RGB values.
+     *
+     * Besides the actual value by which the color is to be computed,
+     * min and max values of the data to be colorized are given as
+     * well.
+     */
+    typedef RgbValues (*ColorFunction) (const double value,
+                                        const double min_value,
+                                        const double max_value);
+
+    /**
+     * This is a pointer to the function which is used to colorize the
+     * cells.  By default, it points to the static function
+     * default_color_function() which is a member of this class.
+     */
+    ColorFunction color_function;
+
+
+    /**
+     * Default colorization function. This one does what one usually
+     * wants: It shifts colors from black (lowest value) through blue,
+     * green and red to white (highest value). For the exact defition
+     * of the color scale refer to the implementation.
+     *
+     * This function was originally written by Stefan Nauber.
+     */
+    static RgbValues
+    default_color_function (const double value,
+                            const double min_value,
+                            const double max_value);
+
+    /**
+     * This is an alternative color function producing a grey scale
+     * between black (lowest values) and white (highest values). You
+     * may use it by setting the #color_function variable to the
+     * address of this function.
+     */
+    static RgbValues
+    grey_scale_color_function (const double value,
+                               const double min_value,
+                               const double max_value);
+
+    /**
+     * This is one more alternative color function producing a grey
+     * scale between white (lowest values) and black (highest values),
+     * i.e. the scale is reversed to the previous one. You may use it
+     * by setting the #color_function variable to the address of this
+     * function.
+     */
+    static RgbValues
+    reverse_grey_scale_color_function (const double value,
+                                       const double min_value,
+                                       const double max_value);
+
+    /**
+     * Constructor.
+     */
+    EpsFlags (const unsigned int  height_vector = 0,
+              const unsigned int  color_vector  = 0,
+              const SizeType      size_type     = width,
+              const unsigned int  size          = 300,
+              const double        line_width    = 0.5,
+              const double        azimut_angle  = 60,
+              const double        turn_angle    = 30,
+              const double        z_scaling     = 1.0,
+              const bool          draw_mesh     = true,
+              const bool          draw_cells    = true,
+              const bool          shade_cells   = true,
+              const ColorFunction color_function= &default_color_function);
+
+    /**
+     * Declare all flags with name and type as offered by this class,
+     * for use in input files.
+     *
+     * For coloring, only the color functions declared in this class
+     * are offered.
+     */
+    static void declare_parameters (ParameterHandler &prm);
+
+    /**
+     * Read the parameters declared in declare_parameters() and set
+     * the flags for this output format accordingly.
+     *
+     * The flags thus obtained overwrite all previous contents of this
+     * object.
+     */
+    void parse_parameters (const ParameterHandler &prm);
+
+    /**
+     * Determine an estimate for the memory consumption (in bytes) of
+     * this object. Since sometimes the size of objects can not be
+     * determined exactly (for example: what is the memory consumption
+     * of an STL <tt>std::map</tt> type with a certain number of
+     * elements?), this is only an estimate. however often quite close
+     * to the true value.
+     */
+    std::size_t memory_consumption () const;
+  };
+
+  /**
+   * Flags controlling the details of output in GMV format. At present
+   * no flags are implemented.
+   *
+   * @ingroup output
+   */
+  struct GmvFlags
+  {
+  private:
+    /**
+     * Dummy entry to suppress compiler warnings when copying an empty
+     * structure. Remove this member when adding the first flag to
+     * this structure (and remove the <tt>private</tt> as well).
+     */
+    int dummy;
+
+  public:
+    /**
+     * Default constructor.
+     */
+    GmvFlags ();
+
+    /**
+     * Declare all flags with name and type as offered by this class,
+     * for use in input files.
+     */
+    static void declare_parameters (ParameterHandler &prm);
+
+    /**
+     * Read the parameters declared in declare_parameters() and set
+     * the flags for this output format accordingly.
+     *
+     * The flags thus obtained overwrite all previous contents of this
+     * object.
+     */
+    void parse_parameters (const ParameterHandler &prm) const;
+
+    /**
+     * Determine an estimate for the memory consumption (in bytes) of
+     * this object. Since sometimes the size of objects can not be
+     * determined exactly (for example: what is the memory consumption
+     * of an STL <tt>std::map</tt> type with a certain number of
+     * elements?), this is only an estimate. however often quite close
+     * to the true value.
+     */
+    std::size_t memory_consumption () const;
+  };
+
+  /**
+   * Flags controlling the details of output in Tecplot format.
+   *
+   * @ingroup output
+   */
+  struct TecplotFlags
+  {
+
+  public:
+
+    /**
+     * This variable is needed to hold the output file name when using
+     * the Tecplot API to write binary files.  If the user doesn't set
+     * the file name with this variable only ASCII Tecplot output will
+     * be produced.
+     */
+    const char *tecplot_binary_file_name;
+
+    /**
+     * Tecplot allows to assign names to zones. This variable stores
+     * this name.
+     */
+    const char *zone_name;
+
+    /**
+     * Constructor
+     **/
+    TecplotFlags (const char *tecplot_binary_file_name = NULL,
+                  const char *zone_name = NULL);
+
+    /**
+     * Declare all flags with name and type as offered by this class,
+     * for use in input files.
+     */
+    static void declare_parameters (ParameterHandler &prm);
+
+    /**
+     * Read the parameters declared in declare_parameters() and set
+     * the flags for this output format accordingly.
+     *
+     * The flags thus obtained overwrite all previous contents of this
+     * object.
+     */
+    void parse_parameters (const ParameterHandler &prm) const;
+
+    /**
+     * Determine an estimate for the memory consumption (in bytes) of
+     * this object. Since sometimes the size of objects can not be
+     * determined exactly (for example: what is the memory consumption
+     * of an STL <tt>std::map</tt> type with a certain number of
+     * elements?), this is only an estimate. however often quite close
+     * to the true value.
+     */
+    std::size_t memory_consumption () const;
+  };
+
+  /**
+   * Flags controlling the details of output in VTK format.
+   *
+   * @ingroup output
+   */
+  struct VtkFlags
+  {
+  public:
+    /**
+     * The time of the time step if this file is part of a time
+     * dependent simulation.
+     *
+     * The value of this variable is written into the output file
+     * according to the instructions provided in
+     * http://www.visitusers.org/index.php?title=Time_and_Cycle_in_VTK_files
+     * unless it is at its default value of
+     * std::numeric_limits<double>::min().
+     */
+    double time;
+
+    /**
+     * The number of the time step if this file is part of a time
+     * dependent simulation, or the cycle within a nonlinear or other
+     * iteration.
+     *
+     * The value of this variable is written into the output file
+     * according to the instructions provided in
+     * http://www.visitusers.org/index.php?title=Time_and_Cycle_in_VTK_files
+     * unless it is at its default value of
+     * std::numeric_limits<unsigned int>::min().
+     */
+    unsigned int cycle;
+
+    /**
+      * Flag to determine whether the current date and time shall be
+      * printed as a comment in the file's second line.
+      *
+      * Default is <tt>true</tt>.
+      */
+    bool print_date_and_time;
+
+    /**
+     * Default constructor.
+     */
+    VtkFlags (const double       time   = std::numeric_limits<double>::min(),
+              const unsigned int cycle  = std::numeric_limits<unsigned int>::min(),
+              const bool print_date_and_time = true);
+
+    /**
+     * Declare the flags with name and type as offered by this class,
+     * for use in input files.
+     *
+     * Unlike the flags in many of the other classes similar to this one, we do
+     * not actually declare parameters for the #cycle and #time member variables
+     * of this class. The reason is that there wouldn't appear to be a case where
+     * one would want to declare these parameters in an input file. Rather, these
+     * are typically values that change during the course of a simulation and
+     * can only reasonably be set as part of the execution of a program, rather
+     * than a priori by a user who runs this program.
+     */
+    static void declare_parameters (ParameterHandler &prm);
+
+    /**
+     * Read the parameters declared in declare_parameters() and
+     * set the flags for this output format accordingly.
+     *
+     * The flags thus obtained overwrite all previous contents of this
+     * object.
+     */
+    void parse_parameters (const ParameterHandler &prm) const;
+
+    /**
+     * Determine an estimate for the memory consumption (in bytes) of
+     * this object. Since sometimes the size of objects can not be
+     * determined exactly (for example: what is the memory consumption
+     * of an STL <tt>std::map</tt> type with a certain number of
+     * elements?), this is only an estimate. however often quite close
+     * to the true value.
+     */
+    std::size_t memory_consumption () const;
+  };
+
+
+  /**
+   * Flags for SVG output.
+   */
+  struct SvgFlags
+  {
+  public:
+    /**
+    * Height of the image in SVG
+    * units. Default value is 4000.
+    */
+    unsigned int height;
+
+    /**
+    * Width of the image in SVG
+    units. If left zero, the width is computed from the height.
+    */
+    unsigned int width;
+
+    /**
+     * This denotes the number of the data vector which shall be used
+     * for generating the height information. By default, the first
+     * data vector is taken, i.e. <tt>#height_vector==0</tt>, if there
+     * is any data vector. If there is no data vector, no height
+     * information is generated.
+     */
+    unsigned int height_vector;
+
+    /**
+     * Angles for the perspective view
+     */
+    int azimuth_angle, polar_angle;
+
+    unsigned int line_thickness;
+
+    /**
+    * Draw a margin of 5% around the plotted area
+    */
+    bool margin;
+
+    /**
+    * Draw a colorbar encoding the cell coloring
+    */
+    bool draw_colorbar;
+
+    /**
+    * Constructor.
+    */
+    SvgFlags(const unsigned int height_vector = 0,
+             const int azimuth_angle = 37,
+             const int polar_angle = 45,
+             const unsigned int line_thickness = 1,
+             const bool margin = true,
+             const bool draw_colorbar = true);
+
+    /**
+     * Determine an estimate for the memory consumption (in bytes) of
+     * this object. Since sometimes the size of objects can not be
+     * determined exactly (for example: what is the memory consumption
+     * of an STL <tt>std::map</tt> type with a certain number of
+     * elements?), this is only an estimate. however often quite close
+     * to the true value.
+    */
+    std::size_t memory_consumption () const;
+
+  private:
+
+  };
+
+
+  /**
+   * Flags controlling the details of output in deal.II intermediate
+   * format. At present no flags are implemented.
+   *
+   * @ingroup output
+   */
+  struct Deal_II_IntermediateFlags
+  {
+    /**
+     * An indicator of the currect file format version used to write
+     * intermediate format. We do not attempt to be backward
+     * compatible, so this number is used only to verify that the
+     * format we are writing is what the current readers and writers
+     * understand.
+     */
+    static const unsigned int format_version = 3;
+  private:
+    /**
+     * Dummy entry to suppress compiler warnings when copying an empty
+     * structure. Remove this member when adding the first flag to
+     * this structure (and remove the <tt>private</tt> as well).
+     */
+    int dummy;
+
+  public:
+    /**
+     * Constructor.
+     */
+    Deal_II_IntermediateFlags ();
+
+    /**
+     * Declare all flags with name and type as offered by this class,
+     * for use in input files.
+     */
+    static void declare_parameters (ParameterHandler &prm);
+
+    /**
+     * Read the parameters declared in declare_parameters() and
+     * set the flags for this output format accordingly.
+     *
+     * The flags thus obtained overwrite
+     * all previous contents of this object.
+     */
+    void parse_parameters (const ParameterHandler &prm) const;
+
+    /**
+     * Determine an estimate for the memory consumption (in bytes) of
+     * this object. Since sometimes the size of objects can not be
+     * determined exactly (for example: what is the memory consumption
+     * of an STL <tt>std::map</tt> type with a certain number of
+     * elements?), this is only an estimate. however often quite close
+     * to the true value.
+     */
+    std::size_t memory_consumption () const;
+  };
+
+  /**
+   * Flags controlling the DataOutFilter.
+   *
+   * @ingroup output
+   */
+
+  struct DataOutFilterFlags
+  {
+    /**
+     * Filter duplicate vertices and associated values. This will
+     * drastically reduce the output data size but may affect the
+     * correctness of some calculated values.
+     */
+    bool filter_duplicate_vertices;
+
+    /**
+     * Whether the XDMF output refers to HDF5 files.
+     * This affects how output is structured.
+     */
+    bool xdmf_hdf5_output;
+
+    /**
+     * Constructor.
+     */
+    DataOutFilterFlags (const bool filter_duplicate_vertices = false,
+                        const bool xdmf_hdf5_output = false);
 
     /**
      * Declare all flags with name
@@ -501,932 +1206,186 @@ public:
   };
 
   /**
-   * Flags controlling the details
-   * of output in UCD format for
-   * AVS.
+   * DataOutFilter provides a way to remove redundant vertices and values
+   * generated by the deal.II output. By default, DataOutBase and the classes
+   * that build on it output data at each corner of each cell. This means
+   * that data is output multiple times for each vertex of the mesh. The
+   * purpose of this scheme is to support output of discontinuous quantities,
+   * either because the finite element space is discontinuous or because the
+   * quantity that is output is computed from a solution field and is
+   * discontinuous across faces.
    *
-   * @ingroup output
+   * This class is an attempt to rein in the amount of data that is written.
+   * If the fields that are written to files are indeed discontinuous, the
+   * only way to faithfully represent them is indeed to write multiple
+   * values for each vertex (this is typically done by writing multiple
+   * node locations for the same vertex and defining data at these nodes).
+   * However, for fine meshes, one may not necessarily be interested in an
+   * exact representation of output fields that will likely only have
+   * small discontinuities. Rather, it may be sufficient to just output one
+   * value per vertex, which may be chosen arbitrarily from among those that
+   * are defined at this vertex from any of the adjacent cells.
    */
-  struct UcdFlags
-  {
-    /**
-     * Write a comment at the
-     * beginning of the file
-     * stating the date of
-     * creation and some other
-     * data.  While this is
-     * supported by the UCD
-     * format and
-     * AVS, some other
-     * programs get confused by
-     * this, so the default is to
-     * not write a
-     * preamble. However, a
-     * preamble can be written
-     * using this flag.
-     *
-     * Default: <code>false</code>.
-     */
-    bool write_preamble;
-
-    /**
-     * Constructor.
-     */
-    UcdFlags (const bool write_preamble = false);
-
-    /**
-     * Declare all flags with name
-     * and type as offered by this
-     * class, for use in input files.
-     */
-    static void declare_parameters (ParameterHandler &prm);
-
-    /**
-     * Read the parameters declared in
-     * <tt>declare_parameters</tt> and set the
-     * flags for this output format
-     * accordingly.
-     *
-     * The flags thus obtained overwrite
-     * all previous contents of this object.
-     */
-    void parse_parameters (const ParameterHandler &prm);
-
-    /**
-     * Determine an estimate for
-     * the memory consumption (in
-     * bytes) of this
-     * object. Since sometimes
-     * the size of objects can
-     * not be determined exactly
-     * (for example: what is the
-     * memory consumption of an
-     * STL <tt>std::map</tt> type with a
-     * certain number of
-     * elements?), this is only
-     * an estimate. however often
-     * quite close to the true
-     * value.
-     */
-    std::size_t memory_consumption () const;
-  };
-
-  /**
-   * Flags controlling the details of
-   * output in Gnuplot format. At
-   * present no flags are implemented.
-   *
-   * @ingroup output
-   */
-  struct GnuplotFlags
+  class DataOutFilter
   {
   private:
     /**
-     * Dummy entry to suppress compiler
-     * warnings when copying an empty
-     * structure. Remove this member
-     * when adding the first flag to
-     * this structure (and remove the
-     * <tt>private</tt> as well).
+     * Empty class to provide comparison function for Map3DPoint.
      */
-    int dummy;
+    struct Point3Comp
+    {
+      bool operator() (const Point<3> &lhs, const Point<3> &rhs) const
+      {
+        return (lhs(0) < rhs(0) || (!(rhs(0) < lhs(0)) && (lhs(1) < rhs(1) || (!(rhs(1) < lhs(1)) && lhs(2) < rhs(2)))));
+      }
+    };
+
+    typedef std::multimap<Point<3>, unsigned int, Point3Comp> Map3DPoint;
+
+    /// Flags used to specify filtering behavior
+    DataOutBase::DataOutFilterFlags   flags;
+
+    /// Dimensionality of the nodes, used to properly output filtered data
+    int         node_dim;
+
+    /// Number of vertices per cell
+    int         n_cell_verts;
+
+    /// Map of points to an internal index
+    Map3DPoint        existing_points;
+
+    /// Map of actual point index to internal point index
+    std::map<unsigned int, unsigned int>  filtered_points;
+
+    /// Map of cells to the filtered points
+    std::map<unsigned int, unsigned int>  filtered_cells;
+
+    /// Data set names
+    std::vector<std::string>    data_set_names;
+
+    /// Data set dimensions
+    std::vector<unsigned int>   data_set_dims;
+
+    /// Data set data
+    std::vector<std::vector<double> > data_sets;
+
+    /**
+     * Record a cell vertex index based on the internal reordering.
+     */
+    void internal_add_cell(const unsigned int &cell_index, const unsigned int &pt_index);
 
   public:
-    /**
-     * Constructor.
-     */
-    GnuplotFlags ();
+    DataOutFilter() : flags(false, true) {};
+    DataOutFilter(const DataOutBase::DataOutFilterFlags &flags) : flags(flags) {};
 
     /**
-     * Declare all flags with name
-     * and type as offered by this
-     * class, for use in input files.
+     * Write a point with the specified index into the filtered
+     * data set. If the point already exists and we are filtering
+     * redundant values, the provided index will internally refer
+     * to another recorded point.
      */
-    static void declare_parameters (ParameterHandler &prm);
+    template<int dim>
+    void write_point(const unsigned int &index, const Point<dim> &p);
 
     /**
-     * Read the parameters declared in
-     * <tt>declare_parameters</tt> and set the
-     * flags for this output format
-     * accordingly.
-     *
-     * The flags thus obtained overwrite
-     * all previous contents of this object.
+     * Record a deal.II cell in the internal reordered format.
      */
-    void parse_parameters (const ParameterHandler &prm) const;
+    template<int dim>
+    void write_cell(unsigned int index, unsigned int start, unsigned int d1, unsigned int d2, unsigned int d3);
 
     /**
-     * Determine an estimate for
-     * the memory consumption (in
-     * bytes) of this
-     * object. Since sometimes
-     * the size of objects can
-     * not be determined exactly
-     * (for example: what is the
-     * memory consumption of an
-     * STL <tt>std::map</tt> type with a
-     * certain number of
-     * elements?), this is only
-     * an estimate. however often
-     * quite close to the true
-     * value.
+     * Filter and record a data set. If there are multiple values
+     * at a given vertex and redundant values are being removed, one
+     * is arbitrarily chosen as the recorded value. In the future
+     * this can be expanded to average/min/max multiple values
+     * at a given vertex.
      */
-    std::size_t memory_consumption () const;
-  };
-
-  /**
-   * Flags controlling the details
-   * of output in Povray
-   * format. Several flags are
-   * implemented, see their
-   * respective documentation.
-   *
-   * @ingroup output
-   */
-  struct PovrayFlags
-  {
-    /**
-     * Normal vector interpolation,
-     * if set to true
-     *
-     * default = false
-     */
-    bool smooth;
+    void write_data_set(const std::string &name, const unsigned int &dimension, const unsigned int &set_num, const Table<2,double> &data_vectors);
 
     /**
-     * Use bicubic patches (b-splines)
-     * instead of triangles.
-     *
-     * default = false
+     * Resize and fill a vector with all the filtered
+     * node vertex points, for output to a file.
      */
-    bool bicubic_patch;
+    void fill_node_data(std::vector<double> &node_data) const;
 
     /**
-     * include external "data.inc"
-     * with camera, light and
-     * texture definition for the
-     * scene.
-     *
-     * default = false
+     * Resize and fill a vector with all the filtered
+     * cell vertex indices, for output to a file.
      */
-    bool external_data;
+    void fill_cell_data(const unsigned int &local_node_offset, std::vector<unsigned int> &cell_data) const;
 
     /**
-     * Constructor.
+     * Get the name of the data set indicated by the set number.
      */
-    PovrayFlags (const bool smooth = false,
-                 const bool bicubic_patch = false,
-                 const bool external_data = false);
-
-    /**
-     * Declare all flags with name
-     * and type as offered by this
-     * class, for use in input files.
-     */
-    static void declare_parameters (ParameterHandler &prm);
-
-    /**
-     * Read the parameters declared in
-     * <tt>declare_parameters</tt> and set the
-     * flags for this output format
-     * accordingly.
-     *
-     * The flags thus obtained overwrite
-     * all previous contents of this object.
-     */
-    void parse_parameters (const ParameterHandler &prm);
-
-    /**
-     * Determine an estimate for
-     * the memory consumption (in
-     * bytes) of this
-     * object. Since sometimes
-     * the size of objects can
-     * not be determined exactly
-     * (for example: what is the
-     * memory consumption of an
-     * STL <tt>std::map</tt> type with a
-     * certain number of
-     * elements?), this is only
-     * an estimate. however often
-     * quite close to the true
-     * value.
-     */
-    std::size_t memory_consumption () const;
-  };
-
-
-  /**
-   * Flags controlling the details of
-   * output in encapsulated postscript
-   * format.
-   *
-   * @ingroup output
-   */
-  struct EpsFlags
-  {
-    /**
-     * This denotes the number of the
-     * data vector which shall be used
-     * for generating the height
-     * information. By default, the
-     * first data vector is taken,
-     * i.e. <tt>height_vector==0</tt>, if
-     * there is any data vector. If there
-     * is no data vector, no height
-     * information is generated.
-     */
-    unsigned int height_vector;
-
-    /**
-     * Number of the vector which is
-     * to be taken to colorize cells.
-     * The same applies as for
-     * <tt>height_vector</tt>.
-     */
-    unsigned int color_vector;
-
-    /**
-     * Enum denoting the possibilities
-     * whether the scaling should be done
-     * such that the given <tt>size</tt> equals
-     * the width or the height of
-     * the resulting picture.
-     */
-    enum SizeType
+    std::string get_data_set_name(const unsigned int &set_num) const
     {
-      /// Scale to given width
-      width,
-      /// Scale to given height
-      height
+      return data_set_names.at(set_num);
     };
 
     /**
-     * See above. Default is <tt>width</tt>.
+     * Get the dimensionality of the data set indicated by the set number.
      */
-    SizeType size_type;
-
-    /**
-     * Width or height of the output
-     * as given in postscript units
-     * This usually is given by the
-     * strange unit 1/72 inch. Whether
-     * this is height or width is
-     * specified by the flag
-     * <tt>size_type</tt>.
-     *
-     * Default is 300, which represents
-     * a size of roughly 10 cm.
-     */
-    unsigned int size;
-
-    /**
-     * Width of a line in postscript
-     * units. Default is 0.5.
-     */
-    double line_width;
-
-    /**
-     * Angle of the line origin-viewer
-     * against the z-axis in degrees.
-     *
-     * Default is the Gnuplot-default
-     * of 60.
-     */
-    double azimut_angle;
-
-    /**
-     * Angle by which the viewers
-     * position projected onto the
-     * x-y-plane is rotated around
-     * the z-axis, in positive sense
-     * when viewed from above. The
-     * unit are degrees, and zero
-     * equals a position above or below
-     * the negative y-axis.
-     *
-     * Default is the
-     * Gnuplot-default of 30.
-     * An example of a
-     * Gnuplot-default of 0 is
-     * the following:
-     *
-     * @verbatim
-     *
-     *          3________7
-     *          /       /|
-     *         /       / |
-     *       2/______6/  |
-     *       |   |   |   |
-     * O-->  |   0___|___4
-     *       |  /    |  /
-     *       | /     | /
-     *      1|/______5/
-     *
-     * @endverbatim
-     */
-    double turn_angle;
-
-    /**
-     * Factor by which the z-axis is to
-     * be stretched as compared to the
-     * x- and y-axes. This is to compensate
-     * for the different sizes that
-     * coordinate and solution values may
-     * have and to prevent that the plot
-     * looks to much out-of-place (no
-     * elevation at all if solution values
-     * are much smaller than coordinate
-     * values, or the common "extremely
-     * mountainous area" in the opposite
-     * case.
-     *
-     * Default is <tt>1.0</tt>.
-     */
-    double z_scaling;
-
-    /**
-     * Flag the determines whether the
-     * lines bounding the cells (or the
-     * parts of each patch) are to be
-     * plotted.
-     *
-     * Default: <tt>true</tt>.
-     */
-    bool   draw_mesh;
-
-    /**
-     * Flag whether to fill the regions
-     * between the lines bounding the cells
-     * or not. If not, no hidden line removal
-     * is performed, which in this crude
-     * implementation is done through
-     * writing the cells in a back-to-front
-     * order, thereby hiding the cells in
-     * the background by cells in the
-     * foreground.
-     *
-     * If this flag is <tt>false</tt> and <tt>draw_mesh</tt>
-     * is <tt>false</tt> as well, nothing will be
-     * printed.
-     *
-     * If this flag is <tt>true</tt>, then the cells
-     * will be drawn either colored by one
-     * of the data sets (if <tt>shade_cells</tt> is
-     * <tt>true</tt>), or pure white (if
-     * <tt>shade_cells</tt> is false or if there are
-     * no data sets).
-     *
-     * Default is <tt>true</tt>.
-     */
-    bool   draw_cells;
-
-    /**
-     * Flag to determine whether the cells
-     * shall be colorized by the data
-     * set denoted by <tt>color_vector</tt>, or
-     * simply be painted in white. This
-     * flag only makes sense if
-     * <tt>draw_cells==true</tt>. Colorization is
-     * done through the <tt>color_function</tt>.
-     *
-     * Default is <tt>true</tt>.
-     */
-    bool   shade_cells;
-
-    /**
-     * Structure keeping the three color
-     * values in the RGB system.
-     */
-    struct RgbValues
+    unsigned int get_data_set_dim(const unsigned int &set_num) const
     {
-      float red;
-      float green;
-      float blue;
-
-      /**
-       * Return <tt>true</tt> if the
-       * color represented by
-       * the three color values
-       * is a grey scale,
-       * i.e. all components
-       * are equal.
-       */
-      bool is_grey () const;
+      return data_set_dims.at(set_num);
     };
 
     /**
-     * Definition of a function pointer
-     * type taking a value and returning
-     * a triple of color values in RGB
-     * values.
-     *
-     * Besides the actual value by which
-     * the color is to be computed, min
-     * and max values of the data to
-     * be colorized are given as well.
+     * Get the raw double valued data of the data set indicated by the set number.
      */
-    typedef RgbValues (*ColorFunction) (const double value,
-                                        const double min_value,
-                                        const double max_value);
+    const double *get_data_set(const unsigned int &set_num) const
+    {
+      return &data_sets[set_num][0];
+    };
 
     /**
-     * This is a pointer to the function
-     * which is used to colorize the cells.
-     * By default, it points to the
-     * static function <tt>default_color_function</tt>
-     * which is a member of this class.
+     * Return the number of nodes in this DataOutFilter. This may be smaller
+     * than the original number of nodes if filtering is enabled.
      */
-    ColorFunction color_function;
-
+    unsigned int n_nodes() const
+    {
+      return existing_points.size();
+    };
 
     /**
-     * Default colorization function. This
-     * one does what one usually wants:
-     * It shifts colors from black (lowest
-     * value) through blue, green and red
-     * to white (highest value). For the
-     * exact defition of the color scale
-     * refer to the implementation.
-     *
-     * This function was originally written
-     * by Stefan Nauber.
+     * Return the number of filtered cells in this DataOutFilter. Cells are
+     * not filtered so this will be the original number of cells.
      */
-    static RgbValues
-    default_color_function (const double value,
-                            const double min_value,
-                            const double max_value);
+    unsigned int n_cells() const
+    {
+      return filtered_cells.size()/n_cell_verts;
+    };
 
     /**
-     * This is an alternative color
-     * function producing a grey scale
-     * between black (lowest values)
-     * and white (highest values). You
-     * may use it by setting the
-     * <tt>color_function</tt> variable to the
-     * address of this function.
+     * Return the number of filtered data sets in this DataOutFilter. Data sets are
+     * not filtered so this will be the original number of data sets.
      */
-    static RgbValues
-    grey_scale_color_function (const double value,
-                               const double min_value,
-                               const double max_value);
+    unsigned int n_data_sets() const
+    {
+      return data_set_names.size();
+    };
 
     /**
-     * This is one more
-     * alternative color function
-     * producing a grey scale
-     * between white (lowest
-     * values) and black (highest
-     * values), i.e. the scale is
-     * reversed to the previous
-     * one. You may use it by
-     * setting the
-     * <tt>color_function</tt>
-     * variable to the address of
-     * this function.
-     */
-    static RgbValues
-    reverse_grey_scale_color_function (const double value,
-                                       const double min_value,
-                                       const double max_value);
+    * Empty functions to do base class inheritance.
+    */
+    void flush_points () {};
 
     /**
-     * Constructor.
+     * Empty functions to do base class inheritance.
      */
-    EpsFlags (const unsigned int  height_vector = 0,
-              const unsigned int  color_vector  = 0,
-              const SizeType      size_type     = width,
-              const unsigned int  size          = 300,
-              const double        line_width    = 0.5,
-              const double        azimut_angle  = 60,
-              const double        turn_angle    = 30,
-              const double        z_scaling     = 1.0,
-              const bool          draw_mesh     = true,
-              const bool          draw_cells    = true,
-              const bool          shade_cells   = true,
-              const ColorFunction color_function= &default_color_function);
-
-    /**
-     * Declare all flags with name
-     * and type as offered by this
-     * class, for use in input files.
-     *
-     * For coloring, only the color
-     * functions declared in this
-     * class are offered.
-     */
-    static void declare_parameters (ParameterHandler &prm);
-
-    /**
-     * Read the parameters declared in
-     * <tt>declare_parameters</tt> and set the
-     * flags for this output format
-     * accordingly.
-     *
-     * The flags thus obtained overwrite
-     * all previous contents of this object.
-     */
-    void parse_parameters (const ParameterHandler &prm);
-
-    /**
-     * Determine an estimate for
-     * the memory consumption (in
-     * bytes) of this
-     * object. Since sometimes
-     * the size of objects can
-     * not be determined exactly
-     * (for example: what is the
-     * memory consumption of an
-     * STL <tt>std::map</tt> type with a
-     * certain number of
-     * elements?), this is only
-     * an estimate. however often
-     * quite close to the true
-     * value.
-     */
-    std::size_t memory_consumption () const;
-  };
-
-  /**
-   * Flags controlling the details
-   * of output in GMV
-   * format. At present no flags
-   * are implemented.
-   *
-   * @ingroup output
-   */
-  struct GmvFlags
-  {
-  private:
-    /**
-     * Dummy entry to suppress compiler
-     * warnings when copying an empty
-     * structure. Remove this member
-     * when adding the first flag to
-     * this structure (and remove the
-     * <tt>private</tt> as well).
-     */
-    int dummy;
-
-  public:
-    /**
-     * Default constructor.
-     */
-    GmvFlags ();
-
-    /**
-     * Declare all flags with name
-     * and type as offered by this
-     * class, for use in input files.
-     */
-    static void declare_parameters (ParameterHandler &prm);
-
-    /**
-     * Read the parameters declared in
-     * <tt>declare_parameters</tt> and set the
-     * flags for this output format
-     * accordingly.
-     *
-     * The flags thus obtained overwrite
-     * all previous contents of this object.
-     */
-    void parse_parameters (const ParameterHandler &prm) const;
-
-    /**
-     * Determine an estimate for
-     * the memory consumption (in
-     * bytes) of this
-     * object. Since sometimes
-     * the size of objects can
-     * not be determined exactly
-     * (for example: what is the
-     * memory consumption of an
-     * STL <tt>std::map</tt> type with a
-     * certain number of
-     * elements?), this is only
-     * an estimate. however often
-     * quite close to the true
-     * value.
-     */
-    std::size_t memory_consumption () const;
-  };
-
-  /**
-   * Flags controlling the details
-   * of output in
-   * Tecplot format.
-   *
-   * @ingroup output
-   */
-  struct TecplotFlags
-  {
-
-  public:
-
-    /**
-     * This variable is needed to hold the
-     * output file name when using the
-     * Tecplot API to write binary files.
-     * If the user doesn't set the file
-     * name with this variable only
-     * ASCII Tecplot output will be
-     * produced.
-     */
-    const char *tecplot_binary_file_name;
-
-    /**
-     * Tecplot allows to assign
-     * names to zones. This
-     * variable stores this name.
-     */
-    const char *zone_name;
-
-    /**
-     * Constructor
-     **/
-    TecplotFlags (const char *tecplot_binary_file_name = NULL,
-                  const char *zone_name = NULL);
-
-    /**
-     * Declare all flags with name
-     * and type as offered by this
-     * class, for use in input files.
-     */
-    static void declare_parameters (ParameterHandler &prm);
-
-    /**
-     * Read the parameters declared in
-     * <tt>declare_parameters</tt> and set the
-     * flags for this output format
-     * accordingly.
-     *
-     * The flags thus obtained overwrite
-     * all previous contents of this object.
-     */
-    void parse_parameters (const ParameterHandler &prm) const;
-
-    /**
-     * Determine an estimate for
-     * the memory consumption (in
-     * bytes) of this
-     * object. Since sometimes
-     * the size of objects can
-     * not be determined exactly
-     * (for example: what is the
-     * memory consumption of an
-     * STL <tt>std::map</tt> type with a
-     * certain number of
-     * elements?), this is only
-     * an estimate. however often
-     * quite close to the true
-     * value.
-     */
-    std::size_t memory_consumption () const;
-  };
-
-  /**
-   * Flags controlling the details
-   * of output in VTK
-   * format.
-   *
-   * @ingroup output
-   */
-  struct VtkFlags
-  {
-  public:
-    /**
-     * The time of the time step if this file is part of a
-     * time dependent simulation.
-     *
-     * The value of this variable is written into the output file according
-     * to the instructions provided in
-     * http://www.visitusers.org/index.php?title=Time_and_Cycle_in_VTK_files
-     * unless it is at its default value of std::numeric_limits<double>::min().
-     */
-    double time;
-
-    /**
-     * The number of the time step if this file is part of a
-     * time dependent simulation, or the cycle within a nonlinear or other
-     * iteration.
-     *
-     * The value of this variable is written into the output file according
-     * to the instructions provided in
-     * http://www.visitusers.org/index.php?title=Time_and_Cycle_in_VTK_files
-     * unless it is at its default value of std::numeric_limits<unsigned int>::min().
-     */
-    unsigned int cycle;
-
-    /**
-     * Default constructor.
-     */
-    VtkFlags (const double       time  = std::numeric_limits<double>::min(),
-              const unsigned int cycle = std::numeric_limits<unsigned int>::min());
-
-    /**
-     * Declare the flags with name
-     * and type as offered by this
-     * class, for use in input files.
-     *
-     * Unlike the flags in many of the other classes similar to this one, we do
-     * not actually declare parameters for the #cycle and #time member variables
-     * of this class. The reason is that there wouldn't appear to be a case where
-     * one would want to declare these parameters in an input file. Rather, these
-     * are typically values that change during the course of a simulation and
-     * can only reasonably be set as part of the execution of a program, rather
-     * than a priori by a user who runs this program.
-     */
-    static void declare_parameters (ParameterHandler &prm);
-
-    /**
-     * Read the parameters declared in
-     * <tt>declare_parameters</tt> and set the
-     * flags for this output format
-     * accordingly.
-     *
-     * The flags thus obtained overwrite
-     * all previous contents of this object.
-     */
-    void parse_parameters (const ParameterHandler &prm) const;
-
-    /**
-     * Determine an estimate for
-     * the memory consumption (in
-     * bytes) of this
-     * object. Since sometimes
-     * the size of objects can
-     * not be determined exactly
-     * (for example: what is the
-     * memory consumption of an
-     * STL <tt>std::map</tt> type with a
-     * certain number of
-     * elements?), this is only
-     * an estimate. however often
-     * quite close to the true
-     * value.
-     */
-    std::size_t memory_consumption () const;
-  };
-
-
-  /**
-   * Flags for SVG output.
-   */
-  struct SvgFlags
-  {
-    public:
-      /**
-       * This denotes the number of the
-       * data vector which shall be used
-       * for generating the height
-       * information. By default, the
-       * first data vector is taken,
-       * i.e. <tt>height_vector==0</tt>, if
-       * there is any data vector. If there
-       * is no data vector, no height
-       * information is generated.
-       */
-      unsigned int height_vector;      
-
-      /*
-       * Angles for the perspective view
-       */
-      int azimuth_angle, polar_angle;
-      
-      unsigned int line_thickness;
-
-      /*
-       * Draw a margin of 5% around the plotted area
-       */
-      bool margin;
-
-      /*
-       * Draw a colorbar encoding the cell coloring 
-       */
-      bool draw_colorbar;
-
-      /*
-       * Constructor.
-       */
-      SvgFlags(const unsigned int height_vector = 0,
-               const int azimuth_angle = 37,
-               const int polar_angle = 45,
-               const unsigned int line_thickness = 1,
-               const bool margin = true,
-               const bool draw_colorbar = true);
-
-      /**
-       * Determine an estimate for
-       * the memory consumption (in
-       * bytes) of this
-       * object. Since sometimes
-       * the size of objects can
-       * not be determined exactly
-       * (for example: what is the
-       * memory consumption of an
-       * STL <tt>std::map</tt> type with a
-       * certain number of
-       * elements?), this is only
-       * an estimate. however often
-       * quite close to the true
-       * value.
-     */
-      std::size_t memory_consumption () const;
-
-    private:
+    void flush_cells () {};
 
   };
 
 
   /**
-   * Flags controlling the details
-   * of output in deal.II
-   * intermediate format. At
-   * present no flags are
-   * implemented.
-   *
-   * @ingroup output
-   */
-  struct Deal_II_IntermediateFlags
-  {
-    /**
-     * An indicator of the
-     * currect file format
-     * version used to write
-     * intermediate format. We do
-     * not attempt to be backward
-     * compatible, so this number
-     * is used only to verify
-     * that the format we are
-     * writing is what the
-     * current readers and
-     * writers understand.
-     */
-    static const unsigned int format_version = 3;
-  private:
-    /**
-     * Dummy entry to suppress compiler
-     * warnings when copying an empty
-     * structure. Remove this member
-     * when adding the first flag to
-     * this structure (and remove the
-     * <tt>private</tt> as well).
-     */
-    int dummy;
-
-  public:
-    /**
-     * Constructor.
-     */
-    Deal_II_IntermediateFlags ();
-
-    /**
-     * Declare all flags with name
-     * and type as offered by this
-     * class, for use in input files.
-     */
-    static void declare_parameters (ParameterHandler &prm);
-
-    /**
-     * Read the parameters declared in
-     * <tt>declare_parameters</tt> and set the
-     * flags for this output format
-     * accordingly.
-     *
-     * The flags thus obtained overwrite
-     * all previous contents of this object.
-     */
-    void parse_parameters (const ParameterHandler &prm) const;
-
-    /**
-     * Determine an estimate for
-     * the memory consumption (in
-     * bytes) of this
-     * object. Since sometimes
-     * the size of objects can
-     * not be determined exactly
-     * (for example: what is the
-     * memory consumption of an
-     * STL <tt>std::map</tt> type with a
-     * certain number of
-     * elements?), this is only
-     * an estimate. however often
-     * quite close to the true
-     * value.
-     */
-    std::size_t memory_consumption () const;
-  };
-
-  /**
-   * Provide a data type specifying
-   * the presently supported output
+   * Provide a data type specifying the presently supported output
    * formats.
    */
   enum OutputFormat
   {
     /**
-     * Use the format already
-     * stored in the object.
+     * Use the format already stored in the object.
      */
     default_format,
     /**
@@ -1438,24 +1397,19 @@ public:
      */
     dx,
     /**
-     * Output in the UCD format
-     * for AVS.
+     * Output in the UCD format for AVS.
      */
     ucd,
     /**
-     * Output for the
-     * Gnuplot tool.
+     * Output for the Gnuplot tool.
      */
     gnuplot,
     /**
-     * Output for the
-     * Povray
-     * raytracer.
+     * Output for the Povray raytracer.
      */
     povray,
     /**
-     * Output in encapsulated
-     * PostScript.
+     * Output in encapsulated PostScript.
      */
     eps,
     /**
@@ -1463,56 +1417,46 @@ public:
      */
     gmv,
     /**
-     * Output for
-     * Tecplot in text
-     * format.
+     * Output for Tecplot in text format.
      */
 
     tecplot,
     /**
-     * Output for
-     * Tecplot in
-     * binary format. Faster
-     * and smaller than text
-     * format.
+     * Output for Tecplot in binary format. Faster and smaller than
+     * text format.
      */
     tecplot_binary,
 
     /**
-     * Output in
-     * VTK format.
+     * Output in VTK format.
      */
     vtk,
 
     /**
-     * Output in
-     * VTK format.
+     * Output in VTK format.
      */
     vtu,
 
     /**
-     * Output in 
-     * SVG format.
+     * Output in SVG format.
      */
     svg,
 
     /**
-     * Output in deal.II
-     * intermediate format.
+     * Output in deal.II intermediate format.
      */
     deal_II_intermediate,
 
     /**
-     * Output in
-     * HDF5 format.
+     * Output in HDF5 format.
      */
     hdf5
   };
 
 
   /**
-   * Write the given list of patches to the output stream in
-   * OpenDX format.
+   * Write the given list of patches to the output stream in OpenDX
+   * format.
    *
    * Since OpenDX uses some kind of visual data flow oriented
    * programming language, some of these programs are provided in
@@ -1529,15 +1473,15 @@ public:
    * Write the given list of patches to the output stream in eps format.
    *
    * Output in this format circumvents the use of auxiliary graphic
-   * programs converting some output format into a graphics format. This
-   * has the advantage that output is easy and fast, and the
-   * disadvantage that you have to give a whole bunch of parameters
-   * which determine the direction of sight, the mode of colorization,
-   * the scaling of the height axis, etc. (Of course, all these
-   * parameters have reasonable default values, which you may want to
-   * change from time to time.) At present, this format only supports
-   * output for two-dimensional data, with values in the third direction
-   * taken from a data vector.
+   * programs converting some output format into a graphics
+   * format. This has the advantage that output is easy and fast, and
+   * the disadvantage that you have to give a whole bunch of
+   * parameters which determine the direction of sight, the mode of
+   * colorization, the scaling of the height axis, etc. (Of course,
+   * all these parameters have reasonable default values, which you
+   * may want to change from time to time.) At present, this format
+   * only supports output for two-dimensional data, with values in the
+   * third direction taken from a data vector.
    *
    * Basically, output consists of the mesh and the cells in between
    * them. You can draw either of these, or both, or none if you are
@@ -1843,7 +1787,8 @@ public:
    * DataOutInterface::write_vtu_footer() and DataOutInterface::write_vtu_main()
    * by DataOutBase::write_vtu().
    */
-  static void write_vtu_header (std::ostream &out);
+  static void write_vtu_header (std::ostream &out,
+                                const VtkFlags &flags);
 
   /**
    * This writes the footer for the xml based vtu file format. This
@@ -1865,23 +1810,23 @@ public:
                               const std::vector<std_cxx1x::tuple<unsigned int, unsigned int, std::string> > &vector_data_ranges,
                               const VtkFlags                          &flags,
                               std::ostream                            &out);
-  
+
   /**
    * Write the given list of patches to the output stream in SVG format.
    *
-   * SVG (Scalable Vector Graphics) is an XML-based vector image format 
-   * developed and maintained by the World Wide Web Consortium (W3C). 
-   * This function conforms to the latest specification SVG 1.1, 
+   * SVG (Scalable Vector Graphics) is an XML-based vector image format
+   * developed and maintained by the World Wide Web Consortium (W3C).
+   * This function conforms to the latest specification SVG 1.1,
    * released on August 16, 2011. Controlling the graphic output is
-   * possible by setting or clearing the respective flags (see the 
-   * SvgFlags struct). At present, this format only supports output 
+   * possible by setting or clearing the respective flags (see the
+   * SvgFlags struct). At present, this format only supports output
    * for two-dimensional data, with values in the third direction
    * taken from a data vector.
-   * 
-   * For the output, each patch is subdivided into four triangles 
-   * which are then written as polygons and filled with a linear 
-   * color gradient. The arising coloring of the patches visualizes 
-   * the data values at the vertices taken from the specified data 
+   *
+   * For the output, each patch is subdivided into four triangles
+   * which are then written as polygons and filled with a linear
+   * color gradient. The arising coloring of the patches visualizes
+   * the data values at the vertices taken from the specified data
    * vector. A colorbar can be drawn to encode the coloring.
    *
    * @note Yet only implemented for two dimensions with an additional
@@ -1893,7 +1838,7 @@ public:
                          const std::vector<std_cxx1x::tuple<unsigned int, unsigned int, std::string> > &vector_data_ranges,
                          const SvgFlags                          &flags,
                          std::ostream                            &out);
-  
+
   /**
    * Write the given list of patches to the output stream in deal.II
    * intermediate format. This is not a format understood by any other
@@ -1942,95 +1887,87 @@ public:
     const Deal_II_IntermediateFlags         &flags,
     std::ostream                            &out);
 
+  /**
+   * Write the data in data_filter to a single HDF5 file containing both
+   * the mesh and solution values.
+   */
   template <int dim, int spacedim>
-  static void write_hdf5_parallel (
-    const std::vector<Patch<dim,spacedim> > &patches,
-    const std::vector<std::string>          &data_names,
-    const std::vector<std_cxx1x::tuple<unsigned int, unsigned int, std::string> > &vector_data_ranges,
-    const char *filename,
-    MPI_Comm comm);
-
-  template <int dim, int spacedim>
-  static XDMFEntry create_xdmf_entry (const std::vector<Patch<dim,spacedim> > &patches,
-                                      const std::vector<std::string>          &data_names,
-                                      const std::vector<std_cxx1x::tuple<unsigned int, unsigned int, std::string> > &vector_data_ranges,
-                                      const char *h5_filename,
-                                      const double cur_time,
-                                      MPI_Comm comm);
-
-  template <int dim, int spacedim>
-  static void write_xdmf_file (
-    const std::vector<Patch<dim,spacedim> > &patches,
-    const std::vector<XDMFEntry> &entries,
-    const char *filename,
-    MPI_Comm comm);
+  static void write_hdf5_parallel (const std::vector<Patch<dim,spacedim> > &patches,
+                                   const DataOutFilter &data_filter,
+                                   const std::string &filename,
+                                   MPI_Comm comm);
 
   /**
-   * Given an input stream that contains
-   * data written by
-   * write_deal_II_intermediate, determine
-   * the <tt>dim</tt> and <tt>spacedim</tt>
-   * template parameters with which that
-   * function was called, and return them
-   * as a pair of values.
+   * Write the data in data_filter to HDF5 file(s). If write_mesh_file
+   * is false, the mesh data will not be written and the solution
+   * file will contain only the solution values. If write_mesh_file
+   * is true and the filenames are the same, the resulting file will
+   * contain both mesh data and solution values.
+   */
+  template <int dim, int spacedim>
+  static void write_hdf5_parallel (const std::vector<Patch<dim,spacedim> > &patches,
+                                   const DataOutFilter &data_filter,
+                                   const bool write_mesh_file,
+                                   const std::string &mesh_filename,
+                                   const std::string &solution_filename,
+                                   MPI_Comm comm);
+
+  /**
+   * DataOutFilter is an intermediate data format that reduces the amount of
+   * data that will be written to files. The object filled by this function
+   * can then later be used again to write data in a concrete file format;
+   * see, for example, DataOutBase::write_hdf5_parallel().
+   */
+  template <int dim, int spacedim>
+  static void write_filtered_data (const std::vector<Patch<dim,spacedim> > &patches,
+                                   const std::vector<std::string>          &data_names,
+                                   const std::vector<std_cxx1x::tuple<unsigned int, unsigned int, std::string> > &vector_data_ranges,
+                                   DataOutFilter &filtered_data);
+
+  /**
+   * Given an input stream that contains data written by
+   * write_deal_II_intermediate(), determine the <tt>dim</tt> and
+   * <tt>spacedim</tt> template parameters with which that function
+   * was called, and return them as a pair of values.
    *
-   * Note that this function eats a number
-   * of elements at the present position of
-   * the stream, and therefore alters
-   * it. In order to read from it using,
-   * for example, the DataOutReader class,
-   * you may wish to either reset the
-   * stream to its previous position, or
-   * close and reopen it.
+   * Note that this function eats a number of elements at the present
+   * position of the stream, and therefore alters it. In order to read
+   * from it using, for example, the DataOutReader class, you may wish
+   * to either reset the stream to its previous position, or close and
+   * reopen it.
    */
   static
   std::pair<unsigned int, unsigned int>
   determine_intermediate_format_dimensions (std::istream &input);
 
   /**
-   * Return the <tt>OutputFormat</tt>
-   * value corresponding to the
-   * given string. If the string
-   * does not match any known
-   * format, an exception is
-   * thrown.
+   * Return the OutputFormat value corresponding to the given
+   * string. If the string does not match any known format, an
+   * exception is thrown.
    *
-   * Since this function does not
-   * need data from this object, it
-   * is static and can thus be
-   * called without creating an
-   * object of this class. Its main
-   * purpose is to allow a program
-   * to use any implemented output
-   * format without the need to
-   * extend the program's parser
-   * each time a new format is
-   * implemented.
+   * Since this function does not need data from this object, it is
+   * static and can thus be called without creating an object of this
+   * class. Its main purpose is to allow a program to use any
+   * implemented output format without the need to extend the
+   * program's parser each time a new format is implemented.
    *
-   * To get a list of presently
-   * available format names,
-   * e.g. to give it to the
-   * ParameterHandler class,
-   * use the function
+   * To get a list of presently available format names, e.g. to give
+   * it to the ParameterHandler class, use the function
    * get_output_format_names().
    */
   static OutputFormat parse_output_format (const std::string &format_name);
 
   /**
-   * Return a list of implemented
-   * output formats. The different
-   * names are separated by
-   * vertical bar signs (<tt>`|'</tt>)
-   * as used by the
+   * Return a list of implemented output formats. The different names
+   * are separated by vertical bar signs (<tt>`|'</tt>) as used by the
    * ParameterHandler classes.
    */
   static std::string get_output_format_names ();
 
   /**
-   * Provide a function which tells us which
-   * suffix a file with a given output format
-   * usually has. At present the following
-   * formats are defined:
+   * Provide a function which tells us which suffix a file with a
+   * given output format usually has. At present the following formats
+   * are defined:
    * <ul>
    * <li> <tt>dx</tt>: <tt>.dx</tt>
    * <li> <tt>ucd</tt>: <tt>.inp</tt>
@@ -2049,20 +1986,12 @@ public:
   static std::string default_suffix (const OutputFormat output_format);
 
   /**
-   * Determine an estimate for
-   * the memory consumption (in
-   * bytes) of this
-   * object. Since sometimes
-   * the size of objects can
-   * not be determined exactly
-   * (for example: what is the
-   * memory consumption of an
-   * STL <tt>std::map</tt> type with a
-   * certain number of
-   * elements?), this is only
-   * an estimate. however often
-   * quite close to the true
-   * value.
+   * Determine an estimate for the memory consumption (in bytes) of
+   * this object. Since sometimes the size of objects can not be
+   * determined exactly (for example: what is the memory consumption
+   * of an STL <tt>std::map</tt> type with a certain number of
+   * elements?), this is only an estimate. however often quite close
+   * to the true value.
    */
   static std::size_t memory_consumption ();
 
@@ -2077,9 +2006,7 @@ public:
                   << "The number of points in this data set is " << arg1
                   << ", but we expected " << arg2 << " in each space direction.");
   /**
-   * An output function did not
-   * receive any patches for
-   * writing.
+   * An output function did not receive any patches for writing.
    */
   DeclException0 (ExcNoPatches);
   /**
@@ -2097,24 +2024,21 @@ public:
   //@}
 private:
   /**
-   * Write the coordinates of nodes
-   * in the desired format.
+   * Write the coordinates of nodes in the desired format.
    */
   template <int dim, int spacedim, typename STREAM>
   static void write_nodes (const std::vector<Patch<dim,spacedim> > &patches,
                            STREAM &out);
 
   /**
-   * Write the node numbers of a
-   * cell in the desired format.
+   * Write the node numbers of a cell in the desired format.
    */
   template <int dim, int spacedim, typename STREAM>
   static void write_cells (const std::vector<Patch<dim,spacedim> > &patches,
                            STREAM &out);
 
   /**
-   * Write data in the desired
-   * format.
+   * Write data in the desired format.
    */
   template <int dim, int spacedim, class STREAM>
   static void write_data (const std::vector<Patch<dim,spacedim> > &patches,
@@ -2124,23 +2048,23 @@ private:
 
 
   /**
-   * This function projects a three-dimensional point (Point<3> point) 
-   * onto a two-dimensional image plane, specified by the position of 
-   * the camera viewing system (Point<3> camera_position), camera 
-   * direction (Point<3> camera_position), camera horizontal (Point<3> 
-   * camera_horizontal, necessary for the correct alignment of the 
+   * This function projects a three-dimensional point (Point<3> point)
+   * onto a two-dimensional image plane, specified by the position of
+   * the camera viewing system (Point<3> camera_position), camera
+   * direction (Point<3> camera_position), camera horizontal (Point<3>
+   * camera_horizontal, necessary for the correct alignment of the
    * later images), and the focus of the camera (float camera_focus).
    *
    * For SVG output.
    */
-  static Point<2> svg_project_point(Point<3> point, 
-                                    Point<3> camera_position, 
-                                    Point<3> camera_direction, 
-                                    Point<3> camera_horizontal, 
+  static Point<2> svg_project_point(Point<3> point,
+                                    Point<3> camera_position,
+                                    Point<3> camera_direction,
+                                    Point<3> camera_horizontal,
                                     float camera_focus);
   /**
-   * Function to compute the gradient parameters for
-   * a triangle with given values for the vertices.
+   * Function to compute the gradient parameters for a triangle with
+   * given values for the vertices.
    *
    * Used for svg output.
    */
@@ -2149,8 +2073,8 @@ private:
   /**
    * Class holding the data of one cell of a patch in two space
    * dimensions for output. It is the projection of a cell in
-   * three-dimensional space (two coordinates, one height value)
-   * to the direction of sight.
+   * three-dimensional space (two coordinates, one height value) to
+   * the direction of sight.
    */
   class SvgCell
   {
@@ -2165,10 +2089,8 @@ private:
     Point<3> vertices[4];
 
     /**
-     * Depth into the picture, which
-     * is defined as the distance from
-     * an observer at an the origin in
-     * direction of the line of sight.
+     * Depth into the picture, which is defined as the distance from
+     * an observer at an the origin in direction of the line of sight.
      */
     float depth;
 
@@ -2181,21 +2103,17 @@ private:
     Point<2> projected_center;
 
     /**
-     * Comparison operator for
-     * sorting.
+     * Comparison operator for sorting.
      */
     bool operator < (const SvgCell &) const;
   };
 
 
   /**
-   * Class holding the data of one
-   * cell of a patch in two space
-   * dimensions for output. It is
-   * the projection of a cell in
-   * three-dimensional space (two
-   * coordinates, one height value)
-   * to the direction of sight.
+   * Class holding the data of one cell of a patch in two space
+   * dimensions for output. It is the projection of a cell in
+   * three-dimensional space (two coordinates, one height value) to
+   * the direction of sight.
    */
   class EpsCell2d
   {
@@ -2207,48 +2125,33 @@ private:
     Point<2> vertices[4];
 
     /**
-     * Data value from which the actual
-     * colors will be computed by
-     * the colorization function stated
-     * in the <tt>EpsFlags</tt> class.
+     * Data value from which the actual colors will be computed by the
+     * colorization function stated in the <tt>EpsFlags</tt> class.
      */
     float color_value;
 
     /**
-     * Depth into the picture, which
-     * is defined as the distance from
-     * an observer at an the origin in
-     * direction of the line of sight.
+     * Depth into the picture, which is defined as the distance from
+     * an observer at an the origin in direction of the line of sight.
      */
     float depth;
 
     /**
-     * Comparison operator for
-     * sorting.
+     * Comparison operator for sorting.
      */
     bool operator < (const EpsCell2d &) const;
   };
 
 
   /**
-   * This is a helper function for
-   * the <tt>write_gmv</tt>
-   * function. There, the data in
-   * the patches needs to be copied
-   * around as output is one
-   * variable globally at a time,
-   * rather than all data on each
-   * vertex at a time. This copying
-   * around can be done detached
-   * from the main thread, and is
-   * thus moved into this separate
-   * function.
+   * This is a helper function for the write_gmv() function. There,
+   * the data in the patches needs to be copied around as output is
+   * one variable globally at a time, rather than all data on each
+   * vertex at a time. This copying around can be done detached from
+   * the main thread, and is thus moved into this separate function.
    *
-   * Note that because of the
-   * similarity of the formats,
-   * this function is also used by
-   * the Vtk and Tecplot output
-   * functions.
+   * Note that because of the similarity of the formats, this function
+   * is also used by the Vtk and Tecplot output functions.
    */
   template <int dim, int spacedim>
   static void
@@ -2270,9 +2173,9 @@ private:
  *
  * This class is thought as a base class to classes actually
  * generating data for output. It has two abstract virtual functions,
- * <tt>get_patches</tt> and <tt>get_dataset_names</tt> which are to produce the data
- * which is actually needed. These are the only functions that need to
- * be overloaded by a derived class.  In additional to that, it has a
+ * get_patches() and get_dataset_names() produce the data which is
+ * actually needed. These are the only functions that need to be
+ * overloaded by a derived class.  In additional to that, it has a
  * function for each output format supported by the underlying base
  * class which gets the output data using these two virtual functions
  * and passes them to the raw output functions.
@@ -2637,8 +2540,8 @@ public:
    * @endcode
    *
    * @note See DataOutBase::write_vtu or
-   * DataOutInterface::write_pvtu_record for
-   * writing solutions at each timestep.
+   * DataOutInterface::write_pvtu_record for writing solutions at each
+   * timestep.
    *
    * @note The second element of each pair, i.e., the file in which
    * the graphical data for each time is stored, may itself be again
@@ -2652,18 +2555,12 @@ public:
                          const std::vector<std::pair<double,std::string> >  &times_and_names) const;
 
   /**
-   * This function is the exact
-   * equivalent of the
-   * write_pvtu_record() function
-   * but for the VisIt
-   * visualization program. See
-   * there for the purpose of this
-   * function.
+   * This function is the exact equivalent of the write_pvtu_record()
+   * function but for the VisIt visualization program and for one visualization graph
+   * (or one time step only). See there for the purpose of this function.
    *
-   * This function is documented
-   * in the "Creating a master file
-   * for parallel" section (section 5.7)
-   * of the "Getting data into VisIt"
+   * This function is documented in the "Creating a master file for
+   * parallel" section (section 5.7) of the "Getting data into VisIt"
    * report that can be found here:
    * https://wci.llnl.gov/codes/visit/2.0.0/GettingDataIntoVisIt2.0.0.pdf
    */
@@ -2671,44 +2568,147 @@ public:
                            const std::vector<std::string> &piece_names) const;
 
   /**
-   * Obtain data through get_patches()
-   * and write it to <tt>out</tt>
-   * in SVG format. See
-   * DataOutBase::write_svg.
+   * This function is equivalent to the write_visit_record() above but for multiple
+   * time steps. Here is an example of how the function would be used:
+   * @code
+   *  DataOut<dim> data_out;
+   *
+   *  const unsigned int number_of_time_steps = 3;
+   *  std::vector<std::vector<std::string > > piece_names(number_of_time_steps);
+   *
+   *  piece_names[0].push_back("subdomain_01.time_step_0.vtk");
+   *  piece_names[0].push_back("subdomain_02.time_step_0.vtk");
+   *
+   *  piece_names[1].push_back("subdomain_01.time_step_1.vtk");
+   *  piece_names[1].push_back("subdomain_02.time_step_1.vtk");
+   *
+   *  piece_names[2].push_back("subdomain_01.time_step_2.vtk");
+   *  piece_names[2].push_back("subdomain_02.time_step_2.vtk");
+   *
+   *  std::ofstream visit_output ("master_file.visit");
+   *
+   *  data_out.write_visit_record(visit_output, piece_names);
+   * @endcode
+   *
+   * This function is documented in the "Creating a master file for
+   * parallel" section (section 5.7) of the "Getting data into VisIt"
+   * report that can be found here:
+   * https://wci.llnl.gov/codes/visit/2.0.0/GettingDataIntoVisIt2.0.0.pdf
    */
-  void write_svg(std::ostream &out) const; 
+  void write_visit_record (std::ostream &out,
+                           const std::vector<std::vector<std::string> > &piece_names) const;
 
   /**
-   * Obtain data through get_patches()
-   * and write it to <tt>out</tt>
-   * in deal.II intermediate
-   * format. See
+   * Obtain data through get_patches() and write it to <tt>out</tt> in
+   * SVG format. See DataOutBase::write_svg.
+   */
+  void write_svg(std::ostream &out) const;
+
+  /**
+   * Obtain data through get_patches() and write it to <tt>out</tt> in
+   * deal.II intermediate format. See
    * DataOutBase::write_deal_II_intermediate.
    *
-   * Note that the intermediate
-   * format is what its name
-   * suggests: a direct
-   * representation of internal
-   * data. It isn't standardized
-   * and will change whenever we
-   * change our internal
-   * representation. You can only
-   * expect to process files
-   * written in this format using
-   * the same version of deal.II
-   * that was used for writing.
+   * Note that the intermediate format is what its name suggests: a
+   * direct representation of internal data. It isn't standardized and
+   * will change whenever we change our internal representation. You
+   * can only expect to process files written in this format using the
+   * same version of deal.II that was used for writing.
    */
   void write_deal_II_intermediate (std::ostream &out) const;
 
-  XDMFEntry create_xdmf_entry (const char *h5_filename,
+  /**
+   * Create an XDMFEntry based on the data in this DataOutInterface.
+  @deprecated: use create_xdmf_entry(DataOutFilter, ...) instead
+   */
+  XDMFEntry create_xdmf_entry (const std::string &h5_filename,
+                               const double cur_time,
+                               MPI_Comm comm) const DEAL_II_DEPRECATED;
+
+  /**
+   * Create an XDMFEntry based on the data in the data_filter. This assumes
+   * the mesh and solution data were written to a single file. See
+   * write_xdmf_file() for an example of usage.
+   */
+  XDMFEntry create_xdmf_entry (const DataOutFilter &data_filter,
+                               const std::string &h5_filename,
                                const double cur_time,
                                MPI_Comm comm) const;
 
+  /**
+   * Create an XDMFEntry based on the data in the data_filter. This assumes
+   * the mesh and solution data were written to separate files. See
+   * write_xdmf_file() for an example of usage.
+   */
+  XDMFEntry create_xdmf_entry (const DataOutFilter &data_filter,
+                               const std::string &h5_mesh_filename,
+                               const std::string &h5_solution_filename,
+                               const double cur_time,
+                               MPI_Comm comm) const;
+
+  /**
+   * Write an XDMF file based on the provided vector of XDMFEntry objects. Below is
+   * an example of how to use this function with HDF5 and the DataOutFilter:
+   *
+   * @code
+   * DataOutBase::DataOutFilter   data_filter(DataOutBase::DataOutFilterFlags(true, true));
+   * std::vector<XDMFEntry>       xdmf_entries;
+   * // Filter the data and store it in data_filter
+   * data_out.write_filtered_data(data_filter);
+   * // Write the filtered data to HDF5
+   * data_out.write_hdf5_parallel(data_filter, "solution.h5", MPI_COMM_WORLD);
+   * // Create an XDMF entry detailing the HDF5 file
+   * new_xdmf_entry = data_out.create_xdmf_entry(data_filter, "solution.h5", simulation_time, MPI_COMM_WORLD);
+   * // Add the XDMF entry to the list
+   * xdmf_entries.push_back(new_xdmf_entry);
+   * // Create an XDMF file from all stored entries
+   * data_out.write_xdmf_file(xdmf_entries, "solution.xdmf", MPI_COMM_WORLD);
+   * @endcode
+   */
   void write_xdmf_file (const std::vector<XDMFEntry> &entries,
-                        const char *filename,
+                        const std::string &filename,
                         MPI_Comm comm) const;
 
-  void write_hdf5_parallel (const char *filename, MPI_Comm comm) const;
+  /**
+   * Write the data in this class without redundancy filtering to a
+   * single HDF5 file containing both the mesh and solution values.
+  @deprecated: use write_hdf5_parallel(DataOutFilter, ...) instead
+   */
+  void write_hdf5_parallel (const std::string &filename, MPI_Comm comm) const DEAL_II_DEPRECATED;
+
+  /**
+   * Write the data in data_filter to a single HDF5 file containing both
+   * the mesh and solution values. Below is an example of how to use this
+   * function with the DataOutFilter:
+   *
+   * @code
+   * DataOutBase::DataOutFilter   data_filter(DataOutBase::DataOutFilterFlags(true, true));
+   * // Filter the data and store it in data_filter
+   * data_out.write_filtered_data(data_filter);
+   * // Write the filtered data to HDF5
+   * data_out.write_hdf5_parallel(data_filter, "solution.h5", MPI_COMM_WORLD);
+   * @endcode
+   */
+  void write_hdf5_parallel (const DataOutFilter &data_filter, const std::string &filename, MPI_Comm comm) const;
+
+  /**
+   * Write the data in data_filter to HDF5 file(s). If write_mesh_file
+   * is false, the mesh data will not be written and the solution
+   * file will contain only the solution values. If write_mesh_file
+   * is true and the filenames are the same, the resulting file will
+   * contain both mesh data and solution values.
+   */
+  void write_hdf5_parallel (const DataOutFilter &data_filter, const bool write_mesh_file, const std::string &mesh_filename, const std::string &solution_filename, MPI_Comm comm) const;
+
+  /**
+   * DataOutFilter is an intermediate data format that reduces the amount of
+   * data that will be written to files. The object filled by this function
+   * can then later be used again to write data in a concrete file format;
+   * see, for example, DataOutBase::write_hdf5_parallel().
+   */
+  void write_filtered_data (DataOutFilter &filtered_data) const;
+
+
   /**
    * Write data and grid to <tt>out</tt>
    * according to the given data
@@ -2727,211 +2727,147 @@ public:
               const OutputFormat  output_format = default_format) const;
 
   /**
-   * Set the default format. The
-   * value set here is used
-   * anytime, output for format
-   * <tt>default_format</tt> is
-   * requested.
+   * Set the default format. The value set here is used anytime,
+   * output for format <tt>default_format</tt> is requested.
    */
   void set_default_format (const OutputFormat default_format);
 
   /**
-   * Set the flags to be used for
-   * output in OpenDX format.
+   * Set the flags to be used for output in OpenDX format.
    */
   void set_flags (const DXFlags &dx_flags);
 
   /**
-   * Set the flags to be used for
-   * output in UCD format.
+   * Set the flags to be used for output in UCD format.
    */
   void set_flags (const UcdFlags &ucd_flags);
 
   /**
-   * Set the flags to be used for
-   * output in GNUPLOT format.
+   * Set the flags to be used for output in GNUPLOT format.
    */
   void set_flags (const GnuplotFlags &gnuplot_flags);
 
   /**
-   * Set the flags to be used for
-   * output in POVRAY format.
+   * Set the flags to be used for output in POVRAY format.
    */
   void set_flags (const PovrayFlags &povray_flags);
 
   /**
-   * Set the flags to be used for
-   * output in EPS output.
+   * Set the flags to be used for output in EPS output.
    */
   void set_flags (const EpsFlags &eps_flags);
 
   /**
-   * Set the flags to be used for
-   * output in GMV format.
+   * Set the flags to be used for output in GMV format.
    */
   void set_flags (const GmvFlags &gmv_flags);
 
   /**
-   * Set the flags to be used for
-   * output in Tecplot format.
+   * Set the flags to be used for output in Tecplot format.
    */
   void set_flags (const TecplotFlags &tecplot_flags);
 
   /**
-   * Set the flags to be used for
-   * output in VTK format.
+   * Set the flags to be used for output in VTK format.
    */
   void set_flags (const VtkFlags &vtk_flags);
 
   /**
-   * Set the flags to be used for
-   * output in SVG format.
+   * Set the flags to be used for output in SVG format.
    */
   void set_flags (const SvgFlags &svg_flags);
 
   /**
-   * Set the flags to be used for output in
-   * deal.II intermediate format.
+   * Set the flags to be used for output in deal.II intermediate
+   * format.
    */
   void set_flags (const Deal_II_IntermediateFlags &deal_II_intermediate_flags);
 
   /**
-   * A function that returns the same
-   * string as the respective function in
-   * the base class does; the only
-   * exception being that if the parameter
-   * is omitted, then the value for the
-   * present default format is returned,
-   * i.e. the correct suffix for the format
-   * that was set through
-   * set_default_format() or
-   * parse_parameters() before calling this
-   * function.
+   * A function that returns the same string as the respective
+   * function in the base class does; the only exception being that if
+   * the parameter is omitted, then the value for the present default
+   * format is returned, i.e. the correct suffix for the format that
+   * was set through set_default_format() or parse_parameters() before
+   * calling this function.
    */
   std::string
   default_suffix (const OutputFormat output_format = default_format) const;
 
   /**
-   * Declare parameters for all
-   * output formats by declaring
-   * subsections within the
-   * parameter file for each output
-   * format and call the respective
-   * <tt>declare_parameters</tt>
-   * functions of the flag classes
-   * for each output format.
+   * Declare parameters for all output formats by declaring
+   * subsections within the parameter file for each output format and
+   * call the respective <tt>declare_parameters</tt> functions of the
+   * flag classes for each output format.
    *
-   * Some of the declared
-   * subsections may not contain
-   * entries, if the respective
-   * format does not export any
-   * flags.
+   * Some of the declared subsections may not contain entries, if the
+   * respective format does not export any flags.
    *
-   * Note that the top-level
-   * parameters denoting the number
-   * of subdivisions per patch and
-   * the output format are not
-   * declared, since they are only
-   * passed to virtual functions
-   * and are not stored inside
-   * objects of this type. You have
-   * to declare them yourself.
+   * Note that the top-level parameters denoting the number of
+   * subdivisions per patch and the output format are not declared,
+   * since they are only passed to virtual functions and are not
+   * stored inside objects of this type. You have to declare them
+   * yourself.
    */
   static void declare_parameters (ParameterHandler &prm);
 
   /**
-   * Read the parameters declared
-   * in <tt>declare_parameters</tt> and
-   * set the flags for the output
-   * formats accordingly.
+   * Read the parameters declared in declare_parameters() and
+   * set the flags for the output formats accordingly.
    *
-   * The flags thus obtained
-   * overwrite all previous
-   * contents of the flag objects
-   * as default-constructed or set
-   * by the set_flags() function.
+   * The flags thus obtained overwrite all previous contents of the
+   * flag objects as default-constructed or set by the set_flags()
+   * function.
    */
   void parse_parameters (ParameterHandler &prm);
 
   /**
-   * Determine an estimate for
-   * the memory consumption (in
-   * bytes) of this
-   * object. Since sometimes
-   * the size of objects can
-   * not be determined exactly
-   * (for example: what is the
-   * memory consumption of an
-   * STL <tt>std::map</tt> type with a
-   * certain number of
-   * elements?), this is only
-   * an estimate. however often
-   * quite close to the true
-   * value.
+   * Determine an estimate for the memory consumption (in bytes) of
+   * this object. Since sometimes the size of objects can not be
+   * determined exactly (for example: what is the memory consumption
+   * of an STL <tt>std::map</tt> type with a certain number of
+   * elements?), this is only an estimate. however often quite close
+   * to the true value.
    */
   std::size_t memory_consumption () const;
 
 protected:
   /**
-   * This is the abstract function
-   * through which derived classes
-   * propagate preprocessed data in
-   * the form of Patch
-   * structures (declared in the
-   * base class DataOutBase) to
-   * the actual output
-   * function. You need to overload
-   * this function to allow the
-   * output functions to know what
-   * they shall print.
+   * This is the abstract function through which derived classes
+   * propagate preprocessed data in the form of Patch structures
+   * (declared in the base class DataOutBase) to the actual output
+   * function. You need to overload this function to allow the output
+   * functions to know what they shall print.
    */
   virtual
   const std::vector<typename DataOutBase::Patch<dim,spacedim> > &
   get_patches () const = 0;
 
   /**
-   * Abstract virtual function
-   * through which the names of
-   * data sets are obtained by the
-   * output functions of the base
-   * class.
+   * Abstract virtual function through which the names of data sets
+   * are obtained by the output functions of the base class.
    */
   virtual
   std::vector<std::string>
   get_dataset_names () const = 0;
 
   /**
-   * This functions returns
-   * information about how the
-   * individual components of
-   * output files that consist of
-   * more than one data set are to
-   * be interpreted.
+   * This functions returns information about how the individual
+   * components of output files that consist of more than one data set
+   * are to be interpreted.
    *
-   * It returns a list of index
-   * pairs and corresponding name
-   * indicating which components of
-   * the output are to be
-   * considered vector-valued
-   * rather than just a collection
-   * of scalar data. The index
-   * pairs are inclusive; for
-   * example, if we have a Stokes
-   * problem in 2d with components
-   * (u,v,p), then the
-   * corresponding vector data
-   * range should be (0,1), and the
-   * returned list would consist of
-   * only a single element with a
-   * tuple such as (0,1,"velocity").
+   * It returns a list of index pairs and corresponding name
+   * indicating which components of the output are to be considered
+   * vector-valued rather than just a collection of scalar data. The
+   * index pairs are inclusive; for example, if we have a Stokes
+   * problem in 2d with components (u,v,p), then the corresponding
+   * vector data range should be (0,1), and the returned list would
+   * consist of only a single element with a tuple such as
+   * (0,1,"velocity").
    *
-   * Since some of the derived
-   * classes do not know about
-   * vector data, this function has
-   * a default implementation that
-   * simply returns an empty
-   * string, meaning that all data
-   * is to be considered a
+   * Since some of the derived classes do not know about vector data,
+   * this function has a default implementation that simply returns an
+   * empty string, meaning that all data is to be considered a
    * collection of scalar fields.
    */
   virtual
@@ -2939,108 +2875,83 @@ protected:
   get_vector_data_ranges () const;
 
   /**
-   * The default number of
-   * subdivisions for patches. This
-   * is filled by parse_parameters()
-   * and should be obeyed by
-   * build_patches() in derived
-   * classes.
+   * The default number of subdivisions for patches. This is filled by
+   * parse_parameters() and should be obeyed by build_patches() in
+   * derived classes.
    */
   unsigned int default_subdivisions;
 
 private:
   /**
-   * Standard output format.  Use
-   * this format, if output format
-   * default_format is
-   * requested. It can be changed
-   * by the <tt>set_format</tt> function
-   * or in a parameter file.
+   * Standard output format.  Use this format, if output format
+   * default_format is requested. It can be changed by the
+   * <tt>set_format</tt> function or in a parameter file.
    */
   OutputFormat default_fmt;
 
   /**
-   * Flags to be used upon output
-   * of OpenDX data. Can be changed by
-   * using the <tt>set_flags</tt>
-   * function.
+   * Flags to be used upon output of OpenDX data. Can be changed by
+   * using the <tt>set_flags</tt> function.
    */
   DXFlags     dx_flags;
 
   /**
-   * Flags to be used upon output
-   * of UCD data. Can be changed by
-   * using the <tt>set_flags</tt>
-   * function.
+   * Flags to be used upon output of UCD data. Can be changed by using
+   * the <tt>set_flags</tt> function.
    */
   UcdFlags     ucd_flags;
 
   /**
-   * Flags to be used upon output
-   * of GNUPLOT data. Can be
-   * changed by using the
-   * <tt>set_flags</tt> function.
+   * Flags to be used upon output of GNUPLOT data. Can be changed by
+   * using the <tt>set_flags</tt> function.
    */
   GnuplotFlags gnuplot_flags;
 
   /**
-   * Flags to be used upon output
-   * of POVRAY data. Can be changed
-   * by using the <tt>set_flags</tt>
-   * function.
+   * Flags to be used upon output of POVRAY data. Can be changed by
+   * using the <tt>set_flags</tt> function.
    */
   PovrayFlags povray_flags;
 
   /**
-   * Flags to be used upon output
-   * of EPS data in one space
-   * dimension. Can be changed by
-   * using the <tt>set_flags</tt>
+   * Flags to be used upon output of EPS data in one space
+   * dimension. Can be changed by using the <tt>set_flags</tt>
    * function.
    */
   EpsFlags     eps_flags;
 
   /**
-   * Flags to be used upon output
-   * of gmv data in one space
-   * dimension. Can be changed by
-   * using the <tt>set_flags</tt>
+   * Flags to be used upon output of gmv data in one space
+   * dimension. Can be changed by using the <tt>set_flags</tt>
    * function.
    */
   GmvFlags     gmv_flags;
 
   /**
-   * Flags to be used upon output
-   * of Tecplot data in one space
-   * dimension. Can be changed by
-   * using the <tt>set_flags</tt>
+   * Flags to be used upon output of Tecplot data in one space
+   * dimension. Can be changed by using the <tt>set_flags</tt>
    * function.
    */
   TecplotFlags tecplot_flags;
 
   /**
-   * Flags to be used upon output
-   * of vtk data in one space
-   * dimension. Can be changed by
-   * using the <tt>set_flags</tt>
+   * Flags to be used upon output of vtk data in one space
+   * dimension. Can be changed by using the <tt>set_flags</tt>
    * function.
    */
   VtkFlags     vtk_flags;
 
   /**
-   * Flags to be used upon output
-   * of svg data in one space
-   * dimension. Can be changed by
-   * using the <tt>set_flags</tt>
+   * Flags to be used upon output of svg data in one space
+   * dimension. Can be changed by using the <tt>set_flags</tt>
    * function.
    */
   SvgFlags     svg_flags;
 
   /**
-   * Flags to be used upon output of
-   * deal.II intermediate data in one space
-   * dimension. Can be changed by using the
-   * <tt>set_flags</tt> function.
+   * Flags to be used upon output of deal.II intermediate data in one
+   * space dimension. Can be changed by using the <tt>set_flags</tt>
+   * function.
    */
   Deal_II_IntermediateFlags     deal_II_intermediate_flags;
 };
@@ -3102,60 +3013,36 @@ class DataOutReader : public DataOutInterface<dim,spacedim>
 {
 public:
   /**
-   * Read a sequence of patches as
-   * written previously by
-   * <tt>DataOutBase::write_deal_II_intermediate</tt>
-   * and store them in the present
-   * object. This overwrites any
-   * previous content.
+   * Read a sequence of patches as written previously by
+   * <tt>DataOutBase::write_deal_II_intermediate</tt> and store them
+   * in the present object. This overwrites any previous content.
    */
   void read (std::istream &in);
 
   /**
-   * This function can be used to
-   * merge the patches read by the
-   * other object into the patches
-   * that this present object
-   * stores. This is sometimes
-   * handy if one has, for example,
-   * a domain decomposition
-   * algorithm where each block is
-   * represented by a DoFHandler of
-   * its own, but one wants to
-   * output the solution on all the
-   * blocks at the same
-   * time. Alternatively, it may
-   * also be used for parallel
-   * programs, where each process
-   * only generates output for its
-   * share of the cells, even if
-   * all processes can see all
-   * cells.
+   * This function can be used to merge the patches read by the other
+   * object into the patches that this present object stores. This is
+   * sometimes handy if one has, for example, a domain decomposition
+   * algorithm where each block is represented by a DoFHandler of its
+   * own, but one wants to output the solution on all the blocks at
+   * the same time. Alternatively, it may also be used for parallel
+   * programs, where each process only generates output for its share
+   * of the cells, even if all processes can see all cells.
    *
-   * For this to work, the input
-   * files for the present object
-   * and the given argument need to
-   * have the same number of output
-   * vectors, and they need to use
-   * the same number of
-   * subdivisions per patch. The
-   * output will probably look
-   * rather funny if patches in
+   * For this to work, the input files for the present object and the
+   * given argument need to have the same number of output vectors,
+   * and they need to use the same number of subdivisions per
+   * patch. The output will probably look rather funny if patches in
    * both objects overlap in space.
    *
-   * If you call read() for this
-   * object after merging in
-   * patches, the previous state is
-   * overwritten, and the merged-in
-   * patches are lost.
+   * If you call read() for this object after merging in patches, the
+   * previous state is overwritten, and the merged-in patches are
+   * lost.
    *
-   * This function will fail if
-   * either this or the other
-   * object did not yet set up any
-   * patches.
+   * This function will fail if either this or the other object did
+   * not yet set up any patches.
    *
-   * The use of this function is
-   * demonstrated in step-19.
+   * The use of this function is demonstrated in step-19.
    */
   void merge (const DataOutReader<dim,spacedim> &other);
 
@@ -3183,67 +3070,42 @@ public:
 
 protected:
   /**
-   * This is the function
-   * through which this class
-   * propagates preprocessed data in
-   * the form of Patch
-   * structures (declared in the
-   * base class DataOutBase) to
-   * the actual output
-   * function.
+   * This is the function through which this class propagates
+   * preprocessed data in the form of Patch structures (declared in
+   * the base class DataOutBase) to the actual output function.
    *
-   * It returns the patches as read
-   * the last time a stream was
-   * given to the read() function.
+   * It returns the patches as read the last time a stream was given
+   * to the read() function.
    */
   virtual const std::vector<typename dealii::DataOutBase::Patch<dim,spacedim> > &
   get_patches () const;
 
   /**
-   * Abstract virtual function
-   * through which the names of
-   * data sets are obtained by the
-   * output functions of the base
-   * class.
+   * Abstract virtual function through which the names of data sets
+   * are obtained by the output functions of the base class.
    *
-   * Return the names of the
-   * variables as read the last
-   * time we read a file.
+   * Return the names of the variables as read the last time we read a
+   * file.
    */
   virtual std::vector<std::string> get_dataset_names () const;
 
   /**
-   * This functions returns
-   * information about how the
-   * individual components of
-   * output files that consist of
-   * more than one data set are to
-   * be interpreted.
+   * This functions returns information about how the individual
+   * components of output files that consist of more than one data set
+   * are to be interpreted.
    *
-   * It returns a list of index
-   * pairs and corresponding name
-   * indicating which components of
-   * the output are to be
-   * considered vector-valued
-   * rather than just a collection
-   * of scalar data. The index
-   * pairs are inclusive; for
-   * example, if we have a Stokes
-   * problem in 2d with components
-   * (u,v,p), then the
-   * corresponding vector data
-   * range should be (0,1), and the
-   * returned list would consist of
-   * only a single element with a
-   * tuple such as (0,1,"velocity").
+   * It returns a list of index pairs and corresponding name
+   * indicating which components of the output are to be considered
+   * vector-valued rather than just a collection of scalar data. The
+   * index pairs are inclusive; for example, if we have a Stokes
+   * problem in 2d with components (u,v,p), then the corresponding
+   * vector data range should be (0,1), and the returned list would
+   * consist of only a single element with a tuple such as
+   * (0,1,"velocity").
    *
-   * Since some of the derived
-   * classes do not know about
-   * vector data, this function has
-   * a default implementation that
-   * simply returns an empty
-   * string, meaning that all data
-   * is to be considered a
+   * Since some of the derived classes do not know about vector data,
+   * this function has a default implementation that simply returns an
+   * empty string, meaning that all data is to be considered a
    * collection of scalar fields.
    */
   virtual
@@ -3252,20 +3114,15 @@ protected:
 
 private:
   /**
-   * Arrays holding the set of
-   * patches as well as the names
-   * of output variables, all of
-   * which we read from an input
-   * stream.
+   * Arrays holding the set of patches as well as the names of output
+   * variables, all of which we read from an input stream.
    */
   std::vector<typename dealii::DataOutBase::Patch<dim,spacedim> > patches;
   std::vector<std::string> dataset_names;
 
   /**
-   * Information about whether
-   * certain components of the
-   * output field are to be
-   * considered vectors.
+   * Information about whether certain components of the output field
+   * are to be considered vectors.
    */
   std::vector<std_cxx1x::tuple<unsigned int, unsigned int, std::string> >
   vector_data_ranges;
@@ -3274,24 +3131,30 @@ private:
 
 
 
-// A class to store relevant data to use when writing the light data XDMF file
-// This should only contain valid data on the root node which writes the files,
-// the rest of the nodes will have valid set to false
+/**
+ * A class to store relevant data to use when writing the light data
+ * XDMF file. This should only contain valid data on the root node which
+ * writes the files, the rest of the nodes will have valid set to false.
+ * The XDMF file in turn points to heavy data files (such as HDF5) where
+ * the actual simulation data is stored. This allows flexibility in
+ * arranging the data, and also allows the mesh to be separated from
+ * the the point data.
+ */
 class XDMFEntry
 {
 private:
-  // Whether this entry is valid and contains data to be written
+  /// Whether this entry is valid and contains data to be written
   bool                                valid;
-  // The name of the HDF5 heavy data file this entry references
-  std::string                         h5_filename;
-  // The simulation time associated with this entry
+  /// The name of the HDF5 heavy data solution and/or mesh files this entry references
+  std::string                         h5_sol_filename, h5_mesh_filename;
+  /// The simulation time associated with this entry
   double                              entry_time;
-  // The number of nodes, cells and dimensionality associated with the data
+  /// The number of nodes, cells and dimensionality associated with the data
   unsigned int                        num_nodes, num_cells, dimension;
-  // The attributes associated with this entry and their dimension
+  /// The attributes associated with this entry and their dimension
   std::map<std::string, unsigned int> attribute_dims;
 
-  // Small function to create indentation for XML file
+  /// Small function to create indentation for XML file
   std::string indent(const unsigned int indent_level) const
   {
     std::string res = "";
@@ -3300,17 +3163,35 @@ private:
   }
 
 public:
-  XDMFEntry(void) : valid(false) {};
-  XDMFEntry(const std::string filename, const double time, const unsigned int nodes, const unsigned int cells, const unsigned int dim) : valid(true), h5_filename(filename), entry_time(time), num_nodes(nodes), num_cells(cells), dimension(dim) {};
+  XDMFEntry() : valid(false) {};
+  XDMFEntry(const std::string filename, const double time, const unsigned int nodes, const unsigned int cells, const unsigned int dim) : valid(true), h5_sol_filename(filename), h5_mesh_filename(filename), entry_time(time), num_nodes(nodes), num_cells(cells), dimension(dim) {};
+  XDMFEntry(const std::string mesh_filename, const std::string solution_filename, const double time, const unsigned int nodes, const unsigned int cells, const unsigned int dim) : valid(true), h5_sol_filename(solution_filename), h5_mesh_filename(mesh_filename), entry_time(time), num_nodes(nodes), num_cells(cells), dimension(dim) {};
 
-  // Record an attribute and associated dimensionality
+  /**
+   * Record an attribute and associated dimensionality.
+   */
   void add_attribute(const std::string &attr_name, const unsigned int dimension)
   {
     attribute_dims[attr_name] = dimension;
   }
 
-  // Get the XDMF content associated with this entry
-  // If the entry is not valid, this returns false
+  /**
+   * Read or write the data of this object for serialization
+   */
+  template <class Archive>
+  void serialize(Archive &ar, const unsigned int version) {
+    ar &valid
+       &h5_sol_filename
+       &h5_mesh_filename
+       &entry_time
+       &num_nodes
+       &num_cells
+       &dimension
+       &attribute_dims;
+  }
+
+  /// Get the XDMF content associated with this entry.
+  /// If the entry is not valid, this returns an empty string.
   std::string get_xdmf_content(const unsigned int indent_level) const;
 };
 

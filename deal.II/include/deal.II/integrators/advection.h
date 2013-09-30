@@ -1,14 +1,19 @@
-//---------------------------------------------------------------------------
-//    $Id$
+// ---------------------------------------------------------------------
+// $Id$
 //
-//    Copyright (C) 2010, 2011, 2012, 2013 by the deal.II authors
+// Copyright (C) 2010 - 2013 by the deal.II authors
 //
-//    This file is subject to QPL and may not be  distributed
-//    without copyright and license information. Please refer
-//    to the file deal.II/doc/license.html for the  text  and
-//    further information on this license.
+// This file is part of the deal.II library.
 //
-//---------------------------------------------------------------------------
+// The deal.II library is free software; you can use it, redistribute
+// it, and/or modify it under the terms of the GNU Lesser General
+// Public License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+// The full text of the license can be found in the file LICENSE at
+// the top level of the deal.II distribution.
+//
+// ---------------------------------------------------------------------
+
 #ifndef __deal2__integrators_advection_h
 #define __deal2__integrators_advection_h
 
@@ -115,10 +120,10 @@ namespace LocalIntegrators
     }
 
     /**
-     * Advection residual operator in weak form
+     * Advection residual operator in strong form
      *
      * \f[
-     * r_i = \int_Z  u\,(\mathbf w \cdot \nabla) v_i \, dx.
+     * r_i = \int_Z  (\mathbf w \cdot \nabla)u\, v_i \, dx.
      * \f]
      */
     template <int dim>
@@ -147,18 +152,18 @@ namespace LocalIntegrators
           const double dx = factor * fe.JxW(k);
           for (unsigned i=0; i<n_dofs; ++i)
             for (unsigned int d=0; d<dim; ++d)
-              result(i) += dx * input[k]
-                           * fe.shape_grad(i,k)[d] * velocity[d][k * v_increment];
+              result(i) += dx * input[k][d]
+                           * fe.shape_value(i,k) * velocity[d][k * v_increment];
         }
     }
 
 
     /**
-     * Vector-valued advection residual operator in weak form
+     * Vector-valued advection residual operator in strong form
      *
      *
      * \f[
-     * r_i = \int_Z  \mathbf u\cdot\bigl((\mathbf w \cdot \nabla) \mathbf v_i\bigr) \, dx.
+     * r_i = \int_Z \bigl((\mathbf w \cdot \nabla) \mathbf u\bigr) \cdot\mathbf v_i \, dx.
      * \f]
      */
     template <int dim>
@@ -190,8 +195,8 @@ namespace LocalIntegrators
           for (unsigned i=0; i<n_dofs; ++i)
             for (unsigned int c=0; c<n_comp; ++c)
               for (unsigned int d=0; d<dim; ++d)
-                result(i) += dx * input[c][k]
-                             * fe.shape_grad_component(i,k,c)[d] * velocity[d][k * v_increment];
+                result(i) += dx * input[c][k][d]
+                             * fe.shape_value_component(i,k,c) * velocity[d][k * v_increment];
         }
     }
 

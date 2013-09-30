@@ -1,14 +1,24 @@
-/* Author: Martin Kronbichler, Uppsala University,
-   Wolfgang Bangerth, Texas A&M University 2007, 2008 */
+/* ---------------------------------------------------------------------
+ * $Id$
+ *
+ * Copyright (C) 2007 - 2013 by the deal.II authors
+ *
+ * This file is part of the deal.II library.
+ *
+ * The deal.II library is free software; you can use it, redistribute
+ * it, and/or modify it under the terms of the GNU Lesser General
+ * Public License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ * The full text of the license can be found in the file LICENSE at
+ * the top level of the deal.II distribution.
+ *
+ * ---------------------------------------------------------------------
 
-/*    $Id$       */
-/*                                                                */
-/*    Copyright (C) 2007-2013 by the deal.II authors */
-/*                                                                */
-/*    This file is subject to QPL and may not be  distributed     */
-/*    without copyright and license information. Please refer     */
-/*    to the file deal.II/doc/license.html for the  text  and     */
-/*    further information on this license.                        */
+ *
+ * Authors: Martin Kronbichler, Uppsala University,
+ *          Wolfgang Bangerth, Texas A&M University 2007, 2008
+ */
+
 
 // @sect3{Include files}
 
@@ -78,12 +88,12 @@ namespace Step31
   // same as in step-22. Regarding the details, though, there are some
   // differences.
 
-  // The first thing is that we don't set any non-homogenous boundary
+  // The first thing is that we don't set any nonhomogeneous boundary
   // conditions on the velocity, since as is explained in the introduction we
   // will use no-flux conditions $\mathbf{n}\cdot\mathbf{u}=0$. So what is
   // left are <code>dim-1</code> conditions for the tangential part of the
   // normal component of the stress tensor, $\textbf{n} \cdot [p \textbf{1} -
-  // \eta\varepsilon(\textbf{u})]$; we assume homogenous values for these
+  // \eta\varepsilon(\textbf{u})]$; we assume homogeneous values for these
   // components, i.e. a natural boundary condition that requires no specific
   // action (it appears as a zero term in the right hand side of the weak
   // form).
@@ -236,7 +246,7 @@ namespace Step31
     //
     // Secondly, we catch any exceptions that the solver may have thrown. The
     // reason is as follows: When debugging a program like this one
-    // occasionally makes a mistake of passing an indefinite or non-symmetric
+    // occasionally makes a mistake of passing an indefinite or nonsymmetric
     // matrix or preconditioner to the current class. The solver will, in that
     // case, not converge and throw a run-time exception. If not caught here
     // it will propagate up the call stack and may end up in
@@ -754,7 +764,7 @@ namespace Step31
   // detail in the results section of this tutorial program. The second is the
   // exponent $\alpha$; $\alpha=1$ appears to work fine for the current
   // program, even though some additional benefit might be expected from
-  // chosing $\alpha = 2$. Finally, there is one thing that requires special
+  // choosing $\alpha = 2$. Finally, there is one thing that requires special
   // casing: In the first time step, the velocity equals zero, and the formula
   // for $\nu|_K$ is not defined. In that case, we return $\nu|_K=5\cdot 10^3
   // \cdot h_K$, a choice admittedly more motivated by heuristics than
@@ -940,7 +950,7 @@ namespace Step31
     // dofs. Consequently, there will be no data written at positions of
     // constrained degrees of freedom, so we can let the
     // DoFTools::make_sparsity_pattern function omit these entries by setting
-    // the last boolean flag to <code>false</code>. Once the sparsity pattern
+    // the last Boolean flag to <code>false</code>. Once the sparsity pattern
     // is ready, we can use it to initialize the Trilinos matrices. Since the
     // Trilinos matrices store the sparsity pattern internally, there is no
     // need to keep the sparsity pattern around after the initialization of
@@ -1180,15 +1190,15 @@ namespace Step31
     // Next, we set some more options of the AMG preconditioner. In
     // particular, we need to tell the AMG setup that we use quadratic basis
     // functions for the velocity matrix (this implies more nonzero elements
-    // in the matrix, so that a more rubust algorithm needs to be chosen
+    // in the matrix, so that a more robust algorithm needs to be chosen
     // internally). Moreover, we want to be able to control how the coarsening
     // structure is build up. The way the Trilinos smoothed aggregation AMG
     // does this is to look which matrix entries are of similar size as the
     // diagonal entry in order to algebraically build a coarse-grid
     // structure. By setting the parameter <code>aggregation_threshold</code>
-    // to 0.02, we specify that all entries that are more than two precent of
+    // to 0.02, we specify that all entries that are more than two percent of
     // size of some diagonal pivots in that row should form one coarse grid
-    // point. This parameter is rather ad-hoc, and some fine-tuning of it can
+    // point. This parameter is rather ad hoc, and some fine-tuning of it can
     // influence the performance of the preconditioner. As a rule of thumb,
     // larger values of <code>aggregation_threshold</code> will decrease the
     // number of iterations, but increase the costs per iteration. A look at
@@ -1198,7 +1208,7 @@ namespace Step31
     //
     // Finally, we also initialize the preconditioner for the inversion of the
     // pressure mass matrix. This matrix is symmetric and well-behaved, so we
-    // can chose a simple preconditioner. We stick with an incomple Cholesky
+    // can chose a simple preconditioner. We stick with an incomplete Cholesky
     // (IC) factorization preconditioner, which is designed for symmetric
     // matrices. We could have also chosen an SSOR preconditioner with
     // relaxation factor around 1.2, but IC is cheaper for our example. We
@@ -1576,8 +1586,8 @@ namespace Step31
     // Next comes the declaration of vectors to hold the old and older
     // solution values (as a notation for time levels <i>n-1</i> and
     // <i>n-2</i>, respectively) and gradients at quadrature points of the
-    // current cell. We also declarate an object to hold the temperature right
-    // hande side values (<code>gamma_values</code>), and we again use
+    // current cell. We also declare an object to hold the temperature right
+    // hand side values (<code>gamma_values</code>), and we again use
     // shortcuts for the temperature basis functions. Eventually, we need to
     // find the temperature extrema and the diameter of the computational
     // domain which will be used for the definition of the stabilization
@@ -1655,7 +1665,7 @@ namespace Step31
         // according to the discussion in the introduction using the dedicated
         // function. With that at hand, we can get into the loop over
         // quadrature points and local rhs vector components. The terms here
-        // are quite lenghty, but their definition follows the time-discrete
+        // are quite lengthy, but their definition follows the time-discrete
         // system developed in the introduction of this program. The BDF-2
         // scheme needs one more term from the old time step (and involves
         // more complicated factors) than the backward Euler scheme that is
@@ -1814,7 +1824,7 @@ namespace Step31
     // There is a snatch here. The formula contains a division by the maximum
     // value of the velocity. However, at the start of the computation, we
     // have a constant temperature field (we start with a constant
-    // temperature, and it will be non-constant only after the first time step
+    // temperature, and it will be nonconstant only after the first time step
     // during which the source acts). Constant temperature means that no
     // buoyancy acts, and so the velocity is zero. Dividing by it will not
     // likely lead to anything good.
@@ -1908,133 +1918,42 @@ namespace Step31
   // This function writes the solution to a VTK output file for visualization,
   // which is done every tenth time step. This is usually quite a simple task,
   // since the deal.II library provides functions that do almost all the job
-  // for us. In this case, the situation is a bit more complicated, since we
-  // want to visualize both the Stokes solution and the temperature as one
-  // data set, but we have done all the calculations based on two different
-  // DoFHandler objects, a situation the DataOut class usually used for output
-  // is not prepared to deal with. The way we're going to achieve this
-  // recombination is to create a joint DoFHandler that collects both
-  // components, the Stokes solution and the temperature solution. This can be
-  // nicely done by combining the finite elements from the two systems to form
-  // one FESystem, and let this collective system define a new DoFHandler
-  // object. To be sure that everything was done correctly, we perform a
-  // sanity check that ensures that we got all the dofs from both Stokes and
-  // temperature even in the combined system.
-  //
-  // Next, we create a vector that will collect the actual solution
-  // values. Since this vector is only going to be used for output, we create
-  // it as a deal.II vector that nicely cooperate with the data output
-  // classes. Remember that we used Trilinos vectors for assembly and solving.
+  // for us. There is one new function compared to previous examples: We want
+  // to visualize both the Stokes solution and the temperature as one data
+  // set, but we have done all the calculations based on two different
+  // DoFHandler objects. Luckily, the DataOut class is prepared to deal with
+  // it. All we have to do is to not attach one single DoFHandler at the
+  // beginning and then use that for all added vector, but specify the
+  // DoFHandler to each vector separately. The rest is done as in step-22. We
+  // create solution names (that are going to appear in the visualization
+  // program for the individual components). The first <code>dim</code>
+  // components are the vector velocity, and then we have pressure for the
+  // Stokes part, whereas temperature is scalar. This information is read out
+  // using the DataComponentInterpretation helper class. Next, we actually
+  // attach the data vectors with their DoFHandler objects, build patches
+  // according to the degree of freedom, which are (sub-) elements that
+  // describe the data for visualization programs. Finally, we set a file name
+  // (that includes the time step number) and write the vtk file.
   template <int dim>
   void BoussinesqFlowProblem<dim>::output_results ()  const
   {
     if (timestep_number % 10 != 0)
       return;
 
-    const FESystem<dim> joint_fe (stokes_fe, 1,
-                                  temperature_fe, 1);
-    DoFHandler<dim> joint_dof_handler (triangulation);
-    joint_dof_handler.distribute_dofs (joint_fe);
-    Assert (joint_dof_handler.n_dofs() ==
-            stokes_dof_handler.n_dofs() + temperature_dof_handler.n_dofs(),
-            ExcInternalError());
-
-    Vector<double> joint_solution (joint_dof_handler.n_dofs());
-
-    // Unfortunately, there is no straight-forward relation that tells us how
-    // to sort Stokes and temperature vector into the joint vector. The way we
-    // can get around this trouble is to rely on the information collected in
-    // the FESystem. For each dof in a cell, the joint finite element knows to
-    // which equation component (velocity component, pressure, or temperature)
-    // it belongs &ndash; that's the information we need!  So we step through
-    // all cells (with iterators into all three DoFHandlers moving in synch),
-    // and for each joint cell dof, we read out that component using the
-    // FiniteElement::system_to_base_index function (see there for a
-    // description of what the various parts of its return value contain). We
-    // also need to keep track whether we're on a Stokes dof or a temperature
-    // dof, which is contained in
-    // <code>joint_fe.system_to_base_index(i).first.first</code>.  Eventually,
-    // the dof_indices data structures on either of the three systems tell us
-    // how the relation between global vector and local dofs looks like on the
-    // present cell, which concludes this tedious work.
-    //
-    // There's one thing worth remembering when looking at the output: In our
-    // algorithm, we first solve for the Stokes system at time level
-    // <i>n-1</i> in each time step and then for the temperature at time level
-    // <i>n</i> using the previously computed velocity. These are the two
-    // components we join for output, so these two parts of the output file
-    // are actually misaligned by one time step. Since we consider graphical
-    // output as only a qualititative means to understand a solution, we
-    // ignore this $\mathcal{O}(h)$ error.
-    {
-      std::vector<types::global_dof_index> local_joint_dof_indices (joint_fe.dofs_per_cell);
-      std::vector<types::global_dof_index> local_stokes_dof_indices (stokes_fe.dofs_per_cell);
-      std::vector<types::global_dof_index> local_temperature_dof_indices (temperature_fe.dofs_per_cell);
-
-      typename DoFHandler<dim>::active_cell_iterator
-      joint_cell       = joint_dof_handler.begin_active(),
-      joint_endc       = joint_dof_handler.end(),
-      stokes_cell      = stokes_dof_handler.begin_active(),
-      temperature_cell = temperature_dof_handler.begin_active();
-      for (; joint_cell!=joint_endc; ++joint_cell, ++stokes_cell, ++temperature_cell)
-        {
-          joint_cell->get_dof_indices (local_joint_dof_indices);
-          stokes_cell->get_dof_indices (local_stokes_dof_indices);
-          temperature_cell->get_dof_indices (local_temperature_dof_indices);
-
-          for (unsigned int i=0; i<joint_fe.dofs_per_cell; ++i)
-            if (joint_fe.system_to_base_index(i).first.first == 0)
-              {
-                Assert (joint_fe.system_to_base_index(i).second
-                        <
-                        local_stokes_dof_indices.size(),
-                        ExcInternalError());
-                joint_solution(local_joint_dof_indices[i])
-                  = stokes_solution(local_stokes_dof_indices[joint_fe.system_to_base_index(i).second]);
-              }
-            else
-              {
-                Assert (joint_fe.system_to_base_index(i).first.first == 1,
-                        ExcInternalError());
-                Assert (joint_fe.system_to_base_index(i).second
-                        <
-                        local_temperature_dof_indices.size(),
-                        ExcInternalError());
-                joint_solution(local_joint_dof_indices[i])
-                  = temperature_solution(local_temperature_dof_indices[joint_fe.system_to_base_index(i).second]);
-              }
-        }
-    }
-
-    // Next, we proceed as we've done in step-22. We create solution names
-    // (that are going to appear in the visualization program for the
-    // individual components), and attach the joint dof handler to a DataOut
-    // object. The first <code>dim</code> components are the vector velocity,
-    // and then we have pressure and temperature. This information is read out
-    // using the DataComponentInterpretation helper class. Next, we attach the
-    // solution values together with the names of its components to the output
-    // object, and build patches according to the degree of freedom, which are
-    // (sub-) elements that describe the data for visualization
-    // programs. Finally, we set a file name (that includes the time step
-    // number) and write the vtk file.
-    std::vector<std::string> joint_solution_names (dim, "velocity");
-    joint_solution_names.push_back ("p");
-    joint_solution_names.push_back ("T");
-
-    DataOut<dim> data_out;
-
-    data_out.attach_dof_handler (joint_dof_handler);
-
+    std::vector<std::string> stokes_names (dim, "velocity");
+    stokes_names.push_back ("p");
     std::vector<DataComponentInterpretation::DataComponentInterpretation>
-    data_component_interpretation
-    (dim+2, DataComponentInterpretation::component_is_scalar);
+    stokes_component_interpretation
+    (dim+1, DataComponentInterpretation::component_is_scalar);
     for (unsigned int i=0; i<dim; ++i)
-      data_component_interpretation[i]
+      stokes_component_interpretation[i]
         = DataComponentInterpretation::component_is_part_of_vector;
 
-    data_out.add_data_vector (joint_solution, joint_solution_names,
-                              DataOut<dim>::type_dof_data,
-                              data_component_interpretation);
+    DataOut<dim> data_out;
+    data_out.add_data_vector (stokes_dof_handler, stokes_solution,
+                              stokes_names, stokes_component_interpretation);
+    data_out.add_data_vector (temperature_dof_handler, temperature_solution,
+                              "T");
     data_out.build_patches (std::min(stokes_degree, temperature_degree));
 
     std::ostringstream filename;
@@ -2105,7 +2024,7 @@ namespace Step31
     // SolutionTransfer class and we have to prepare the solution vectors that
     // should be transferred to the new grid (we will lose the old grid once
     // we have done the refinement so the transfer has to happen concurrently
-    // with refinement). What we definetely need are the current and the old
+    // with refinement). What we definitely need are the current and the old
     // temperature (BDF-2 time stepping requires two old solutions). Since the
     // SolutionTransfer objects only support to transfer one object per dof
     // handler, we need to collect the two temperature solutions in one data

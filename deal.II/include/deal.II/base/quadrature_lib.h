@@ -1,14 +1,19 @@
-//---------------------------------------------------------------------------
-//    $Id$
+// ---------------------------------------------------------------------
+// $Id$
 //
-//    Copyright (C) 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2009, 2010, 2012 by the deal.II authors
+// Copyright (C) 1998 - 2013 by the deal.II authors
 //
-//    This file is subject to QPL and may not be  distributed
-//    without copyright and license information. Please refer
-//    to the file deal.II/doc/license.html for the  text  and
-//    further information on this license.
+// This file is part of the deal.II library.
 //
-//---------------------------------------------------------------------------
+// The deal.II library is free software; you can use it, redistribute
+// it, and/or modify it under the terms of the GNU Lesser General
+// Public License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+// The full text of the license can be found in the file LICENSE at
+// the top level of the deal.II distribution.
+//
+// ---------------------------------------------------------------------
+
 #ifndef __deal2__quadrature_lib_h
 #define __deal2__quadrature_lib_h
 
@@ -295,7 +300,7 @@ public:
    * $[x_0,1]$, the actual location of the
    * singularity, the scale factor inside
    * the logarithmic function and a flag
-   * that decides wether the singularity is
+   * that decides whether the singularity is
    * left inside the quadrature formula or
    * it is factored out, to be included in
    * the integrand.
@@ -334,7 +339,7 @@ protected:
  * original quadrature, and this process is repeated for the next half
  * element.
  *
- * Upon construction it is possible to specify wether we want the
+ * Upon construction it is possible to specify whether we want the
  * singularity removed, or not. In other words, this quadrature can be
  * used to integrate $g(x) = 1/R\ f(x)$, or simply $f(x)$, with the $1/R$
  * factor already included in the quadrature weights.

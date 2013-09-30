@@ -1,14 +1,19 @@
-//---------------------------------------------------------------------------
-//    $Id$
+// ---------------------------------------------------------------------
+// $Id$
 //
-//    Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2012, 2013 by the deal.II authors
+// Copyright (C) 1999 - 2013 by the deal.II authors
 //
-//    This file is subject to QPL and may not be  distributed
-//    without copyright and license information. Please refer
-//    to the file deal.II/doc/license.html for the  text  and
-//    further information on this license.
+// This file is part of the deal.II library.
 //
-//---------------------------------------------------------------------------
+// The deal.II library is free software; you can use it, redistribute
+// it, and/or modify it under the terms of the GNU Lesser General
+// Public License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+// The full text of the license can be found in the file LICENSE at
+// the top level of the deal.II distribution.
+//
+// ---------------------------------------------------------------------
+
 #ifndef __deal2__parallel_block_vector_h
 #define __deal2__parallel_block_vector_h
 
@@ -119,6 +124,20 @@ namespace parallel
        * and initialize each block with <tt>block_sizes[i]</tt> zero elements.
        */
       BlockVector (const std::vector<size_type> &block_sizes);
+
+      /**
+       * Construct a block vector with an IndexSet for the local range
+       * and ghost entries for each block.
+       */
+      BlockVector (const std::vector<IndexSet> &local_ranges,
+                   const std::vector<IndexSet> &ghost_indices,
+                   const MPI_Comm  communicator);
+
+      /**
+       * Same as above but the ghost indicies are assumed to be empty.
+       */
+      BlockVector (const std::vector<IndexSet> &local_ranges,
+                   const MPI_Comm  communicator);
 
       /**
        * Destructor. Clears memory.
@@ -351,6 +370,41 @@ namespace parallel
     }
 
 
+    template <typename Number>
+    inline
+    BlockVector<Number>::BlockVector (const std::vector<IndexSet> &local_ranges,
+        const std::vector<IndexSet> &ghost_indices,
+        const MPI_Comm  communicator)
+    {
+      std::vector<size_type> sizes(local_ranges.size());
+      for (unsigned int i=0; i<local_ranges.size(); ++i)
+        sizes[i] = local_ranges[i].size();
+
+      this->block_indices.reinit(sizes);
+      this->components.resize(this->n_blocks());
+
+      for (unsigned int i=0; i<this->n_blocks(); ++i)
+        this->block(i).reinit(local_ranges[i], ghost_indices[i], communicator);
+    }
+
+
+    template <typename Number>
+    inline
+    BlockVector<Number>::BlockVector (const std::vector<IndexSet> &local_ranges,
+        const MPI_Comm  communicator)
+    {
+      std::vector<size_type> sizes(local_ranges.size());
+      for (unsigned int i=0; i<local_ranges.size(); ++i)
+        sizes[i] = local_ranges[i].size();
+
+      this->block_indices.reinit(sizes);
+      this->components.resize(this->n_blocks());
+
+      for (unsigned int i=0; i<this->n_blocks(); ++i)
+        this->block(i).reinit(local_ranges[i], communicator);
+    }
+
+
 
     template <typename Number>
     inline
@@ -449,8 +503,18 @@ namespace parallel
     BlockVector<Number> &
     BlockVector<Number>::operator = (const BlockVector &v)
     {
-      reinit (v, true);
-      BaseClass::operator = (v);
+      // we only allow assignment to vectors with the same number of blocks
+      // or to an empty BlockVector
+      Assert (this->n_blocks() == 0 || this->n_blocks() == v.n_blocks(),
+                    ExcDimensionMismatch(this->n_blocks(), v.n_blocks()));
+
+      if (this->n_blocks() != v.n_blocks())
+        reinit(v.n_blocks(), true);
+
+      for (size_type i=0; i<this->n_blocks(); ++i)
+        this->components[i] = v.block(i);
+
+      this->collect_sizes();
       return *this;
     }
 
@@ -617,7 +681,7 @@ namespace parallel
       if (this->block(0).partitioner->n_mpi_processes() > 1)
         return Utilities::MPI::sum (local_result,
                                     this->block(0).partitioner->get_communicator())/
-          (real_type)this->size();
+               (real_type)this->size();
       else
         return local_result/(real_type)this->size();
     }

@@ -1,14 +1,19 @@
-//---------------------------------------------------------------------------
-//    $Id$
+// ---------------------------------------------------------------------
+// $Id$
 //
-//    Copyright (C) 2007, 2008, 2010, 2011, 2012 by the deal.II authors
+// Copyright (C) 2007 - 2013 by the deal.II authors
 //
-//    This file is subject to QPL and may not be  distributed
-//    without copyright and license information. Please refer
-//    to the file deal.II/doc/license.html for the  text  and
-//    further information on this license.
+// This file is part of the deal.II library.
 //
-//---------------------------------------------------------------------------
+// The deal.II library is free software; you can use it, redistribute
+// it, and/or modify it under the terms of the GNU Lesser General
+// Public License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+// The full text of the license can be found in the file LICENSE at
+// the top level of the deal.II distribution.
+//
+// ---------------------------------------------------------------------
+
 #ifndef __deal2__data_postprocessor_h
 #define __deal2__data_postprocessor_h
 
@@ -77,7 +82,7 @@ DEAL_II_NAMESPACE_OPEN
  * takes a solution that consists of velocity, pressure and temperature (dim+2
  * components) and computes a variety of output quantities, some of which
  * are vector valued and some of which are scalar. On the other hand,
- * in step-28 we implement a postprocessor that only computes the magnitude
+ * in step-29 we implement a postprocessor that only computes the magnitude
  * of a complex number given by a two-component finite element. It seems silly
  * to have to implement four virtual functions for this
  * (compute_derived_quantities_scalar() or compute_derived_quantities_vector(),

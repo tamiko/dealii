@@ -1,16 +1,18 @@
-#####
+## ---------------------------------------------------------------------
+## $Id$
 ##
-## Copyright (C) 2012, 2013 by the deal.II authors
+## Copyright (C) 2012 - 2013 by the deal.II authors
 ##
 ## This file is part of the deal.II library.
 ##
-## <TODO: Full License information>
-## This file is dual licensed under QPL 1.0 and LGPL 2.1 or any later
-## version of the LGPL license.
+## The deal.II library is free software; you can use it, redistribute
+## it, and/or modify it under the terms of the GNU Lesser General
+## Public License as published by the Free Software Foundation; either
+## version 2.1 of the License, or (at your option) any later version.
+## The full text of the license can be found in the file LICENSE at
+## the top level of the deal.II distribution.
 ##
-## Author: Matthias Maier <matthias.maier@iwr.uni-heidelberg.de>
-##
-#####
+## ---------------------------------------------------------------------
 
 #
 # Configuration for the SLEPC library:
@@ -23,9 +25,14 @@ MACRO(FEATURE_SLEPC_FIND_EXTERNAL var)
 
   IF(SLEPC_FOUND)
     #
-    # Check whether SLEPc and PETSc are compatible.
+    # Check whether SLEPc and PETSc are compatible according to
+    # SLEPc's rules: This is equivalent to asking if the VERSION_MAJOR
+    # and VERSION_MINOR of PETSc and SLEPc are
+    # equivalent; and where VERSION_SUBMINORs are allowed to differ.
     #
-    IF("${SLEPC_VERSION}" STREQUAL "${PETSC_VERSION}")
+    IF( ("${SLEPC_VERSION_MAJOR}" STREQUAL "${PETSC_VERSION_MAJOR}")
+       AND
+       ("${SLEPC_VERSION_MINOR}" STREQUAL "${PETSC_VERSION_MINOR}"))
       SET(${var} TRUE)
     ELSE()
 
@@ -43,6 +50,7 @@ MACRO(FEATURE_SLEPC_FIND_EXTERNAL var)
       SET(SLEPC_DIR "" CACHE PATH
         "An optional hint to a SLEPc directory"
         )
+      MARK_AS_ADVANCED(CLEAR SLEPC_DIR)
 
       SET(${var} FALSE)
     ENDIF()
@@ -55,7 +63,7 @@ MACRO(FEATURE_SLEPC_CONFIGURE_EXTERNAL)
   # The user has to know the location of the SLEPC headers as well:
   LIST(APPEND DEAL_II_USER_INCLUDE_DIRS ${SLEPC_INCLUDE_DIRS})
 
-  LIST(APPEND DEAL_II_EXTERNAL_LIBRARIES ${SLEPC_LIBRARIES})
+  DEAL_II_APPEND_LIBRARIES(${SLEPC_LIBRARIES})
 ENDMACRO()
 
 

@@ -1,16 +1,18 @@
-//---------------------------------------------------------------------------
-//    $Id$
-//    Version: $Name$
+// ---------------------------------------------------------------------
+// $Id$
 //
-//    Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2011, 2012 by the deal.II authors
+// Copyright (C) 2000 - 2013 by the deal.II authors
 //
-//    This file is subject to QPL and may not be  distributed
-//    without copyright and license information. Please refer
-//    to the file deal.II/doc/license.html for the  text  and
-//    further information on this license.
+// This file is part of the deal.II library.
 //
-//---------------------------------------------------------------------------
-
+// The deal.II library is free software; you can use it, redistribute
+// it, and/or modify it under the terms of the GNU Lesser General
+// Public License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+// The full text of the license can be found in the file LICENSE at
+// the top level of the deal.II distribution.
+//
+// ---------------------------------------------------------------------
 
 #include <deal.II/base/multithread_info.h>
 #include <deal.II/base/utilities.h>
@@ -100,7 +102,7 @@ unsigned int MultithreadInfo::get_n_cpus()
 void MultithreadInfo::set_thread_limit(const unsigned int max_threads)
 {
   unsigned int max_threads_env = numbers::invalid_unsigned_int;
-  char* penv;
+  char *penv;
   penv = getenv ("DEAL_II_NUM_THREADS");
 
   if (penv!=NULL)
@@ -110,9 +112,9 @@ void MultithreadInfo::set_thread_limit(const unsigned int max_threads)
   if (n_max_threads == numbers::invalid_unsigned_int)
     n_max_threads = tbb::task_scheduler_init::default_num_threads();
   else
-  {
+    {
       static tbb::task_scheduler_init dummy (n_max_threads);
-  }
+    }
 }
 
 bool MultithreadInfo::is_running_single_threaded()

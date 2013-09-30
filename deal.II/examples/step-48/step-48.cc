@@ -1,14 +1,22 @@
-/* $Id$ */
-/* Author: Katharina Kormann, Martin Kronbichler, Uppsala University, 2011-2012 */
+/* ---------------------------------------------------------------------
+ * $Id$
+ *
+ * Copyright (C) 2011 - 2013 by the deal.II authors
+ *
+ * This file is part of the deal.II library.
+ *
+ * The deal.II library is free software; you can use it, redistribute
+ * it, and/or modify it under the terms of the GNU Lesser General
+ * Public License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ * The full text of the license can be found in the file LICENSE at
+ * the top level of the deal.II distribution.
+ *
+ * ---------------------------------------------------------------------
 
-/*    $Id$       */
-/*                                                                */
-/*    Copyright (C) 2011-2013 by the deal.II authors             */
-/*                                                                */
-/*    This file is subject to QPL and may not be  distributed     */
-/*    without copyright and license information. Please refer     */
-/*    to the file deal.II/doc/license.html for the  text  and     */
-/*    further information on this license.                        */
+ *
+ * Author: Katharina Kormann, Martin Kronbichler, Uppsala University, 2011-2012
+ */
 
 
 // The necessary files from the deal.II library.
@@ -337,7 +345,7 @@ namespace Step48
   // dimensions of extent $[-15,15]$. We refine the mesh more in the center of
   // the domain since the solution is concentrated there. We first refine all
   // cells whose center is within a radius of 11, and then refine once more
-  // for a radius 6.  This is simple ad-hoc refinement could be done better by
+  // for a radius 6.  This simple ad hoc refinement could be done better by
   // adapting the mesh to the solution using error estimators during the time
   // stepping as done in other example programs, and using
   // parallel::distributed::SolutionTransfer to transfer the solution to the
@@ -473,8 +481,8 @@ namespace Step48
       "solution-" + Utilities::int_to_string (timestep_number, 3);
 
     std::ofstream output ((filename +
-      "." + Utilities::int_to_string (Utilities::MPI::
-                                      this_mpi_process(MPI_COMM_WORLD),4) + ".vtu").c_str());
+                           "." + Utilities::int_to_string (Utilities::MPI::
+                                                           this_mpi_process(MPI_COMM_WORLD),4) + ".vtu").c_str());
     data_out.write_vtu (output);
 
     if (Utilities::MPI::this_mpi_process(MPI_COMM_WORLD) == 0)

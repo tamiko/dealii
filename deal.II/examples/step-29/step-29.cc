@@ -1,13 +1,22 @@
-/* Author: Moritz Allmaras, Texas A&M University, 2007 */
+/* ---------------------------------------------------------------------
+ * $Id$
+ *
+ * Copyright (C) 2007 - 2013 by the deal.II authors
+ *
+ * This file is part of the deal.II library.
+ *
+ * The deal.II library is free software; you can use it, redistribute
+ * it, and/or modify it under the terms of the GNU Lesser General
+ * Public License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ * The full text of the license can be found in the file LICENSE at
+ * the top level of the deal.II distribution.
+ *
+ * ---------------------------------------------------------------------
 
-/* $Id$ */
-/*    Copyright (C) 2007-2008, 2010-2012 by the deal.II authors and M. Allmaras   */
-/*                                                                */
-/*    This file is subject to QPL and may not be  distributed     */
-/*    without copyright and license information. Please refer     */
-/*    to the file deal.II/doc/license.html for the text and       */
-/*    further information on this license.                        */
-
+ *
+ * Author: Moritz Allmaras, Texas A&M University, 2007
+ */
 
 
 // @sect3{Include files}
@@ -321,7 +330,7 @@ namespace Step29
   {}
 
 
-  // The actual prostprocessing happens in the following function.  Its inputs
+  // The actual postprocessing happens in the following function.  Its inputs
   // are a vector representing values of the function (which is here
   // vector-valued) representing the data vector given to
   // DataOut::add_data_vector, evaluated at all evaluation points where we
@@ -358,7 +367,7 @@ namespace Step29
                ExcDimensionMismatch (computed_quantities[i].size(), 1));
         Assert(uh[i].size() == 2, ExcDimensionMismatch (uh[i].size(), 2));
 
-        computed_quantities[i](0) = sqrt(uh[i](0)*uh[i](0) + uh[i](1)*uh[i](1));
+        computed_quantities[i](0) = std::sqrt(uh[i](0)*uh[i](0) + uh[i](1)*uh[i](1));
       }
   }
 
@@ -625,7 +634,7 @@ namespace Step29
                 // At this point, it is important to keep in mind that we are
                 // dealing with a finite element system with two
                 // components. Due to the way we constructed this FESystem,
-                // namely as the cartesian product of two scalar finite
+                // namely as the Cartesian product of two scalar finite
                 // element fields, each shape function has only a single
                 // nonzero component (they are, in deal.II lingo, @ref
                 // GlossPrimitive "primitive").  Hence, each shape function

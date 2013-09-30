@@ -1,16 +1,18 @@
-#####
+## ---------------------------------------------------------------------
+## $Id$
 ##
-## Copyright (C) 2012, 2013 by the deal.II authors
+## Copyright (C) 2012 - 2013 by the deal.II authors
 ##
 ## This file is part of the deal.II library.
 ##
-## <TODO: Full License information>
-## This file is dual licensed under QPL 1.0 and LGPL 2.1 or any later
-## version of the LGPL license.
+## The deal.II library is free software; you can use it, redistribute
+## it, and/or modify it under the terms of the GNU Lesser General
+## Public License as published by the Free Software Foundation; either
+## version 2.1 of the License, or (at your option) any later version.
+## The full text of the license can be found in the file LICENSE at
+## the top level of the deal.II distribution.
 ##
-## Author: Matthias Maier <matthias.maier@iwr.uni-heidelberg.de>
-##
-#####
+## ---------------------------------------------------------------------
 
 #
 # This macro is used for the feature configuration in deal.II
@@ -55,11 +57,11 @@
 #
 
 
-###########################################################################
-#                                                                         #
-#                             Helper Macros:                              #
-#                                                                         #
-###########################################################################
+########################################################################
+#                                                                      #
+#                            Helper Macros:                            #
+#                                                                      #
+########################################################################
 
 #
 # Some black magic to have substitution in command names:
@@ -140,19 +142,19 @@ MACRO(FEATURE_CONFIGURE_EXTERNAL _feature)
     INCLUDE_DIRECTORIES(${${_feature}_INCLUDE_DIRS})
   ENDIF()
   IF(DEFINED ${_feature}_LIBRARIES)
-    LIST(APPEND DEAL_II_EXTERNAL_LIBRARIES ${${_feature}_LIBRARIES})
+    DEAL_II_APPEND_LIBRARIES(${${_feature}_LIBRARIES})
   ENDIF()
   IF(DEFINED ${_feature}_LINKER_FLAGS)
-    ADD_FLAGS(CMAKE_SHARED_LINKER_FLAGS "${${_feature}_LINKER_FLAGS}")
+    ADD_FLAGS(DEAL_II_LINKER_FLAGS "${${_feature}_LINKER_FLAGS}")
   ENDIF()
 ENDMACRO()
 
 
-###########################################################################
-#                                                                         #
-#                           CONFIGURE_FEATURE:                            #
-#                                                                         #
-###########################################################################
+########################################################################
+#                                                                      #
+#                          CONFIGURE_FEATURE:                          #
+#                                                                      #
+########################################################################
 
 MACRO(CONFIGURE_FEATURE _feature)
   #

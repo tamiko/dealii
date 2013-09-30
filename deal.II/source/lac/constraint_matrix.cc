@@ -1,15 +1,18 @@
-//---------------------------------------------------------------------------
-//    $Id$
+// ---------------------------------------------------------------------
+// $Id$
 //
-//    Copyright (C) 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013 by the deal.II authors
+// Copyright (C) 1998 - 2013 by the deal.II authors
 //
-//    This file is subject to QPL and may not be  distributed
-//    without copyright and license information. Please refer
-//    to the file deal.II/doc/license.html for the  text  and
-//    further information on this license.
+// This file is part of the deal.II library.
 //
-//---------------------------------------------------------------------------
-
+// The deal.II library is free software; you can use it, redistribute
+// it, and/or modify it under the terms of the GNU Lesser General
+// Public License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+// The full text of the license can be found in the file LICENSE at
+// the top level of the deal.II distribution.
+//
+// ---------------------------------------------------------------------
 
 #include <deal.II/lac/constraint_matrix.h>
 #include <deal.II/lac/constraint_matrix.templates.h>
@@ -194,7 +197,7 @@ void ConstraintMatrix::close ()
   // won't modify the size any more after this point.
   {
     std::vector<size_type> new_lines (lines_cache.size(),
-                                         numbers::invalid_size_type);
+                                      numbers::invalid_size_type);
     size_type counter = 0;
     for (std::vector<ConstraintLine>::const_iterator line=lines.begin();
          line!=lines.end(); ++line, ++counter)
@@ -526,7 +529,7 @@ ConstraintMatrix::merge (const ConstraintMatrix &other_constraints,
               for (ConstraintLine::Entries::const_iterator j=other_line->begin();
                    j!=other_line->end(); ++j)
                 tmp.push_back (std::pair<size_type,double>(j->first,
-                                                              j->second*weight));
+                                                           j->second*weight));
 
               line->inhomogeneity += other_constraints.get_inhomogeneity(line->entries[i].first) *
                                      weight;
@@ -628,6 +631,12 @@ void ConstraintMatrix::clear ()
 void ConstraintMatrix::reinit (const IndexSet &local_constraints)
 {
   local_lines = local_constraints;
+
+  // make sure the IndexSet is compressed. Otherwise this can lead to crashes
+  // that are hard to find (only happen in release mode).
+  // see tests/mpi/constraint_matrix_crash_01
+  local_lines.compress();
+
   clear();
 }
 
@@ -868,7 +877,7 @@ void ConstraintMatrix::condense (CompressedSparsityPattern &sparsity) const
                      q!=lines[distribute[column]].entries.size();
                      ++q)
                   {
-                    const size_type 
+                    const size_type
                     new_col = lines[distribute[column]].entries[q].first;
 
                     sparsity.add (row, new_col);
@@ -945,7 +954,7 @@ void ConstraintMatrix::condense (CompressedSetSparsityPattern &sparsity) const
                        q!=lines[distribute[column]].entries.size();
                        ++q)
                     {
-                      const size_type 
+                      const size_type
                       new_col = lines[distribute[column]].entries[q].first;
 
                       sparsity.add (row, new_col);
@@ -997,7 +1006,7 @@ void ConstraintMatrix::condense (CompressedSimpleSparsityPattern &sparsity) cons
   // otherwise, the number states which line in the constraint matrix
   // handles this index
   std::vector<size_type> distribute(sparsity.n_rows(),
-                                       numbers::invalid_size_type);
+                                    numbers::invalid_size_type);
 
   for (size_type c=0; c<lines.size(); ++c)
     distribute[lines[c].line] = c;
@@ -1035,7 +1044,7 @@ void ConstraintMatrix::condense (CompressedSimpleSparsityPattern &sparsity) cons
                      q!=lines[distribute[column]].entries.size();
                      ++q)
                   {
-                    const size_type 
+                    const size_type
                     new_col = lines[distribute[column]].entries[q].first;
 
                     sparsity.add (row, new_col);
@@ -1097,7 +1106,7 @@ void ConstraintMatrix::condense (BlockSparsityPattern &sparsity) const
   // otherwise, the number states which line in the constraint matrix
   // handles this index
   std::vector<size_type> distribute (sparsity.n_rows(),
-                                        numbers::invalid_size_type);
+                                     numbers::invalid_size_type);
 
   for (size_type c=0; c<lines.size(); ++c)
     distribute[lines[c].line] = c;
@@ -1207,7 +1216,7 @@ void ConstraintMatrix::condense (BlockCompressedSparsityPattern &sparsity) const
   // otherwise, the number states which line in the constraint matrix
   // handles this index
   std::vector<size_type> distribute (sparsity.n_rows(),
-                                        numbers::invalid_size_type);
+                                     numbers::invalid_size_type);
 
   for (size_type c=0; c<lines.size(); ++c)
     distribute[lines[c].line] = static_cast<signed int>(c);
@@ -1318,7 +1327,7 @@ void ConstraintMatrix::condense (BlockCompressedSetSparsityPattern &sparsity) co
   // otherwise, the number states which line in the constraint matrix
   // handles this index
   std::vector<size_type> distribute (sparsity.n_rows(),
-                                        numbers::invalid_size_type);
+                                     numbers::invalid_size_type);
 
   for (size_type c=0; c<lines.size(); ++c)
     distribute[lines[c].line] = static_cast<signed int>(c);
@@ -1431,7 +1440,7 @@ void ConstraintMatrix::condense (BlockCompressedSimpleSparsityPattern &sparsity)
   // otherwise, the number states which line in the constraint matrix
   // handles this index
   std::vector<size_type> distribute (sparsity.n_rows(),
-                                        numbers::invalid_size_type);
+                                     numbers::invalid_size_type);
 
   for (size_type c=0; c<lines.size(); ++c)
     distribute[lines[c].line] = static_cast<signed int>(c);
@@ -1500,7 +1509,8 @@ void ConstraintMatrix::condense (BlockCompressedSimpleSparsityPattern &sparsity)
                   if (distribute[global_col] == numbers::invalid_size_type)
                     // distribute entry at irregular row @p{row} and
                     // regular column global_col.
-                    { for (size_type q=0;
+                    {
+                      for (size_type q=0;
                            q!=lines[distribute[row]].entries.size(); ++q)
                         sparsity.add (lines[distribute[row]].entries[q].first,
                                       global_col);
@@ -1508,7 +1518,8 @@ void ConstraintMatrix::condense (BlockCompressedSimpleSparsityPattern &sparsity)
                   else
                     // distribute entry at irregular row @p{row} and
                     // irregular column @p{global_col}
-                    { for (size_type p=0;
+                    {
+                      for (size_type p=0;
                            p!=lines[distribute[row]].entries.size(); ++p)
                         for (size_type q=0; q!=lines[distribute[global_col]].entries.size(); ++q)
                           sparsity.add (lines[distribute[row]].entries[p].first,
@@ -1537,8 +1548,38 @@ bool ConstraintMatrix::is_identity_constrained (const size_type index) const
 }
 
 
+bool ConstraintMatrix::are_identity_constrained (const size_type index1,
+                                                       const size_type index2) const
+{
+  if (is_constrained(index1) == true)
+    {
+      const ConstraintLine &p = lines[lines_cache[calculate_line_index(index1)]];
+      Assert (p.line == index1, ExcInternalError());
 
-ConstraintMatrix::size_type 
+      // return if an entry for this line was found and if it has only one
+      // entry equal to 1.0 and that one is index2
+      return ((p.entries.size() == 1) &&
+          (p.entries[0].first == index2) &&
+          (p.entries[0].second == 1.0));
+    }
+  else if (is_constrained(index2) == true)
+    {
+      const ConstraintLine &p = lines[lines_cache[calculate_line_index(index2)]];
+      Assert (p.line == index2, ExcInternalError());
+
+      // return if an entry for this line was found and if it has only one
+      // entry equal to 1.0 and that one is index1
+      return ((p.entries.size() == 1) &&
+          (p.entries[0].first == index1) &&
+          (p.entries[0].second == 1.0));
+    }
+  else
+    return false;
+}
+
+
+
+ConstraintMatrix::size_type
 ConstraintMatrix::max_constraint_indirections () const
 {
   size_type return_value = 0;
