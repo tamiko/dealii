@@ -603,7 +603,13 @@ void PointValueHistory<dim>
           if (mask->second[comp])
             {
               unsigned int solution_index = point->solution_indices[comp];
-              data_store_field->second[data_store_index * n_stored + store_index].push_back (solution (solution_index));
+// @whattodo
+              // data_store_field->second[data_store_index * n_stored + store_index].push_back (solution (solution_index));
+	      (void) solution_index; // stop g++ complaining: eventually remove this
+	      (void) n_stored;       // stop g++ complaining: eventually remove this
+	      Assert ((false),
+		      ExcMessage ("Your PETSc/SLEPc installation was configured with scalar-type complex "
+				  "but this function is not defined for complex types."));
               store_index++;
             }
         }
@@ -1336,9 +1342,7 @@ void PointValueHistory<dim>
 
 
 // explicit instantiations
-#ifndef PETSC_USE_COMPLEX
-   #include "point_value_history.inst"
-#endif
+#include "point_value_history.inst"
 
 DEAL_II_NAMESPACE_CLOSE
 

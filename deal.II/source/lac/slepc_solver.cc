@@ -248,6 +248,9 @@ namespace SLEPcWrappers
                              PETScWrappers::VectorBase &real_eigenvectors,
                              PETScWrappers::VectorBase &imag_eigenvectors)
   {
+    // This function makes no sense if SLEPc was compiled with
+    // --scaler-type=complex.
+
 #ifndef PETSC_USE_COMPLEX
     AssertThrow (solver_data.get() != 0, ExcSLEPcWrappersUsageError());
 
@@ -262,7 +265,6 @@ namespace SLEPcWrappers
                         "but this function is not defined for complex types."));
 #endif
   }
-
 
   void
   SolverBase::reset ()

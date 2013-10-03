@@ -416,7 +416,6 @@ namespace PETScWrappers
   PetscScalar
   VectorBase::mean_value () const
   {
-#ifndef PETSC_USE_COMPLEX
     int ierr;
 
     // We can only use our more efficient
@@ -426,7 +425,12 @@ namespace PETScWrappers
         PetscScalar sum;
         ierr = VecSum(vector, &sum);
         AssertThrow (ierr == 0, ExcPETScError(ierr));
-        return sum/size();
+// @whattodo
+        // return sum/size();
+
+	Assert ((false),
+		ExcMessage ("Your PETSc/SLEPc installation was configured with scalar-type complex "
+			    "but this function is not defined for complex types."));
       }
 
     // get a representation of the vector and
@@ -468,15 +472,10 @@ namespace PETScWrappers
 
     return mean;
 
-#else // PETSC_USE_COMPLEX
+
     Assert ((false),
             ExcMessage ("Your PETSc/SLEPc installation was configured with scalar-type complex "
                         "but this function is not defined for complex types."));
-
-    // Prevent compiler warning about no return value
-    PetscScalar dummy;
-    return dummy;
-#endif
   }
 
 
