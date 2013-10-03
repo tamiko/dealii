@@ -862,11 +862,11 @@ distribute_local_to_global (const Vector<double>            &local_vector,
   const size_type n_local_dofs = local_vector.size();
   if (lines.empty())
     {
-/* @whattodo */
-    //    global_vector.add(local_dof_indices, local_vector);
-    Assert ((false),
-            ExcMessage ("Your PETSc/SLEPc installation was configured with scalar-type complex "
-                        "but this function is not defined for complex types."));
+/* @whattodo Note: the Vector and FullMatrix coming in should be complex - ie. instantiated that way*/
+      /* global_vector.add(local_dof_indices, local_vector); */
+      Assert ((false),
+	      ExcMessage ("Your PETSc/SLEPc installation was configured with scalar-type complex "
+			  "but this function is not defined for complex types."));
     }
   else
     for (size_type i=0; i<n_local_dofs; ++i)
@@ -2657,8 +2657,8 @@ ConstraintMatrix::distribute_local_to_global (
       Assert (n_values == (size_type)(val_ptr - &vals[0]),
               ExcInternalError());
       if (n_values > 0)
-/* @whattodo */
-        /* global_matrix.add(row, n_values, &cols[0], &vals[0], false, true); */
+/* @whattodo Note: Wow, no idea... */
+         /* global_matrix.add(row, n_values, &cols[0], &vals[0], false, true);  */
 	{
 	  Assert ((false),
 		  ExcMessage ("Your PETSc/SLEPc installation was configured with scalar-type complex "
