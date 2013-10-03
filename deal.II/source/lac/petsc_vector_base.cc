@@ -425,12 +425,8 @@ namespace PETScWrappers
         PetscScalar sum;
         ierr = VecSum(vector, &sum);
         AssertThrow (ierr == 0, ExcPETScError(ierr));
-// @whattodo
-        // return sum/size();
-
-	Assert ((false),
-		ExcMessage ("Your PETSc/SLEPc installation was configured with scalar-type complex "
-			    "but this function is not defined for complex types."));
+// @whattodo-done-check!
+	return sum/static_cast<PetscScalar>(size());
       }
 
     // get a representation of the vector and
@@ -471,11 +467,6 @@ namespace PETScWrappers
     AssertThrow (ierr == 0, ExcPETScError(ierr));
 
     return mean;
-
-
-    Assert ((false),
-            ExcMessage ("Your PETSc/SLEPc installation was configured with scalar-type complex "
-                        "but this function is not defined for complex types."));
   }
 
 
