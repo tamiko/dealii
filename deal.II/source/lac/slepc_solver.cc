@@ -248,7 +248,7 @@ namespace SLEPcWrappers
                              PETScWrappers::VectorBase &real_eigenvectors,
                              PETScWrappers::VectorBase &imag_eigenvectors)
   {
-    // This function makes no sense if SLEPc was compiled with
+    // This function is not going to work if SLEPc was compiled with
     // --scaler-type=complex.
 
 #ifndef PETSC_USE_COMPLEX
@@ -262,7 +262,15 @@ namespace SLEPcWrappers
 #else
     Assert ((false),
             ExcMessage ("Your PETSc/SLEPc installation was configured with scalar-type complex "
-                        "but this function is not defined for complex types."));
+                        "but this function is not defined for complex types. Instead use the   "
+                        "usual function:                                                       "
+                        "                                                                      "
+                        "void                                                                  "
+                        "   SolverBase::get_eigenpair (const unsigned int            index,    "
+                        "                              PetscScalar               &eigenvalues, "
+                        "                              PETScWrappers::VectorBase &eigenvectors)"
+                        "                                                                      "
+                        "where your eigenvectos are scalar-type=complex:                       "));
 #endif
   }
 
