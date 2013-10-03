@@ -2603,13 +2603,9 @@ ConstraintMatrix::distribute_local_to_global (
         }
     }
 
-/* @whattodo */
-  /* internals::set_matrix_diagonals (global_rows, local_dof_indices, */
-  /*                                  local_matrix, *this, */
-  /*                                  global_matrix, global_vector, use_inhomogeneities_for_rhs); */
-  Assert ((false),
-	  ExcMessage ("Your PETSc/SLEPc installation was configured with scalar-type complex "
-		      "but this function is not defined for complex types."));
+  internals::set_matrix_diagonals (global_rows, local_dof_indices, 
+				   local_matrix, *this, 
+				   global_matrix, global_vector, use_inhomogeneities_for_rhs); 
 }
 
 
