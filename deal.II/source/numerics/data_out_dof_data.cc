@@ -518,7 +518,13 @@ namespace internal
       get_vector_element (const VectorType &vector,
                           const unsigned int cell_number)
       {
-        return vector[cell_number];
+// @whattodo Note, there must be a way to get the value type from a
+// vector type! I assuem we can simply return that - right?
+        // return vector[cell_number];
+
+	Assert ((false),
+		ExcMessage ("Your PETSc/SLEPc installation was configured with scalar-type complex "
+			    "but this function is not defined for complex types. "));
       }
 
 
@@ -1139,8 +1145,6 @@ DataOut_DoFData<DH,patch_dim,patch_space_dim>::memory_consumption () const
 }
 
 // explicit instantiations
-#ifndef PETSC_USE_COMPLEX
-   #include "data_out_dof_data.inst"
-#endif
+#include "data_out_dof_data.inst"
 
 DEAL_II_NAMESPACE_CLOSE

@@ -515,8 +515,6 @@ DataOut<dim,DH>::next_locally_owned_cell (const typename DataOut<dim,DH>::cell_i
 
 
 // explicit instantiations
-#ifndef PETSC_USE_COMPLEX
-   #include "data_out.inst"
-#endif
+#include "data_out.inst"
 
 DEAL_II_NAMESPACE_CLOSE

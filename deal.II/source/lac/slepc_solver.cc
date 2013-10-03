@@ -263,7 +263,7 @@ namespace SLEPcWrappers
     Assert ((false),
             ExcMessage ("Your PETSc/SLEPc installation was configured with scalar-type complex "
                         "but this function is not defined for complex types. Instead use the   "
-                        "usual function:                                                       "
+                        "standard function:                                                    "
                         "                                                                      "
                         "void                                                                  "
                         "   SolverBase::get_eigenpair (const unsigned int            index,    "
