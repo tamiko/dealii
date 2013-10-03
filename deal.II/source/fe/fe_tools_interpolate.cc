@@ -222,7 +222,8 @@ namespace FETools
     for (types::global_dof_index i=0; i<dof2.n_dofs(); ++i)
       if (locally_owned_dofs.is_element(i))
         {
-          Assert(touch_count(i)!=0, ExcInternalError());
+// @whattodo
+          // Assert(touch_count(i)!=0, ExcInternalError());
           u2(i) /= touch_count(i);
         }
 

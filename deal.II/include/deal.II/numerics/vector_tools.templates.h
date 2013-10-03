@@ -5594,7 +5594,12 @@ namespace VectorTools
         for (unsigned int i=0; i<n; ++i)
           if (p_select[i])
             {
-              s += v(i);
+/* @whattodo */
+              /* s += v(i); */
+
+	      Assert ((false),
+		      ExcMessage ("Your PETSc/SLEPc installation was configured with scalar-type complex "
+				  "but this function is not defined for complex types."));
               ++counter;
             }
         // Error out if we have not constrained anything. Note that in this

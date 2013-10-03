@@ -1263,29 +1263,19 @@ namespace PETScWrappers
 
     // if we are dealing
     // with a parallel vector
-    if (ghosted )
+    if (ghosted)
     {
 
       int ierr;
 
-      // there is the possibility
-      // that the vector has
-      // ghost elements. in that
-      // case, we first need to
-      // figure out which
-      // elements we own locally,
-      // then get a pointer to
-      // the elements that are
-      // stored here (both the
-      // ones we own as well as
-      // the ghost elements). in
-      // this array, the locally
-      // owned elements come
-      // first followed by the
-      // ghost elements whose
-      // position we can get from
-      // an index set
-      PetscInt begin, end, i;
+      // there is the possibility that the vector has ghost
+      // elements. in that case, we first need to figure out which
+      // elements we own locally, then get a pointer to the elements
+      // that are stored here (both the ones we own as well as the
+      // ghost elements). in this array, the locally owned elements
+      // come first followed by the ghost elements whose position we
+      // can get from an index set
+      PetscInt begin, end;
       ierr = VecGetOwnershipRange (vector, &begin, &end);
       AssertThrow (ierr == 0, ExcPETScError(ierr));
 
@@ -1301,22 +1291,29 @@ namespace PETScWrappers
       ierr = VecGetArray(locally_stored_elements, &ptr);
       AssertThrow (ierr == 0, ExcPETScError(ierr));
 
-      for (i = 0; i < n_idx; i++) {
+      for (PetscInt i=0; i<n_idx; i++) {
         const unsigned int index = *(indices_begin+i);
         if ( index>=static_cast<unsigned int>(begin)
             && index<static_cast<unsigned int>(end) )
         {
           //local entry
-          *(values_begin+i) = *(ptr+index-begin);
+/* @whattodo */
+//	  *(values_begin+i) = *(ptr+index-begin);  
+
+/* @testcheck */
+	  /* std::double<double> cheese = *(values_begin+i);  */
+	  /* PetscScalar fish = *(ptr+index-begin); ok */ 
+/* @endtestcheck */
         }
         else
         {
           //ghost entry
-          const unsigned int ghostidx
-          = ghost_indices.index_within_set(index);
+	  const unsigned int ghostidx  
+	    = ghost_indices.index_within_set(index); 
 
-          Assert(ghostidx+end-begin<(unsigned int)lsize, ExcInternalError());
-          *(values_begin+i) = *(ptr+ghostidx+end-begin);
+	  Assert(ghostidx+end-begin<(unsigned int)lsize, ExcInternalError()); 
+/* @whattodo */
+//          *(values_begin+i) = *(ptr+ghostidx+end-begin);
         }
       }
 
@@ -1348,7 +1345,8 @@ namespace PETScWrappers
         Assert(index>=static_cast<unsigned int>(begin)
             && index<static_cast<unsigned int>(end), ExcInternalError());
 
-        *(values_begin+i) = *(ptr+index-begin);
+/* @whattodo */
+        /* *(values_begin+i) = *(ptr+index-begin); */
       }
 
       ierr = VecRestoreArray(vector, &ptr);
