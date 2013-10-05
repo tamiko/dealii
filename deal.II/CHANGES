@@ -1,0 +1,13 @@
+?       CHANGES
+?       build
+M       include/deal.II/algorithms/operator.templates.h
+M       include/deal.II/lac/block_vector_base.h
+M       include/deal.II/lac/constraint_matrix.templates.h
+M       include/deal.II/lac/petsc_vector_base.h
+M       include/deal.II/numerics/vector_tools.templates.h
+M       source/fe/fe_tools_interpolate.cc
+M       source/fe/fe_values.cc
+M       source/grid/grid_refinement.cc
+M       source/numerics/data_out_dof_data.cc
+M       source/numerics/matrix_tools.cc
+M       source/numerics/point_value_history.cc
