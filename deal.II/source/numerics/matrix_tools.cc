@@ -2420,13 +2420,18 @@ namespace MatrixTools
         // entry from within the part of the
         // matrix that we can see. if we can't
         // find such an entry, take one
-        PetscScalar average_nonzero_diagonal_entry = 1;
-        for (types::global_dof_index i=local_range.first; i<local_range.second; ++i)
-          if (matrix.diag_element(i) != 0)
-            {
-              average_nonzero_diagonal_entry = std::fabs(matrix.diag_element(i));
-              break;
-            }
+
+	// @whattodo Note: this is a real mess.
+	// Toby: see old notes from Diabelka
+        PetscScalar average_nonzero_diagonal_entry;
+        // PetscScalar average_nonzero_diagonal_entry = 1;
+        // for (types::global_dof_index i=local_range.first; i<local_range.second; ++i)
+        //   if (matrix.diag_element(i) != 0)
+        //     {
+        //       average_nonzero_diagonal_entry = std::fabs(matrix.diag_element(i));
+        //       break;
+        //     }
+	Assert ((false), ExcMessage ("This function is corrupt: @whattodo"));
 
         // figure out which rows of the matrix we
         // have to eliminate on this processor

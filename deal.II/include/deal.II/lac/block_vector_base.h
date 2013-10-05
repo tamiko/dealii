@@ -2046,10 +2046,13 @@ typename BlockVectorBase<VectorType>::value_type
 BlockVectorBase<VectorType>::mean_value () const
 {
   value_type sum = 0.;
-  for (size_type i=0; i<n_blocks(); ++i)
-    sum += components[i].mean_value() * components[i].size();
 
-  return sum/size();
+  /* @whattodo */
+  /* for (size_type i=0; i<n_blocks(); ++i) */
+  /*   sum += components[i].mean_value() * components[i].size(); */
+  /* return sum/size(); */
+
+  Assert ((false), ExcMessage ("This function is corrupt: @whattodo"));
 }
 
 
@@ -2568,10 +2571,12 @@ void BlockVectorBase<VectorType>::extract_subvector_to (ForwardIterator         
                                                         const ForwardIterator    indices_end,
                                                         OutputIterator           values_begin) const
 {
-  while (indices_begin != indices_end) {
-    *values_begin = operator()(*indices_begin);
-    indices_begin++; values_begin++;
-  }
+  /* @whattodo */
+  /*   while (indices_begin != indices_end) { */
+  /*     *values_begin = operator()(*indices_begin); */
+  /*     indices_begin++; values_begin++; */
+  /*   } */
+  Assert ((false), ExcMessage ("This function is corrupt: @whattodo"));
 }
 
 #endif // DOXYGEN

@@ -603,7 +603,12 @@ void PointValueHistory<dim>
           if (mask->second[comp])
             {
               unsigned int solution_index = point->solution_indices[comp];
-              data_store_field->second[data_store_index * n_stored + store_index].push_back (solution (solution_index));
+	      //@whattodo
+              (void) solution_index; // stop g++ complaining: eventually remove this
+              (void) n_stored;       // stop g++ complaining: eventually remove this
+              // data_store_field->second[data_store_index * n_stored + store_index].push_back (solution (solution_index));
+	      Assert ((false), ExcMessage ("This function is corrupt: @whattodo"));
+
               store_index++;
             }
         }

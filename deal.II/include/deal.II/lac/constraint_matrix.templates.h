@@ -861,7 +861,12 @@ distribute_local_to_global (const Vector<double>            &local_vector,
 
   const size_type n_local_dofs = local_vector.size();
   if (lines.empty())
-    global_vector.add(local_dof_indices, local_vector);
+    {
+      /* @whattodo Note: the Vector and FullMatrix coming in should be
+	 complex */
+      /* global_vector.add(local_dof_indices, local_vector); */
+	Assert ((false), ExcMessage ("This function is corrupt: @whattodo"));
+    }
   else
     for (size_type i=0; i<n_local_dofs; ++i)
       {
@@ -2243,7 +2248,11 @@ add_this_index:
             // inhomogeneity, we set those to:
             //    inhomogeneity(i)*global_matrix (i,i).
             if (use_inhomogeneities_for_rhs == true)
-              global_vector(global_row) += constraints.get_inhomogeneity(global_row) * new_diagonal;
+	      {
+		/* @whattodo */
+		/* global_vector(global_row) += constraints.get_inhomogeneity(global_row) * new_diagonal; */
+		Assert ((false), ExcMessage ("This function is corrupt: @whattodo"));
+	      }
           }
       }
   }
@@ -2644,7 +2653,11 @@ ConstraintMatrix::distribute_local_to_global (
       Assert (n_values == (size_type)(val_ptr - &vals[0]),
               ExcInternalError());
       if (n_values > 0)
-        global_matrix.add(row, n_values, &cols[0], &vals[0], false, true);
+	{
+	  /* @whattodo Note, this is a tricky one! */
+	  /* global_matrix.add(row, n_values, &cols[0], &vals[0], false, true); */
+	  Assert ((false), ExcMessage ("This function is corrupt: @whattodo"));
+	}
     }
 }
 

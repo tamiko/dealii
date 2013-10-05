@@ -69,8 +69,10 @@ namespace
       // to get the array of values from PETSc
       // in every iteration), but works
       PetscScalar m = 0;
-      for (unsigned int i=0; i<criteria.size(); ++i)
-        m = std::max (m, criteria(i));
+      // @whattodo
+      // for (unsigned int i=0; i<criteria.size(); ++i)
+      //   m = std::max (m, criteria(i));
+      Assert ((false), ExcMessage ("This function is corrupt: @whattodo"));
       return m;
     }
 
@@ -82,8 +84,10 @@ namespace
       // to get the array of values from PETSc
       // in every iteration), but works
       PetscScalar m = criteria(0);
-      for (unsigned int i=1; i<criteria.size(); ++i)
-        m = std::min (m, criteria(i));
+      // @whattodo
+      // for (unsigned int i=1; i<criteria.size(); ++i)
+      //   m = std::min (m, criteria(i));
+      Assert ((false), ExcMessage ("This function is corrupt: @whattodo"));
       return m;
     }
 #endif

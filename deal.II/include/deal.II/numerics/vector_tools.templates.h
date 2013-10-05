@@ -5594,7 +5594,9 @@ namespace VectorTools
         for (unsigned int i=0; i<n; ++i)
           if (p_select[i])
             {
-              s += v(i);
+	      /* @whattodo */
+              /* s += v(i); */
+	      Assert ((false), ExcMessage ("This function is corrupt: @whattodo"));
               ++counter;
             }
         // Error out if we have not constrained anything. Note that in this
