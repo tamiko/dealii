@@ -1184,7 +1184,7 @@ namespace MatrixCreator
     else
       AssertDimension (n_components, component_mapping.size());
 
-    const unsigned int n_threads = multithread_info.n_default_threads;
+    const unsigned int n_threads = multithread_info.n_threads();
     Threads::ThreadGroup<> threads;
 
     // define starting and end point
@@ -1660,7 +1660,7 @@ namespace MatrixCreator
     else
       AssertDimension (n_components, component_mapping.size());
 
-    const unsigned int n_threads = multithread_info.n_default_threads;
+    const unsigned int n_threads = multithread_info.n_threads();
     Threads::ThreadGroup<> threads;
 
     // define starting and end point
@@ -2392,10 +2392,10 @@ namespace MatrixTools
       template <typename PETScMatrix, typename PETScVector>
       void
       apply_boundary_values (const std::map<types::global_dof_index,double> &boundary_values,
-                             PETScMatrix                                    &matrix,
-                             PETScVector                                    &solution,
-                             PETScVector                                    &right_hand_side,
-                             const bool                                      eliminate_columns)
+                             PETScMatrix      &matrix,
+                             PETScVector      &solution,
+                             PETScVector      &right_hand_side,
+                             const bool        eliminate_columns)
       {
         Assert (eliminate_columns == false, ExcNotImplemented());
 
@@ -2420,24 +2420,13 @@ namespace MatrixTools
         // entry from within the part of the
         // matrix that we can see. if we can't
         // find such an entry, take one
-
-// @whattodo Note: this is a real mess, though no harder to fix than
-// the other messes (cast?). Please compare with trunk before making
-// any serious changes here!
-	PetscScalar average_nonzero_diagonal_entry;
-        // PetscScalar average_nonzero_diagonal_entry = 1;
-        // for (types::global_dof_index i=local_range.first; i<local_range.second; ++i)
-        //   if (matrix.diag_element(i) != 0)
-        //     {
-        //       average_nonzero_diagonal_entry = std::fabs(matrix.diag_element(i));
-        //       break;
-        //     }
-
-// @testcheck
-        // PetscScalar average_nonzero_diagonal_entry = (PetscScalar) std::complex<double> (1,1);
-        // for (types::global_dof_index i=local_range.first; i<local_range.second; ++i)
-        //   if (matrix.diag_element(i) != std::complex<double> (0,0)) // PETSC_NULL?
-// @endtestcheck
+        PetscScalar average_nonzero_diagonal_entry = 1;
+        for (types::global_dof_index i=local_range.first; i<local_range.second; ++i)
+          if (matrix.diag_element(i) != 0)
+            {
+              average_nonzero_diagonal_entry = std::fabs(matrix.diag_element(i));
+              break;
+            }
 
         // figure out which rows of the matrix we
         // have to eliminate on this processor
@@ -2461,7 +2450,7 @@ namespace MatrixTools
         // preserving it. this is different from
         // the case of deal.II sparse matrices
         // treated in the other functions.
-	matrix.clear_rows (constrained_rows, average_nonzero_diagonal_entry);
+        matrix.clear_rows (constrained_rows, average_nonzero_diagonal_entry);
 
         std::vector<types::global_dof_index> indices;
         std::vector<PetscScalar>  solution_values;
@@ -2496,10 +2485,10 @@ namespace MatrixTools
 
   void
   apply_boundary_values (const std::map<types::global_dof_index,double> &boundary_values,
-                         PETScWrappers::SparseMatrix                    &matrix,
-                         PETScWrappers::Vector                          &solution,
-                         PETScWrappers::Vector                          &right_hand_side,
-                         const bool                                      eliminate_columns)
+                         PETScWrappers::SparseMatrix   &matrix,
+                         PETScWrappers::Vector   &solution,
+                         PETScWrappers::Vector   &right_hand_side,
+                         const bool        eliminate_columns)
   {
     // simply redirect to the generic function
     // used for both petsc matrix types
@@ -2511,10 +2500,10 @@ namespace MatrixTools
 
   void
   apply_boundary_values (const std::map<types::global_dof_index,double> &boundary_values,
-                         PETScWrappers::MPI::SparseMatrix               &matrix,
-                         PETScWrappers::MPI::Vector                     &solution,
-                         PETScWrappers::MPI::Vector                     &right_hand_side,
-                         const bool                                      eliminate_columns)
+                         PETScWrappers::MPI::SparseMatrix   &matrix,
+                         PETScWrappers::MPI::Vector   &solution,
+                         PETScWrappers::MPI::Vector   &right_hand_side,
+                         const bool        eliminate_columns)
   {
     // simply redirect to the generic function
     // used for both petsc matrix types

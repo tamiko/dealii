@@ -52,7 +52,7 @@ namespace SLEPcWrappers
     mpi_communicator (mpi_communicator),
     target_eigenvalue (0.),
     set_which (EPS_LARGEST_MAGNITUDE),
-    set_problem (EPS_NHEP),
+    set_problem (EPS_GNHEP),
     opA (NULL),
     opB (NULL),
     initial_vector (NULL),
@@ -111,7 +111,7 @@ namespace SLEPcWrappers
 
   void
   SolverBase::solve (const unsigned int  n_eigenpairs,
-                     unsigned int *n_converged)
+                     unsigned int       *n_converged)
   {
     int ierr;
 
@@ -136,6 +136,10 @@ namespace SLEPcWrappers
         // set runtime options
         set_solver_type (solver_data->eps);
       }
+
+    // set the problem type
+    ierr = EPSSetProblemType (solver_data->eps, set_problem);
+    AssertThrow (ierr == 0, ExcSLEPcError(ierr));
 
     // set the initial vector(s) if any
     if (initial_vector && initial_vector->size() != 0)
@@ -248,9 +252,6 @@ namespace SLEPcWrappers
                              PETScWrappers::VectorBase &real_eigenvectors,
                              PETScWrappers::VectorBase &imag_eigenvectors)
   {
-    // This function is not going to work if SLEPc was compiled with
-    // --scaler-type=complex.
-
 #ifndef PETSC_USE_COMPLEX
     AssertThrow (solver_data.get() != 0, ExcSLEPcWrappersUsageError());
 
@@ -262,17 +263,10 @@ namespace SLEPcWrappers
 #else
     Assert ((false),
             ExcMessage ("Your PETSc/SLEPc installation was configured with scalar-type complex "
-                        "but this function is not defined for complex types. Instead use the   "
-                        "standard function:                                                    "
-                        "                                                                      "
-                        "void                                                                  "
-                        "   SolverBase::get_eigenpair (const unsigned int            index,    "
-                        "                              PetscScalar               &eigenvalues, "
-                        "                              PETScWrappers::VectorBase &eigenvectors)"
-                        "                                                                      "
-                        "where your eigenvectos are scalar-type=complex:                       "));
+                        "but this function is not defined for complex types."));
 #endif
   }
+
 
   void
   SolverBase::reset ()

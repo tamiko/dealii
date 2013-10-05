@@ -2046,17 +2046,10 @@ typename BlockVectorBase<VectorType>::value_type
 BlockVectorBase<VectorType>::mean_value () const
 {
   value_type sum = 0.;
+  for (size_type i=0; i<n_blocks(); ++i)
+    sum += components[i].mean_value() * components[i].size();
 
-/* @whattodo */
-  /* for (size_type i=0; i<n_blocks(); ++i) */
-  /* sum += components[i].mean_value() * components[i].size(); */
-  /* return sum/size(); */
-
-  Assert ((false),
-	  ExcMessage ("Your PETSc/SLEPc installation was configured with scalar-type complex "
-		      "but this function is not defined for complex types."));
-  
-  return sum;
+  return sum/size();
 }
 
 
@@ -2575,17 +2568,10 @@ void BlockVectorBase<VectorType>::extract_subvector_to (ForwardIterator         
                                                         const ForwardIterator    indices_end,
                                                         OutputIterator           values_begin) const
 {
-  while (indices_begin != indices_end) 
-    {
-/* @whattodo */
-      /* *values_begin = operator()(*indices_begin); */
-      
-      Assert ((false),
-	      ExcMessage ("Your PETSc/SLEPc installation was configured with scalar-type complex "
-			  "but this function is not defined for complex types."));
-      
-      indices_begin++; values_begin++;
-    }
+  while (indices_begin != indices_end) {
+    *values_begin = operator()(*indices_begin);
+    indices_begin++; values_begin++;
+  }
 }
 
 #endif // DOXYGEN

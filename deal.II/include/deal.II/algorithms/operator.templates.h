@@ -72,15 +72,11 @@ namespace Algorithms
       }
     else
       {
-        /* (*os) << ' ' << step; */
-        /* for (unsigned int i=0; i<vectors.size(); ++i) */
-        /*   for (unsigned int j=0; j<vectors(i)->size(); ++j) */
-        /*     (*os) << ' ' << (*vectors(i))(j); */
-        /* (*os) << std::endl; */
-
-	Assert ((false),
-		ExcMessage ("Your PETSc/SLEPc installation was configured with scalar-type complex "
-			    "but this function is not defined for complex types."));
+        (*os) << ' ' << step;
+        for (unsigned int i=0; i<vectors.size(); ++i)
+          for (unsigned int j=0; j<vectors(i)->size(); ++j)
+            (*os) << ' ' << (*vectors(i))(j);
+        (*os) << std::endl;
       }
     return *this;
   }

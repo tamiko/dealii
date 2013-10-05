@@ -412,6 +412,7 @@ namespace PETScWrappers
   }
 
 
+
   PetscScalar
   VectorBase::mean_value () const
   {
@@ -424,8 +425,7 @@ namespace PETScWrappers
         PetscScalar sum;
         ierr = VecSum(vector, &sum);
         AssertThrow (ierr == 0, ExcPETScError(ierr));
-// @whattodo-done-check!
-	return sum/static_cast<PetscReal>(size());
+        return sum/static_cast<PetscReal>(size());
       }
 
     // get a representation of the vector and

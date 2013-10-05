@@ -69,12 +69,8 @@ namespace
       // to get the array of values from PETSc
       // in every iteration), but works
       PetscScalar m = 0;
-// @whattodo
-      // for (unsigned int i=0; i<criteria.size(); ++i)
-      //   m = std::max (m, criteria(i));
-      Assert ((false),
-	      ExcMessage ("Your PETSc/SLEPc installation was configured with scalar-type complex "
-			  "but this function is not defined for complex types."));
+      for (unsigned int i=0; i<criteria.size(); ++i)
+        m = std::max (m, criteria(i));
       return m;
     }
 
@@ -86,12 +82,8 @@ namespace
       // to get the array of values from PETSc
       // in every iteration), but works
       PetscScalar m = criteria(0);
-// @whattodo
-      // for (unsigned int i=1; i<criteria.size(); ++i)
-      //   m = std::min (m, criteria(i));
-      Assert ((false),
-	      ExcMessage ("Your PETSc/SLEPc installation was configured with scalar-type complex "
-			  "but this function is not defined for complex types."));
+      for (unsigned int i=1; i<criteria.size(); ++i)
+        m = std::min (m, criteria(i));
       return m;
     }
 #endif

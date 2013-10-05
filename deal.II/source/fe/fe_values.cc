@@ -44,8 +44,7 @@ namespace
   get_vector_element (const VectorType &vector,
                       const types::global_dof_index cell_number)
   {
-// @whattodo
-    // return vector[cell_number];
+    return vector[cell_number];
   }
 
 

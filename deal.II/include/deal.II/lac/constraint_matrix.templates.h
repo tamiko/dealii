@@ -861,13 +861,7 @@ distribute_local_to_global (const Vector<double>            &local_vector,
 
   const size_type n_local_dofs = local_vector.size();
   if (lines.empty())
-    {
-/* @whattodo Note: the Vector and FullMatrix coming in should be complex - ie. instantiated that way*/
-      /* global_vector.add(local_dof_indices, local_vector); */
-      Assert ((false),
-	      ExcMessage ("Your PETSc/SLEPc installation was configured with scalar-type complex "
-			  "but this function is not defined for complex types."));
-    }
+    global_vector.add(local_dof_indices, local_vector);
   else
     for (size_type i=0; i<n_local_dofs; ++i)
       {
@@ -2249,14 +2243,7 @@ add_this_index:
             // inhomogeneity, we set those to:
             //    inhomogeneity(i)*global_matrix (i,i).
             if (use_inhomogeneities_for_rhs == true)
-	      {
-/* @whattodo */
-		/* global_vector(global_row) += constraints.get_inhomogeneity(global_row) * new_diagonal; */
-
-		Assert ((false),
-			ExcMessage ("Your PETSc/SLEPc installation was configured with scalar-type complex "
-				    "but this function is not defined for complex types."));
-	      }
+              global_vector(global_row) += constraints.get_inhomogeneity(global_row) * new_diagonal;
           }
       }
   }
@@ -2603,9 +2590,9 @@ ConstraintMatrix::distribute_local_to_global (
         }
     }
 
-  internals::set_matrix_diagonals (global_rows, local_dof_indices, 
-				   local_matrix, *this, 
-				   global_matrix, global_vector, use_inhomogeneities_for_rhs); 
+  internals::set_matrix_diagonals (global_rows, local_dof_indices,
+                                   local_matrix, *this,
+                                   global_matrix, global_vector, use_inhomogeneities_for_rhs);
 }
 
 
@@ -2657,14 +2644,7 @@ ConstraintMatrix::distribute_local_to_global (
       Assert (n_values == (size_type)(val_ptr - &vals[0]),
               ExcInternalError());
       if (n_values > 0)
-/* @whattodo Note: Wow, no idea... */
-         /* global_matrix.add(row, n_values, &cols[0], &vals[0], false, true);  */
-	{
-	  Assert ((false),
-		  ExcMessage ("Your PETSc/SLEPc installation was configured with scalar-type complex "
-			      "but this function is not defined for complex types."));
-	}
-	
+        global_matrix.add(row, n_values, &cols[0], &vals[0], false, true);
     }
 }
 
