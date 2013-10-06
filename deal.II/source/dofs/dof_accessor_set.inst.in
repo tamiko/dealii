@@ -13,9 +13,6 @@
 // the top level of the deal.II distribution.
 //
 // ---------------------------------------------------------------------
-
-
-
 for (VEC : SERIAL_VECTORS; SCALAR : REAL_SCALARS; deal_II_dimension : DIMENSIONS; lda : BOOL)
   {
     template
@@ -70,3 +67,148 @@ for (VEC : SERIAL_VECTORS; SCALAR : REAL_SCALARS; deal_II_dimension : DIMENSIONS
 #endif
   }
 
+// ---------------- COMPLEX SCALARS -----------------
+for (deal_II_dimension : DIMENSIONS; lda : BOOL)
+  {
+#ifdef PETSC_USE_COMPLEX
+    template
+      void
+      DoFCellAccessor<DoFHandler<deal_II_dimension>, lda>::set_dof_values_by_interpolation
+      (const Vector<std::complex<double> >&, PETScWrappers::BlockVector&) const;
+
+    template
+      void
+      DoFCellAccessor<DoFHandler<deal_II_dimension>, lda>::set_dof_values_by_interpolation
+      (const Vector<std::complex<double> >&, PETScWrappers::MPI::BlockVector&) const;
+
+    template
+      void
+      DoFCellAccessor<DoFHandler<deal_II_dimension>, lda>::set_dof_values_by_interpolation
+      (const Vector<std::complex<double> >&, PETScWrappers::Vector&) const;
+
+    template
+      void
+      DoFCellAccessor<DoFHandler<deal_II_dimension>, lda>::set_dof_values_by_interpolation
+      (const Vector<std::complex<double> >&, PETScWrappers::MPI::Vector&) const;
+
+#if deal_II_dimension != 3
+
+    template
+      void
+      DoFCellAccessor<DoFHandler<deal_II_dimension,deal_II_dimension+1>, lda>::set_dof_values_by_interpolation
+      (const Vector<std::complex<double> >&, PETScWrappers::BlockVector&) const;
+
+    template
+      void
+      DoFCellAccessor<DoFHandler<deal_II_dimension,deal_II_dimension+1>, lda>::set_dof_values_by_interpolation
+      (const Vector<std::complex<double> >&, PETScWrappers::MPI::BlockVector&) const;
+
+    template
+      void
+      DoFCellAccessor<DoFHandler<deal_II_dimension,deal_II_dimension+1>, lda>::set_dof_values_by_interpolation
+      (const Vector<std::complex<double> >&, PETScWrappers::Vector&) const;
+
+    template
+      void
+      DoFCellAccessor<DoFHandler<deal_II_dimension,deal_II_dimension+1>, lda>::set_dof_values_by_interpolation
+      (const Vector<std::complex<double> >&, PETScWrappers::MPI::Vector&) const;
+
+#endif
+
+#if deal_II_dimension == 3
+
+    template
+      void
+      DoFCellAccessor<DoFHandler<1,3>, lda>::set_dof_values_by_interpolation
+      (const Vector<std::complex<double> >&, PETScWrappers::BlockVector&) const;
+
+    template
+      void
+      DoFCellAccessor<DoFHandler<1,3>, lda>::set_dof_values_by_interpolation
+      (const Vector<std::complex<double> >&, PETScWrappers::MPI::BlockVector&) const;
+
+    template
+      void
+      DoFCellAccessor<DoFHandler<1,3>, lda>::set_dof_values_by_interpolation
+      (const Vector<std::complex<double> >&, PETScWrappers::Vector&) const;
+
+    template
+      void
+      DoFCellAccessor<DoFHandler<1,3>, lda>::set_dof_values_by_interpolation
+      (const Vector<std::complex<double> >&, PETScWrappers::MPI::Vector&) const;
+
+#endif
+
+  }
+
+for (deal_II_dimension : DIMENSIONS; lda : BOOL)
+  {
+    template
+      void
+      DoFCellAccessor<hp::DoFHandler<deal_II_dimension>, lda>::set_dof_values_by_interpolation
+      (const Vector<std::complex<double> >&, PETScWrappers::BlockVector&) const;
+
+    template
+      void
+      DoFCellAccessor<hp::DoFHandler<deal_II_dimension>, lda>::set_dof_values_by_interpolation
+      (const Vector<std::complex<double> >&, PETScWrappers::MPI::BlockVector&) const;
+
+    template
+      void
+      DoFCellAccessor<hp::DoFHandler<deal_II_dimension>, lda>::set_dof_values_by_interpolation
+      (const Vector<std::complex<double> >&, PETScWrappers::Vector&) const;
+
+    template
+      void
+      DoFCellAccessor<hp::DoFHandler<deal_II_dimension>, lda>::set_dof_values_by_interpolation
+      (const Vector<std::complex<double> >&, PETScWrappers::MPI::Vector&) const;
+
+#if deal_II_dimension != 3
+
+    template
+      void
+      DoFCellAccessor<hp::DoFHandler<deal_II_dimension,deal_II_dimension+1>, lda>::set_dof_values_by_interpolation
+      (const Vector<std::complex<double> >&, PETScWrappers::BlockVector&) const;
+
+    template
+      void
+      DoFCellAccessor<hp::DoFHandler<deal_II_dimension,deal_II_dimension+1>, lda>::set_dof_values_by_interpolation
+      (const Vector<std::complex<double> >&, PETScWrappers::MPI::BlockVector&) const;
+
+    template
+      void
+      DoFCellAccessor<hp::DoFHandler<deal_II_dimension,deal_II_dimension+1>, lda>::set_dof_values_by_interpolation
+      (const Vector<std::complex<double> >&, PETScWrappers::Vector&) const;
+
+    template
+      void
+      DoFCellAccessor<hp::DoFHandler<deal_II_dimension,deal_II_dimension+1>, lda>::set_dof_values_by_interpolation
+      (const Vector<std::complex<double> >&, PETScWrappers::MPI::Vector&) const;
+
+#endif
+
+#if deal_II_dimension == 3
+
+    template
+      void
+      DoFCellAccessor<hp::DoFHandler<1,3>, lda>::set_dof_values_by_interpolation
+      (const Vector<std::complex<double> >&, PETScWrappers::BlockVector&) const;
+
+    template
+      void
+      DoFCellAccessor<hp::DoFHandler<1,3>, lda>::set_dof_values_by_interpolation
+      (const Vector<std::complex<double> >&, PETScWrappers::MPI::BlockVector&) const;
+
+    template
+      void
+      DoFCellAccessor<hp::DoFHandler<1,3>, lda>::set_dof_values_by_interpolation
+      (const Vector<std::complex<double> >&, PETScWrappers::Vector&) const;
+
+    template
+      void
+      DoFCellAccessor<hp::DoFHandler<1,3>, lda>::set_dof_values_by_interpolation
+      (const Vector<std::complex<double> >&, PETScWrappers::MPI::Vector&) const;
+
+#endif
+#endif //  PETSC_USE_COMPLEX
+  }
