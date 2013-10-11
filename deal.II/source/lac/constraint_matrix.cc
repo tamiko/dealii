@@ -1875,4 +1875,10 @@ ONLY_MATRIX_FUNCTIONS(PETScWrappers::MPI::BlockSparseMatrix);
 
 #include "constraint_matrix.inst"
 
+// This is needed if PETSc was compiled with complex, though, it may
+// be used elsewhere too.
+#ifdef PETSC_USE_COMPLEX
+template void dealii::ConstraintMatrix::distribute<dealii::Vector<std::complex<double> > >(dealii::Vector<std::complex<double> >&) const;
+#endif // PETSC_USE_COMPLEX
+
 DEAL_II_NAMESPACE_CLOSE
