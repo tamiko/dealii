@@ -33,7 +33,7 @@ std::ofstream logfile ("00-manipulate_petsc_scalar/output");
 // Divide a PETSc complex number by a real number.
 void divide_petsc_complex_by_a_number ()
 {
-  PetscScalar alpha      = 1.0 + 2.0i;
+  PetscScalar alpha      = 1.0 + 2.0*PETSC_i;
   const PetscScalar beta = alpha/2.;
 
   logfile << "   divide a petsc complex by 2.: "
@@ -58,7 +58,7 @@ void divide_petsc_complex_by_a_number ()
 // Initialize a std::complex number from an PETSc complex number
 void make_std_complex_from_petsc_complex ()
 {
-  const PetscScalar alpha         = 1.0 + 2.0i;
+  const PetscScalar alpha         = 1.0 + 2.0*PETSC_i;
   const std::complex<double> beta = alpha;
   
   logfile << "   make std::complex from petsc complex: "
@@ -89,7 +89,7 @@ void make_petsc_complex_from_std_complex ()
 // Initialize a PETSc complex number directly.
 void make_petsc_complex ()
 {
-  const PetscScalar alpha = 1.0 + 2.0i; 
+  const PetscScalar alpha = 1.0 + 2.0*PETSC_i; 
   
   logfile << "   make petsc complex: "
 	  << PetscRealPart (alpha)
@@ -157,7 +157,7 @@ int main (int argc, char **argv)
 	// then try to use operators to do the same thing - except it
 	// seems to work without(!)
 	logfile << "   make std::complex from petsc complex: ";
-	const PetscScalar alpha2 = 1.0 + 2.0i; 
+	const PetscScalar alpha2 = 1.0 + 2.0*PETSC_i; 
 	std::complex<double> number2;
 	number2 += alpha2; 
 	
@@ -168,7 +168,7 @@ int main (int argc, char **argv)
 		<< std::endl;
 
 	logfile << "   make std::complex from petsc complex: ";
-	const PetscScalar alpha3 = 1.0 - 2.0i; 
+	const PetscScalar alpha3 = 1.0 - 2.0*PETSC_i; 
 	number2 += alpha3; 
 	
 	logfile << std::real (number2)
