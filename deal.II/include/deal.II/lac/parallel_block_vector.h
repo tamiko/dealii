@@ -227,6 +227,56 @@ namespace parallel
                    const bool                 fast=false);
 
       /**
+       * This function copies the data that has accumulated in the data buffer
+       * for ghost indices to the owning processor. For the meaning of the
+       * argument @p operation, see the entry on @ref GlossCompress
+       * "Compressing distributed vectors and matrices" in the glossary.
+       *
+       * There are two variants for this function. If called with argument @p
+       * VectorOperation::add adds all the data accumulated in ghost elements
+       * to the respective elements on the owning processor and clears the
+       * ghost array afterwards. If called with argument @p
+       * VectorOperation::insert, a set operation is performed. Since setting
+       * elements in a vector with ghost elements is ambiguous (as one can set
+       * both the element on the ghost site as well as the owning site), this
+       * operation makes the assumption that all data is set correctly on the
+       * owning processor. Upon call of compress(VectorOperation::insert), all
+       * ghost entries are therefore simply zeroed out (using
+       * zero_ghost_values()). In debug mode, a check is performed that makes
+       * sure that the data set is actually consistent between processors,
+       * i.e., whenever a non-zero ghost element is found, it is compared to
+       * the value on the owning processor and an exception is thrown if these
+       * elements do not agree.
+       *
+       */
+      void compress (::dealii::VectorOperation::values operation);
+
+      /**
+       * Fills the data field for ghost indices with the values stored in the
+       * respective positions of the owning processor. This function is needed
+       * before reading from ghosts. The function is @p const even though
+       * ghost data is changed. This is needed to allow functions with a @p
+       * const vector to perform the data exchange without creating
+       * temporaries.
+       */
+      void update_ghost_values () const;
+
+      /**
+       * This method zeros the entries on ghost dofs, but does not touch
+       * locally owned DoFs.
+       *
+       * After calling this method, read access to ghost elements of the
+       * vector is forbidden and an exception is thrown. Only write access to
+       * ghost elements is allowed in this state.
+       */
+      void zero_out_ghosts ();
+
+      /**
+       * Returns if this Vector contains ghost elements.
+       */
+      bool has_ghost_elements() const;
+
+      /**
        * Return whether the vector contains only elements with value
        * zero. This function is mainly for internal consistency checks and
        * should seldom be used when not in debug mode since it uses quite some
@@ -541,6 +591,60 @@ namespace parallel
       BaseClass::operator = (v);
       return *this;
     }
+
+
+
+    template <typename Number>
+    inline
+    void
+    BlockVector<Number>::compress (::dealii::VectorOperation::values operation)
+    {
+      // start all requests for all blocks before finishing the transfers as
+      // this saves repeated synchronizations
+      for (unsigned int block=0; block<this->n_blocks(); ++block)
+        this->block(block).compress_start(block*10 + 8273, operation);
+      for (unsigned int block=0; block<this->n_blocks(); ++block)
+        this->block(block).compress_finish(operation);
+    }
+
+
+
+    template <typename Number>
+    inline
+    void
+    BlockVector<Number>::update_ghost_values () const
+    {
+      for (unsigned int block=0; block<this->n_blocks(); ++block)
+        this->block(block).update_ghost_values_start(block*10 + 9923);
+      for (unsigned int block=0; block<this->n_blocks(); ++block)
+        this->block(block).update_ghost_values_finish();
+    }
+
+
+
+    template <typename Number>
+    inline
+    void
+    BlockVector<Number>::zero_out_ghosts ()
+    {
+      for (unsigned int block=0; block<this->n_blocks(); ++block)
+        this->block(block).zero_out_ghosts();
+    }
+
+
+
+    template <typename Number>
+    inline
+    bool
+    BlockVector<Number>::has_ghost_elements () const
+    {
+      bool has_ghost_elements = false;
+      for (unsigned int block=0; block<this->n_blocks(); ++block)
+        if (this->block(block).has_ghost_elements() == true)
+          has_ghost_elements = true;
+      return has_ghost_elements;
+    }
+
 
 
     template <typename Number>
