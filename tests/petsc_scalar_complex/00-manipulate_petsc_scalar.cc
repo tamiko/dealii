@@ -13,13 +13,13 @@
 // PetscScalar in accordance with gcc.gnu.org bug 7263.
 
 // deal.II includes
+#include "../tests.h"
 #include <deal.II/base/logstream.h>
     
 #include <fstream>
 #include <iostream>
 #include <cassert>
 
-#ifdef PETSC_USE_COMPLEX
 
 std::ofstream logfile ("00-manipulate_petsc_scalar/output");
 
@@ -52,7 +52,7 @@ void divide_petsc_complex_by_a_number ()
 	  << " should be 0.5+1i"
 	  << std::endl;
   
-  assert (alpha==beta);
+  Assert (alpha==beta, ExcInternalError());
 }
 
 // Initialize a std::complex number from an PETSc complex number
@@ -67,8 +67,7 @@ void make_std_complex_from_petsc_complex ()
 	  << "i"
 	  << std::endl;
   
-  // even this works
-  assert (alpha==beta);
+  Assert (alpha==beta, ExcInternalError());
 }
 
 // Initialize a PETSc complex number from an std::complex number
@@ -83,7 +82,7 @@ void make_petsc_complex_from_std_complex ()
 	  << "i"
 	  << std::endl;
   
-  assert (alpha==beta);
+  Assert (alpha==beta, ExcInternalError());
 }
 
 // Initialize a PETSc complex number directly.
@@ -97,6 +96,8 @@ void make_petsc_complex ()
 	  << "i"
 	  << " should be 1+2i"
 	  << std::endl;
+
+  Assert (alpha==std::complex<double> (1.,2.), ExcInternalError());
 }
 
 
@@ -122,7 +123,7 @@ void init_petsc_complex ()
 	  << " should be 0+0i"
 	  << std::endl;
 
-  assert (alpha==beta);
+  Assert (alpha==beta, ExcInternalError());
 }               
 
 int main (int argc, char **argv)
@@ -215,4 +216,4 @@ int main (int argc, char **argv)
   return 0;
 }
 
-#endif // PETSC_USE_COMPLEX
+
