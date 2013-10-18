@@ -169,6 +169,9 @@ namespace PETScWrappers
 
       /**
        * Return the imaginary part of the value of the referenced element.
+       *
+       * @note This operation is not defined for real numbers and an
+       * exception is thrown.
        */
       const PetscReal imag () const;
 
@@ -1178,7 +1181,11 @@ namespace PETScWrappers
       const PetscReal
       VectorReference::real () const
     {
+#ifndef PETSC_USE_COMPLEX
+      return static_cast<PetscScalar>(*this); 
+#else
       return PetscRealPart (static_cast<PetscScalar>(*this)); 
+#endif
     }
 
 
@@ -1187,7 +1194,12 @@ namespace PETScWrappers
       const PetscReal
       VectorReference::imag () const
     {
+#ifndef PETSC_USE_COMPLEX
+      // This is a no op if complex numbers are not defined.
+      AssertThrow (false, ExcNotImplemented ());
+#else
       return PetscImaginaryPart (static_cast<PetscScalar>(*this)); 
+#endif
     }
    
   } // namespace internal
