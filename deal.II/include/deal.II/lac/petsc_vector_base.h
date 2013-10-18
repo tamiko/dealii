@@ -163,6 +163,16 @@ namespace PETScWrappers
       const VectorReference &operator /= (const PetscScalar &s) const;
 
       /**
+       * Return the real part of the value of the referenced element.
+       */
+      const PetscReal real () const;
+
+      /**
+       * Return the imaginary part of the value of the referenced element.
+       */
+      const PetscReal imag () const;
+
+      /**
        * Convert the reference to an actual
        * value, i.e. return the value of
        * the referenced element of the
@@ -961,6 +971,7 @@ namespace PETScWrappers
     {}
 
 
+
     inline
     const VectorReference &
     VectorReference::operator = (const VectorReference &r) const
@@ -1160,9 +1171,26 @@ namespace PETScWrappers
 
       return *this;
     }
-  }
 
 
+
+    inline
+      const PetscReal
+      VectorReference::real () const
+    {
+      return PetscRealPart (static_cast<PetscScalar>(*this)); 
+    }
+
+
+
+    inline
+      const PetscReal
+      VectorReference::imag () const
+    {
+      return PetscImaginaryPart (static_cast<PetscScalar>(*this)); 
+    }
+   
+  } // namespace internal
 
   inline
   bool
