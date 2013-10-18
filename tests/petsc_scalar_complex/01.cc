@@ -14,8 +14,6 @@
 //
 // ---------------------------------------------------------------------
 
-
-
 // check setting elements in a petsc matrix using
 // PETScWrappers::SparseMatrix::set()
 
