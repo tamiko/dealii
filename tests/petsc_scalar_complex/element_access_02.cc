@@ -26,14 +26,16 @@
 
 #include <complex>
 
-// test dealii::internal::VectorReference::real() 
-// test dealii::internal::VectorReference::imag() 
-// test element access (read/write) on matrix
+// test read/write access to matrices AS IS (no cast).
+//
+
+// Note: this test fails where an -1.*(unsigned integer) is used as
+// the input value to a matrix element. This needs to be fixed.
 
 // sparse matrix elements
 void test_matrix (PETScWrappers::SparseMatrix &m)
 {
-  deallog << "Check 02 matrix access" << std::endl;
+  deallog << "Check matrix access" << std::endl;
 
   // fill up a matrix with some numbers
   for (unsigned int k=0; k<m.m(); ++k)

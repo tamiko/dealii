@@ -26,9 +26,7 @@
 
 #include <complex>
 
-// test dealii::internal::VectorReference::real() 
-// test dealii::internal::VectorReference::imag() 
-// on vector and matrix
+// test read/write access to matrices using explicit cast always.
 
 // sparse matrix elements
 void test_matrix (PETScWrappers::SparseMatrix &m)
