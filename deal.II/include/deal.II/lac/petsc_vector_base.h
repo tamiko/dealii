@@ -1197,6 +1197,7 @@ namespace PETScWrappers
 #ifndef PETSC_USE_COMPLEX
       // This is a no op if complex numbers are not defined.
       AssertThrow (false, ExcNotImplemented ());
+      return PetscReal (0);
 #else
       return PetscImaginaryPart (static_cast<PetscScalar>(*this)); 
 #endif
