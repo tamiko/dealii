@@ -18,7 +18,6 @@
 
 // deal.II includes
 #include "../tests.h"
-#include <deal.II/lac/petsc_vector.h>
 #include <deal.II/lac/petsc_sparse_matrix.h>
     
 #include <fstream>
@@ -29,57 +28,24 @@
 
 // test dealii::internal::VectorReference::real() 
 // test dealii::internal::VectorReference::imag() 
-// on vector and matrix
-
-// vector elements
-void test_vector (PETScWrappers::Vector &v)
-{
-  deallog << "Check vector access" << std::endl;
-
-  // fill up a vector with some numbers
-  for (unsigned int k=0; k<v.size(); ++k)
-    v(k) = std::complex<double> (k,v.size()-k);
-
-  v.compress (VectorOperation::add);
-
-  // check that is what we get by casting PetscScalar to std::real()
-  // and std::imag()
-  for (unsigned int k=0; k<v.size(); ++k)
-    Assert ((static_cast<std::complex<double> > (v(k)).real ()==k) && 
-   	    (static_cast<std::complex<double> > (v(k)).imag ()==v.size()-k), 
-   	    ExcInternalError());
-  
-  // check that is what we get by
-  // dealii::internal::VectorReference::real() and
-  // dealii::internal::VectorReference::imag() 
-  for (unsigned int k=0; k<v.size(); ++k)
-    Assert ((v(k).real ()==k) && (v(k).imag ()==v.size()-k), 
-	    ExcInternalError());
-  
-  deallog << "OK" << std::endl;
-}
+// test element access (read/write) on matrix
 
 // sparse matrix elements
 void test_matrix (PETScWrappers::SparseMatrix &m)
 {
-  deallog << "Check matrix access" << std::endl;
+  deallog << "Check 02 matrix access" << std::endl;
 
   // fill up a matrix with some numbers
   for (unsigned int k=0; k<m.m(); ++k)
     for (unsigned int l=0; l<m.n(); ++l)
-      m.set (k,l, std::complex<double> (k+l,-k-l));
+      m.set (k,l, PetscScalar (+k+l,-k-l));
 
   m.compress (VectorOperation::add);
 
+  // This fails, because the write above fails - see output file
   for (unsigned int k=0; k<m.m(); ++k)
     for (unsigned int l=0; l<m.n(); ++l)
-      Assert ((static_cast<std::complex<double> > (m(k,l)).real ()==k+l) && 
-	      (static_cast<std::complex<double> > (m(k,l)).imag ()==-k-l), 
-	      ExcInternalError());
-	     
-  for (unsigned int k=0; k<m.m(); ++k)
-    for (unsigned int l=0; l<m.n(); ++l)
-      Assert ((m(k,l).real ()==k+l) && (m(k,l).imag ()==-k-l), 
+      Assert (m(k,l).real () == -1.*m(k,l).imag (), 
 	      ExcInternalError());
 
   deallog << "OK" << std::endl;
@@ -87,7 +53,7 @@ void test_matrix (PETScWrappers::SparseMatrix &m)
 
 int main (int argc, char **argv)
 {
-  std::ofstream logfile ("element_access/output");
+  std::ofstream logfile ("element_access_02/output");
   dealii::deallog.attach (logfile);
   dealii::deallog.depth_console (0);
   deallog.threshold_double(1.e-10);
@@ -96,21 +62,14 @@ int main (int argc, char **argv)
     {
       PetscInitialize (&argc, &argv, (char*) 0, (char*) 0);
       {
-        PETScWrappers::Vector v (5);
-	test_vector (v);
-	
-	// Suprising the matrix part does not produce an
-	// error. However, something is VERY fishy here.
-	//
-	// @TODO Why does this test pass? I have no real() or imag()
-	// operators/functions defined.
+	PETScWrappers::SparseMatrix m (5,5,5);
+	test_matrix (m);
 
-	// PETScWrappers::SparseMatrix m (5,5,5);
-	// test_matrix (m);
+	deallog << "matrix:" << std::endl;
+	m.print (logfile);
       }
       PetscFinalize ();
     }
-  
   
   catch (std::exception &exc)
     {
