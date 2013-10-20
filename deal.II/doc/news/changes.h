@@ -78,6 +78,12 @@ inconvenience this causes.
 
 
 <ol>
+  <li> New: The testsuite is now ported to <a href="http://www.cmake.org/">
+  CMake</a> and uses CTest as test driver.
+  <br>
+  (Wolfgang Bangerth, Timo Heister, Matthias Maier, Bruno Turcksin, 2013/10/20)
+  </li>
+
   <li>
   Changed: multithreadinfo::n_default_threads is now deprecated. Use the
   new n_threads() function instead, which works correctly with TBB.
@@ -162,6 +168,13 @@ inconvenience this causes.
 <h3>Specific improvements</h3>
 
 <ol>
+  <li>
+  dealii::SolverControl::NoConvergence now inherits dealii::ExceptionBase and
+  is thrown via AssertThrow(false, ... ).
+  <br>
+  (Matthias Maier, 2013/10/20)
+  </li>
+
   <li>
   New: parallel::distributed::BlockVector has now methods update_ghost_values, 
   compress, set_out_ghosts, and has_ghost_elements that do the respective
