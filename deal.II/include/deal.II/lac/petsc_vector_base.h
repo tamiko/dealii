@@ -1019,8 +1019,10 @@ namespace PETScWrappers
 
       const PetscInt petsc_i = index;
 
+      PetscScalar cast_value = static_cast<PetscScalar> (value);
+
       const int ierr
-        = VecSetValues (vector, 1, &petsc_i, &value, INSERT_VALUES);
+        = VecSetValues (vector, 1, &petsc_i, &cast_value, INSERT_VALUES);
       AssertThrow (ierr == 0, ExcPETScError(ierr));
 
       vector.last_action = VectorOperation::insert;
