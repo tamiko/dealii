@@ -32,17 +32,17 @@ void test (PETScWrappers::Vector &v)
   std::vector<bool> pattern (v.size(), false);
   for (unsigned int i=0; i<v.size(); i+=1+i)
     {
-      v(i) += 1.;//PetscScalar (i,i);
+      v(i) += PetscScalar (i,i);
       pattern[i] = true;
     }
 
   v.compress (VectorOperation::add);
 
-  // check that they are ok, and this time
-  // all of them
+  // check that they are ok, and this time all of them
   for (unsigned int i=0; i<v.size(); ++i)
-    Assert ( ( (pattern[i]==true) ) || //&& (v(i)==std::complex<double> (1.,1.)) ) ||
-	     ( (pattern[i]==false) ), 
+    Assert ( ( (pattern[i]==true) && (v(i).real()==i) && (v(i).imag()==i) ) || 
+	     //&& (v(i)==std::complex<double> (1.,1.)) ) ||
+	     ( (pattern[i]==false) && (v(i).real()==0.) && (v(i).imag()==0.) ), 
              ExcInternalError());
 
   deallog << "OK" << std::endl;

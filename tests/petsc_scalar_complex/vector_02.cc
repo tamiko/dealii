@@ -16,14 +16,11 @@
 
 
 
-// check Vector
-
-// This is the similar to sparse_matrix_02.cc as it uses integer input
-// to complex numbers. This purposefully illustrates that this
-// assignment DOES NOT works for PETScWrappers::Vector.
+// check Vector, make a note of a generic failure / annoyance
 
 #include "../tests.h"
 #include <deal.II/lac/petsc_vector.h>
+#include <deal.II/lac/vector.h>
 #include <fstream>
 #include <iostream>
 #include <vector>
@@ -42,9 +39,9 @@ void test ()
   for (unsigned int k=0; k<v2.size(); ++k)
     {
       // This fails
-      v2(k) = PetscScalar (k,-k);
+      // v2(k) = PetscScalar (k,-k);
       // This is ok
-      // v2(k) = PetscScalar (k,-1.0*k);
+      v2(k) = PetscScalar (k,-1.0*k);
     }
 
   v2.compress(VectorOperation::add);
@@ -74,8 +71,6 @@ void test ()
   
   deallog << "OK" << std::endl;
 }
-
-
 
 int main (int argc, char **argv)
 {

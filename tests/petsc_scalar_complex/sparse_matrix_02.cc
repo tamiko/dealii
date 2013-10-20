@@ -18,11 +18,9 @@
 
 // check SparseMatrix::add(other, factor)
 
-// This is the same as sparse_matrix_02.cc, but uses integer input to
-// complex numbers. AT the time of writing, this documents the element
-// access problem for matrices.
-//
-// TODO: Fix this before going further with petsc-scalar=complex.
+// This is in general the same as sparse_matrix_02.cc, but uses
+// integer input to complex numbers. Since it was done, make a note of
+// a generic failure / annoyance
 
 #include "../tests.h"
 #include <deal.II/lac/petsc_vector.h>
@@ -47,9 +45,9 @@ void test ()
   for (unsigned int k=0; k<m2.m(); ++k)
     {
       // This fails
-      m2.set(k,k,PetscScalar(k,-k));
+      // m2.set(k,k,PetscScalar(k,-k));
       // This is ok
-      // m2.set(k,k,PetscScalar(k,-1.0*k));
+      m2.set(k,k,PetscScalar(k,-1.0*k));
     }
   m2.compress(VectorOperation::add);
       

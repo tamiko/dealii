@@ -1,6 +1,6 @@
 
 // ---------------------------------------------------------------------
-// $Id: 
+// $Id: element_access_02.cc
 //
 // Copyright (C) 2013 by the deal.II authors
 //
@@ -24,32 +24,25 @@
 #include <iostream>
 #include <cassert>
 
-#include <complex>
-
-// test read/write access to matrices AS IS (no cast).
-//
-
-// Note: this test fails where an -1.*(unsigned integer) is used as
-// the input value to a matrix element. This needs to be fixed.
-
 // sparse matrix elements
-void test_matrix (PETScWrappers::SparseMatrix &m)
+void test (PETScWrappers::SparseMatrix &m)
 {
   deallog << "Check matrix access" << std::endl;
 
   // fill up a matrix with some numbers
   for (unsigned int k=0; k<m.m(); ++k)
     for (unsigned int l=0; l<m.n(); ++l)
-      m.set (k,l, PetscScalar (+k+l,-k-l));
-
+      if (k>l)
+	m.set (k,l, PetscScalar (k+l,-1.*(k+l)));
+ 
   m.compress (VectorOperation::add);
 
-  // This fails, because the write above fails - see output file
+  // check the matrix is correctly filled
   for (unsigned int k=0; k<m.m(); ++k)
     for (unsigned int l=0; l<m.n(); ++l)
-      Assert (m(k,l).real () == -1.*m(k,l).imag (), 
+      Assert (m(k,l).real () == -1.*(m(k,l).imag ()), 
 	      ExcInternalError());
-
+  
   deallog << "OK" << std::endl;
 }
 
@@ -57,15 +50,15 @@ int main (int argc, char **argv)
 {
   std::ofstream logfile ("element_access_02/output");
   dealii::deallog.attach (logfile);
-  dealii::deallog.depth_console (0);
+   dealii::deallog.depth_console (0);
   deallog.threshold_double(1.e-10);
   
   try
     {
       PetscInitialize (&argc, &argv, (char*) 0, (char*) 0);
       {
-	PETScWrappers::SparseMatrix m (5,5,5);
-	test_matrix (m);
+	PETScWrappers::SparseMatrix m (10,10,10);
+	test (m);
 
 	deallog << "matrix:" << std::endl;
 	m.print (logfile);
