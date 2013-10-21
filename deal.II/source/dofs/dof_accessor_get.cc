@@ -46,7 +46,7 @@ get_interpolated_dof_values (const InputVector &values,
                              Vector<number>    &interpolated_values) const
 {
   const FiniteElement<dim,spacedim> &fe            = this->get_fe();
-  const unsigned int        dofs_per_cell = fe.dofs_per_cell;
+  const unsigned int                 dofs_per_cell = fe.dofs_per_cell;
 
   Assert (this->dof_handler != 0,
           typename BaseClass::ExcInvalidObject());
@@ -60,7 +60,11 @@ get_interpolated_dof_values (const InputVector &values,
   if (!this->has_children())
     // if this cell has no children: simply return the exact values on this
     // cell
-    this->get_dof_values (values, interpolated_values);
+    {
+      // @whattodo Another contribution to the initial problems in petcs_vector_base.h. Pandora's box!
+      // this->get_dof_values (values, interpolated_values);
+      Assert ((false), ExcMessage ("This function is corrupt: @whattodo"));
+    }
   else
     // otherwise clobber them from the children
     {

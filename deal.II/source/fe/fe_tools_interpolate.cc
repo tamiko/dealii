@@ -626,9 +626,9 @@ namespace FETools
 
   template <int dim, class InVector, class OutVector, int spacedim>
   void project_dg(const DoFHandler<dim,spacedim> &dof1,
-                  const InVector &u1,
+                  const InVector                 &u1,
                   const DoFHandler<dim,spacedim> &dof2,
-                  OutVector &u2)
+                  OutVector                      &u2)
   {
     Assert(&dof1.get_tria()==&dof2.get_tria(), ExcTriangulationMismatch());
     Assert(dof1.get_fe().n_components() == dof2.get_fe().n_components(),
@@ -643,18 +643,24 @@ namespace FETools
     const unsigned int n1 = dof1.get_fe().dofs_per_cell;
     const unsigned int n2 = dof2.get_fe().dofs_per_cell;
 
-    Vector<double> u1_local(n1);
-    Vector<double> u2_local(n2);
+    Vector<double> u1_local(n1); // <- Vector<std::complex>
+    Vector<double> u2_local(n2); // <- Vector<std::complex>
     std::vector<types::global_dof_index> dofs(n2);
 
-    FullMatrix<double> matrix(n2,n1);
+    FullMatrix<double> matrix(n2,n1); // ?
     get_projection_matrix(dof1.get_fe(), dof2.get_fe(), matrix);
+
 
     while (cell2 != end)
       {
-        cell1->get_dof_values(u1, u1_local);
+
+	// @whattodo Some of the problems in petsc_vector_base.h are instantiated here.
+        // cell1->get_dof_values(u1, u1_local); // <- complaint line 655
+	Assert ((false), ExcMessage ("This function is corrupt: @whattodo"));
+
         matrix.vmult(u2_local, u1_local);
         cell2->get_dof_indices(dofs);
+
         for (unsigned int i=0; i<n2; ++i)
           {
             u2(dofs[i])+=u2_local(i);

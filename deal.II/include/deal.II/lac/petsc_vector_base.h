@@ -1350,9 +1350,7 @@ namespace PETScWrappers
             && index<static_cast<unsigned int>(end) )
         {
           //local entry
-	  /* @whattodo Note: OutputIterator needs to be instantiated as PetscScalar (or std::complex) */
-          /* *(values_begin+i) = *(ptr+index-begin); */
-	  Assert ((false), ExcMessage ("This function is corrupt: @whattodo"));
+	  *(values_begin+i) = *(ptr+index-begin); 
         }
         else
         {
@@ -1361,9 +1359,7 @@ namespace PETScWrappers
           = ghost_indices.index_within_set(index);
 
           Assert(ghostidx+end-begin<(unsigned int)lsize, ExcInternalError());
-	  /* @whattodo Note: OutputIterator needs to be instantiated as PetscScalar (or std::complex) */
-          /* *(values_begin+i) = *(ptr+ghostidx+end-begin); */
-	  Assert ((false), ExcMessage ("This function is corrupt: @whattodo"));
+	  *(values_begin+i) = *(ptr+ghostidx+end-begin); 
         }
       }
 
@@ -1395,9 +1391,7 @@ namespace PETScWrappers
         Assert(index>=static_cast<unsigned int>(begin)
             && index<static_cast<unsigned int>(end), ExcInternalError());
 	
-	/* @whattodo Note: OutputIterator needs to be instantiated as PetscScalar (or std::complex) */
-	/* *(values_begin+i) = *(ptr+index-begin); */
-	Assert ((false), ExcMessage ("This function is corrupt: @whattodo"));
+	*(values_begin+i) = *(ptr+index-begin); 
       }
 
       ierr = VecRestoreArray(vector, &ptr);
