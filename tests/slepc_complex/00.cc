@@ -27,9 +27,8 @@
 #include <fstream>
 #include <iostream>
 
-#ifdef PETSC_USE_COMPLEX
 
-std::ofstream logfile ("00/output");
+std::ofstream logfile ("output");
 
 int main (int argc, char **argv)
 {
@@ -98,4 +97,4 @@ int main (int argc, char **argv)
     };
 }
 
-#endif
+
