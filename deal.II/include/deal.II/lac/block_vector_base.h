@@ -2567,16 +2567,15 @@ void BlockVectorBase<VectorType>::extract_subvector_to (const std::vector<size_t
 template <typename VectorType>
 template <typename ForwardIterator, typename OutputIterator>
 inline
-void BlockVectorBase<VectorType>::extract_subvector_to (ForwardIterator          indices_begin,
-                                                        const ForwardIterator    indices_end,
-                                                        OutputIterator           values_begin) const
+void BlockVectorBase<VectorType>::extract_subvector_to (ForwardIterator       indices_begin,
+                                                        const ForwardIterator indices_end,
+                                                        OutputIterator        values_begin) const
 {
-  /* @whattodo */
-  /*   while (indices_begin != indices_end) { */
-  /*     *values_begin = operator()(*indices_begin); */
-  /*     indices_begin++; values_begin++; */
-  /*   } */
-  Assert ((false), ExcMessage ("This function is corrupt: @whattodo"));
+  while (indices_begin != indices_end) 
+    { 
+      *values_begin = operator()(*indices_begin); 
+      indices_begin++; values_begin++; 
+    } 
 }
 
 #endif // DOXYGEN
