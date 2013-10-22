@@ -85,7 +85,7 @@ namespace internal
        * Assuming that the stored vector is a cell vector, extract the given
        * element from it.
        */
-      virtual
+      virtual 
       double
       get_cell_data_value (const unsigned int cell_number) const = 0;
 

@@ -252,6 +252,7 @@ build_one_patch (const std::pair<cell_iterator, unsigned int> *cell_and_index,
 
           for (unsigned int dataset=0; dataset<this->cell_data.size(); ++dataset)
             {
+	      // @whattodo - this next line does not cause a problem (yet), but probably will one day.
               const double value
                 = this->cell_data[dataset]->get_cell_data_value (cell_and_index->second);
               for (unsigned int q=0; q<n_q_points; ++q)

@@ -518,7 +518,7 @@ namespace internal
       get_vector_element (const VectorType &vector,
                           const unsigned int cell_number)
       {
-	// @whattodo Note, there should be a way to get the value type from a VectorType
+	// @whattodo Note, there should be a way to get the value type from a VectorType! 
         // return vector[cell_number];
 	Assert ((false), ExcMessage ("This function is corrupt: @whattodo"));
       }

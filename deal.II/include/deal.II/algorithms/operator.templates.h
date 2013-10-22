@@ -73,11 +73,11 @@ namespace Algorithms
     else
       {
 	/* @whattodo */
-        /* (*os) << ' ' << step; */
-        /* for (unsigned int i=0; i<vectors.size(); ++i) */
-        /*   for (unsigned int j=0; j<vectors(i)->size(); ++j) */
-        /*     (*os) << ' ' << (*vectors(i))(j); */
-        /* (*os) << std::endl; */
+	(*os) << ' ' << step; 
+	for (unsigned int i=0; i<vectors.size(); ++i) 
+	  for (unsigned int j=0; j<vectors(i)->size(); ++j) 
+	    (*os) << ' ';// << (*vectors(i))(j); 
+	(*os) << std::endl; 
 	Assert ((false), ExcMessage ("This function is corrupt: @whattodo"));
       }
     return *this;
