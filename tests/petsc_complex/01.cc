@@ -1,5 +1,5 @@
 // ---------------------------------------------------------------------
-// $Id: 
+// $Id: 01.cc $
 //
 // Copyright (C) 2013 by the deal.II authors
 //
@@ -23,47 +23,16 @@
 #include <iostream>
 
 
-void test_real (PETScWrappers::SparseMatrix &m)
+void test (PETScWrappers::SparseMatrix &m)
 {
-  deallog << "Real test" << std::endl;
-
-  // first set a few entries
-  for (unsigned int i=0; i<m.m(); ++i)
-    for (unsigned int j=0; j<m.m(); ++j)
-      if ((i+2*j+1) % 3 == 0)
-        m.set (i,j, i*j*.5+.5);
-
-  m.compress (VectorOperation::add);
-
-  // then make sure we retrieve the same ones
-  for (unsigned int i=0; i<m.m(); ++i)
-    for (unsigned int j=0; j<m.m(); ++j)
-      if ((i+2*j+1) % 3 == 0)
-        {
-          Assert (m(i,j)    == std::complex<double> (i*j*.5+.5,0.), ExcInternalError());
-          Assert (m.el(i,j) == std::complex<double> (i*j*.5+.5,0.), ExcInternalError());
-        }
-      else
-        {
-          Assert (m(i,j)    == std::complex<double> (0.,0.), ExcInternalError());
-          Assert (m.el(i,j) == std::complex<double> (0.,0.), ExcInternalError());
-        }
-
-  deallog << "OK" << std::endl;
-}
-
-void test_complex (PETScWrappers::SparseMatrix &m)
-{
-  deallog << "Complex test" << std::endl;
-
   // first set a few entries
   for (unsigned int i=0; i<m.m(); ++i)
     for (unsigned int j=0; j<m.m(); ++j)
       if ((i+2*j+1) % 3 == 0)
         m.set (i,j, std::complex<double> (0.,i*j*.5+.5));
-
+  
   m.compress (VectorOperation::add);
-
+  
   // then make sure we retrieve the same ones
   for (unsigned int i=0; i<m.m(); ++i)
     for (unsigned int j=0; j<m.m(); ++j)
@@ -77,7 +46,7 @@ void test_complex (PETScWrappers::SparseMatrix &m)
           Assert (m(i,j)    == std::complex<double> (0.,0.), ExcInternalError());
           Assert (m.el(i,j) == std::complex<double> (0.,0.), ExcInternalError());
         }
-
+  
   deallog << "OK" << std::endl;
 }
 
@@ -89,18 +58,13 @@ int main (int argc,char **argv)
   deallog.attach(logfile);
   deallog.depth_console(0);
   deallog.threshold_double(1.e-10);
-
+  
   try
     {
       Utilities::MPI::MPI_InitFinalize mpi_initialization(argc, argv, 1);
       {
-        PETScWrappers::SparseMatrix m;
-
-        m.reinit (5,5,3);
-        test_real (m);
-
-        m.reinit (5,5,3);
-        test_complex (m);
+        PETScWrappers::SparseMatrix m (5,5,3);
+        test (m);
       }
 
     }

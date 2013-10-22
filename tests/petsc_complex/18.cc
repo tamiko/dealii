@@ -1,7 +1,7 @@
 // ---------------------------------------------------------------------
-// $Id: 18.cc 30045 2013-07-18 19:18:00Z maier $
+// $Id: 18.cc $
 //
-// Copyright (C) 2004 - 2013 by the deal.II authors
+// Copyright (C) 2013 by the deal.II authors
 //
 // This file is part of the deal.II library.
 //
@@ -63,7 +63,6 @@ int main (int argc,char **argv)
         PETScWrappers::Vector v (100);
         test (v);
       }
-
     }
   catch (std::exception &exc)
     {

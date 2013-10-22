@@ -1,5 +1,5 @@
 // ---------------------------------------------------------------------
-// $Id: 
+// $Id: 07.cc $
 //
 // Copyright (C) 2013 by the deal.II authors
 //
@@ -24,43 +24,23 @@
 #include <iostream>
 
 
-void test_real (PETScWrappers::SparseMatrix &m)
+void test (PETScWrappers::SparseMatrix &m)
 {
-  deallog << "Real test" << std::endl;
-
-  // first set a few entries. count how many entries we have
-  for (unsigned int i=0; i<m.m(); ++i)
-    for (unsigned int j=0; j<m.m(); ++j)
-      if ((i+2*j+1) % 3 == 0)
-        m.set (i,j, i*j*.5+.5);
-
-  m.compress (VectorOperation::add);
-
-  // compare against the exact value of the linfty-norm (max row-sum)
-  deallog << m.linfty_norm() << std::endl;
-  Assert (m.linfty_norm() == 8.5, ExcInternalError());
-
-  deallog << "OK" << std::endl;
-}
-
-void test_complex (PETScWrappers::SparseMatrix &m)
-{
-  deallog << "Complex test" << std::endl;
-
   // first set a few entries. count how many entries we have
   for (unsigned int i=0; i<m.m(); ++i)
     for (unsigned int j=0; j<m.m(); ++j)
       if ((i+2*j+1) % 3 == 0)
         m.set (i,j, std::complex<double> (0.,i*j*.5+.5));
-
+  
   m.compress (VectorOperation::add);
-
+  
   // compare against the exact value of the linfty-norm (max row-sum).
   deallog << m.linfty_norm() << std::endl;
   Assert (m.linfty_norm() == 8.5, ExcInternalError());
-
+  
   deallog << "OK" << std::endl;
 }
+
 
 int main (int argc,char **argv)
 {
@@ -73,13 +53,8 @@ int main (int argc,char **argv)
     {
       Utilities::MPI::MPI_InitFinalize mpi_initialization(argc, argv, 1);
       {
-        PETScWrappers::SparseMatrix m;
-
-	m.reinit (5,5,3);     
-	test_real (m);
-
-	m.reinit (5,5,3);     
-	test_complex (m);
+        PETScWrappers::SparseMatrix m(5,5,3);     
+	test (m);
       }
 
     }

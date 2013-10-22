@@ -1,7 +1,7 @@
 // ---------------------------------------------------------------------
-// $Id: 06.cc 30045 2013-07-18 19:18:00Z maier $
+// $Id: 06.cc $
 //
-// Copyright (C) 2004 - 2013 by the deal.II authors
+// Copyright (C) 2013 by the deal.II authors
 //
 // This file is part of the deal.II library.
 //
@@ -15,7 +15,6 @@
 // ---------------------------------------------------------------------
 
 
-
 // check PETScWrappers::SparseMatrix::l1_norm
 
 #include "../tests.h"
@@ -24,30 +23,8 @@
 #include <iostream>
 
 
-void test_real (PETScWrappers::SparseMatrix &m)
+void test (PETScWrappers::SparseMatrix &m)
 {
-  deallog << "Real test" << std::endl;
-
-  // first set a few entries. count how many entries we have
-  for (unsigned int i=0; i<m.m(); ++i)
-    for (unsigned int j=0; j<m.m(); ++j)
-      if ((i+2*j+1) % 3 == 0)
-        m.set (i,j, i*j*.5+.5);
-
-  m.compress (VectorOperation::add);
-
-  // compare against the exact value of the l1-norm (max col-sum)
-  deallog << m.l1_norm() << std::endl;
-  Assert (m.l1_norm() == 7, ExcInternalError());
-
-  deallog << "OK" << std::endl;
-}
-
-
-void test_complex (PETScWrappers::SparseMatrix &m)
-{
-  deallog << "Complex test" << std::endl;
-
   // first set a few entries. count how many entries we have
   for (unsigned int i=0; i<m.m(); ++i)
     for (unsigned int j=0; j<m.m(); ++j)
@@ -64,7 +41,6 @@ void test_complex (PETScWrappers::SparseMatrix &m)
 }
 
 
-
 int main (int argc,char **argv)
 {
   std::ofstream logfile("output");
@@ -76,13 +52,8 @@ int main (int argc,char **argv)
     {
       Utilities::MPI::MPI_InitFinalize mpi_initialization(argc, argv, 1);
       {
-        PETScWrappers::SparseMatrix m;
-
-	m.reinit (5,5,3);
-        test_real (m);
-
-	m.reinit (5,5,3);
-        test_complex (m);
+        PETScWrappers::SparseMatrix m(5,5,3);
+        test (m);
       }
 
     }

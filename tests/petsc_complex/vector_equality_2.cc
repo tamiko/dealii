@@ -1,5 +1,5 @@
 // ---------------------------------------------------------------------
-// $Id: vector_equality_2.cc 
+// $Id: vector_equality_2.cc $
 //
 // Copyright (C) 2013 by the deal.II authors
 //
@@ -26,27 +26,8 @@
 #include <vector>
 
 
-void test_real (PETScWrappers::Vector &v,
-		PETScWrappers::Vector &w)
-{
-  // set only certain elements of each vector where, on the "master
-  // vector", some elements are complex and the other is real.
-  for (unsigned int k=0; k<v.size(); ++k)
-    {
-      v(k) = k;
-      if (k%3 == 0)
-        w(k) = std::complex<double> (k+1.,k+1);
-    }
-
-  // then copy elements and make sure the vectors are actually equal
-  v = w;
-  Assert (v==w, ExcInternalError());
-
-  deallog << "OK" << std::endl;
-}
-
-void test_complex (PETScWrappers::Vector &v,
-		   PETScWrappers::Vector &w)
+void test (PETScWrappers::Vector &v,
+	   PETScWrappers::Vector &w)
 {
   // set only certain elements of each vector
   for (unsigned int k=0; k<v.size(); ++k)
@@ -55,11 +36,11 @@ void test_complex (PETScWrappers::Vector &v,
       if (k%3 == 0)
         w(k) = std::complex<double> (k+1.,k+1);
     }
-
+  
   // then copy elements and make sure the vectors are actually equal
   v = w;
   Assert (v==w, ExcInternalError());
-
+  
   deallog << "OK" << std::endl;
 }
 

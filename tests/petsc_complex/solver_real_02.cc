@@ -1,5 +1,5 @@
 // ---------------------------------------------------------------------
-// $Id: solver_real_02.cc
+// $Id: solver_real_02.cc $
 //
 // Copyright (C) 2013 by the deal.II authors
 //

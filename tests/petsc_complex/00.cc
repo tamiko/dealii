@@ -1,5 +1,5 @@
 // ---------------------------------------------------------------------
-// $Id: 
+// $Id: 00.cc$
 //
 // Copyright (C) 2013 by the deal.II authors
 //
@@ -40,8 +40,8 @@
 // PetscSclar=complex. They check that std::complex<double> and
 // PetscScalar complex are compatible without explicitly casting.
 //
-// These tests look archaic - they are the original tests used by the
-// authors to figure out how PetscScalar complex works...
+// These tests look archaic - they are the original tests used to
+// figure out how PetscScalar complex works...
 
 // Multiply a PETSc complex number by a complex number.
 void multiply_petsc_complex_by_a_number ()
@@ -66,7 +66,6 @@ void multiply_petsc_complex_by_a_number ()
 
   deallog << "OK" << std::endl;
 }
-
 
 // Divide a PETSc complex number by a real number.
 void divide_petsc_complex_by_a_number ()
@@ -136,7 +135,6 @@ void make_petsc_complex ()
   deallog << "OK" << std::endl;
 }
 
-
 // Initialize a PETSc complex number directly only, check he is
 // initialised to 0+0i.
 void init_petsc_complex ()
@@ -172,21 +170,20 @@ int main (int argc, char **argv)
     {
       PetscInitialize (&argc, &argv, (char*) 0, (char*) 0);
       {
-	// check initialisation (zero and nonzero)
+	// initialisation (zero and nonzero)
 	init_petsc_complex ();
 	make_petsc_complex ();
 	
-	// check initialisation from std::complex (and vice versa)
+	// initialisation from std::complex (and vice versa)
 	make_petsc_complex_from_std_complex ();
 	make_std_complex_from_petsc_complex ();
 		
-	// Check some operators
+	// some operators
 	divide_petsc_complex_by_a_number ();
 	multiply_petsc_complex_by_a_number ();
       }
       PetscFinalize ();
     }
-  
   
   catch (std::exception &exc)
     {

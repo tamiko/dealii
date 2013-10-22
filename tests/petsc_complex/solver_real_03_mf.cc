@@ -1,5 +1,5 @@
 // ---------------------------------------------------------------------
-// $Id: solver_03_mf.cc
+// $Id: solver_03_mf.cc $
 //
 // Copyright (C) 2013 by the deal.II authors
 //
@@ -25,10 +25,14 @@
 					  // into this directory and
 					  // play with it, but, by
 					  // using *that* file
-					  // directly is itself a test
-					  // of syntax compatibility
+					  // directly is instead
+					  // represents a test of
+					  // syntax compatibility
 					  // between petsc-scalar=real
-					  // and petsc-scalar=complex.
+					  // and assigning real
+					  // numbers to a possibly
+					  // complex matrix where
+					  // petsc-scalar=complex.
 #include <cmath>
 #include <fstream>
 #include <iostream>

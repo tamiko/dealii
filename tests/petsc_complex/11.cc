@@ -1,5 +1,5 @@
 // ---------------------------------------------------------------------
-// $Id: 
+// $Id: 11.cc $
 //
 // Copyright (C) 2013 by the deal.II authors
 //
@@ -24,36 +24,18 @@
 #include <iostream>
 
 
-void test_real (PETScWrappers::Vector &v)
+void test (PETScWrappers::Vector &v)
 {
-  deallog << "Real test" << std::endl;
-
-  // set only certain elements of the vector
-  for (unsigned int k=0; k<v.size(); k+=1+k)
-    v(k) = k;
-
-  v.compress (VectorOperation::add);
-
-  Assert (v.size() == 100, ExcInternalError());
-
-  deallog << "OK" << std::endl;
-}
-
-void test_complex (PETScWrappers::Vector &v)
-{
-  deallog << "Complex test" << std::endl;
-
   // set only certain elements of the vector
   for (unsigned int k=0; k<v.size(); k+=1+k)
     v(k) = std::complex<double> (k,.5*k);
-
+  
   v.compress (VectorOperation::add);
-
+  
   Assert (v.size() == 100, ExcInternalError());
-
+  
   deallog << "OK" << std::endl;
 }
-
 
 
 int main (int argc,char **argv)
@@ -67,15 +49,9 @@ int main (int argc,char **argv)
     {
       Utilities::MPI::MPI_InitFinalize mpi_initialization(argc, argv, 1);
       {
-        PETScWrappers::Vector v;
-
-	v.reinit (100);
-        test_real (v);
-
-	v.reinit (100);
-        test_complex (v);
+        PETScWrappers::Vector v(100);
+        test (v);
       }
-
     }
   catch (std::exception &exc)
     {

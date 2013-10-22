@@ -1,7 +1,7 @@
 // ---------------------------------------------------------------------
-// $Id: 04.cc 30045 2013-07-18 19:18:00Z maier $
+// $Id: 04.cc $
 //
-// Copyright (C) 2004 - 2013 by the deal.II authors
+// Copyright (C) 2013 by the deal.II authors
 //
 // This file is part of the deal.II library.
 //
@@ -13,7 +13,6 @@
 // the top level of the deal.II distribution.
 //
 // ---------------------------------------------------------------------
-
 
 
 // check querying matrix sizes

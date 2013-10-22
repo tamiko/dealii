@@ -1,5 +1,5 @@
 // ---------------------------------------------------------------------
-// $Id: 
+// $Id: 12.cc $
 //
 // Copyright (C) 2013 by the deal.II authors
 //
@@ -25,41 +25,8 @@
 #include <vector>
 
 
-void test_real (PETScWrappers::Vector &v)
-{
-  deallog << "Real test" << std::endl;
 
-  // set only certain elements of the vector. have a bit pattern of
-  // where we actually wrote elements to
-  std::vector<bool> pattern (v.size(), false);
-  for (unsigned int k=0; k<v.size(); k+=1+k)
-    {
-      v(k)       = k;
-      pattern[k] = true;
-    }
-
-  v.compress (VectorOperation::add);
-
-  // check that they are ok, and this time all of them
-  //
-  // Note the use of a copy constructor to "el". This is done here
-  // because, at the time of writing, we don't have a method to expand
-  // the macro PetscXXXPart (v(i)). This should be fixed by the next
-  // test. Let's leave it as it is for this one... ;-)
-  for (unsigned int k=0; k<v.size(); ++k)
-    {
-      const PetscScalar el = v(k);
-      Assert ( ( (pattern[k] == true) && (PetscRealPart(el) == k) && (PetscImaginaryPart(el) == 0.) )
-	       ||
-	       ( (pattern[k] == false) && (PetscRealPart(el) == 0.) && (PetscImaginaryPart(el) == 0.)),
-	       ExcInternalError());
-    }
-
-  deallog << "OK" << std::endl;
-}
-
-
-void test_complex (PETScWrappers::Vector &v)
+void test (PETScWrappers::Vector &v)
 {
   deallog << "Complex test" << std::endl;
 
@@ -99,15 +66,9 @@ int main (int argc,char **argv)
     {
       Utilities::MPI::MPI_InitFinalize mpi_initialization(argc, argv, 1);
       {
-        PETScWrappers::Vector v;
-
-	v.reinit (100);
-        test_real (v);
-
-	v.reinit (100);
-        test_complex (v);
+        PETScWrappers::Vector v(100);
+        test (v);
       }
-
     }
   catch (std::exception &exc)
     {

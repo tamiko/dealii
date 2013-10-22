@@ -1,5 +1,5 @@
 // ---------------------------------------------------------------------
-// $Id: vector_wrap_01.cc
+// $Id: vector_wrap_01.cc $
 //
 // Copyright (C) 2013 by the deal.II authors
 //
@@ -25,8 +25,8 @@
 #include <vector>
 
 
-void test_01 (PETScWrappers::Vector &v,
-	      PETScWrappers::Vector &w)
+void test (PETScWrappers::Vector &v,
+	   PETScWrappers::Vector &w)
 {
   // set the first vector
   for (unsigned int k=0; k<v.size(); ++k)
@@ -48,20 +48,6 @@ void test_01 (PETScWrappers::Vector &v,
 }
 
 
-void test_02 (PETScWrappers::Vector &v,
-	      PETScWrappers::Vector &w)
-{
-  // copy
-  v=w;
-
-  // check that they're still equal
-  Assert (v==w, ExcInternalError());
-
-  deallog << "OK" << std::endl;
-}
-
-
-
 int main (int argc, char **argv)
 {
   std::ofstream logfile("output");
@@ -78,10 +64,7 @@ int main (int argc, char **argv)
       {
         PETScWrappers::Vector v (vpetsc);
         PETScWrappers::Vector w (100);
-        test_01 (v,w);
-
-	w.reinit (100);
-        test_01 (v,w);
+        test (v,w);
       }
 
 #if DEAL_II_PETSC_VERSION_LT(3,2,0)

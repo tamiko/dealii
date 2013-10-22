@@ -1,5 +1,5 @@
 // ---------------------------------------------------------------------
-// $Id sparse_matrix_01.cc
+// $Id sparse_matrix_01.cc $
 //
 // Copyright (C) 2013 by the deal.II authors
 //
@@ -13,7 +13,6 @@
 // the top level of the deal.II distribution.
 //
 // ---------------------------------------------------------------------
-
 
 
 // check SparseMatrix::add(other, factor)
@@ -77,7 +76,37 @@ int main (int argc, char **argv)
   deallog.depth_console(0);
   deallog.threshold_double(1.e-10);
 
-  Utilities::MPI::MPI_InitFinalize mpi_initialization(argc, argv, 1);
-  test ();
+  try
+    {
+      Utilities::MPI::MPI_InitFinalize mpi_initialization(argc, argv, 1);
+      {
+        test ();
+      }
+
+    }
+  catch (std::exception &exc)
+    {
+      std::cerr << std::endl << std::endl
+                << "----------------------------------------------------"
+                << std::endl;
+      std::cerr << "Exception on processing: " << std::endl
+                << exc.what() << std::endl
+                << "Aborting!" << std::endl
+                << "----------------------------------------------------"
+                << std::endl;
+
+      return 1;
+    }
+  catch (...)
+    {
+      std::cerr << std::endl << std::endl
+                << "----------------------------------------------------"
+                << std::endl;
+      std::cerr << "Unknown exception!" << std::endl
+                << "Aborting!" << std::endl
+                << "----------------------------------------------------"
+                << std::endl;
+      return 1;
+    };
 
 }

@@ -1,5 +1,5 @@
 // ---------------------------------------------------------------------
-// $Id: vector_print.cc 
+// $Id: vector_print.cc $
 //
 // Copyright (C) 2013 by the deal.II authors
 //

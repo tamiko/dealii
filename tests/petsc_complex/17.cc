@@ -1,5 +1,5 @@
 // ---------------------------------------------------------------------
-// $Id: 17.cc
+// $Id: 17.cc $
 //
 // Copyright (C) 2013 by the deal.II authors
 //
@@ -43,7 +43,6 @@ void test (PETScWrappers::Vector &v)
 }
 
 
-
 int main (int argc,char **argv)
 {
   std::ofstream logfile("output");
@@ -58,7 +57,6 @@ int main (int argc,char **argv)
         PETScWrappers::Vector v (100);
         test (v);
       }
-
     }
   catch (std::exception &exc)
     {

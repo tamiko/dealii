@@ -1,5 +1,5 @@
 // ---------------------------------------------------------------------
-// $Id: 
+// $Id: 05.cc $
 //
 // Copyright (C) 2013 by the deal.II authors
 //
@@ -15,7 +15,6 @@
 // ---------------------------------------------------------------------
 
 
-
 // check querying the number of nonzero elements in
 // PETScWrappers::SparseMatrix
 
@@ -25,34 +24,8 @@
 #include <iostream>
 
 
-void test_real (PETScWrappers::SparseMatrix &m)
+void test (PETScWrappers::SparseMatrix &m)
 {
-  deallog << "Real test" << std::endl;
-
-  // first set a few entries. count how many entries we have
-  unsigned int counter = 0;
-  for (unsigned int i=0; i<m.m(); ++i)
-    for (unsigned int j=0; j<m.m(); ++j)
-      if ((i+2*j+1) % 3 == 0)
-        {
-          m.set (i,j, i*j*.5+.5);
-          ++counter;
-        }
-
-  m.compress (VectorOperation::add);
-
-  deallog << m.n_nonzero_elements() << std::endl;
-  Assert (m.n_nonzero_elements() == counter,
-          ExcInternalError());
-
-  deallog << "OK" << std::endl;
-}
-
-
-void test_complex (PETScWrappers::SparseMatrix &m)
-{
-  deallog << "Complex test" << std::endl;
-
   // first set a few entries. count how many entries we have
   unsigned int counter = 0;
   for (unsigned int i=0; i<m.m(); ++i)
@@ -64,14 +37,13 @@ void test_complex (PETScWrappers::SparseMatrix &m)
         }
 
   m.compress (VectorOperation::add);
-
+  
   deallog << m.n_nonzero_elements() << std::endl;
   Assert (m.n_nonzero_elements() == counter,
           ExcInternalError());
-
+  
   deallog << "OK" << std::endl;
 }
-
 
 
 int main (int argc,char **argv)
@@ -86,15 +58,8 @@ int main (int argc,char **argv)
       Utilities::MPI::MPI_InitFinalize mpi_initialization(argc, argv, 1);
       {
         PETScWrappers::SparseMatrix m (5,5,3);
-        test_real (m);
+        test (m);
 
-        PETScWrappers::SparseMatrix n (5,5,3);
-        test_complex (n);
-
-	// this last bit is unnecessarry fun...
-	deallog << "Compare real-complex test" << std::endl;
-	Assert (m.n_nonzero_elements() == n.n_nonzero_elements(),
-		ExcInternalError());
 	deallog << "OK" << std::endl;
       }
 

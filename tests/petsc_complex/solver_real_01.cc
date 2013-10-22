@@ -1,5 +1,5 @@
 // ---------------------------------------------------------------------
-// $Id: solver_real_01.cc 
+// $Id: solver_real_01.cc $
 //
 // Copyright (C) 2013 by the deal.II authors
 //
@@ -93,6 +93,5 @@ int main(int argc, char **argv)
     PETScWrappers::PreconditionJacobi preconditioner(A);
     check_solve (solver, A,u,f, preconditioner);
   }
-
 }
 

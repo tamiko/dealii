@@ -1,5 +1,5 @@
 // ---------------------------------------------------------------------
-// $Id: vector_assign_02.cc 
+// $Id: vector_assign_02.cc $
 //
 // Copyright (C) 2013 by the deal.II authors
 //
@@ -26,31 +26,9 @@
 #include <vector>
 
 
-void test_real (PETScWrappers::Vector &v,
-		PETScWrappers::Vector &w)
+void test (PETScWrappers::Vector &v,
+	   PETScWrappers::Vector &w)
 {
-  deallog << "Real test" << std::endl;
-
-  // set the first vector
-  for (unsigned int k=0; k<v.size(); ++k)
-    v(k) = k;
-
-  // add elements by reference
-  for (unsigned int k=0; k<v.size(); ++k)
-    w(k) += v(k);
-
-  // check that they're equal
-  Assert (v==w, ExcInternalError());
-
-  deallog << "OK" << std::endl;
-}
-
-
-void test_complex (PETScWrappers::Vector &v,
-		   PETScWrappers::Vector &w)
-{
-  deallog << "Complex test" << std::endl;
-
   // set the first vector
   for (unsigned int k=0; k<v.size(); ++k)
     v(k) = PetscScalar (k,k*k);
@@ -79,14 +57,9 @@ int main (int argc, char **argv)
       {
         PETScWrappers::Vector v (20);
         PETScWrappers::Vector w (20);
-        test_real (v,w);
+        test (v,w);
 
-	v.reinit (20);
-	w.reinit (20);
-        test_complex (v,w);
-
-	// We are really only interested in checking that assignment
-	// of the complex part is correct.
+	// Some output
 	deallog << "Complex vectors: " << std::endl;
 	deallog << "v: " << std::flush;
 	v.print (logfile, 0, false, true);

@@ -1,5 +1,5 @@
 // ---------------------------------------------------------------------
-// $Id: vector_assign_01.cc 
+// $Id: vector_assign_01.cc $
 //
 // Copyright (C) 2013 by the deal.II authors
 //
@@ -16,14 +16,7 @@
 
 
 
-// when calling PETScWrappers::Vector::operator() (), the return type is a
-// reference object, not a reference to the actual element. this leads to the
-// funny situation that an assignment like v2(i)=v1(i) isn't really what it
-// looks like: it tries to copy the reference objects, not the values they
-// point to, as one would expect
-//
-// this was fixed 2004-04-05, and this test checks that it works
-
+// See notes in petsc/vector_assign_01.cc
 #include "../tests.h"
 #include <deal.II/lac/petsc_vector.h>
 #include <fstream>
