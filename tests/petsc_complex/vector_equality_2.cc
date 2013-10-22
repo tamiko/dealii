@@ -59,19 +59,9 @@ int main (int argc, char **argv)
       {
         PETScWrappers::Vector v (20);
         PETScWrappers::Vector w (20);
-        test_real (v,w);
+        test (v,w);
 
-	// Just incase, *read* these vectors are correct.
-	deallog << "Real vectors: " << std::endl;
-	v.print (logfile, 0, false, true);
-	w.print (logfile, 0, false, true);
-	deallog << "OK" << std::endl;
-
-	v.reinit (20);
-	w.reinit (20);
-        test_complex (v,w);
-
-	// Just incase, *read* these vectors are correct.
+	// Output
 	deallog << "Complex vectors: " << std::endl;
 	v.print (logfile, 0, false, true);
 	w.print (logfile, 0, false, true);

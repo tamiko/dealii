@@ -24,7 +24,7 @@
 #include <iostream>
 
 
-void test_complex (PETScWrappers::SparseMatrix &m)
+void test (PETScWrappers::SparseMatrix &m)
 {
   // first set a few entries
   for (unsigned int i=0; i<m.m(); ++i)
