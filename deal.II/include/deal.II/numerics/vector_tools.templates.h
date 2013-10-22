@@ -303,7 +303,7 @@ namespace VectorTools
     for (; h != endh; ++h, ++l)
       {
 	// @whattodo Some of the problems in petsc_vector_base.h are instantiated here.
-	/* h->get_dof_values(data_1, cell_data_1); // <- complaint line 655  */
+	/* h->get_dof_values(data_1, cell_data_1); // <- complaint line 655 */
 	Assert ((false), ExcMessage ("This function is corrupt: @whattodo"));
 
         transfer.vmult(cell_data_2, cell_data_1);

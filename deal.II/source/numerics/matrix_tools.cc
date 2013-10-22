@@ -2372,7 +2372,6 @@ namespace MatrixTools
         // find such an entry, take one
 
 	// @whattodo Note: this is a real mess.
-	// Toby: see old notes from Diabelka
         PetscScalar average_nonzero_diagonal_entry;
         // PetscScalar average_nonzero_diagonal_entry = 1;
         // for (types::global_dof_index i=local_range.first; i<local_range.second; ++i)

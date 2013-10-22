@@ -69,7 +69,7 @@ namespace
       // to get the array of values from PETSc
       // in every iteration), but works
       PetscScalar m = 0;
-      // @whattodo
+      // @whattodo How do we get the maximum element of a complex vector? This only makes sense in real.
       // for (unsigned int i=0; i<criteria.size(); ++i)
       //   m = std::max (m, criteria(i));
       Assert ((false), ExcMessage ("This function is corrupt: @whattodo"));
@@ -84,7 +84,7 @@ namespace
       // to get the array of values from PETSc
       // in every iteration), but works
       PetscScalar m = criteria(0);
-      // @whattodo
+      // @whattodo How do we get the minimum element of a complex vector? This only makes sense in real.
       // for (unsigned int i=1; i<criteria.size(); ++i)
       //   m = std::min (m, criteria(i));
       Assert ((false), ExcMessage ("This function is corrupt: @whattodo"));

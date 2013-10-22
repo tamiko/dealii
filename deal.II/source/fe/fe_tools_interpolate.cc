@@ -211,7 +211,7 @@ namespace FETools
     // if we work on parallel distributed
     // vectors, we have to ensure, that we only
     // work on dofs this processor owns.
-    IndexSet  locally_owned_dofs = dof2.locally_owned_dofs();
+    IndexSet locally_owned_dofs = dof2.locally_owned_dofs();
 
     // when a discontinuous element is
     // interpolated to a continuous
@@ -222,14 +222,15 @@ namespace FETools
     for (types::global_dof_index i=0; i<dof2.n_dofs(); ++i)
       if (locally_owned_dofs.is_element(i))
         {
-	  // @whattodo
-          // Assert(touch_count(i)!=0, ExcInternalError());
+	  // @whattodo Workaround: Add a function is_zero like is_finite?
+	  // Assert(touch_count(i)!=0, ExcInternalError());
 	  Assert ((false), ExcMessage ("This function is corrupt: @whattodo"));
           u2(i) /= touch_count(i);
         }
 
     // finish the work on parallel vectors
     u2.compress(VectorOperation::insert);
+
     // Apply hanging node constraints.
     constraints.distribute(u2);
   }

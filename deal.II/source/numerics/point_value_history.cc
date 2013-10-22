@@ -584,6 +584,7 @@ void PointValueHistory<dim>
   // to check vector_name is in the map.
   typename std::map <std::string, std::vector <std::vector <double> > >::iterator data_store_field = data_store.find(vector_name);
   Assert (data_store_field != data_store.end(), ExcMessage("vector_name not in class"));
+
   // Repeat for component_mask
   typename std::map <std::string, ComponentMask>::iterator mask = component_mask.find(vector_name);
   Assert (mask != component_mask.end(), ExcMessage("vector_name not in class"));
@@ -603,10 +604,11 @@ void PointValueHistory<dim>
           if (mask->second[comp])
             {
               unsigned int solution_index = point->solution_indices[comp];
-	      //@whattodo
+	      //@whattodo data_store_field shoud be typename VECTOR::value_type, but that cuase problems elsewhere...
               (void) solution_index; // stop g++ complaining: eventually remove this
               (void) n_stored;       // stop g++ complaining: eventually remove this
-              // data_store_field->second[data_store_index * n_stored + store_index].push_back (solution (solution_index));
+    
+	      // data_store_field->second[data_store_index * n_stored + store_index].push_back (solution (solution_index));
 	      Assert ((false), ExcMessage ("This function is corrupt: @whattodo"));
 
               store_index++;
