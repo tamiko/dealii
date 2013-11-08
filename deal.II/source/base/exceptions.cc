@@ -70,7 +70,10 @@ ExceptionBase::ExceptionBase ()
   exc(""),
   stacktrace (0),
   n_stacktrace_frames (0)
-{}
+{
+  // Construct a minimalistic error message:
+  generate_message();
+}
 
 
 
@@ -111,39 +114,22 @@ void ExceptionBase::set_fields (const char *f,
   cond = c;
   exc  = e;
 
-  // if the system supports this, get a stacktrace how we got here
+  // If the system supports this, get a stacktrace how we got here:
+
+  if (stacktrace != 0)
+    {
+      free (stacktrace);
+      stacktrace = 0;
+    }
+
 #ifdef HAVE_GLIBC_STACKTRACE
   void *array[25];
   n_stacktrace_frames = backtrace(array, 25);
   stacktrace = backtrace_symbols(array, n_stacktrace_frames);
 #endif
 
-  // build up a string with the error message...
-
-  std::ostringstream converter;
-
-  converter << std::endl
-            << "--------------------------------------------------------"
-            << std::endl;
-  // print out general data
-  print_exc_data (converter);
-  // print out exception specific data
-  print_info (converter);
-  print_stack_trace (converter);
-
-  if (!deal_II_exceptions::additional_assert_output.empty())
-    {
-      converter << "--------------------------------------------------------"
-                << std::endl
-                << deal_II_exceptions::additional_assert_output
-                << std::endl;
-    }
-
-  converter << "--------------------------------------------------------"
-            << std::endl;
-
-  // ... and setup the final error message with it:
-  static_cast<std::runtime_error &>(*this) = std::runtime_error(converter.str());
+  // And finally populate the underlying std::runtime_error:
+  generate_message();
 }
 
 
@@ -276,21 +262,64 @@ void ExceptionBase::print_stack_trace (std::ostream &out) const
 
 
 
+void ExceptionBase::generate_message ()
+{
+  // build up a string with the error message...
+
+  std::ostringstream converter;
+
+  converter << std::endl
+            << "--------------------------------------------------------"
+            << std::endl;
+
+  // print out general data
+  print_exc_data (converter);
+  // print out exception specific data
+  print_info (converter);
+  print_stack_trace (converter);
+
+  if (!deal_II_exceptions::additional_assert_output.empty())
+    {
+      converter << "--------------------------------------------------------"
+                << std::endl
+                << deal_II_exceptions::additional_assert_output
+                << std::endl;
+    }
+
+  converter << "--------------------------------------------------------"
+            << std::endl;
+
+  // ... and set up std::runtime_error with it:
+  static_cast<std::runtime_error &>(*this) = std::runtime_error(converter.str());
+}
+
+
+
 namespace deal_II_exceptions
 {
   namespace internals
   {
 
-    void abort (const ExceptionBase &exc)
+    void abort (const ExceptionBase &exc, bool nothrow /*= false*/)
     {
       if (dealii::deal_II_exceptions::abort_on_exception)
         {
-          //* Print the error message and bail out:
+          // Print the error message and bail out:
           std::cerr << exc.what() << std::endl;
           std::abort();
         }
+      else if (nothrow)
+        {
+          // We are not allowed to throw, and not allowed to abort.
+          // Just print the exception name to deallog and continue
+          // normally:
+          deallog << "Exception: " << exc.get_exc_name() << std::endl;
+        }
       else
         {
+          // We are not allowed to abort, so just throw the error so just
+          // throw the error so just throw the error so just throw the
+          // error:
           throw exc;
         }
     }

@@ -1388,7 +1388,7 @@ namespace Step42
                   // matrix corresponds to the bilinear form
                   // $A_{ij}=(I_\Pi\varepsilon(\varphi_i),\varepsilon(\varphi_j))$ in the
                   // notation of the accompanying publication, whereas the right
-                  // hand side is $F_i=([I_\Pi-P_\Pi]\varepsilon(\varphi_i),\varepsilon(\mathbf u))$
+                  // hand side is $F_i=([I_\Pi-P_\Pi C]\varepsilon(\varphi_i),\varepsilon(\mathbf u))$
                   // where $u$ is the current linearization points (typically the last solution).
                   // This might suggest that the right hand side will be zero if the material
                   // is completely elastic (where $I_\Pi=P_\Pi$) but this ignores the fact
@@ -1624,8 +1624,6 @@ namespace Step42
 
     constraints_hanging_nodes.set_zero(distributed_solution);
     constraints_hanging_nodes.set_zero(newton_rhs);
-    distributed_solution.compress(VectorOperation::insert);
-    newton_rhs.compress(VectorOperation::insert);
 
     TrilinosWrappers::PreconditionAMG preconditioner;
     {
@@ -1796,7 +1794,6 @@ namespace Step42
                 const double alpha = std::pow(0.5, static_cast<double>(i));
                 tmp_vector = old_solution;
                 tmp_vector.sadd(1 - alpha, alpha, distributed_solution);
-                tmp_vector.compress(VectorOperation::add);
 
                 TimerOutput::Scope t(computing_timer, "Residual and lambda");
 
@@ -1823,8 +1820,8 @@ namespace Step42
                   break;
               }
 
-            old_solution = solution;
             solution = tmp_vector;
+            old_solution = solution;
           }
 
         old_active_set = active_set;

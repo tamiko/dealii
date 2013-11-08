@@ -1,3 +1,19 @@
+// ---------------------------------------------------------------------
+// $Id$
+//
+// Copyright (C) 2013 by the deal.II authors
+//
+// This file is part of the deal.II library.
+//
+// The deal.II library is free software; you can use it, redistribute
+// it, and/or modify it under the terms of the GNU Lesser General
+// Public License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+// The full text of the license can be found in the file LICENSE at
+// the top level of the deal.II distribution.
+//
+// ---------------------------------------------------------------------
+
 /**
 // * @page changes_after_8_0 Changes after Version 8.0
 
@@ -78,6 +94,33 @@ inconvenience this causes.
 
 
 <ol>
+  <li> New: introduced "make test" that runs a minimal set of tests. We
+  encourage every user to run this, especially if they run in to problems.
+  The tests are automatically picked depending on the configuration and
+  will be shipped with every release.
+  <br>
+  (Timo Heister, Matthias Maier, 2013/11/08)
+  </li>
+
+  <li> Changed: It is now possible to restore a parallel Triangulation
+  (and solutions) with a different number of processors it was saved with
+  using Triangulation::save() and Triangulation::load().
+  <br>
+  (Timo Heister, 2013/11/02)
+  </li>
+
+  <li> Added support for Windows: It is now possible again to use gcc on Windows
+  in order to compile the library. We support gcc-4.8.1 on Cygwin64 and MinGW-w64.
+  <br>
+  (Matthias Maier, 2013/11/01)
+  </li>
+
+  <li> Changed: step-9, step-13 and step-14 have been converted to use the
+  more modern WorkStream concept for assembling linear systems in parallel.
+  <br>
+  (Bruno Turcksin, Wolfgang Bangerth, 2013/10/26)
+  </li>
+
   <li> New: The testsuite is now ported to <a href="http://www.cmake.org/">
   CMake</a> and uses CTest as test driver.
   <br>
@@ -119,7 +162,7 @@ inconvenience this causes.
   <br>
   (Eric Heien, 2013/09/27)
   </li>
-  
+
   <li>
   New: DataOutBase::DataOutFilter provides a way to remove duplicate vertices
   and values from a solution vector when generating output. Currently it only
@@ -168,6 +211,27 @@ inconvenience this causes.
 <h3>Specific improvements</h3>
 
 <ol>
+  <li> New: There is now a framework for coloring graphs, with functions
+  in namespace GraphColoring.
+  <br>
+  (Bruno Turcksin, Martin Kronbichler, 2013/11/06)
+  </li>
+
+  <li>
+  Fixed: the DerivativeApproximation class was not working correctly when
+  used with parallel vectors.
+  (Timo Heister, 2013/10/28)
+  </li>
+
+  <li>
+  ~Subscriptor and ~GrowingVectorMemory no longer throw an exception (the
+  former if disable_abort_on_exception was called) to be compatible with the
+  C++11 standard which otherwise requires the program to immediately call
+  std::terminate. This was done with a new macro "AssertNothrow".
+  <br>
+  (Wolfgang Bangerth, Matthias Maier, Bruno Turcksin 2013/10/22)
+  </li>
+
   <li>
   dealii::SolverControl::NoConvergence now inherits dealii::ExceptionBase and
   is thrown via AssertThrow(false, ... ).
@@ -176,7 +240,7 @@ inconvenience this causes.
   </li>
 
   <li>
-  New: parallel::distributed::BlockVector has now methods update_ghost_values, 
+  New: parallel::distributed::BlockVector has now methods update_ghost_values,
   compress, set_out_ghosts, and has_ghost_elements that do the respective
   operation on each block of parallel::distributed::Vector.
   <br>

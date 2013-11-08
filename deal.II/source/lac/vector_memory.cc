@@ -102,14 +102,10 @@ GrowingVectorMemory<VECTOR>::GrowingVectorMemory (const size_type initial_size,
 
 template<typename VECTOR>
 inline
-#ifdef DEAL_II_USE_CXX11
-GrowingVectorMemory<VECTOR>::~GrowingVectorMemory() noexcept(false)
-#else
 GrowingVectorMemory<VECTOR>::~GrowingVectorMemory()
-#endif
 {
-  AssertThrow(current_alloc == 0,
-              StandardExceptions::ExcMemoryLeak(current_alloc));
+  AssertNothrow(current_alloc == 0,
+                StandardExceptions::ExcMemoryLeak(current_alloc));
   if (log_statistics)
     {
       deallog << "GrowingVectorMemory:Overall allocated vectors: "

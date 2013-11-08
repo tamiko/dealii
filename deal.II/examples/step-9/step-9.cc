@@ -48,8 +48,8 @@
 
 // The following two files provide classes and information for multithreaded
 // programs. In the first one, the classes and functions are declared which we
-// need to start new threads and to wait for threads to return (i.e. the
-// <code>Thread</code> class and the <code>new_thread</code> functions). The
+// need to do assembly in parallel (i.e. the
+// <code>WorkStream</code> namespace). The
 // second file has a class <code>MultithreadInfo</code> (and a global object
 // <code>multithread_info</code> of that type) which can be used to query the
 // number of processors in your system, which is often useful when deciding
@@ -74,25 +74,6 @@ namespace Step9
 {
   using namespace dealii;
 
-  namespace Assembler
-  {
-    struct Scratch
-    {
-      Scratch() {};
-    };
-
-    struct CopyData
-    {
-      CopyData() {};
-
-      unsigned int dofs_per_cell;
-      std::vector<types::global_dof_index> local_dof_indices;
-      // We declare cell matrix and cell right hand side...
-      FullMatrix<double> cell_matrix;
-      Vector<double>  cell_rhs;
-    };
-  }
-
   // @sect3{AdvectionProblem class declaration}
 
   // Following we declare the main class of this program. It is very much
@@ -108,28 +89,65 @@ namespace Step9
 
   private:
     void setup_system ();
-    // The next function will be used to assemble the matrix. However, unlike
-    // in the previous examples, the function will not do the work itself, but
-    // rather it will split the range of active cells into several chunks and
-    // then call the following function on each of these chunks. The rationale
-    // is that matrix assembly can be parallelized quite well, as the
+
+    // The next set of functions will be used to assemble the
+    // matrix. However, unlike in the previous examples, the
+    // <code>assemble_system()</code> function will not do the work
+    // itself, but rather will delegate the actual assembly to helper
+    // functions <code>assemble_local_system()</code> and
+    // <code>copy_local_to_global()</code>. The rationale is that
+    // matrix assembly can be parallelized quite well, as the
     // computation of the local contributions on each cell is entirely
-    // independent of other cells, and we only have to synchronize when we add
-    // the contribution of a cell to the global matrix. The second function,
-    // doing the actual work, accepts two parameters which denote the first
-    // cell on which it shall operate, and the one past the last.
+    // independent of other cells, and we only have to synchronize
+    // when we add the contribution of a cell to the global
+    // matrix.
     //
     // The strategy for parallelization we choose here is one of the
-    // possibilities mentioned in detail in the @ref threads module in the
-    // documentation. While it is a straightforward way to distribute the work
-    // for assembling the system onto multiple processor cores. As mentioned
-    // in the module, there are other, and possibly better suited, ways to
-    // achieve the same goal.
+    // possibilities mentioned in detail in the @ref threads module in
+    // the documentation. Specifically, we will use the WorkStream
+    // approach discussed there. Since there is so much documentation
+    // in this module, we will not repeat the rationale for the design
+    // choices here (for example, if you read through the module
+    // mentioned above, you will understand what the purpose of the
+    // <code>AssemblyScratchData</code> and
+    // <code>AssemblyCopyData</code> structures is). Rather, we will
+    // only discuss the specific implementation.
+    //
+    // If you read the page mentioned above, you will find that in
+    // order to parallelize assembly, we need two data structures --
+    // one that corresponds to data that we need during local
+    // integration ("scratch data", i.e., things we only need as
+    // temporary storage), and one that carries information from the
+    // local integration to the function that then adds the local
+    // contributions to the corresponding elements of the global
+    // matrix. The former of these typically contains the FEValues and
+    // FEFaceValues objects, whereas the latter has the local matrix,
+    // local right hand side, and information about which degrees of
+    // freedom live on the cell for which we are assembling a local
+    // contribution. With this information, the following should be
+    // relatively self-explanatory:
+    struct AssemblyScratchData
+    {
+      AssemblyScratchData (const FiniteElement<dim> &fe);
+      AssemblyScratchData (const AssemblyScratchData &scratch_data);
+
+      FEValues<dim>     fe_values;
+      FEFaceValues<dim> fe_face_values;
+    };
+
+    struct AssemblyCopyData
+    {
+      FullMatrix<double>                   cell_matrix;
+      Vector<double>                       cell_rhs;
+      std::vector<types::global_dof_index> local_dof_indices;
+    };
+
     void assemble_system ();
-    void build_local_system (typename DoFHandler<dim>::active_cell_iterator const &cell,
-        Assembler::Scratch &scratch,Assembler::CopyData &copy_data);
-    void copy_local_to_global (Assembler::CopyData const &copy_data);
-                                   
+    void local_assemble_system (const typename DoFHandler<dim>::active_cell_iterator &cell,
+				AssemblyScratchData                                  &scratch,
+				AssemblyCopyData                                     &copy_data);
+    void copy_local_to_global (const AssemblyCopyData &copy_data);
+
 
     // The following functions again are as in previous examples, as are the
     // subsequent variables.
@@ -447,13 +465,33 @@ namespace Step9
     DeclException0 (ExcInsufficientDirections);
 
   private:
-    typedef std::pair<unsigned int,unsigned int> IndexInterval;
+    template <int dim>
+    struct EstimateScratchData 
+    {
+      EstimateScratchData (const FiniteElement<dim> &fe,
+                           const Vector<double>     &solution);
+      EstimateScratchData (const EstimateScratchData &data);
+
+      FEValues<dim> fe_midpoint_value;
+      Vector<double> solution;
+    };
+
+    // There is nothing to copy but WorkStream requires a CopyData structure
+    template <int dim>
+    struct EstimateCopyData 
+    {
+      EstimateCopyData () {}
+    };
 
     template <int dim>
-    static void estimate_interval (const DoFHandler<dim> &dof,
-                                   const Vector<double>  &solution,
-                                   const IndexInterval   &index_interval,
-                                   Vector<float>         &error_per_cell);
+    static void estimate_cell (
+        const SynchronousIterators<std_cxx1x::tuple<typename DoFHandler<dim>::active_cell_iterator,
+        Vector<float>::iterator> >     &cell,
+        EstimateScratchData<dim>       &scratch_data,
+        const EstimateCopyData<dim>    &copy_data);
+    // There is nothing to copy but WorkStream required a copy function
+    template <int dim>
+    static void dummy_copy(const EstimateCopyData<dim> &copy_data) {}
   };
 
 
@@ -510,134 +548,86 @@ namespace Step9
   // In the following function, the matrix and right hand side are
   // assembled. As stated in the documentation of the main class above, it
   // does not do this itself, but rather delegates to the function following
-  // next, by splitting up the range of cells into chunks of approximately the
-  // same size and assembling on each of these chunks in parallel.
+  // next, utilizing the WorkStream concept discussed in @ref threads .
+  //
+  // If you have looked through the @ref threads module, you will have
+  // seen that assembling in parallel does not take an incredible
+  // amount of extra code as long as you diligently describe what the
+  // scratch and copy data objects are, and if you define suitable
+  // functios for the local assembly and the copy operation from local
+  // contributions to global objects. This done, the following will do
+  // all the heavy lifting to get these operations done on multiple
+  // threads on as many cores as you have in your system:
   template <int dim>
   void AdvectionProblem<dim>::assemble_system ()
   {
-    // First, we want to find out how many threads shall assemble the matrix
-    // in parallel. A reasonable choice would be that each processor in your
-    // system processes one chunk of cells; if we were to use this
-    // information, we could use the value of the global variable
-    // <code>multithread_info.n_cpus</code>, which is determined at start-up
-    // time of your program automatically. (Note that if the library was not
-    // configured for multithreading, then the number of CPUs is set to one.)
-    // However, sometimes there might be reasons to use another value. For
-    // example, you might want to use less processors than there are in your
-    // system in order not to use too many computational resources. For
-    // this reason, the number of threads can be set by
-    // <code>MultithreadInfo::set_thread_limit</code> and the current value
-    // is returned by n_threads(). This
-    // is also queried by functions inside the library to determine
-    // how many threads they shall create.
-    
-    // It is worth noting, however, that this setup determines the load
-    // distribution onto processor in a static way: it does not take into
-    // account that some other part of our program may also be running
-    // something in parallel at the same time as we get here (this is not the
-    // case in the current program, but may easily be the case in more complex
-    // applications). A discussion of how to deal with this case can be found
-    // in the @ref threads module.
-    //
-    // Next, we need an object which is capable of keeping track of the
-    // threads we created, and allows us to wait until they all have finished
-    // (to <code>join</code> them in the language of threads). The
-    // Threads::ThreadGroup class does this, which is basically just a
-    // container for objects of type Threads::Thread that represent a single
-    // thread; Threads::Thread is what the Threads::new_thread function below
-    // will return when we start a new thread.
-    //
-    // Note that both Threads::ThreadGroup and Threads::Thread have a template
-    // argument that represents the return type of the function being called
-    // on a separate thread. Since most of the functions that we will call on
-    // different threads have return type <code>void</code>, the template
-    // argument has a default value <code>void</code>, so that in that case it
-    // can be omitted. (However, you still need to write the angle brackets,
-    // even if they are empty.)
-    //
-    // If you did not configure for multithreading, then the
-    // <code>new_thread</code> function that is supposed to start a new thread
-    // in parallel only executes the function which should be run in parallel,
-    // waits for it to return (i.e. the function is executed sequentially),
-    // and puts the return value into the <code>Thread</code>
-    // object. Likewise, the function <code>join</code> that is supposed to
-    // wait for all spawned threads to return, returns immediately, as there
-    // can't be any threads running.
-
-    // Now we have to split the range of cells into chunks of approximately
-    // the same size. Each thread will then assemble the local contributions
-    // of the cells within its chunk and transfer these contributions to the
-    // global matrix. As splitting a range of cells is a rather common task
-    // when using multithreading, there is a function in the
-    // <code>Threads</code> namespace that does exactly this. In fact, it does
-    // this not only for a range of cell iterators, but for iterators in
-    // general, so you could use it for <code>std::vector::iterator</code> or
-    // usual pointers as well.
-    //
-    // The function returns a vector of pairs of iterators, where the first
-    // denotes the first cell of each chunk, while the second denotes the one
-    // past the last (this half-open interval is the usual convention in the
-    // C++ standard library, so we keep to it). Note that we have to specify
-    // the actual data type of the iterators in angle brackets to the
-    // function. This is necessary, since it is a template function which
-    // takes the data type of the iterators as template argument; in the
-    // present case, however, the data types of the two first parameters
-    // differ (<code>begin_active</code> returns an
-    // <code>active_iterator</code>, while <code>end</code> returns a
-    // <code>raw_iterator</code>), and in this case the C++ language requires
-    // us to specify the template type explicitly. For brevity, we first
-    // typedef this data type to an alias.
-
-    typedef typename DoFHandler<dim>::active_cell_iterator active_cell_iterator;
-
-    // Finally, for each of the chunks of iterators we have computed, start
-    // one thread (or if not in multithread mode: execute assembly on these
-    // chunks sequentially). This is done using the following sequence of
-    // function calls:
-
-    Assembler::Scratch scratch;
-    Assembler::CopyData copy_data;
-    WorkStream::run(dof_handler.begin_active(),dof_handler.end(),*this,
-        &AdvectionProblem::build_local_system,&AdvectionProblem::copy_local_to_global,
-        scratch,copy_data);
-
-
-    // The reasons and internal workings of these functions can be found in
-    // the report on the subject of multithreading, which is available online
-    // as well. Suffice it to say that we create a new thread that calls the
-    // <code>assemble_system_interval</code> function on the present object
-    // (the <code>this</code> pointer), with the arguments following in the
-    // second set of parentheses passed as parameters. The Threads::new_thread
-    // function returns an object of type Threads::Thread, which we put into
-    // the <code>threads</code> container. If a thread exits, the return value
-    // of the function being called is put into a place such that the thread
-    // objects can access it using their <code>return_value</code> function;
-    // since the function we call doesn't have a return value, this does not
-    // apply here. Note that you can copy around thread objects freely, and
-    // that of course they will still represent the same thread.
-
-    // When all the threads are running, the only thing we have to do is wait
-    // for them to finish. This is necessary of course, as we can't proceed
-    // with our tasks before the matrix and right hand side are
-    // assembled. Waiting for all the threads to finish can be done using the
-    // <code>join_all</code> function in the <code>ThreadGroup</code>
-    // container, which just calls <code>join</code> on each of the thread
-    // objects it stores.
-    //
-    // Again, if the library was not configured to use multithreading, then
-    // no threads can run in parallel and the function returns immediately.
+    WorkStream::run(dof_handler.begin_active(),
+		    dof_handler.end(),
+		    *this,
+		    &AdvectionProblem::local_assemble_system,
+		    &AdvectionProblem::copy_local_to_global,
+		    AssemblyScratchData(fe),
+		    AssemblyCopyData());
 
 
     // After the matrix has been assembled in parallel, we still have to
     // eliminate hanging node constraints. This is something that can't be
     // done on each of the threads separately, so we have to do it now.
-    hanging_node_constraints.condense (system_matrix);
-    hanging_node_constraints.condense (system_rhs);
     // Note also, that unlike in previous examples, there are no boundary
     // conditions to be applied to the system of equations. This, of course,
     // is due to the fact that we have included them into the weak formulation
     // of the problem.
+    hanging_node_constraints.condense (system_matrix);
+    hanging_node_constraints.condense (system_rhs);
   }
+
+
+
+  // As already mentioned above, we need to have scratch objects for
+  // the parallel computation of local contributions. These objects
+  // contain FEValues and FEFaceValues objects, and so we will need to
+  // have constructors and copy constructors that allow us to create
+  // them. In initializing them, note first that we use bilinear
+  // elements, soGauss formulae with two points in each space
+  // direction are sufficient.  For the cell terms we need the values
+  // and gradients of the shape functions, the quadrature points in
+  // order to determine the source density and the advection field at
+  // a given point, and the weights of the quadrature points times the
+  // determinant of the Jacobian at these points. In contrast, for the
+  // boundary integrals, we don't need the gradients, but rather the
+  // normal vectors to the cells. This determines which update flags
+  // we will have to pass to the constructors of the members of the
+  // class:
+  template <int dim>
+  AdvectionProblem<dim>::AssemblyScratchData::
+  AssemblyScratchData (const FiniteElement<dim> &fe)
+  :
+  fe_values (fe,
+	     QGauss<dim>(2),
+	     update_values   | update_gradients |
+	     update_quadrature_points | update_JxW_values),
+  fe_face_values (fe,
+		  QGauss<dim-1>(2),
+		  update_values     | update_quadrature_points   |
+		  update_JxW_values | update_normal_vectors)
+  {}
+
+
+
+  template <int dim>
+  AdvectionProblem<dim>::AssemblyScratchData::
+  AssemblyScratchData (const AssemblyScratchData &scratch_data)
+  :
+  fe_values (scratch_data.fe_values.get_fe(),
+	     scratch_data.fe_values.get_quadrature(),
+	     update_values   | update_gradients |
+	     update_quadrature_points | update_JxW_values),
+  fe_face_values (scratch_data.fe_face_values.get_fe(),
+		  scratch_data.fe_face_values.get_quadrature(),
+		  update_values     | update_quadrature_points   |
+		  update_JxW_values | update_normal_vectors)
+  {}
+
 
 
 
@@ -645,12 +635,41 @@ namespace Step9
   // different from the <code>assemble_system</code> functions of previous
   // example programs, so we will again only comment on the differences. The
   // mathematical stuff follows closely what we have said in the introduction.
+  //
+  // There are a number of points worth mentioning here, though. The
+  // first one is that we have moved the FEValues and FEFaceValues
+  // objects into the ScratchData object. We have done so because the
+  // alternative would have been to simply create one every time we
+  // get into this function -- i.e., on every cell. It now turns out
+  // that the FEValues classes were written with the explicit goal of
+  // moving everything that remains the same from cell to cell into
+  // the construction of the object, and only do as little work as
+  // possible in FEValues::reinit() whenever we move to a new
+  // cell. What this means is that it would be very expensive to
+  // create a new object of this kind in this function as we would
+  // have to do it for every cell -- exactly the thing we wanted to
+  // avoid with the FEValues class. Instead, what we do is create it
+  // only once (or a small number of times) in the scratch objects and
+  // then re-use it as often as we can.
+  //
+  // This begs the question of whether there are other objects we
+  // create in this function whose creation is expensive compared to
+  // its use. Indeed, at the top of the function, we declare all sorts
+  // of objects. The <code>AdvectionField</code>,
+  // <code>RightHandSide</code> and <code>BoundaryValues</code> do not
+  // cost much to create, so there is no harm here. However,
+  // allocating memory in creating the <code>rhs_values</code> and
+  // similar variables below typically costs a significant amount of
+  // time, compared to just accessing the (temporary) values we store
+  // in them. Consequently, these would be candidates for moving into
+  // the <code>AssemblyScratchData</code> class. We will leave this as
+  // an exercise.
   template <int dim>
   void
   AdvectionProblem<dim>::
-  build_local_system (typename DoFHandler<dim>::active_cell_iterator const &cell,
-      Assembler::Scratch &scratch,
-      Assembler::CopyData &copy_data)
+  local_assemble_system (const typename DoFHandler<dim>::active_cell_iterator &cell,
+			 AssemblyScratchData                                  &scratch_data,
+			 AssemblyCopyData                                     &copy_data)
   {
     // First of all, we will need some objects that describe boundary values,
     // right hand side function and the advection field. As we will only
@@ -661,39 +680,18 @@ namespace Step9
     const RightHandSide<dim>  right_hand_side;
     const BoundaryValues<dim> boundary_values;
 
-    // Next we need quadrature formula for the cell terms, but also for the
-    // integral over the inflow boundary, which will be a face integral. As we
-    // use bilinear elements, Gauss formulae with two points in each space
-    // direction are sufficient.
-    QGauss<dim>   quadrature_formula(2);
-    QGauss<dim-1> face_quadrature_formula(2);
-
-    // Finally, we need objects of type <code>FEValues</code> and
-    // <code>FEFaceValues</code>. For the cell terms we need the values and
-    // gradients of the shape functions, the quadrature points in order to
-    // determine the source density and the advection field at a given point,
-    // and the weights of the quadrature points times the determinant of the
-    // Jacobian at these points. In contrast, for the boundary integrals, we
-    // don't need the gradients, but rather the normal vectors to the cells.
-    FEValues<dim> fe_values (fe, quadrature_formula,
-                             update_values   | update_gradients |
-                             update_quadrature_points | update_JxW_values);
-    FEFaceValues<dim> fe_face_values (fe, face_quadrature_formula,
-                                      update_values     | update_quadrature_points   |
-                                      update_JxW_values | update_normal_vectors);
-
     // Then we define some abbreviations to avoid unnecessarily long lines:
-    copy_data.dofs_per_cell = fe.dofs_per_cell;
-    const unsigned int   n_q_points      = quadrature_formula.size();
-    const unsigned int   n_face_q_points = face_quadrature_formula.size();
+    const unsigned int dofs_per_cell   = fe.dofs_per_cell;
+    const unsigned int n_q_points      = scratch_data.fe_values.get_quadrature().size();
+    const unsigned int n_face_q_points = scratch_data.fe_face_values.get_quadrature().size();
 
     // We declare cell matrix and cell right hand side...
-    copy_data.cell_matrix = FullMatrix<double> (copy_data.dofs_per_cell, copy_data.dofs_per_cell);
-    copy_data.cell_rhs = Vector<double> (copy_data.dofs_per_cell);
+    copy_data.cell_matrix.reinit (dofs_per_cell, dofs_per_cell);
+    copy_data.cell_rhs.reinit (dofs_per_cell);
 
     // ... an array to hold the global indices of the degrees of freedom of
     // the cell on which we are presently working...
-    copy_data.local_dof_indices.resize(copy_data.dofs_per_cell);
+    copy_data.local_dof_indices.resize(dofs_per_cell);
 
     // ... and array in which the values of right hand side, advection
     // direction, and boundary values will be stored, for cell and face
@@ -705,13 +703,13 @@ namespace Step9
 
 
     // ... then initialize the <code>FEValues</code> object...
-    fe_values.reinit (cell);
+    scratch_data.fe_values.reinit (cell);
 
     // ... obtain the values of right hand side and advection directions
     // at the quadrature points...
-    advection_field.value_list (fe_values.get_quadrature_points(),
+    advection_field.value_list (scratch_data.fe_values.get_quadrature_points(),
                                 advection_directions);
-    right_hand_side.value_list (fe_values.get_quadrature_points(),
+    right_hand_side.value_list (scratch_data.fe_values.get_quadrature_points(),
                                 rhs_values);
 
     // ... set the value of the streamline diffusion parameter as
@@ -721,26 +719,26 @@ namespace Step9
     // ... and assemble the local contributions to the system matrix and
     // right hand side as also discussed above:
     for (unsigned int q_point=0; q_point<n_q_points; ++q_point)
-      for (unsigned int i=0; i<copy_data.dofs_per_cell; ++i)
+      for (unsigned int i=0; i<dofs_per_cell; ++i)
         {
-          for (unsigned int j=0; j<copy_data.dofs_per_cell; ++j)
+          for (unsigned int j=0; j<dofs_per_cell; ++j)
             copy_data.cell_matrix(i,j) += ((advection_directions[q_point] *
-                                            fe_values.shape_grad(j,q_point)   *
-                                            (fe_values.shape_value(i,q_point) +
+                                            scratch_data.fe_values.shape_grad(j,q_point)   *
+                                            (scratch_data.fe_values.shape_value(i,q_point) +
                                              delta *
                                              (advection_directions[q_point] *
-                                              fe_values.shape_grad(i,q_point)))) *
-                                           fe_values.JxW(q_point));
+                                              scratch_data.fe_values.shape_grad(i,q_point)))) *
+                                           scratch_data.fe_values.JxW(q_point));
 
-          copy_data.cell_rhs(i) += ((fe_values.shape_value(i,q_point) +
+          copy_data.cell_rhs(i) += ((scratch_data.fe_values.shape_value(i,q_point) +
                                      delta *
                                      (advection_directions[q_point] *
-                                      fe_values.shape_grad(i,q_point))        ) *
+                                      scratch_data.fe_values.shape_grad(i,q_point))        ) *
                                     rhs_values[q_point] *
-                                    fe_values.JxW (q_point));
-        };
+                                    scratch_data.fe_values.JxW (q_point));
+        }
 
-    // Besides the cell terms which we have build up now, the bilinear
+    // Besides the cell terms which we have built up now, the bilinear
     // form of the present problem also contains terms on the boundary of
     // the domain. Therefore, we have to check whether any of the faces of
     // this cell are on the boundary of the domain, and if so assemble the
@@ -759,13 +757,13 @@ namespace Step9
           // domain. Just as for the usual FEValues object which we have
           // used in previous examples and also above, we have to
           // reinitialize the FEFaceValues object for the present face:
-          fe_face_values.reinit (cell, face);
+          scratch_data.fe_face_values.reinit (cell, face);
 
           // For the quadrature points at hand, we ask for the values of
           // the inflow function and for the direction of flow:
-          boundary_values.value_list (fe_face_values.get_quadrature_points(),
+          boundary_values.value_list (scratch_data.fe_face_values.get_quadrature_points(),
                                       face_boundary_values);
-          advection_field.value_list (fe_face_values.get_quadrature_points(),
+          advection_field.value_list (scratch_data.fe_face_values.get_quadrature_points(),
                                       face_advection_directions);
 
           // Now loop over all quadrature points and see whether it is on
@@ -777,7 +775,7 @@ namespace Step9
           // so if the advection direction points into the domain, its
           // scalar product with the normal vector must be negative):
           for (unsigned int q_point=0; q_point<n_face_q_points; ++q_point)
-            if (fe_face_values.normal_vector(q_point) *
+            if (scratch_data.fe_face_values.normal_vector(q_point) *
                 face_advection_directions[q_point]
                 < 0)
               // If the is part of the inflow boundary, then compute the
@@ -785,22 +783,22 @@ namespace Step9
               // hand side, using the values obtained from the
               // FEFaceValues object and the formulae discussed in the
               // introduction:
-              for (unsigned int i=0; i<copy_data.dofs_per_cell; ++i)
+              for (unsigned int i=0; i<dofs_per_cell; ++i)
                 {
-                  for (unsigned int j=0; j<copy_data.dofs_per_cell; ++j)
+                  for (unsigned int j=0; j<dofs_per_cell; ++j)
                     copy_data.cell_matrix(i,j) -= (face_advection_directions[q_point] *
-                                                   fe_face_values.normal_vector(q_point) *
-                                                   fe_face_values.shape_value(i,q_point) *
-                                                   fe_face_values.shape_value(j,q_point) *
-                                                   fe_face_values.JxW(q_point));
+                                                   scratch_data.fe_face_values.normal_vector(q_point) *
+                                                   scratch_data.fe_face_values.shape_value(i,q_point) *
+                                                   scratch_data.fe_face_values.shape_value(j,q_point) *
+                                                   scratch_data.fe_face_values.JxW(q_point));
 
                   copy_data.cell_rhs(i) -= (face_advection_directions[q_point] *
-                                            fe_face_values.normal_vector(q_point) *
+                                            scratch_data.fe_face_values.normal_vector(q_point) *
                                             face_boundary_values[q_point]         *
-                                            fe_face_values.shape_value(i,q_point) *
-                                            fe_face_values.JxW(q_point));
-                };
-        };
+                                            scratch_data.fe_face_values.shape_value(i,q_point) *
+                                            scratch_data.fe_face_values.JxW(q_point));
+                }
+        }
 
 
     // Now go on by transferring the local contributions to the system of
@@ -810,62 +808,28 @@ namespace Step9
   }
 
 
-  
+
+  // The second function we needed to write was the one that copies
+  // the local contributions the previous function has computed and
+  // put into the copy data object, into the global matrix and right
+  // hand side vector objects. This is essentially what we always had
+  // as the last block of code when assembling something on every
+  // cell. The following should therefore be pretty obvious:
   template <int dim>
   void
-  AdvectionProblem<dim>::copy_local_to_global (Assembler::CopyData const &copy_data)
+  AdvectionProblem<dim>::copy_local_to_global (const AssemblyCopyData &copy_data)
   {
+    for (unsigned int i=0; i<copy_data.local_dof_indices.size(); ++i)
+      {
+	for (unsigned int j=0; j<copy_data.local_dof_indices.size(); ++j)
+	  system_matrix.add (copy_data.local_dof_indices[i],
+			     copy_data.local_dof_indices[j],
+			     copy_data.cell_matrix(i,j));
 
-        // Up until now we have not taken care of the fact that this function
-        // might run more than once in parallel, as the operations above only
-        // work on variables that are local to this function, or if they are
-        // global (such as the information on the grid, the DoF handler, or
-        // the DoF numbers) they are only read. Thus, the different threads do
-        // not disturb each other.
-        //
-        // On the other hand, we would now like to write the local
-        // contributions to the global system of equations into the global
-        // objects. This needs some kind of synchronization, as if we would
-        // not take care of the fact that multiple threads write into the
-        // matrix at the same time, we might be surprised that one threads
-        // reads data from the matrix that another thread is presently
-        // overwriting, or similar things. Thus, to make sure that only one
-        // thread operates on these objects at a time, we have to lock
-        // it. This is done using a <code>Mutex</code>, which is short for
-        // <code>mutually exclusive</code>: a thread that wants to write to
-        // the global objects acquires this lock, but has to wait if it is
-        // presently owned by another thread. If it has acquired the lock, it
-        // can be sure that no other thread is presently writing to the
-        // matrix, and can do so freely. When finished, we release the lock
-        // again so as to allow other threads to acquire it and write to the
-        // matrix.
-        for (unsigned int i=0; i<copy_data.dofs_per_cell; ++i)
-          {
-            for (unsigned int j=0; j<copy_data.dofs_per_cell; ++j)
-              system_matrix.add (copy_data.local_dof_indices[i],
-                                 copy_data.local_dof_indices[j],
-                                 copy_data.cell_matrix(i,j));
-
-            system_rhs(copy_data.local_dof_indices[i]) += copy_data.cell_rhs(i);
-          };
-        // At this point, the locked operations on the global matrix are done,
-        // i.e. other threads can now enter into the protected section by
-        // acquiring the lock. Two final notes are in place here, however:
-        //
-        // 1. If the library was not configured for multithreading, then
-        // there can't be parallel threads and there is no need to
-        // synchronize. Thus, the <code>lock</code> and <code>release</code>
-        // functions are no-ops, i.e. they return without doing anything.
-        //
-        // 2. In order to work properly, it is essential that all threads try
-        // to acquire the same lock. This, of course, can not be achieved if
-        // the lock is a local variable, as then each thread would acquire its
-        // own lock. Therefore, the lock variable is a member variable of the
-        // class; since all threads execute member functions of the same
-        // object, they have the same <code>this</code> pointer and therefore
-        // also operate on the same <code>lock</code>.
+	system_rhs(copy_data.local_dof_indices[i]) += copy_data.cell_rhs(i);
+      }
   }
-  
+
 
 
 
@@ -946,7 +910,7 @@ namespace Step9
         else
           {
             refine_grid ();
-          };
+          }
 
 
         std::cout << "   Number of active cells:       "
@@ -962,7 +926,7 @@ namespace Step9
         assemble_system ();
         solve ();
         output_results (cycle);
-      };
+      }
 
     DataOut<dim> data_out;
     data_out.attach_dof_handler (dof_handler);
@@ -976,6 +940,32 @@ namespace Step9
 
 
   // @sect3{GradientEstimation class implementation}
+
+  // ScratchData used by estimate_cell
+  template <int dim>
+  GradientEstimation::EstimateScratchData<dim>
+  ::EstimateScratchData (const FiniteElement<dim> &fe,
+                         const Vector<double>     &solution)
+  :
+  fe_midpoint_value(fe,
+      QMidpoint<dim> (),
+      update_values | update_quadrature_points),
+  solution(solution)
+  {}
+
+
+
+  // ScratchData used by estimate_cell
+  template <int dim>
+  GradientEstimation::EstimateScratchData<dim>
+  ::EstimateScratchData(const EstimateScratchData &scratch_data)
+  :
+  fe_midpoint_value(scratch_data.fe_midpoint_value.get_fe(),
+      scratch_data.fe_midpoint_value.get_quadrature(),
+      update_values | update_quadrature_points),
+  solution(scratch_data.solution)
+  {}
+
 
   // Now for the implementation of the <code>GradientEstimation</code>
   // class. The first function does not much except for delegating work to the
@@ -997,15 +987,6 @@ namespace Step9
             ExcInvalidVectorLength (error_per_cell.size(),
                                     dof_handler.get_tria().n_active_cells()));
 
-    // Next, we subdivide the range of cells into chunks of equal size. Just
-    // as we have used the function <code>Threads::split_range</code> when
-    // assembling above, there is a function that computes intervals of
-    // roughly equal size from a larger interval. This is used here:
-    const unsigned int n_threads = multithread_info.n_threads();
-    std::vector<IndexInterval> index_intervals
-      = Threads::split_interval (0, dof_handler.get_tria().n_active_cells(),
-                                 n_threads);
-
     // In the same way as before, we use a <code>Threads::ThreadGroup</code>
     // object to collect the descriptor objects of different threads. Note
     // that as the function called is not a member function, but rather a
@@ -1020,20 +1001,27 @@ namespace Step9
     // or the other compiler, but have to take a temporary variable for that
     // purpose. Here, in this case, Compaq's <code>cxx</code> compiler choked
     // on the code so we use this workaround with the function pointer:
-    Threads::ThreadGroup<> threads;
-    void (*estimate_interval_ptr) (const DoFHandler<dim> &,
-                                   const Vector<double> &,
-                                   const IndexInterval &,
-                                   Vector<float> &)
-      = &GradientEstimation::template estimate_interval<dim>;
-    for (unsigned int i=0; i<n_threads; ++i)
-      threads += Threads::new_thread (estimate_interval_ptr,
-                                      dof_handler, solution,
-                                      index_intervals[i],
-                                      error_per_cell);
-    // Ok, now the threads are at work, and we only have to wait for them to
-    // finish their work:
-    threads.join_all ();
+    void (*estimate_cell_ptr) (const SynchronousIterators<std_cxx1x::tuple<
+      typename DoFHandler<dim>::active_cell_iterator,Vector<float>::iterator> > &cell,          
+      EstimateScratchData<dim>                                                  &scratch_data,  
+      const EstimateCopyData<dim>                                               &copy_data)
+      = &GradientEstimation::template estimate_cell<dim>;
+
+    void (*dummy_copy) (const EstimateCopyData<dim> &copy_data)
+      = &GradientEstimation::template dummy_copy<dim>;
+
+    typedef std_cxx1x::tuple<typename DoFHandler<dim>::active_cell_iterator,Vector<float>::iterator>
+      Iterators;
+    SynchronousIterators<Iterators> begin_sync_it(Iterators(dof_handler.begin_active(),
+          error_per_cell.begin()));
+    SynchronousIterators<Iterators> end_sync_it(Iterators(dof_handler.end(),error_per_cell.end()));
+
+    WorkStream::run(begin_sync_it,end_sync_it,
+                    estimate_cell_ptr,
+                    dummy_copy,
+                    EstimateScratchData<dim> (dof_handler.get_fe(),solution),
+                    EstimateCopyData<dim> ());
+
     // Note that if the value of the variable
     // <code>multithread_info.n_threads()</code> was one, or if the
     // library was not configured to use threads, then the sequence of
@@ -1060,50 +1048,14 @@ namespace Step9
   // Now for the details:
   template <int dim>
   void
-  GradientEstimation::estimate_interval (const DoFHandler<dim> &dof_handler,
-                                         const Vector<double>  &solution,
-                                         const IndexInterval   &index_interval,
-                                         Vector<float>         &error_per_cell)
-  {
-    // First we need a way to extract the values of the given finite element
-    // function at the center of the cells. As usual with values of finite
-    // element functions, we use an object of type <code>FEValues</code>, and
-    // we use (or mis-use in this case) the midpoint quadrature rule to get at
-    // the values at the center. Note that the <code>FEValues</code> object
-    // only needs to compute the values at the centers, and the location of
-    // the quadrature points in real space in order to get at the vectors
-    // <code>y</code>.
-    QMidpoint<dim> midpoint_rule;
-    FEValues<dim>  fe_midpoint_value (dof_handler.get_fe(),
-                                      midpoint_rule,
-                                      update_values | update_quadrature_points);
-
-    // Then we need space foe the tensor <code>Y</code>, which is the sum of
+  GradientEstimation::estimate_cell (const SynchronousIterators<std_cxx1x::tuple<
+      typename DoFHandler<dim>::active_cell_iterator,Vector<float>::iterator> > &cell,          
+      EstimateScratchData<dim>                                                  &scratch_data,  
+      const EstimateCopyData<dim>                                               &copy_data)
+   {
+    // We need space for the tensor <code>Y</code>, which is the sum of
     // outer products of the y-vectors.
     Tensor<2,dim> Y;
-
-    // Then define iterators into the cells and into the output vector, which
-    // are to be looped over by the present instance of this function. We get
-    // start and end iterators over cells by setting them to the first active
-    // cell and advancing them using the given start and end index. Note that
-    // we can use the <code>advance</code> function of the standard C++
-    // library, but that we have to cast the distance by which the iterator is
-    // to be moved forward to a signed quantity in order to avoid warnings by
-    // the compiler.
-    typename DoFHandler<dim>::active_cell_iterator cell, endc;
-
-    cell = dof_handler.begin_active();
-    advance (cell, static_cast<signed int>(index_interval.first));
-
-    endc = dof_handler.begin_active();
-    advance (endc, static_cast<signed int>(index_interval.second));
-
-    // Getting an iterator into the output array is simpler. We don't need an
-    // end iterator, as we always move this iterator forward by one element
-    // for each cell we are on, but stop the loop when we hit the end cell, so
-    // we need not have an end element for this iterator.
-    Vector<float>::iterator
-    error_on_this_cell = error_per_cell.begin() + index_interval.first;
 
 
     // Then we allocate a vector to hold iterators to all active neighbors of
@@ -1114,205 +1066,203 @@ namespace Step9
     active_neighbors.reserve (GeometryInfo<dim>::faces_per_cell *
                               GeometryInfo<dim>::max_children_per_face);
 
-    // Well then, after all these preliminaries, lets start the computations:
-    for (; cell!=endc; ++cell, ++error_on_this_cell)
-      {
-        // First initialize the <code>FEValues</code> object, as well as the
-        // <code>Y</code> tensor:
-        fe_midpoint_value.reinit (cell);
-        Y.clear ();
+    typename DoFHandler<dim>::active_cell_iterator cell_it(std_cxx1x::get<0>(cell.iterators));
+    
+    // First initialize the <code>FEValues</code> object, as well as the
+    // <code>Y</code> tensor:
+    scratch_data.fe_midpoint_value.reinit (cell_it);
 
-        // Then allocate the vector that will be the sum over the y-vectors
-        // times the approximate directional derivative:
-        Tensor<1,dim> projected_gradient;
+    // Then allocate the vector that will be the sum over the y-vectors
+    // times the approximate directional derivative:
+    Tensor<1,dim> projected_gradient;
 
 
-        // Now before going on first compute a list of all active neighbors of
-        // the present cell. We do so by first looping over all faces and see
-        // whether the neighbor there is active, which would be the case if it
-        // is on the same level as the present cell or one level coarser (note
-        // that a neighbor can only be once coarser than the present cell, as
-        // we only allow a maximal difference of one refinement over a face in
-        // deal.II). Alternatively, the neighbor could be on the same level
-        // and be further refined; then we have to find which of its children
-        // are next to the present cell and select these (note that if a child
-        // of of neighbor of an active cell that is next to this active cell,
-        // needs necessarily be active itself, due to the one-refinement rule
-        // cited above).
-        //
-        // Things are slightly different in one space dimension, as there the
-        // one-refinement rule does not exist: neighboring active cells may
-        // differ in as many refinement levels as they like. In this case, the
-        // computation becomes a little more difficult, but we will explain
-        // this below.
-        //
-        // Before starting the loop over all neighbors of the present cell, we
-        // have to clear the array storing the iterators to the active
-        // neighbors, of course.
-        active_neighbors.clear ();
-        for (unsigned int face_no=0; face_no<GeometryInfo<dim>::faces_per_cell; ++face_no)
-          if (! cell->at_boundary(face_no))
+    // Now before going on first compute a list of all active neighbors of
+    // the present cell. We do so by first looping over all faces and see
+    // whether the neighbor there is active, which would be the case if it
+    // is on the same level as the present cell or one level coarser (note
+    // that a neighbor can only be once coarser than the present cell, as
+    // we only allow a maximal difference of one refinement over a face in
+    // deal.II). Alternatively, the neighbor could be on the same level
+    // and be further refined; then we have to find which of its children
+    // are next to the present cell and select these (note that if a child
+    // of of neighbor of an active cell that is next to this active cell,
+    // needs necessarily be active itself, due to the one-refinement rule
+    // cited above).
+    //
+    // Things are slightly different in one space dimension, as there the
+    // one-refinement rule does not exist: neighboring active cells may
+    // differ in as many refinement levels as they like. In this case, the
+    // computation becomes a little more difficult, but we will explain
+    // this below.
+    //
+    // Before starting the loop over all neighbors of the present cell, we
+    // have to clear the array storing the iterators to the active
+    // neighbors, of course.
+    active_neighbors.clear ();
+    for (unsigned int face_no=0; face_no<GeometryInfo<dim>::faces_per_cell; ++face_no)
+      if (! std_cxx1x::get<0>(cell.iterators)->at_boundary(face_no))
+        {
+          // First define an abbreviation for the iterator to the face and
+          // the neighbor
+          const typename DoFHandler<dim>::face_iterator
+          face = std_cxx1x::get<0>(cell.iterators)->face(face_no);
+          const typename DoFHandler<dim>::cell_iterator
+          neighbor = std_cxx1x::get<0>(cell.iterators)->neighbor(face_no);
+
+          // Then check whether the neighbor is active. If it is, then it
+          // is on the same level or one level coarser (if we are not in
+          // 1D), and we are interested in it in any case.
+          if (neighbor->active())
+            active_neighbors.push_back (neighbor);
+          else
             {
-              // First define an abbreviation for the iterator to the face and
-              // the neighbor
-              const typename DoFHandler<dim>::face_iterator
-              face = cell->face(face_no);
-              const typename DoFHandler<dim>::cell_iterator
-              neighbor = cell->neighbor(face_no);
-
-              // Then check whether the neighbor is active. If it is, then it
-              // is on the same level or one level coarser (if we are not in
-              // 1D), and we are interested in it in any case.
-              if (neighbor->active())
-                active_neighbors.push_back (neighbor);
-              else
+              // If the neighbor is not active, then check its children.
+              if (dim == 1)
                 {
-                  // If the neighbor is not active, then check its children.
-                  if (dim == 1)
-                    {
-                      // To find the child of the neighbor which bounds to the
-                      // present cell, successively go to its right child if
-                      // we are left of the present cell (n==0), or go to the
-                      // left child if we are on the right (n==1), until we
-                      // find an active cell.
-                      typename DoFHandler<dim>::cell_iterator
-                      neighbor_child = neighbor;
-                      while (neighbor_child->has_children())
-                        neighbor_child = neighbor_child->child (face_no==0 ? 1 : 0);
+                  // To find the child of the neighbor which bounds to the
+                  // present cell, successively go to its right child if
+                  // we are left of the present cell (n==0), or go to the
+                  // left child if we are on the right (n==1), until we
+                  // find an active cell.
+                  typename DoFHandler<dim>::cell_iterator
+                  neighbor_child = neighbor;
+                  while (neighbor_child->has_children())
+                    neighbor_child = neighbor_child->child (face_no==0 ? 1 : 0);
 
-                      // As this used some non-trivial geometrical intuition,
-                      // we might want to check whether we did it right,
-                      // i.e. check whether the neighbor of the cell we found
-                      // is indeed the cell we are presently working
-                      // on. Checks like this are often useful and have
-                      // frequently uncovered errors both in algorithms like
-                      // the line above (where it is simple to involuntarily
-                      // exchange <code>n==1</code> for <code>n==0</code> or
-                      // the like) and in the library (the assumptions
-                      // underlying the algorithm above could either be wrong,
-                      // wrongly documented, or are violated due to an error
-                      // in the library). One could in principle remove such
-                      // checks after the program works for some time, but it
-                      // might be a good things to leave it in anyway to check
-                      // for changes in the library or in the algorithm above.
-                      //
-                      // Note that if this check fails, then this is certainly
-                      // an error that is irrecoverable and probably qualifies
-                      // as an internal error. We therefore use a predefined
-                      // exception class to throw here.
-                      Assert (neighbor_child->neighbor(face_no==0 ? 1 : 0)==cell,
-                              ExcInternalError());
+                  // As this used some non-trivial geometrical intuition,
+                  // we might want to check whether we did it right,
+                  // i.e. check whether the neighbor of the cell we found
+                  // is indeed the cell we are presently working
+                  // on. Checks like this are often useful and have
+                  // frequently uncovered errors both in algorithms like
+                  // the line above (where it is simple to involuntarily
+                  // exchange <code>n==1</code> for <code>n==0</code> or
+                  // the like) and in the library (the assumptions
+                  // underlying the algorithm above could either be wrong,
+                  // wrongly documented, or are violated due to an error
+                  // in the library). One could in principle remove such
+                  // checks after the program works for some time, but it
+                  // might be a good things to leave it in anyway to check
+                  // for changes in the library or in the algorithm above.
+                  //
+                  // Note that if this check fails, then this is certainly
+                  // an error that is irrecoverable and probably qualifies
+                  // as an internal error. We therefore use a predefined
+                  // exception class to throw here.
+                  Assert (neighbor_child->neighbor(face_no==0 ? 1 : 0)
+                      ==std_cxx1x::get<0>(cell.iterators),ExcInternalError());
 
-                      // If the check succeeded, we push the active neighbor
-                      // we just found to the stack we keep:
-                      active_neighbors.push_back (neighbor_child);
-                    }
-                  else
-                    // If we are not in 1d, we collect all neighbor children
-                    // `behind' the subfaces of the current face
-                    for (unsigned int subface_no=0; subface_no<face->n_children(); ++subface_no)
-                      active_neighbors.push_back (
-                        cell->neighbor_child_on_subface(face_no, subface_no));
-                };
-            };
+                  // If the check succeeded, we push the active neighbor
+                  // we just found to the stack we keep:
+                  active_neighbors.push_back (neighbor_child);
+                }
+              else
+                // If we are not in 1d, we collect all neighbor children
+                // `behind' the subfaces of the current face
+                for (unsigned int subface_no=0; subface_no<face->n_children(); ++subface_no)
+                  active_neighbors.push_back (
+                    std_cxx1x::get<0>(cell.iterators)->neighbor_child_on_subface(face_no,subface_no));
+            }
+        }
 
-        // OK, now that we have all the neighbors, lets start the computation
-        // on each of them. First we do some preliminaries: find out about the
-        // center of the present cell and the solution at this point. The
-        // latter is obtained as a vector of function values at the quadrature
-        // points, of which there are only one, of course. Likewise, the
-        // position of the center is the position of the first (and only)
-        // quadrature point in real space.
-        const Point<dim> this_center = fe_midpoint_value.quadrature_point(0);
+    // OK, now that we have all the neighbors, lets start the computation
+    // on each of them. First we do some preliminaries: find out about the
+    // center of the present cell and the solution at this point. The
+    // latter is obtained as a vector of function values at the quadrature
+    // points, of which there are only one, of course. Likewise, the
+    // position of the center is the position of the first (and only)
+    // quadrature point in real space.
+    const Point<dim> this_center = scratch_data.fe_midpoint_value.quadrature_point(0);
 
-        std::vector<double> this_midpoint_value(1);
-        fe_midpoint_value.get_function_values (solution, this_midpoint_value);
+    std::vector<double> this_midpoint_value(1);
+    scratch_data.fe_midpoint_value.get_function_values (scratch_data.solution, this_midpoint_value);
 
 
-        // Now loop over all active neighbors and collect the data we
-        // need. Allocate a vector just like <code>this_midpoint_value</code>
-        // which we will use to store the value of the solution in the
-        // midpoint of the neighbor cell. We allocate it here already, since
-        // that way we don't have to allocate memory repeatedly in each
-        // iteration of this inner loop (memory allocation is a rather
-        // expensive operation):
-        std::vector<double> neighbor_midpoint_value(1);
-        typename std::vector<typename DoFHandler<dim>::active_cell_iterator>::const_iterator
-        neighbor_ptr = active_neighbors.begin();
-        for (; neighbor_ptr!=active_neighbors.end(); ++neighbor_ptr)
-          {
-            // First define an abbreviation for the iterator to the active
-            // neighbor cell:
-            const typename DoFHandler<dim>::active_cell_iterator
-            neighbor = *neighbor_ptr;
+    // Now loop over all active neighbors and collect the data we
+    // need. Allocate a vector just like <code>this_midpoint_value</code>
+    // which we will use to store the value of the solution in the
+    // midpoint of the neighbor cell. We allocate it here already, since
+    // that way we don't have to allocate memory repeatedly in each
+    // iteration of this inner loop (memory allocation is a rather
+    // expensive operation):
+    std::vector<double> neighbor_midpoint_value(1);
+    typename std::vector<typename DoFHandler<dim>::active_cell_iterator>::const_iterator
+    neighbor_ptr = active_neighbors.begin();
+    for (; neighbor_ptr!=active_neighbors.end(); ++neighbor_ptr)
+      {
+        // First define an abbreviation for the iterator to the active
+        // neighbor cell:
+        const typename DoFHandler<dim>::active_cell_iterator
+        neighbor = *neighbor_ptr;
 
-            // Then get the center of the neighbor cell and the value of the
-            // finite element function thereon. Note that for this information
-            // we have to reinitialize the <code>FEValues</code> object for
-            // the neighbor cell.
-            fe_midpoint_value.reinit (neighbor);
-            const Point<dim> neighbor_center = fe_midpoint_value.quadrature_point(0);
+        // Then get the center of the neighbor cell and the value of the
+        // finite element function thereon. Note that for this information
+        // we have to reinitialize the <code>FEValues</code> object for
+        // the neighbor cell.
+        scratch_data.fe_midpoint_value.reinit (neighbor);
+        const Point<dim> neighbor_center = scratch_data.fe_midpoint_value.quadrature_point(0);
 
-            fe_midpoint_value.get_function_values (solution,
-                                                   neighbor_midpoint_value);
+        scratch_data.fe_midpoint_value.get_function_values (scratch_data.solution,
+                                               neighbor_midpoint_value);
 
-            // Compute the vector <code>y</code> connecting the centers of the
-            // two cells. Note that as opposed to the introduction, we denote
-            // by <code>y</code> the normalized difference vector, as this is
-            // the quantity used everywhere in the computations.
-            Point<dim>   y        = neighbor_center - this_center;
-            const double distance = std::sqrt(y.square());
-            y /= distance;
+        // Compute the vector <code>y</code> connecting the centers of the
+        // two cells. Note that as opposed to the introduction, we denote
+        // by <code>y</code> the normalized difference vector, as this is
+        // the quantity used everywhere in the computations.
+        Point<dim>   y        = neighbor_center - this_center;
+        const double distance = std::sqrt(y.square());
+        y /= distance;
 
-            // Then add up the contribution of this cell to the Y matrix...
-            for (unsigned int i=0; i<dim; ++i)
-              for (unsigned int j=0; j<dim; ++j)
-                Y[i][j] += y[i] * y[j];
+        // Then add up the contribution of this cell to the Y matrix...
+        for (unsigned int i=0; i<dim; ++i)
+          for (unsigned int j=0; j<dim; ++j)
+            Y[i][j] += y[i] * y[j];
 
-            // ... and update the sum of difference quotients:
-            projected_gradient += (neighbor_midpoint_value[0] -
-                                   this_midpoint_value[0]) /
-                                  distance *
-                                  y;
-          };
+        // ... and update the sum of difference quotients:
+        projected_gradient += (neighbor_midpoint_value[0] -
+                               this_midpoint_value[0]) /
+                              distance *
+                              y;
+      }
 
-        // If now, after collecting all the information from the neighbors, we
-        // can determine an approximation of the gradient for the present
-        // cell, then we need to have passed over vectors <code>y</code> which
-        // span the whole space, otherwise we would not have all components of
-        // the gradient. This is indicated by the invertibility of the matrix.
-        //
-        // If the matrix should not be invertible, this means that the present
-        // cell had an insufficient number of active neighbors. In contrast to
-        // all previous cases, where we raised exceptions, this is, however,
-        // not a programming error: it is a runtime error that can happen in
-        // optimized mode even if it ran well in debug mode, so it is
-        // reasonable to try to catch this error also in optimized mode. For
-        // this case, there is the <code>AssertThrow</code> macro: it checks
-        // the condition like the <code>Assert</code> macro, but not only in
-        // debug mode; it then outputs an error message, but instead of
-        // terminating the program as in the case of the <code>Assert</code>
-        // macro, the exception is thrown using the <code>throw</code> command
-        // of C++. This way, one has the possibility to catch this error and
-        // take reasonable counter actions. One such measure would be to
-        // refine the grid globally, as the case of insufficient directions
-        // can not occur if every cell of the initial grid has been refined at
-        // least once.
-        AssertThrow (determinant(Y) != 0,
-                     ExcInsufficientDirections());
+    // If now, after collecting all the information from the neighbors, we
+    // can determine an approximation of the gradient for the present
+    // cell, then we need to have passed over vectors <code>y</code> which
+    // span the whole space, otherwise we would not have all components of
+    // the gradient. This is indicated by the invertibility of the matrix.
+    //
+    // If the matrix should not be invertible, this means that the present
+    // cell had an insufficient number of active neighbors. In contrast to
+    // all previous cases, where we raised exceptions, this is, however,
+    // not a programming error: it is a runtime error that can happen in
+    // optimized mode even if it ran well in debug mode, so it is
+    // reasonable to try to catch this error also in optimized mode. For
+    // this case, there is the <code>AssertThrow</code> macro: it checks
+    // the condition like the <code>Assert</code> macro, but not only in
+    // debug mode; it then outputs an error message, but instead of
+    // terminating the program as in the case of the <code>Assert</code>
+    // macro, the exception is thrown using the <code>throw</code> command
+    // of C++. This way, one has the possibility to catch this error and
+    // take reasonable counter actions. One such measure would be to
+    // refine the grid globally, as the case of insufficient directions
+    // can not occur if every cell of the initial grid has been refined at
+    // least once.
+    AssertThrow (determinant(Y) != 0,
+                 ExcInsufficientDirections());
 
-        // If, on the other hand the matrix is invertible, then invert it,
-        // multiply the other quantity with it and compute the estimated error
-        // using this quantity and the right powers of the mesh width:
-        const Tensor<2,dim> Y_inverse = invert(Y);
+    // If, on the other hand the matrix is invertible, then invert it,
+    // multiply the other quantity with it and compute the estimated error
+    // using this quantity and the right powers of the mesh width:
+    const Tensor<2,dim> Y_inverse = invert(Y);
 
-        Point<dim> gradient;
-        contract (gradient, Y_inverse, projected_gradient);
+    Point<dim> gradient;
+    contract (gradient, Y_inverse, projected_gradient);
 
-        *error_on_this_cell = (std::pow(cell->diameter(),
-                                        1+1.0*dim/2) *
-                               std::sqrt(gradient.square()));
-      };
+    *(std_cxx1x::get<1>(cell.iterators)) = (std::pow(std_cxx1x::get<0>(cell.iterators)->diameter(),
+                                           1+1.0*dim/2) *
+                                           std::sqrt(gradient.square()));
+    
   }
 }
 
@@ -1353,7 +1303,7 @@ int main ()
                 << "----------------------------------------------------"
                 << std::endl;
       return 1;
-    };
+    }
 
   return 0;
 }

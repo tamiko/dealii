@@ -107,17 +107,7 @@ IF(DEAL_II_COMPONENT_COMPAT_FILES)
   SET_IF_EMPTY(DEAL_II_DOCREADME_RELDIR "")
   SET_IF_EMPTY(DEAL_II_EXAMPLES_RELDIR "examples")
   SET_IF_EMPTY(DEAL_II_EXECUTABLE_RELDIR "bin")
-  IF( "${CMAKE_INSTALL_PREFIX}" STREQUAL "${CMAKE_BINARY_DIR}" AND
-      (NOT "${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}") )
-    #
-    # Ensure that in case of an out of source build BINARY_DIR/include !=
-    # INSTALL_PREFIX/include is always true. Otherwise stale headers might
-    # get included resulting in a failing build.
-    #
-    SET_IF_EMPTY(DEAL_II_INCLUDE_RELDIR "include/install")
-  ELSE()
-    SET_IF_EMPTY(DEAL_II_INCLUDE_RELDIR "include")
-  ENDIF()
+  SET_IF_EMPTY(DEAL_II_INCLUDE_RELDIR "include")
   SET_IF_EMPTY(DEAL_II_LIBRARY_RELDIR "lib")
   SET_IF_EMPTY(DEAL_II_PROJECT_CONFIG_RELDIR "${DEAL_II_LIBRARY_RELDIR}/cmake/${DEAL_II_PROJECT_CONFIG_NAME}")
 ELSE()
@@ -151,30 +141,17 @@ ENDIF()
 #                                                                      #
 ########################################################################
 
-#
-# Library search order:
-#
 IF(DEAL_II_PREFER_STATIC_LIBS)
+  #
   # Invert the search order for libraries when DEAL_II_PREFER_STATIC_LIBS
   # is set. This will prefer static archives instead of shared libraries:
+  #
   LIST(REVERSE CMAKE_FIND_LIBRARY_SUFFIXES)
 ENDIF()
 
-#
-# Cross compilation stuff:
-#
 IF(CMAKE_CROSSCOMPILING)
+  #
   # Disable platform introspection when cross compiling
+  #
   SET(DEAL_II_ALLOW_PLATFORM_INTROSPECTION OFF CACHE BOOL "" FORCE)
-
-  # Import native expand_instantiations for use in cross compilation:
-  SET(DEAL_II_NATIVE "DEAL_II_NATIVE-NOTFOUND" CACHE FILEPATH
-    "A pointer to a native deal.Ii build directory"
-    )
-  IF(DEAL_II_NATIVE MATCHES "-NOTFOUND")
-    MESSAGE(FATAL_ERROR
-      "Please set the CMake variable DEAL_II_NATIVE to a valid path that points to a native deal.II build directory"
-      )
-  ENDIF()
-  INCLUDE(${DEAL_II_NATIVE}/${DEAL_II_PROJECT_CONFIG_RELDIR}/${DEAL_II_PROJECT_CONFIG_NAME}Executables.cmake)
 ENDIF()

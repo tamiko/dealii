@@ -74,14 +74,26 @@ FOREACH(_step_full ${_steps})
         ENDIF()
       ENDFOREACH()
 
+      #
+      # Add a "guard file" rule: The purpose of interrupt_guard is to force
+      # a complete rerun of this test (CONFIGURE, BUILD and RUN stage) if
+      # interrupt_guard is removed by run_test.cmake due to an
+      # interruption.
+      #
+      ADD_CUSTOM_COMMAND(
+        OUTPUT ${_step_dir}/interrupt_guard
+        COMMAND ${CMAKE_COMMAND} -E make_directory ${_step_dir}
+        COMMAND touch ${_step_dir}/interrupt_guard
+        )
+
       # A rule how to copy the example step to the current directory:
       ADD_CUSTOM_COMMAND(OUTPUT ${_step_dir}/CMakeLists.txt
-        COMMAND ${CMAKE_COMMAND} -E make_directory ${_step_dir}
         ${_command}
         DEPENDS
           ${_files}
           ${DEAL_II_TARGET_DEBUG}
           ${DEAL_II_TARGET_RELEASE}
+          ${_step_dir}/interrupt_guard
           )
 
       # And a rule on how to configure the example step:
@@ -144,7 +156,7 @@ FOREACH(_step_full ${_steps})
       ITEM_MATCHES(_match ${_step} ${_${_build_lowercase}_steps})
       IF(_match)
         # Add a full test (CONFIGURE, BUILD, RUN):
-        SET(_target ${_category}-${_step}.${_build_lowercase}.run)
+        SET(_target ${_step}.${_build_lowercase}.run)
         ADD_CUSTOM_TARGET(${_target}
           COMMAND
                echo "${_test}: CONFIGURE successful."
@@ -155,7 +167,7 @@ FOREACH(_step_full ${_steps})
           )
       ELSE()
         # Add a minimal test (CONFIGURE, BUILD):
-        SET(_target ${_category}-${_step}.${_build_lowercase}.build)
+        SET(_target ${_step}.${_build_lowercase}.build)
         ADD_CUSTOM_TARGET(${_target}
           COMMAND
                echo "${_test}: CONFIGURE successful."
@@ -169,6 +181,7 @@ FOREACH(_step_full ${_steps})
       ADD_TEST(NAME ${_test}
         COMMAND ${CMAKE_COMMAND} -DTRGT=${_target} -DTEST=${_test}
           -DDEAL_II_BINARY_DIR=${CMAKE_BINARY_DIR}
+          -DGUARD_FILE=${_step_dir}/interrupt_guard
           -P ${DEAL_II_SOURCE_DIR}/cmake/scripts/run_test.cmake
         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
         )

@@ -6,8 +6,7 @@
     <title>The deal.II Readme</title>
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
     <link href="screen.css" rel="StyleSheet"/>
-    <meta name="author" content="the deal.II authors &lt;authors@dealii.org&gt;"/>
-    <meta name="copyright" content="Copyright (C) 1998 - 2013 by the deal.II authors"/>
+    <meta name="copyright" content="Copyright (C) 1998 - 2013 by the deal.II Authors"/>
     <meta name="date" content="$Date$"/>
     <meta name="svn_id" content="$Id$"/>
     <meta name="keywords" content="deal.II"/>
@@ -83,7 +82,7 @@
   <li>Mac OS X: GCC version 4.1 or later; Clang version 3.0 or later.
     Please see the <a href="https://code.google.com/p/dealii/wiki/MacOSX"
     target="_top">deal.II Wiki</a> for installation instructions.</li>
-  <li>Windows: Currently unsupported.
+  <li>Windows: GCC version 4.8.* (Cygwin or MinGW, 64bit).
     Please see the <a href="https://code.google.com/p/dealii/wiki/Windows"
     target="_top">deal.II Wiki</a> for installation instructions.</li>
   </li>
@@ -142,11 +141,11 @@
 
       <li> <p>
         The library generates output in formats readable by
-        <a href="http://www.ucc.ie/gnuplot/gnuplot-faq.html" target="_top">GNUPLOT</a>,
-	<a href="http://www-xdiv.lanl.gov/XCM/gmv/" target="_top">GMV
+        <a href="http://www.gnuplot.info/" target="_top">GNUPLOT</a>,
+	<a href="http://www.generalmeshviewer.com/" target="_top">GMV
  	  (general mesh viewer)</a>,
-	<a href="http://www.amtec.com" target="_top">Tecplot</a> (ASCII and binary),
-        <a href="http://public.kitware.com/VTK/"
+	<a href="http://www.tecplot.com/" target="_top">Tecplot</a> (ASCII and binary),
+        <a href="http://www.vtk.org/"
            target="_top">Visualization Toolkit (Vtk)</a>,
 	<a href="http://www.avs.com" target="_top">AVS Explorer</a>,
 	<a href="http://www.opendx.org" target="_top">Open DX</a>,
@@ -163,7 +162,7 @@
           of excellent programs that can read <code>vtk</code> and
           <code>vtu</code>, such as
           <a href="http://www.llnl.gov/visit/" target="_top">Visit</a>,
-          <a href="http://www.paraview.org/HTML/Index.html" target="_top">ParaView</a>,
+          <a href="http://www.paraview.org/" target="_top">ParaView</a>,
 	  as well as others. Povray is freely available for almost all
 	  platforms. AVS is a commercial program available for most Unix
 	  flavors. Tecplot is a commercial program available for Windows
@@ -221,12 +220,13 @@
   cd build
   cmake -DCMAKE_INSTALL_PREFIX=/path/to/install/dir ../deal.II
   make install
+  make test
 </pre>
 
 <p>
-  These steps compile, link and install the deal.II library. The
-  whole process should take between a few minutes and an hour, depending
-  on your machine.
+  These steps compile, link, install the deal.II library, and run a few
+  consistency checks. The whole process should take between a few minutes
+  and an hour, depending on your machine.
 </p>
 
     <p>
@@ -277,7 +277,7 @@
 	possibly with different arguments.
 	However, this sometimes leads to surprising results and you may
 	not get exactly what you were hoping for. For more information,
-	see <a href="development/cmake.html">here</a>.
+	see <a href="users/cmake.html">here</a>.
 	</li>
       </ul>
 
@@ -371,7 +371,7 @@
       paths.</b>
       However, this behavior can be changed using command line switches to
       the initial call to <code>cmake</code>. A detailed description
-      can be found here: <a href="development/cmake.html">Detailed build system description</a>.
+      can be found here: <a href="users/cmake.html">Detailed build system description</a>.
     </p>
 
     <p>
@@ -535,7 +535,7 @@
           for <acronym>deal.II</acronym> being able to use them).
           For details on how to set up <acronym>deal.II</acronym> with a
           non standard BLAS/LAPACK implementation, see the
-	  <a href="development/cmake.html#advanced">advanced
+	  <a href="users/cmake.html#advanced">advanced
             setup</a> section in the CMake ReadME.
 	</p>
       </dd>
@@ -776,7 +776,9 @@
       The <acronym>deal.II</acronym> <code>cmake</code> system allows far
       greater control over what exactly is configured or built than just the
       outline above. If you want to learn more about this, take a look
-      <a href="development/cmake.html">here</a>.
+      <a href="users/cmake.html">here</a>. You might also be interested in
+      <a href="users/cmakelists.html">CMake for user projects</a> or 
+      <a href="developers/cmake-internals.html">build system internals</a>.
     </p>
 
 
@@ -843,7 +845,7 @@
           the license of the deal.II project granted to you.</b>
 	</li>
         <li>
-          We, <a href="authors.html">the deal.II authors</a>, do not require
+          We, <a href="authors.html">the deal.II Authors</a>, do not require
           copyright assignments for contributions. This means that the
           copyright for code contributions in the deal.II project is held by
           its respective contributors who have each agreed to release their

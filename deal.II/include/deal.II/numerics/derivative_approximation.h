@@ -24,6 +24,8 @@
 #include <deal.II/fe/fe_update_flags.h>
 #include <deal.II/fe/mapping.h>
 #include <deal.II/lac/vector.h>
+#include <deal.II/grid/filtered_iterator.h>
+
 #include <utility>
 
 DEAL_II_NAMESPACE_OPEN
@@ -187,25 +189,19 @@ class DerivativeApproximation
 {
 public:
   /**
-   * This function is used to
-   * obtain an approximation of the
-   * gradient. Pass it the DoF
-   * handler object that describes
-   * the finite element field, a
-   * nodal value vector, and
-   * receive the cell-wise
-   * Euclidian norm of the
+   * This function is used to obtain an approximation of the gradient. Pass it
+   * the DoF handler object that describes the finite element field, a nodal
+   * value vector, and receive the cell-wise Euclidian norm of the
    * approximated gradient.
    *
-   * The last parameter denotes the
-   * solution component, for which the
-   * gradient is to be computed. It
-   * defaults to the first component. For
-   * scalar elements, this is the only
-   * valid choice; for vector-valued ones,
-   * any component between zero and the
-   * number of vector components can be
-   * given here.
+   * The last parameter denotes the solution component, for which the gradient
+   * is to be computed. It defaults to the first component. For scalar
+   * elements, this is the only valid choice; for vector-valued ones, any
+   * component between zero and the number of vector components can be given
+   * here.
+   *
+   * In a parallel computation the @p solution vector needs to contain the
+   * locally relevant unknowns.
    */
   template <int dim, template <int, int> class DH, class InputVector, int spacedim>
   static void
@@ -216,8 +212,7 @@ public:
                         const unsigned int     component = 0);
 
   /**
-   * Calls the @p interpolate
-   * function, see above, with
+   * Calls the @p interpolate function, see above, with
    * <tt>mapping=MappingQ1@<dim@>()</tt>.
    */
   template <int dim, template <int, int> class DH, class InputVector, int spacedim>
@@ -228,31 +223,21 @@ public:
                         const unsigned int     component = 0);
 
   /**
-   * This function is the analogue
-   * to the one above, computing
-   * finite difference
-   * approximations of the tensor
-   * of second derivatives. Pass it
-   * the DoF handler object that
-   * describes the finite element
-   * field, a nodal value vector,
-   * and receive the cell-wise
-   * spectral norm of the
-   * approximated tensor of second
-   * derivatives. The spectral norm
-   * is the matrix norm associated
-   * to the $l_2$ vector norm.
+   * This function is the analogue to the one above, computing finite
+   * difference approximations of the tensor of second derivatives. Pass it
+   * the DoF handler object that describes the finite element field, a nodal
+   * value vector, and receive the cell-wise spectral norm of the approximated
+   * tensor of second derivatives. The spectral norm is the matrix norm
+   * associated to the $l_2$ vector norm.
    *
-   * The last parameter denotes the
-   * solution component, for which
-   * the gradient is to be
-   * computed. It defaults to the
-   * first component. For
-   * scalar elements, this is the only
-   * valid choice; for vector-valued ones,
-   * any component between zero and the
-   * number of vector components can be
-   * given here.
+   * The last parameter denotes the solution component, for which the gradient
+   * is to be computed. It defaults to the first component. For scalar
+   * elements, this is the only valid choice; for vector-valued ones, any
+   * component between zero and the number of vector components can be given
+   * here.
+   *
+   * In a parallel computation the @p solution vector needs to contain the
+   * locally relevant unknowns.
    */
   template <int dim, template <int, int> class DH, class InputVector, int spacedim>
   static void
@@ -263,8 +248,7 @@ public:
                                  const unsigned int     component = 0);
 
   /**
-   * Calls the @p interpolate
-   * function, see above, with
+   * Calls the @p interpolate function, see above, with
    * <tt>mapping=MappingQ1@<dim@>()</tt>.
    */
   template <int dim, template <int, int> class DH, class InputVector, int spacedim>
@@ -275,21 +259,17 @@ public:
                                  const unsigned int     component = 0);
 
   /**
-   * This function calculates the
-   * <tt>order</tt>-th order approximate
-   * derivative and returns the full tensor
-   * for a single cell.
+   * This function calculates the <tt>order</tt>-th order approximate
+   * derivative and returns the full tensor for a single cell.
    *
-   * The last parameter denotes the
-   * solution component, for which
-   * the gradient is to be
-   * computed. It defaults to the
-   * first component. For
-   * scalar elements, this is the only
-   * valid choice; for vector-valued ones,
-   * any component between zero and the
-   * number of vector components can be
-   * given here.
+   * The last parameter denotes the solution component, for which the gradient
+   * is to be computed. It defaults to the first component. For scalar
+   * elements, this is the only valid choice; for vector-valued ones, any
+   * component between zero and the number of vector components can be given
+   * here.
+   *
+   * In a parallel computation the @p solution vector needs to contain the
+   * locally relevant unknowns.
    */
 
   template <int dim, template <int, int> class DH, class InputVector, int order, int spacedim>
@@ -302,8 +282,7 @@ public:
                                  const unsigned int                            component = 0);
 
   /**
-   * Same as above, with
-   * <tt>mapping=MappingQ1@<dim@>()</tt>.
+   * Same as above, with <tt>mapping=MappingQ1@<dim@>()</tt>.
    */
 
   template <int dim, template <int, int> class DH, class InputVector, int order, int spacedim>
@@ -336,13 +315,9 @@ public:
 private:
 
   /**
-   * The following class is used to
-   * describe the data needed to
-   * compute the finite difference
-   * approximation to the gradient
-   * on a cell. See the general
-   * documentation of this class
-   * for more information on
+   * The following class is used to describe the data needed to compute the
+   * finite difference approximation to the gradient on a cell. See the
+   * general documentation of this class for more information on
    * implementational details.
    *
    * @author Wolfgang Bangerth, 2000
@@ -352,38 +327,28 @@ private:
   {
   public:
     /**
-     * Declare which data fields have
-     * to be updated for the function
-     * @p get_projected_derivative
-     * to work.
+     * Declare which data fields have to be updated for the function @p
+     * get_projected_derivative to work.
      */
     static const UpdateFlags update_flags;
 
     /**
-     * Declare the data type which
-     * holds the derivative described
-     * by this class.
+     * Declare the data type which holds the derivative described by this
+     * class.
      */
     typedef Tensor<1,dim> Derivative;
 
     /**
-     * Likewise declare the data type
-     * that holds the derivative
-     * projected to a certain
-     * directions.
+     * Likewise declare the data type that holds the derivative projected to a
+     * certain directions.
      */
     typedef double        ProjectedDerivative;
 
     /**
-     * Given an FEValues object
-     * initialized to a cell, and a
-     * solution vector, extract the
-     * desired derivative at the
-     * first quadrature point (which
-     * is the only one, as we only
-     * evaluate the finite element
-     * field at the center of each
-     * cell).
+     * Given an FEValues object initialized to a cell, and a solution vector,
+     * extract the desired derivative at the first quadrature point (which is
+     * the only one, as we only evaluate the finite element field at the
+     * center of each cell).
      */
     template <class InputVector, int spacedim>
     static ProjectedDerivative
@@ -392,24 +357,17 @@ private:
                               const unsigned int    component);
 
     /**
-     * Return the norm of the
-     * derivative object. Here, for
-     * the gradient, we choose the
-     * Euclidian norm of the gradient
-     * vector.
+     * Return the norm of the derivative object. Here, for the gradient, we
+     * choose the Euclidian norm of the gradient vector.
      */
     static double derivative_norm (const Derivative &d);
 
     /**
-     * If for the present derivative
-     * order, symmetrization of the
-     * derivative tensor is
-     * necessary, then do so on the
-     * argument.
+     * If for the present derivative order, symmetrization of the derivative
+     * tensor is necessary, then do so on the argument.
      *
-     * For the first derivatives, no
-     * such thing is necessary, so
-     * this function is a no-op.
+     * For the first derivatives, no such thing is necessary, so this function
+     * is a no-op.
      */
     static void symmetrize (Derivative &derivative_tensor);
   };
@@ -417,13 +375,9 @@ private:
 
 
   /**
-   * The following class is used to
-   * describe the data needed to
-   * compute the finite difference
-   * approximation to the second
-   * derivatives on a cell. See the
-   * general documentation of this
-   * class for more information on
+   * The following class is used to describe the data needed to compute the
+   * finite difference approximation to the second derivatives on a cell. See
+   * the general documentation of this class for more information on
    * implementational details.
    *
    * @author Wolfgang Bangerth, 2000
@@ -433,38 +387,28 @@ private:
   {
   public:
     /**
-     * Declare which data fields have
-     * to be updated for the function
-     * @p get_projected_derivative
-     * to work.
+     * Declare which data fields have to be updated for the function @p
+     * get_projected_derivative to work.
      */
     static const UpdateFlags update_flags;
 
     /**
-     * Declare the data type which
-     * holds the derivative described
-     * by this class.
+     * Declare the data type which holds the derivative described by this
+     * class.
      */
     typedef Tensor<2,dim> Derivative;
 
     /**
-     * Likewise declare the data type
-     * that holds the derivative
-     * projected to a certain
-     * directions.
+     * Likewise declare the data type that holds the derivative projected to a
+     * certain directions.
      */
     typedef Tensor<1,dim> ProjectedDerivative;
 
     /**
-     * Given an FEValues object
-     * initialized to a cell, and a
-     * solution vector, extract the
-     * desired derivative at the
-     * first quadrature point (which
-     * is the only one, as we only
-     * evaluate the finite element
-     * field at the center of each
-     * cell).
+     * Given an FEValues object initialized to a cell, and a solution vector,
+     * extract the desired derivative at the first quadrature point (which is
+     * the only one, as we only evaluate the finite element field at the
+     * center of each cell).
      */
     template <class InputVector, int spacedim>
     static ProjectedDerivative
@@ -473,35 +417,22 @@ private:
                               const unsigned int    component);
 
     /**
-     * Return the norm of the
-     * derivative object. Here, for
-     * the (symmetric) tensor of
-     * second derivatives, we choose
-     * the absolute value of the
-     * largest eigenvalue, which is
-     * the matrix norm associated to
-     * the $l_2$ norm of vectors. It
-     * is also the largest value of
-     * the curvature of the solution.
+     * Return the norm of the derivative object. Here, for the (symmetric)
+     * tensor of second derivatives, we choose the absolute value of the
+     * largest eigenvalue, which is the matrix norm associated to the $l_2$
+     * norm of vectors. It is also the largest value of the curvature of the
+     * solution.
      */
     static double derivative_norm (const Derivative &d);
 
     /**
-     * If for the present derivative
-     * order, symmetrization of the
-     * derivative tensor is
-     * necessary, then do so on the
-     * argument.
+     * If for the present derivative order, symmetrization of the derivative
+     * tensor is necessary, then do so on the argument.
      *
-     * For the second derivatives,
-     * each entry of the tensor is
-     * set to the mean of its value
-     * and the value of the transpose
-     * element.
+     * For the second derivatives, each entry of the tensor is set to the mean
+     * of its value and the value of the transpose element.
      *
-     * Note that this function
-     * actually modifies its
-     * argument.
+     * Note that this function actually modifies its argument.
      */
     static void symmetrize (Derivative &derivative_tensor);
   };
@@ -511,10 +442,8 @@ private:
   {
   public:
     /**
-     * Declare which data fields have
-     * to be updated for the function
-     * @p get_projected_derivative
-     * to work.
+     * Declare which data fields have to be updated for the function @p
+     * get_projected_derivative to work.
      */
     static const UpdateFlags update_flags;
 
@@ -526,23 +455,16 @@ private:
     typedef Tensor<3,dim> Derivative;
 
     /**
-     * Likewise declare the data type
-     * that holds the derivative
-     * projected to a certain
-     * directions.
+     * Likewise declare the data type that holds the derivative projected to a
+     * certain directions.
      */
     typedef Tensor<2,dim> ProjectedDerivative;
 
     /**
-     * Given an FEValues object
-     * initialized to a cell, and a
-     * solution vector, extract the
-     * desired derivative at the
-     * first quadrature point (which
-     * is the only one, as we only
-     * evaluate the finite element
-     * field at the center of each
-     * cell).
+     * Given an FEValues object initialized to a cell, and a solution vector,
+     * extract the desired derivative at the first quadrature point (which is
+     * the only one, as we only evaluate the finite element field at the
+     * center of each cell).
      */
     template <class InputVector, int spacedim>
     static ProjectedDerivative
@@ -551,35 +473,22 @@ private:
                               const unsigned int    component);
 
     /**
-     * Return the norm of the
-     * derivative object. Here, for
-     * the (symmetric) tensor of
-     * second derivatives, we choose
-     * the absolute value of the
-     * largest eigenvalue, which is
-     * the matrix norm associated to
-     * the $l_2$ norm of vectors. It
-     * is also the largest value of
-     * the curvature of the solution.
+     * Return the norm of the derivative object. Here, for the (symmetric)
+     * tensor of second derivatives, we choose the absolute value of the
+     * largest eigenvalue, which is the matrix norm associated to the $l_2$
+     * norm of vectors. It is also the largest value of the curvature of the
+     * solution.
      */
     static double derivative_norm (const Derivative &d);
 
     /**
-     * If for the present derivative
-     * order, symmetrization of the
-     * derivative tensor is
-     * necessary, then do so on the
-     * argument.
+     * If for the present derivative order, symmetrization of the derivative
+     * tensor is necessary, then do so on the argument.
      *
-     * For the second derivatives,
-     * each entry of the tensor is
-     * set to the mean of its value
-     * and the value of the transpose
-     * element.
+     * For the second derivatives, each entry of the tensor is set to the mean
+     * of its value and the value of the transpose element.
      *
-     * Note that this function
-     * actually modifies its
-     * argument.
+     * Note that this function actually modifies its argument.
      */
     static void symmetrize (Derivative &derivative_tensor);
   };
@@ -589,13 +498,9 @@ private:
   {
   public:
     /**
-     * typedef to select the
-     * DerivativeDescription corresponding
-     * to the <tt>order</tt>th
-     * derivative. In this general template
-     * we set an unvalid typedef to void,
-     * the real typedefs have to be
-     * specialized.
+     * typedef to select the DerivativeDescription corresponding to the
+     * <tt>order</tt>th derivative. In this general template we set an unvalid
+     * typedef to void, the real typedefs have to be specialized.
      */
     typedef void DerivDescr;
 
@@ -631,31 +536,20 @@ private:
 private:
 
   /**
-   * Convenience typedef denoting
-   * the range of indices on which
-   * a certain thread shall
-   * operate.
+   * Convenience typedef denoting the range of indices on which a certain
+   * thread shall operate.
    */
   typedef std::pair<unsigned int,unsigned int> IndexInterval;
 
   /**
-   * Kind of the main function of
-   * this class. It is called by
-   * the public entry points to
-   * this class with the correct
-   * template first argument and
-   * then simply calls the
-   * @p approximate function,
-   * after setting up several
-   * threads and doing some
-   * administration that is
-   * independent of the actual
+   * Kind of the main function of this class. It is called by the public entry
+   * points to this class with the correct template first argument and then
+   * simply calls the @p approximate function, after setting up several
+   * threads and doing some administration that is independent of the actual
    * derivative to be computed.
    *
-   * The @p component argument
-   * denotes which component of the
-   * solution vector we are to work
-   * on.
+   * The @p component argument denotes which component of the solution vector
+   * we are to work on.
    */
   template <class DerivativeDescription, int dim,
            template <int, int> class DH, class InputVector, int spacedim>
@@ -667,25 +561,22 @@ private:
                           Vector<float>         &derivative_norm);
 
   /**
-   * Compute the derivative
-   * approximation on a given cell.
-   * Fill the @p derivative_norm vector with
-   * the norm of the computed derivative
-   * tensors on the cell.
+   * Compute the derivative approximation on a given cell.  Fill the @p
+   * derivative_norm vector with the norm of the computed derivative tensors
+   * on the cell.
    */
   template <class DerivativeDescription, int dim,
            template <int, int> class DH, class InputVector, int spacedim>
   static void
-  approximate (SynchronousIterators<std_cxx1x::tuple<typename DH<dim,spacedim>
-               ::active_cell_iterator,Vector<float>::iterator> > const &cell,
+  approximate (SynchronousIterators<std_cxx1x::tuple<FilteredIterator<typename DH<dim,spacedim>::active_cell_iterator>,
+                Vector<float>::iterator> > const &cell,
                const Mapping<dim,spacedim>    &mapping,
                const DH<dim,spacedim>         &dof,
                const InputVector     &solution,
                const unsigned int     component);
 
   /**
-   * Compute the derivative approximation on
-   * one cell. This computes the full
+   * Compute the derivative approximation on one cell. This computes the full
    * derivative tensor.
    */
   template <class DerivativeDescription, int dim,

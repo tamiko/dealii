@@ -1304,6 +1304,10 @@ protected:
   void apply_hessians (const VectorizedArray<Number> in [],
                        VectorizedArray<Number> out []);
 
+  VectorizedArray<Number> shape_val_evenodd[fe_degree+1][(n_q_points_1d+1)/2];
+  VectorizedArray<Number> shape_gra_evenodd[fe_degree+1][(n_q_points_1d+1)/2];
+  VectorizedArray<Number> shape_hes_evenodd[fe_degree+1][(n_q_points_1d+1)/2];
+
   /**
    * Friend declarations.
    */
@@ -3837,9 +3841,9 @@ namespace internal
                     res0 += val0 * in[stride*ind];
                   }
                 if (add == false)
-                  out[stride*col]         = res0;
+                  out[stride*col]  = res0;
                 else
-                  out[stride*col]        += res0;
+                  out[stride*col] += res0;
               }
 
             // increment: in regular case, just go to the next point in
@@ -3863,6 +3867,79 @@ namespace internal
         if (direction == 1)
           {
             in += nn*(mm-1);
+            out += nn*(nn-1);
+          }
+      }
+  }
+
+
+
+  // This method applies the tensor product operation to produce face values
+  // out from cell values. As opposed to the apply_tensor_product method, this
+  // method assumes that the directions orthogonal to the face have
+  // fe_degree+1 degrees of freedom per direction and not n_q_points_1d for
+  // those directions lower than the one currently applied
+  template <int dim, int fe_degree, typename Number, int face_direction,
+           bool dof_to_quad, bool add>
+  inline
+  void
+  apply_tensor_product_face (const Number *shape_data,
+                             const Number in [],
+                             Number       out [])
+  {
+    const int n_blocks1 = dim > 1 ? (fe_degree+1) : 1;
+    const int n_blocks2 = dim > 2 ? (fe_degree+1) : 1;
+
+    AssertIndexRange (face_direction, dim);
+    const int mm     = dof_to_quad ? (fe_degree+1) : 1,
+              nn     = dof_to_quad ? 1 : (fe_degree+1);
+
+    const int stride = Utilities::fixed_int_power<fe_degree+1,face_direction>::value;
+
+    for (int i2=0; i2<n_blocks2; ++i2)
+      {
+        for (int i1=0; i1<n_blocks1; ++i1)
+          {
+            if (dof_to_quad == true)
+              {
+                Number res0 = shape_data[0] * in[0];
+                for (int ind=1; ind<mm; ++ind)
+                  res0 += shape_data[ind] * in[stride*ind];
+                if (add == false)
+                  out[0]  = res0;
+                else
+                  out[0] += res0;
+              }
+            else
+              {
+                for (int col=0; col<nn; ++col)
+                  if (add == false)
+                    out[col*stride]  = shape_data[col] * in[0];
+                  else
+                    out[col*stride] += shape_data[col] * in[0];
+              }
+
+            // increment: in regular case, just go to the next point in
+            // x-direction. If we are at the end of one chunk in x-dir, need
+            // to jump over to the next layer in z-direction
+            switch (face_direction)
+              {
+              case 0:
+                in += mm;
+                out += nn;
+                break;
+              case 1:
+              case 2:
+                ++in;
+                ++out;
+                break;
+              default:
+                Assert (false, ExcNotImplemented());
+              }
+          }
+        if (face_direction == 1)
+          {
+            in += mm*(mm-1);
             out += nn*(nn-1);
           }
       }
@@ -4360,6 +4437,204 @@ namespace internal
                   out[stride*n_cols]  = res0;
                 else
                   out[stride*n_cols] += res0;
+              }
+
+            // increment: in regular case, just go to the next point in
+            // x-direction. If we are at the end of one chunk in x-dir, need to
+            // jump over to the next layer in z-direction
+            switch (direction)
+              {
+              case 0:
+                in += mm;
+                out += nn;
+                break;
+              case 1:
+              case 2:
+                ++in;
+                ++out;
+                break;
+              default:
+                Assert (false, ExcNotImplemented());
+              }
+          }
+        if (direction == 1)
+          {
+            in += nn*(mm-1);
+            out += nn*(nn-1);
+          }
+      }
+  }
+
+
+
+  // This method implements a different approach to the symmetric case for
+  // values, gradients, and Hessians also treated with the above functions: It
+  // is possible to reduce the cost per dimension from N^2 to N^2/2, where N
+  // is the number of 1D dofs (there are only N^2/2 different entries in the
+  // shape matrix, so this is plausible). The approach is based on the idea of
+  // applying the operator on the even and odd part of the input vectors
+  // separately, given that the shape functions evaluated on quadrature points
+  // are symmetric. This method is presented e.g. in the book "Implementing
+  // Spectral Methods for Partial Differential Equations" by David A. Kopriva,
+  // Springer, 2009, section 3.5.3 (Even-Odd-Decomposition). Even though the
+  // experiments in the book say that the method is not efficient for N<20, it
+  // is more efficient in the context where the loop bounds are compile-time
+  // constants (templates).
+  template <int dim, int fe_degree, int n_q_points_1d, typename Number,
+            int direction, bool dof_to_quad, bool add, int type>
+  inline
+  void
+  apply_tensor_product_evenodd (const Number shapes [][(n_q_points_1d+1)/2],
+                                const Number in [],
+                                Number       out [])
+  {
+    AssertIndexRange (type, 3);
+    AssertIndexRange (direction, dim);
+    const int mm     = dof_to_quad ? (fe_degree+1) : n_q_points_1d,
+              nn     = dof_to_quad ? n_q_points_1d : (fe_degree+1);
+    const int n_cols = nn / 2;
+    const int mid    = mm / 2;
+
+    const int n_blocks1 = (dim > 1 ? (direction > 0 ? nn : mm) : 1);
+    const int n_blocks2 = (dim > 2 ? (direction > 1 ? nn : mm) : 1);
+    const int stride    = Utilities::fixed_int_power<nn,direction>::value;
+
+    // this code may look very inefficient at first sight due to the many
+    // different cases with if's at the innermost loop part, but all of the
+    // conditionals can be evaluated at compile time because they are
+    // templates, so the compiler should optimize everything away
+    for (int i2=0; i2<n_blocks2; ++i2)
+      {
+        for (int i1=0; i1<n_blocks1; ++i1)
+          {
+            Number xp[mid], xm[mid];
+            for (int i=0; i<mid; ++i)
+              {
+                if (dof_to_quad == true && type == 1)
+                  {
+                    xp[i] = in[stride*i] - in[stride*(mm-1-i)];
+                    xm[i] = in[stride*i] + in[stride*(mm-1-i)];
+                  }
+                else
+                  {
+                    xp[i] = in[stride*i] + in[stride*(mm-1-i)];
+                    xm[i] = in[stride*i] - in[stride*(mm-1-i)];
+                  }
+              }
+            for (int col=0; col<n_cols; ++col)
+              {
+                Number r0, r1;
+                if (mid > 0)
+                  {
+                    if (dof_to_quad == true)
+                      {
+                        r0 = shapes[0][col]         * xp[0];
+                        r1 = shapes[fe_degree][col] * xm[0];
+                      }
+                    else
+                      {
+                        r0 = shapes[col][0]           * xp[0];
+                        r1 = shapes[fe_degree-col][0] * xm[0];
+                      }
+                    for (int ind=1; ind<mid; ++ind)
+                      {
+                        if (dof_to_quad == true)
+                          {
+                            r0 += shapes[ind][col]           * xp[ind];
+                            r1 += shapes[fe_degree-ind][col] * xm[ind];
+                          }
+                        else
+                          {
+                            r0 += shapes[col][ind]           * xp[ind];
+                            r1 += shapes[fe_degree-col][ind] * xm[ind];
+                          }
+                      }
+                  }
+                else
+                  r0 = r1 = Number();
+                if (mm % 2 == 1 && dof_to_quad == true)
+                  {
+                    if (type == 1)
+                      r1 += shapes[mid][col] * in[stride*mid];
+                    else
+                      r0 += shapes[mid][col] * in[stride*mid];
+                  }
+                else if (mm % 2 == 1 && (nn % 2 == 0 || type > 0))
+                  r0 += shapes[col][mid] * in[stride*mid];
+
+                if (add == false)
+                  {
+                    out[stride*col]         = r0 + r1;
+                    if (type == 1 && dof_to_quad == false)
+                      out[stride*(nn-1-col)]  = r1 - r0;
+                    else
+                      out[stride*(nn-1-col)]  = r0 - r1;
+                  }
+                else
+                  {
+                    out[stride*col]        += r0 + r1;
+                    if (type == 1 && dof_to_quad == false)
+                      out[stride*(nn-1-col)] += r1 - r0;
+                    else
+                      out[stride*(nn-1-col)] += r0 - r1;
+                  }
+              }
+            if ( type == 0 && dof_to_quad == true && nn%2==1 && mm%2==1 )
+              {
+                if (add==false)
+                  out[stride*n_cols]  = in[stride*mid];
+                else
+                  out[stride*n_cols] += in[stride*mid];
+              }
+            else if (dof_to_quad == true && nn%2==1)
+              {
+                Number r0;
+                if (mid > 0)
+                  {
+                    r0  = shapes[0][n_cols] * xp[0];
+                    for (int ind=1; ind<mid; ++ind)
+                      r0 += shapes[ind][n_cols] * xp[ind];
+                  }
+                else
+                  r0 = Number();
+                if (type != 1 && mm % 2 == 1)
+                  r0 += shapes[mid][n_cols] * in[stride*mid];
+
+                if (add == false)
+                  out[stride*n_cols]  = r0;
+                else
+                  out[stride*n_cols] += r0;
+              }
+            else if (dof_to_quad == false && nn%2 == 1)
+              {
+                Number r0;
+                if (mid > 0)
+                  {
+                    if (type == 1)
+                      {
+                        r0 = shapes[n_cols][0] * xm[0];
+                        for (int ind=1; ind<mid; ++ind)
+                          r0 += shapes[n_cols][ind] * xm[ind];
+                      }
+                    else
+                      {
+                        r0 = shapes[n_cols][0] * xp[0];
+                        for (int ind=1; ind<mid; ++ind)
+                          r0 += shapes[n_cols][ind] * xp[ind];
+                      }
+                  }
+                else
+                  r0 = Number();
+
+                if (type == 0 && mm % 2 == 1)
+                  r0 += in[stride*mid];
+                else if (type == 2 && mm % 2 == 1)
+                  r0 += shapes[n_cols][mid] * in[stride*mid];
+
+                if (add == false)
+                  out[stride*n_cols]  = r0;
+                else
+                  out[stride*n_cols] += r0;
               }
 
             // increment: in regular case, just go to the next point in
@@ -4904,7 +5179,8 @@ namespace internal
     fe_eval.dof_values_initialized = true;
 #endif
   }
-}
+
+} // end of namespace internal
 
 
 
@@ -5090,6 +5366,43 @@ FEEvaluation<dim,fe_degree,n_q_points_1d,n_components_,Number>
                                                   j-1][0]) < zero_tol,
               ExcMessage(error_message));
 #endif
+
+  // Compute symmetric and skew-symmetric part of shape values for even-odd
+  // decomposition
+  for (unsigned int i=0; i<(fe_degree+1)/2; ++i)
+    for (unsigned int q=0; q<(n_q_points_1d+1)/2; ++q)
+      {
+        shape_val_evenodd[i][q] =
+          0.5 * (this->data.shape_values[i*n_q_points_1d+q] +
+                 this->data.shape_values[i*n_q_points_1d+n_q_points_1d-1-q]);
+        shape_val_evenodd[fe_degree-i][q] =
+          0.5 * (this->data.shape_values[i*n_q_points_1d+q] -
+                 this->data.shape_values[i*n_q_points_1d+n_q_points_1d-1-q]);
+
+        shape_gra_evenodd[i][q] =
+          0.5 * (this->data.shape_gradients[i*n_q_points_1d+q] +
+                 this->data.shape_gradients[i*n_q_points_1d+n_q_points_1d-1-q]);
+        shape_gra_evenodd[fe_degree-i][q] =
+          0.5 * (this->data.shape_gradients[i*n_q_points_1d+q] -
+                 this->data.shape_gradients[i*n_q_points_1d+n_q_points_1d-1-q]);
+
+        shape_hes_evenodd[i][q] =
+          0.5 * (this->data.shape_hessians[i*n_q_points_1d+q] +
+                 this->data.shape_hessians[i*n_q_points_1d+n_q_points_1d-1-q]);
+        shape_hes_evenodd[fe_degree-i][q] =
+          0.5 * (this->data.shape_hessians[i*n_q_points_1d+q] -
+                 this->data.shape_hessians[i*n_q_points_1d+n_q_points_1d-1-q]);
+      }
+  if (fe_degree % 2 == 0)
+    for (unsigned int q=0; q<(n_q_points_1d+1)/2; ++q)
+      {
+        shape_val_evenodd[fe_degree/2][q] =
+          this->data.shape_values[(fe_degree/2)*n_q_points_1d+q];
+        shape_gra_evenodd[fe_degree/2][q] =
+          this->data.shape_gradients[(fe_degree/2)*n_q_points_1d+q];
+        shape_hes_evenodd[fe_degree/2][q] =
+          this->data.shape_hessians[(fe_degree/2)*n_q_points_1d+q];
+      }
 }
 
 
@@ -5129,9 +5442,9 @@ FEEvaluation<dim,fe_degree,n_q_points_1d,n_components_,Number>
 ::apply_values (const VectorizedArray<Number> in [],
                 VectorizedArray<Number>       out [])
 {
-  internal::apply_tensor_product_values<dim,fe_degree,n_q_points_1d,
-           VectorizedArray<Number>, direction, dof_to_quad, add>
-           (this->data.shape_values.begin(), in, out);
+  internal::apply_tensor_product_evenodd<dim,fe_degree,n_q_points_1d,
+           VectorizedArray<Number>, direction, dof_to_quad, add, 0>
+           (shape_val_evenodd, in, out);
 }
 
 
@@ -5145,9 +5458,9 @@ FEEvaluation<dim,fe_degree,n_q_points_1d,n_components_,Number>
 ::apply_gradients (const VectorizedArray<Number> in [],
                    VectorizedArray<Number>       out [])
 {
-  internal::apply_tensor_product_gradients<dim,fe_degree,n_q_points_1d,
-           VectorizedArray<Number>, direction, dof_to_quad, add>
-           (this->data.shape_gradients.begin(), in, out);
+  internal::apply_tensor_product_evenodd<dim,fe_degree,n_q_points_1d,
+           VectorizedArray<Number>, direction, dof_to_quad, add, 1>
+           (shape_gra_evenodd, in, out);
 }
 
 
@@ -5164,9 +5477,9 @@ FEEvaluation<dim,fe_degree,n_q_points_1d,n_components_,Number>
 ::apply_hessians (const VectorizedArray<Number> in [],
                   VectorizedArray<Number>       out [])
 {
-  internal::apply_tensor_product_hessians<dim,fe_degree,n_q_points_1d,
-           VectorizedArray<Number>, direction, dof_to_quad, add>
-           (this->data.shape_hessians.begin(), in, out);
+  internal::apply_tensor_product_evenodd<dim,fe_degree,n_q_points_1d,
+           VectorizedArray<Number>, direction, dof_to_quad, add, 2>
+           (shape_hes_evenodd, in, out);
 }
 
 

@@ -77,6 +77,9 @@
 #       # cmake -C ${CONFIG_FILE}). This only has an effect if
 #       CTEST_BINARY_DIRECTORY is empty.
 #
+#   DESCRIPTION
+#     - A string that is appended to CTEST_BUILD_NAME
+#
 #   COVERAGE
 #     - If set to TRUE deal.II will be configured with
 #     DEAL_II_SETUP_COVERAGE=TRUE, CMAKE_BUILD_TYPE=Debug and the
@@ -227,8 +230,13 @@ MESSAGE("-- CTEST_CMAKE_GENERATOR:  ${CTEST_CMAKE_GENERATOR}")
 #
 
 FIND_PROGRAM(HOSTNAME_COMMAND NAMES hostname)
-EXEC_PROGRAM(${HOSTNAME_COMMAND} OUTPUT_VARIABLE _hostname)
-SET(CTEST_SITE "${_hostname}")
+IF(NOT "${HOSTNAME_COMMAND}" MATCHES "-NOTFOUND")
+  EXEC_PROGRAM(${HOSTNAME_COMMAND} OUTPUT_VARIABLE _hostname)
+  SET(CTEST_SITE "${_hostname}")
+ELSE()
+  # Well, no hostname available. What about:
+  SET(CTEST_SITE "BobMorane")
+ENDIF()
 
 MESSAGE("-- CTEST_SITE:             ${CTEST_SITE}")
 
@@ -253,12 +261,17 @@ IF("${TRACK}" STREQUAL "Build Tests")
   SET(TEST_PICKUP_REGEX "^build_tests")
 ENDIF()
 
-# Pass all relevant "TEST_" variables down to configure:
+# Pass all relevant variables down to configure:
 GET_CMAKE_PROPERTY(_variables VARIABLES)
 FOREACH(_var ${_variables})
-  IF(_var MATCHES
-      "^(TEST_DIFF|TEST_TIME_LIMIT|TEST_PICKUP_REGEX|TEST_OVERRIDE_LOCATION|NUMDIFF_DIR)$"
-      )
+  IF( _var MATCHES "^(TEST|DEAL_II|ALLOW|WITH|FORCE|COMPONENT)_" OR
+      _var MATCHES "^(COMPAT_FILES|DOCUMENTATION|EXAMPLES|MESH_CONVERTER|PARAMETER_GUI)" OR
+      _var MATCHES "^(ARPACK|BOOST|FUNCTIONPARSER|HDF5|METIS|MPI|MUMPS)_" OR
+      _var MATCHES "^(NETCDF|P4EST|PETSC|SLEPC|THREADS|TBB|TRILINOS)_" OR
+      _var MATCHES "^(UMFPACK|ZLIB|LAPACK)_" OR
+      _var MATCHES "^(CMAKE|DEAL_II)_(C|CXX|Fortran|BUILD)_(COMPILER|FLAGS)" OR
+      _var MATCHES "^CMAKE_BUILD_TYPE$" OR
+      ( NOT _var MATCHES "^[_]*CMAKE" AND _var MATCHES "_DIR$" ) )
     LIST(APPEND _options "-D${_var}=${${_var}}")
   ENDIF()
 ENDFOREACH()
@@ -308,33 +321,60 @@ IF(EXISTS ${CTEST_BINARY_DIRECTORY}/detailed.log)
 ENDIF()
 
 #
-# Append subversion branch to CTEST_BUILD_NAME:
+# Query subversion information:
 #
+
+# First try native subversion:
 FIND_PACKAGE(Subversion QUIET)
-EXECUTE_PROCESS(
-  COMMAND ${Subversion_SVN_EXECUTABLE} info ${CTEST_SOURCE_DIRECTORY}
-  OUTPUT_QUIET ERROR_QUIET
-  RESULT_VARIABLE _result
-  )
+SET(_result 1)
+IF(SUBVERSION_FOUND)
+  EXECUTE_PROCESS(
+    COMMAND ${Subversion_SVN_EXECUTABLE} info ${CTEST_SOURCE_DIRECTORY}
+    OUTPUT_QUIET ERROR_QUIET
+    RESULT_VARIABLE _result
+    )
+ENDIF()
+
 IF(${_result} EQUAL 0)
   Subversion_WC_INFO(${CTEST_SOURCE_DIRECTORY} _svn)
+
+ELSE()
+
+  # Umm, no valid subversion info was found, try again with git-svn:
+  FIND_PACKAGE(Git QUIET)
+  IF(GIT_FOUND)
+    EXECUTE_PROCESS(
+      COMMAND ${GIT_EXECUTABLE} svn info
+      WORKING_DIRECTORY ${CTEST_SOURCE_DIRECTORY}
+      OUTPUT_VARIABLE _svn_WC_INFO
+      RESULT_VARIABLE _result
+      OUTPUT_STRIP_TRAILING_WHITESPACE
+      )
+
+    IF(${_result} EQUAL 0)
+      STRING(REGEX REPLACE "^(.*\n)?URL: ([^\n]+).*"
+        "\\2" _svn_WC_URL "${_svn_WC_INFO}")
+      STRING(REGEX REPLACE "^(.*\n)?Repository Root: ([^\n]+).*"
+        "\\2" _svn_WC_ROOT "${_svn_WC_INFO}")
+      STRING(REGEX REPLACE "^(.*\n)?Revision: ([^\n]+).*"
+        "\\2" _svn_WC_REVISION "${_svn_WC_INFO}")
+      STRING(REGEX REPLACE "^(.*\n)?Last Changed Date: ([^\n]+).*"
+        "\\2" _svn_WC_LAST_CHANGED_DATE "${_svn_WC_INFO}")
+    ELSE()
+      SET(_svn_WC_INFO)
+    ENDIF()
+  ENDIF()
+ENDIF()
+
+# If we have a valid (git) svn info use it:
+IF(${_result} EQUAL 0)
+
   STRING(REGEX REPLACE "^${_svn_WC_ROOT}/" "" _branch ${_svn_WC_URL})
   STRING(REGEX REPLACE "^branches/" "" _branch ${_branch})
   STRING(REGEX REPLACE "/deal.II$" "" _branch ${_branch})
+
   SET(CTEST_BUILD_NAME "${CTEST_BUILD_NAME}-${_branch}")
 ENDIF()
-
-#
-# Append config file name to CTEST_BUILD_NAME:
-#
-
-IF(NOT "${CONFIG_FILE}" STREQUAL "")
-  GET_FILENAME_COMPONENT(_conf ${CONFIG_FILE} NAME_WE)
-  STRING(REGEX REPLACE "#.*$" "" _conf ${_conf})
-  SET(CTEST_BUILD_NAME "${CTEST_BUILD_NAME}-${_conf}")
-ENDIF()
-
-MESSAGE("-- CTEST_BUILD_NAME:       ${CTEST_BUILD_NAME}")
 
 #
 # We require valid svn information for build tests:
@@ -346,7 +386,7 @@ IF( "${TRACK}" STREQUAL "Build Tests"
 TRACK was set to \"Build Tests\" which requires the source directory to be
 under Subversion version control.
 "
-    )
+  )
 ENDIF()
 
 #
@@ -375,6 +415,26 @@ ELSE()
 ENDIF()
 
 #
+# Append config file name to CTEST_BUILD_NAME:
+#
+
+IF(NOT "${CONFIG_FILE}" STREQUAL "")
+  GET_FILENAME_COMPONENT(_conf ${CONFIG_FILE} NAME_WE)
+  STRING(REGEX REPLACE "#.*$" "" _conf ${_conf})
+  SET(CTEST_BUILD_NAME "${CTEST_BUILD_NAME}-${_conf}")
+ENDIF()
+
+#
+# Append DESCRIPTION string to CTEST_BUILD_NAME:
+#
+
+IF(NOT "${DESCRIPTION}" STREQUAL "")
+  SET(CTEST_BUILD_NAME "${CTEST_BUILD_NAME}-${DESCRIPTION}")
+ENDIF()
+
+MESSAGE("-- CTEST_BUILD_NAME:       ${CTEST_BUILD_NAME}")
+
+#
 # Declare files that should be submitted as notes:
 #
 
@@ -388,6 +448,7 @@ SET(CTEST_NOTES_FILES
 #
 # Setup coverage:
 #
+
 IF(COVERAGE)
   IF(NOT TRACK MATCHES "Experimental")
     MESSAGE(FATAL_ERROR "
@@ -398,7 +459,6 @@ COVERAGE=TRUE.
   ENDIF()
 
   FIND_PROGRAM(GCOV_COMMAND NAMES gcov)
-
   IF(GCOV_COMMAND MATCHES "-NOTFOUND")
     MESSAGE(FATAL_ERROR "
 Coverage enabled but could not find the gcov executable. Please install
@@ -438,6 +498,8 @@ MACRO(CLEAR_TARGETDIRECTORIES_TXT)
     ${CTEST_BINARY_DIRECTORY}/CMakeFiles/TargetDirectories.txt
     )
 ENDMACRO()
+
+MESSAGE("-- CMake Options: ${_options}")
 
 
 ########################################################################
@@ -501,17 +563,26 @@ Unable to determine test submission files from TAG. Bailing out.
 "
     )
 ENDIF()
-FILE(GLOB _xml_files ${_path}/*.xml)
-EXECUTE_PROCESS(COMMAND sed -i -e
-  s/CompilerName=\"\"/CompilerName=\"${_compiler_name}\"\\n\\tCompilerVersion=\"${_compiler_version}\"/g
-  ${_xml_files}
-  OUTPUT_QUIET RESULT_VARIABLE  _res
-  )
-IF(NOT "${_res}" STREQUAL "0")
-  MESSAGE(FATAL_ERROR "
-\"sed\" failed. Bailing out.
-"
+
+IF(CMAKE_SYSTEM_NAME MATCHES "Linux")
+  #
+  # Only use the following sed command on GNU userlands:
+  #
+  # TODO: Come up with a more robust way to inject this that also works on
+  # BSD and Mac
+  #
+  FILE(GLOB _xml_files ${_path}/*.xml)
+  EXECUTE_PROCESS(COMMAND sed -i -e
+    s/CompilerName=\\"\\"/CompilerName=\\"${_compiler_name}\\"\\n\\tCompilerVersion=\\"${_compiler_version}\\"/g
+    ${_xml_files}
+    OUTPUT_QUIET RESULT_VARIABLE  _res
     )
+  IF(NOT "${_res}" STREQUAL "0")
+    MESSAGE(FATAL_ERROR "
+  \"sed\" failed. Bailing out.
+  "
+      )
+  ENDIF()
 ENDIF()
 
 IF(NOT "${_svn_WC_REVISION}" STREQUAL "")
@@ -539,4 +610,4 @@ IF("${_res}" STREQUAL "0")
   MESSAGE("-- Submission successful. Goodbye!")
 ENDIF()
 
-# .oO( This script is freaky 541 lines long... )
+# .oO( This script is freaky 593 lines long... )

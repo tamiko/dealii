@@ -80,8 +80,9 @@ FILE(WRITE
 #
 # Cleanup deal.IITargets.cmake in the build directory:
 #
-FILE(REMOVE
-  ${CMAKE_BINARY_DIR}/${DEAL_II_PROJECT_CONFIG_RELDIR}/${DEAL_II_PROJECT_CONFIG_NAME}BuildTargets.cmake
+FILE(WRITE
+  ${CMAKE_BINARY_DIR}/${DEAL_II_PROJECT_CONFIG_RELDIR}/${DEAL_II_PROJECT_CONFIG_NAME}Targets.cmake
+  ""
   )
 
 
@@ -130,7 +131,6 @@ _detailed(
 IF(CMAKE_CROSSCOMPILING)
   _both(
     "#\n#        CROSSCOMPILING!\n"
-    "#        DEAL_II_NATIVE:         ${DEAL_II_NATIVE}\n"
     )
 ENDIF()
 

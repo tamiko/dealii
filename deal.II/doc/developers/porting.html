@@ -4,8 +4,7 @@
   <head>
     <title>Porting deal.II</title>
     <link href="../screen.css" rel="StyleSheet" media="screen">
-    <meta name="author" content="the deal.II authors <authors@dealii.org>">
-    <meta name="copyright" content="Copyright (C) 2000, 2001, 2002, 2005, 2010, 2012, 2013 by the deal.II authors">
+    <meta name="copyright" content="Copyright (C) 2000, 2001, 2002, 2005, 2010, 2012, 2013 by the deal.II Authors">
     <meta name="date" content="$Date$">
     <meta name="svn_id" content="$Id$">
     <meta name="keywords" content="deal.II porting">
@@ -137,23 +136,28 @@
       You have to set up a native deal.II build directory first and run
       <code>make expand_instantiations</code> in it. The executable is
       needed for the build system (and obviously the cross compiled version
-      cannot be used). Assuming you have a working cross compilation
-      toolchain, set up a <i>toolchain file</i> next. An example toolchain
-      file can be found <a href="Toolchain.sample">here</a>. With that
-      invoke <code>cmake</code> e.g. with:
-      <pre>
-    cmake -DCMAKE_TOOLCHAIN_FILE=&lt;...&gt;/Toolchain.sample
-          -DDEAL_II_NATIVE=&lt;...&gt;/native/build/dir
+      cannot be used). Locate the <code>expand_instantions</code>
+      executable and export its location in the <code>PATH</code>
+      environment variable.
+    </p>
 
+    <p>
+      Assuming you have a working cross compilation toolchain, the next
+      step is to set up a
+      <a href="Toolchain.sample"><i>toolchain file</i></a>
+      (or for for
+      <a href="Toolchain-x86_64-w64-mingw32.sample">Windows64 using MinGW</a>).
+      After that invoke <code>cmake</code> with something like:
+      <pre>
+
+    cmake -DCMAKE_TOOLCHAIN_FILE=&lt;...&gt;/Toolchain.sample
           -DDEAL_II_FORCE_BUNDLED_BOOST=ON
           -DDEAL_II_ALLOW_AUTODETECTION=OFF
           ../deal.II
       </pre>
-      where <code>DEAL_II_NATIVE</code> points to the toolchain file and
-      <code>DEAL_II_NATIVE</code> to the native build directory (which
-      <code>expand_instantiations</code> will be picked from). The remaining
-      configuration can be adjusted at will, see <a
-        href="cmake.html">the documentation</a>.
+      where <code>CMAKE_TOOLCHAIN_FILE</code> points to the toolchain file.
+      The remaining configuration can be adjusted at will, see <a
+      href="cmake.html">the documentation</a>.
     </p>
 
     <hr />

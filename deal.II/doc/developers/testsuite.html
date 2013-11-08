@@ -5,8 +5,7 @@
   <meta http-equiv="Content-type" content="text/html;charset=UTF-8">
   <title>The deal.II Testsuite</title>
   <link href="../screen.css" rel="StyleSheet">
-  <meta name="author" content="the deal.II authors <authors@dealii.org>">
-  <meta name="copyright" content="Copyright (C) 1998, 1999, 2000, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013 by the deal.II authors">
+  <meta name="copyright" content="Copyright (C) 1998, 1999, 2000, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013 by the deal.II Authors">
   <meta name="date" content="$Date$">
   <meta name="svn_id" content="$Id$">
   <meta name="keywords" content="deal dealii finite elements fem triangulation">
@@ -156,6 +155,8 @@
       Setup can be fine-tuned using the following commands:
       <pre>
 
+    $ make regen_tests - reruns configure stage in every testsuite subproject
+
     $ make clean_tests - runs the 'clean' target in every testsuite subproject
 
     $ make prune_tests - removes all testsuite subprojects
@@ -185,21 +186,6 @@
         will be substituted by ${TEST_OVERRIDE_LOCATION}/category/test.output if
         the latter exists.
       </pre>
-    </p>
-
-    <p>
-      <b>Note:</b> Specifying these options via environment variables is
-      volatile, i.e. if <code>make setup_tests</code> is invoked a second
-      time without the variables set in environment, the option will be
-      reset to the default value. If you want to set these options
-      permanently, set them via cmake as CMake variable in the build
-      directory:
-      <pre>
-
-    $ cmake -DTEST_PICKUP_REGEX="&lt;regular expression&gt;" .
-      </pre>
-      A variable set via cmake always <i>overrides</i> one
-      set via environment.
     </p>
 
     <a name="run"></a>
@@ -553,7 +539,7 @@
 // ---------------------------------------------------------------------
 // $Id$
 //
-// Copyright (C) 2013 by the deal.II authors
+// Copyright (C) 2013 by the deal.II Authors
 //
 // This file is part of the deal.II library.
 //

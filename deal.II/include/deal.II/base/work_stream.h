@@ -42,13 +42,14 @@ DEAL_II_NAMESPACE_OPEN
 
 
 /**
- * A class whose main template function supports running multiple
+ * A namespace whose main template function supports running multiple
  * threads each of which operates on a subset of the given range of
  * objects. The class uses the Intel Threading Building Blocks (TBB)
  * to load balance the individual subranges onto the available
  * threads. For a lengthy discussion of the rationale of this class,
  * see the @ref threads "Parallel computing with multiple processors"
- * module.
+ * module. It is used in the tutorial first in step-9, and again in
+ * step-13, step-14, step-32 and others.
  *
  * The class is built on the following premise: One frequently has some work
  * that needs to be done on a sequence of objects; a prototypical example is
@@ -129,7 +130,7 @@ DEAL_II_NAMESPACE_OPEN
  * sequentially.
  *
  * @ingroup threads
- * @author Wolfgang Bangerth, 2007, 2008, 2009
+ * @author Wolfgang Bangerth, 2007, 2008, 2009, 2013. Bruno Turcksin, 2013.
  */
 namespace WorkStream
 {
@@ -145,8 +146,7 @@ namespace WorkStream
 //  and that is available also as a fall-back whenever via boost or similar
 
     /**
-     * A class that creates a sequence of
-     * items from a range of iterators.
+     * A class that creates a sequence of items from a range of iterators.
      */
     template <typename Iterator,
              typename ScratchData,
@@ -155,11 +155,10 @@ namespace WorkStream
     {
     public:
       /**
-       * A data type that we use to identify
-       * items to be worked on. This is the structure
-       * that is passed around between the different parts of
-       * the WorkStream implementation to identify what needs
-       * to be done by the various stages of the pipeline.
+       * A data type that we use to identify items to be worked on. This is
+       * the structure that is passed around between the different parts of
+       * the WorkStream implementation to identify what needs to be done by
+       * the various stages of the pipeline.
        */
       struct ItemType
       {
@@ -271,8 +270,8 @@ namespace WorkStream
 
         /**
          * Default constructor.
-         * Initialize everything that doesn't
-         * have a default constructor itself.
+         * Initialize everything that doesn't have a default constructor
+         * itself.
          */
         ItemType ()
           :
@@ -284,12 +283,9 @@ namespace WorkStream
 
 
       /**
-       * Constructor. Take an iterator
-       * range, the size of a buffer that
-       * can hold items, and the sample
-       * additional data object that will
-       * be passed to each worker and
-       * copier function invokation.
+       * Constructor. Take an iterator range, the size of a buffer that can
+       * hold items, and the sample additional data object that will be passed
+       * to each worker and copier function invokation.
        */
       IteratorRangeToItemStream (const Iterator       &begin,
           const Iterator       &end,
@@ -724,9 +720,7 @@ namespace WorkStream
                    }
 
 
-                   // return an invalid
-                   // item since we are at
-                   // the end of the
+                   // return an invalid item since we are at the end of the
                    // pipeline
                    return 0;
                  }
@@ -734,9 +728,7 @@ namespace WorkStream
 
                private:
                  /**
-                  * Pointer to the function
-                  * that does the copying of
-                  * data.
+                  * Pointer to the function that does the copying of data.
                   */
                  const std_cxx1x::function<void (const CopyData &)> copier;
              };
@@ -749,58 +741,35 @@ namespace WorkStream
 
 
   /**
-   * This is the main function of the
-   * WorkStream concept, doing work as
-   * described in the introduction to this
-   * namespace.
+   * This is the main function of the WorkStream concept, doing work as
+   * described in the introduction to this namespace.
    *
-   * This is the function that can be used
-   * for worker and copier objects that are
-   * either pointers to non-member
-   * functions or objects that allow to be
-   * called with an operator(), for example
-   * objects created by std::bind.
+   * This is the function that can be used for worker and copier objects that
+   * are either pointers to non-member functions or objects that allow to be
+   * called with an operator(), for example objects created by std::bind.
    *
-   * The argument passed as @p end must be
-   * convertible to the same type as
-   * @p begin, but doesn't have to be of the
-   * same type itself. This allows to write
-   * code like
-   * <code>WorkStream().run(dof_handler.begin_active(),
-   * dof_handler.end(), ...</code> where
-   * the first is of type
-   * DoFHandler::active_cell_iterator
-   * whereas the second is of type
+   * The argument passed as @p end must be convertible to the same type as @p
+   * begin, but doesn't have to be of the same type itself. This allows to
+   * write code like <code>WorkStream().run(dof_handler.begin_active(),
+   * dof_handler.end(), ...</code> where the first is of type
+   * DoFHandler::active_cell_iterator whereas the second is of type
    * DoFHandler::raw_cell_iterator.
    *
-   * The two data types
-   * <tt>ScratchData</tt> and
-   * <tt>CopyData</tt> need to have a
-   * working copy
-   * constructor. <tt>ScratchData</tt>
-   * is only used in the
-   * <tt>worker</tt> function, while
-   * <tt>CopyData</tt> is the object
-   * passed from the <tt>worker</tt>
-   * to the <tt>copier</tt>.
+   * The two data types <tt>ScratchData</tt> and <tt>CopyData</tt> need to
+   * have a working copy constructor. <tt>ScratchData</tt> is only used in the
+   * <tt>worker</tt> function, while <tt>CopyData</tt> is the object passed
+   * from the <tt>worker</tt> to the <tt>copier</tt>.
    *
-   * The @p queue_length argument indicates
-   * the number of items that can be live
-   * at any given time. Each item consists
-   * of @p chunk_size elements of the input
-   * stream that will be worked on by the
-   * worker and copier functions one after
-   * the other on the same thread.
+   * The @p queue_length argument indicates the number of items that can be
+   * live at any given time. Each item consists of @p chunk_size elements of
+   * the input stream that will be worked on by the worker and copier
+   * functions one after the other on the same thread.
    *
-   * @note If your data objects are large,
-   * or their constructors are expensive,
-   * it is helpful to keep in mind
-   * that <tt>queue_length</tt>
-   * copies of the <tt>ScratchData</tt>
-   * object and
-   * <tt>queue_length*chunk_size</tt>
-   * copies of the <tt>CopyData</tt>
-   * object are generated.
+   * @note If your data objects are large, or their constructors are
+   * expensive, it is helpful to keep in mind that <tt>queue_length</tt>
+   * copies of the <tt>ScratchData</tt> object and
+   * <tt>queue_length*chunk_size</tt> copies of the <tt>CopyData</tt> object
+   * are generated.
    */
   template <typename Worker,
            typename Copier,
@@ -825,10 +794,8 @@ namespace WorkStream
             ExcMessage ("The chunk_size must be at least one."));
     (void)chunk_size; // removes -Wunused-parameter warning in optimized mode
 
-    // if no work then skip. (only use
-    // operator!= for iterators since we may
-    // not have an equality comparison
-    // operator)
+    // if no work then skip. (only use operator!= for iterators since we may
+    // not have an equality comparison operator)
     if (!(begin != end))
       return;
 
@@ -844,13 +811,15 @@ namespace WorkStream
 
         for (Iterator i=begin; i!=end; ++i)
           {
-            if (static_cast<const std_cxx1x::function<void (const Iterator &,
-                                                            ScratchData &,
-                                                            CopyData &)> >(worker))
-              worker (i, scratch_data, copy_data);
-            if (static_cast<const std_cxx1x::function<void (const CopyData &)> >
-                (copier))
-              copier (copy_data);
+            // need to check if the function is not the zero function. To
+            // check zero-ness, create a C++ function out of it and check that
+             if (static_cast<const std_cxx1x::function<void (const Iterator &,
+                                                             ScratchData &,
+                                                             CopyData &)>& >(worker))
+               worker (i, scratch_data, copy_data);
+             if (static_cast<const std_cxx1x::function<void (const CopyData &)>& >
+                 (copier))
+               copier (copy_data);
           }
       }
 #ifdef DEAL_II_WITH_THREADS
@@ -885,66 +854,42 @@ namespace WorkStream
 
 
   /**
-   * This is the main function of the
-   * WorkStream concept, doing work as
-   * described in the introduction to this
-   * namespace.
+   * This is the main function of the WorkStream concept, doing work as
+   * described in the introduction to this namespace.
    *
-   * This is the function that can be used
-   * for worker and copier objects that are
-   * either pointers to non-member
-   * functions or objects that allow to be
-   * called with an operator(), for example
-   * objects created by std::bind.
+   * This is the function that can be used for worker and copier objects that
+   * are either pointers to non-member functions or objects that allow to be
+   * called with an operator(), for example objects created by std::bind.
    *
-   * The argument passed as @p end must be
-   * convertible to the same type as
-   * @p begin, but doesn't have to be of the
-   * same type itself. This allows to write
-   * code like
-   * <code>WorkStream().run(dof_handler.begin_active(),
-   * dof_handler.end(), ...</code> where
-   * the first is of type
-   * DoFHandler::active_cell_iterator
-   * whereas the second is of type
+   * The argument passed as @p end must be convertible to the same type as @p
+   * begin, but doesn't have to be of the same type itself. This allows to
+   * write code like <code>WorkStream().run(dof_handler.begin_active(),
+   * dof_handler.end(), ...</code> where the first is of type
+   * DoFHandler::active_cell_iterator whereas the second is of type
    * DoFHandler::raw_cell_iterator.
    *
-   * The two data types
-   * <tt>ScratchData</tt> and
-   * <tt>CopyData</tt> need to have a
-   * working copy
-   * constructor. <tt>ScratchData</tt>
-   * is only used in the
-   * <tt>worker</tt> function, while
-   * <tt>CopyData</tt> is the object
-   * passed from the <tt>worker</tt>
-   * to the <tt>copier</tt>.
+   * The two data types <tt>ScratchData</tt> and <tt>CopyData</tt> need to
+   * have a working copy constructor. <tt>ScratchData</tt> is only used in the
+   * <tt>worker</tt> function, while <tt>CopyData</tt> is the object passed
+   * from the <tt>worker</tt> to the <tt>copier</tt>.
    *
-   * The @p get_conflict_indices argument, is a function
-   * that given an iterator computes the conflict indices
-   * necessary for the graph_coloring. Graph coloring is 
-   * necessary to be able to copy the data in parallel. If 
-   * the number of elements in some colors is less than 
-   * @p chunk_size time multithread_info.n_threads(),
-   * these elements are aggregated and copied serially.
+   * The @p get_conflict_indices argument, is a function that given an
+   * iterator computes the conflict indices necessary for the
+   * graph_coloring. Graph coloring is necessary to be able to copy the data
+   * in parallel. If the number of elements in some colors is less than @p
+   * chunk_size time multithread_info.n_threads(), these elements are
+   * aggregated and copied serially.
    *
-   * The @p queue_length argument indicates
-   * the number of items that can be live
-   * at any given time. Each item consists
-   * of @p chunk_size elements of the input
-   * stream that will be worked on by the
-   * worker and copier functions one after
-   * the other on the same thread.
+   * The @p queue_length argument indicates the number of items that can be
+   * live at any given time. Each item consists of @p chunk_size elements of
+   * the input stream that will be worked on by the worker and copier
+   * functions one after the other on the same thread.
    *
-   * @note If your data objects are large,
-   * or their constructors are expensive,
-   * it is helpful to keep in mind
-   * that <tt>queue_length</tt>
-   * copies of the <tt>ScratchData</tt>
-   * object and
-   * <tt>queue_length*chunk_size</tt>
-   * copies of the <tt>CopyData</tt>
-   * object are generated.
+   * @note If your data objects are large, or their constructors are
+   * expensive, it is helpful to keep in mind that <tt>queue_length</tt>
+   * copies of the <tt>ScratchData</tt> object and
+   * <tt>queue_length*chunk_size</tt> copies of the <tt>CopyData</tt> object
+   * are generated.
    */
   template <typename Worker,
            typename Copier,
@@ -993,9 +938,9 @@ namespace WorkStream
            {
              if (static_cast<const std_cxx1x::function<void (const Iterator &,
                                                              ScratchData &,
-                                                             CopyData &)> >(worker))
+                                                             CopyData &)>& >(worker))
                worker (i, scratch_data, copy_data);
-             if (static_cast<const std_cxx1x::function<void (const CopyData &)> >
+             if (static_cast<const std_cxx1x::function<void (const CopyData &)>& >
                  (copier))
                copier (copy_data);
            }
@@ -1004,60 +949,33 @@ namespace WorkStream
      else
        {
          // color the graph
-         std::vector<std::vector<Iterator> > coloring = graph_coloring::make_graph_coloring(
-             begin,end,get_conflict_indices);
+         std::vector<std::vector<Iterator> > coloring
+         = GraphColoring::make_graph_coloring(begin, end, get_conflict_indices);
 
-         // colors that do not have cells, i.e., less than chunk_size times
-         // multithread_info.n_threads(), are gathered and the copier is
-         // called serially.
+         // For colors that do not have enough cells, i.e., less than chunk_size times
+         // multithread_info.n_threads(), the copier is called serially.
          const unsigned int serial_limit(chunk_size*multithread_info.n_threads());
          std::vector<Iterator> serial_copying;
 
          for (unsigned int color=0; color<coloring.size(); ++color)
            {
+             bool serial = false;
              if (coloring[color].size()<serial_limit)
-               serial_copying.insert(serial_copying.end(),coloring[color].begin(),coloring[color].end());
-             else
-               {
-                 // create the three stages of the
-                 // pipeline
-                 internal::IteratorRangeToItemStream<Iterator,ScratchData,CopyData>
-                 iterator_range_to_item_stream (coloring[color].begin(), coloring[color].end(),
-                     queue_length,
-                     chunk_size,
-                     sample_scratch_data,
-                     sample_copy_data);
-
-                 internal::Worker<Iterator, ScratchData, CopyData> worker_filter (worker);
-                 internal::Copier<Iterator, ScratchData, CopyData> copier_filter (copier,false);
-
-                 // now create a pipeline from
-                 // these stages
-                 tbb::pipeline assembly_line;
-                 assembly_line.add_filter (iterator_range_to_item_stream);
-                 assembly_line.add_filter (worker_filter);
-                 assembly_line.add_filter (copier_filter);
-
-                 // and run it
-                 assembly_line.run (queue_length);
-
-                 assembly_line.clear ();
-               }
-           }
-
-         // use the serial copier for all the colors that do not have enough cells
-         if (serial_copying.size()!=0)
-           {
+               serial = true;
+             // create the three stages of the
+             // pipeline
              internal::IteratorRangeToItemStream<Iterator,ScratchData,CopyData>
-             iterator_range_to_item_stream (serial_copying.begin(), serial_copying.end(),
+             iterator_range_to_item_stream (coloring[color].begin(), coloring[color].end(),
                  queue_length,
                  chunk_size,
                  sample_scratch_data,
                  sample_copy_data);
 
              internal::Worker<Iterator, ScratchData, CopyData> worker_filter (worker);
-             internal::Copier<Iterator, ScratchData, CopyData> copier_filter (copier,false);
+             internal::Copier<Iterator, ScratchData, CopyData> copier_filter (copier,serial);
 
+             // now create a pipeline from
+             // these stages
              tbb::pipeline assembly_line;
              assembly_line.add_filter (iterator_range_to_item_stream);
              assembly_line.add_filter (worker_filter);
@@ -1075,44 +993,29 @@ namespace WorkStream
 
 
   /**
-   * This is the main function of the
-   * WorkStream concept, doing work as
-   * described in the introduction to this
-   * namespace.
+   * This is the main function of the WorkStream concept, doing work as
+   * described in the introduction to this namespace.
    *
-   * This is the function that can be
-   * used for worker and copier functions
+   * This is the function that can be used for worker and copier functions
    * that are member functions of a class.
    *
-   * The argument passed as @p end must be
-   * convertible to the same type as
-   * @p begin, but doesn't have to be of the
-   * same type itself. This allows to write
-   * code like
-   * <code>WorkStream().run(dof_handler.begin_active(),
-   * dof_handler.end(), ...</code> where
-   * the first is of type
-   * DoFHandler::active_cell_iterator
-   * whereas the second is of type
+   * The argument passed as @p end must be convertible to the same type as @p
+   * begin, but doesn't have to be of the same type itself. This allows to
+   * write code like <code>WorkStream().run(dof_handler.begin_active(),
+   * dof_handler.end(), ...</code> where the first is of type
+   * DoFHandler::active_cell_iterator whereas the second is of type
    * DoFHandler::raw_cell_iterator.
    *
-   * The @p queue_length argument indicates
-   * the number of items that can be live
-   * at any given time. Each item consists
-   * of @p chunk_size elements of the input
-   * stream that will be worked on by the
-   * worker and copier functions one after
-   * the other on the same thread.
+   * The @p queue_length argument indicates the number of items that can be
+   * live at any given time. Each item consists of @p chunk_size elements of
+   * the input stream that will be worked on by the worker and copier
+   * functions one after the other on the same thread.
    *
-   * @note If your data objects are large,
-   * or their constructors are expensive,
-   * it is helpful to keep in mind
-   * that <tt>queue_length</tt>
-   * copies of the <tt>ScratchData</tt>
-   * object and
-   * <tt>queue_length*chunk_size</tt>
-   * copies of the <tt>CopyData</tt>
-   * object are generated.
+   * @note If your data objects are large, or their constructors are
+   * expensive, it is helpful to keep in mind that <tt>queue_length</tt>
+   * copies of the <tt>ScratchData</tt> object and
+   * <tt>queue_length*chunk_size</tt> copies of the <tt>CopyData</tt> object
+   * are generated.
    */
   template <typename MainClass,
            typename Iterator,
@@ -1149,52 +1052,36 @@ namespace WorkStream
 
 
   /**
-   * This is the main function of the
-   * WorkStream concept, doing work as
-   * described in the introduction to this
-   * namespace.
+   * This is the main function of the WorkStream concept, doing work as
+   * described in the introduction to this namespace.
    *
-   * This is the function that can be
-   * used for worker and copier functions
+   * This is the function that can be used for worker and copier functions
    * that are member functions of a class.
    *
-   * The argument passed as @p end must be
-   * convertible to the same type as
-   * @p begin, but doesn't have to be of the
-   * same type itself. This allows to write
-   * code like
-   * <code>WorkStream().run(dof_handler.begin_active(),
-   * dof_handler.end(), ...</code> where
-   * the first is of type
-   * DoFHandler::active_cell_iterator
-   * whereas the second is of type
+   * The argument passed as @p end must be convertible to the same type as @p
+   * begin, but doesn't have to be of the same type itself. This allows to
+   * write code like <code>WorkStream().run(dof_handler.begin_active(),
+   * dof_handler.end(), ...</code> where the first is of type
+   * DoFHandler::active_cell_iterator whereas the second is of type
    * DoFHandler::raw_cell_iterator.
    *
-   * The @p get_conflict_indices argument, is a function
-   * that given an iterator computes the conflict indices
-   * necessary for the graph_coloring. Graph coloring is 
-   * necessary to be able to copy the data in parallel. If 
-   * the number of elements in some colors is less than 
-   * @p chunk_size time multithread_info.n_threads(),
-   * these elements are aggregated and copied serially.
+   * The @p get_conflict_indices argument, is a function that given an
+   * iterator computes the conflict indices necessary for the
+   * graph_coloring. Graph coloring is necessary to be able to copy the data
+   * in parallel. If the number of elements in some colors is less than @p
+   * chunk_size time multithread_info.n_threads(), these elements are
+   * aggregated and copied serially.
    *
-   * The @p queue_length argument indicates
-   * the number of items that can be live
-   * at any given time. Each item consists
-   * of @p chunk_size elements of the input
-   * stream that will be worked on by the
-   * worker and copier functions one after
-   * the other on the same thread.
+   * The @p queue_length argument indicates the number of items that can be
+   * live at any given time. Each item consists of @p chunk_size elements of
+   * the input stream that will be worked on by the worker and copier
+   * functions one after the other on the same thread.
    *
-   * @note If your data objects are large,
-   * or their constructors are expensive,
-   * it is helpful to keep in mind
-   * that <tt>queue_length</tt>
-   * copies of the <tt>ScratchData</tt>
-   * object and
-   * <tt>queue_length*chunk_size</tt>
-   * copies of the <tt>CopyData</tt>
-   * object are generated.
+   * @note If your data objects are large, or their constructors are
+   * expensive, it is helpful to keep in mind that <tt>queue_length</tt>
+   * copies of the <tt>ScratchData</tt> object and
+   * <tt>queue_length*chunk_size</tt> copies of the <tt>CopyData</tt> object
+   * are generated.
    */
   template <typename MainClass,
            typename Iterator,

@@ -622,8 +622,11 @@ namespace parallel
 
       /**
        * Load the refinement information saved with save() back in. The mesh
-       * must contain the same coarse mesh that was used in save(). You need
-       * to load with the same number of CPUs that you saved with.
+       * must contain the same coarse mesh that was used in save(). You do not
+       * need to load with the same number of MPI processes that you saved
+       * with. Rather, if a mesh is loaded with a different number of MPI
+       * processes than used at the time of saving, the mesh is repartitioned
+       * appropriately.
        */
       void load(const char *filename);
 
@@ -633,7 +636,7 @@ namespace parallel
        * notify_ready_to_unpack() how the
        * cell with the given cell_iterator
        * is going to change.  Note that
-       * this may me different then the
+       * this may me different than the
        * refine_flag() and coarsen_flag()
        * in the cell_iterator because of
        * refinement constraints that this
