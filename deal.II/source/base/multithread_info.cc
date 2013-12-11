@@ -26,8 +26,11 @@
 #  include <sys/sysctl.h>
 #endif
 
-#ifdef DEAL_II_WITH_THREADS
+#if defined(__FreeBSD__)
+#  include <stdlib.h>
+#endif
 
+#ifdef DEAL_II_WITH_THREADS
 #  include <deal.II/base/thread_management.h>
 #  include <tbb/task_scheduler_init.h>
 #endif
@@ -102,7 +105,7 @@ unsigned int MultithreadInfo::get_n_cpus()
 void MultithreadInfo::set_thread_limit(const unsigned int max_threads)
 {
   Assert(n_max_threads==numbers::invalid_unsigned_int,
-      ExcMessage("Calling set_thread_limit() more than once is not supported!"));
+         ExcMessage("Calling set_thread_limit() more than once is not supported!"));
 
   unsigned int max_threads_env = numbers::invalid_unsigned_int;
   char *penv;

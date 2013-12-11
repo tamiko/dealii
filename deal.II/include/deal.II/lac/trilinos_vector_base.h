@@ -1051,6 +1051,13 @@ namespace TrilinosWrappers
      * consumption in bytes.
      */
     std::size_t memory_consumption () const;
+
+    /**
+     * Return a reference to the MPI
+     * communicator object in use with this
+     * object.
+     */
+    const MPI_Comm &get_mpi_communicator () const;
     //@}
 
     /**
@@ -1354,10 +1361,12 @@ namespace TrilinosWrappers
                                          const ForwardIterator    indices_end,
                                          OutputIterator           values_begin) const
   {
-    while (indices_begin != indices_end) {
-      *values_begin = operator()(*indices_begin);
-      indices_begin++; values_begin++;
-    }
+    while (indices_begin != indices_end)
+      {
+        *values_begin = operator()(*indices_begin);
+        indices_begin++;
+        values_begin++;
+      }
   }
 
 
@@ -2183,6 +2192,30 @@ namespace TrilinosWrappers
   {
     return static_cast<const Epetra_Map &>(vector->Map());
   }
+
+
+
+  inline
+  const MPI_Comm &
+  VectorBase::get_mpi_communicator () const
+  {
+    static MPI_Comm comm;
+
+#ifdef DEAL_II_WITH_MPI
+
+    const Epetra_MpiComm *mpi_comm
+      = dynamic_cast<const Epetra_MpiComm *>(&vector->Map().Comm());
+    comm = mpi_comm->Comm();
+
+#else
+
+    comm = MPI_COMM_SELF;
+
+#endif
+
+    return comm;
+  }
+
 
 
 #endif // DOXYGEN

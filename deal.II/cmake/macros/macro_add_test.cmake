@@ -31,12 +31,9 @@
 #     DEAL_II_ADD_TEST(category test_name comparison_file [ARGN])
 #
 # This macro assumes that a source file "./tests/category/<test_name>.cc"
-# as well as the comparison file "./tests/category/<comparison_file>" is
-# available in the testsuite. The output of compiled source file is
-# compared against the file comparison file.
-#
-# [ARGN] is an optional list of additional output lines passed down to the
-# run_test.cmake script and printed at the beginning of the test output.
+# as well as the comparison file "<comparison_file>" is available in the
+# testsuite. The output of compiled source file is compared against the
+# file comparison file.
 #
 # This macro gets the following options from the comparison file name (have
 # a look at the testsuite documentation for details):
@@ -62,10 +59,27 @@ MACRO(DEAL_II_ADD_TEST _category _test_name _comparison_file)
   #
 
   SET(_configuration)
-  IF(_file MATCHES "debug")
+  IF(_file MATCHES "\\.debug\\.")
     SET(_configuration DEBUG)
-  ELSEIF(_file MATCHES "release")
+  ELSEIF(_file MATCHES "\\.release\\.")
     SET(_configuration RELEASE)
+  ENDIF()
+
+  #
+  # A "binary" in the output file indicates binary output. In this case we
+  # have to switch to plain diff instead of (possibly) numdiff, which can
+  # only work on plain text files.
+  #
+  # TODO: The indirection with ${${_test_diff_variable}} is necessary to
+  # avoid quoting issues with the command line :-/ - come up with a fix for
+  # that
+  #
+
+  SET(_test_diff_variable TEST_DIFF)
+  IF(_file MATCHES "\\.binary\\.")
+    IF(NOT DIFF_EXECUTABLE MATCHES "-NOTFOUND")
+      SET(_test_diff_variable DIFF_EXECUTABLE)
+    ENDIF()
   ENDIF()
 
   #
@@ -117,7 +131,7 @@ MACRO(DEAL_II_ADD_TEST _category _test_name _comparison_file)
         SET(_diff_target ${_test_name}.mpirun${_n_cpu}.${_build_lowercase}.diff) # diff target name
         SET(_test_full ${_category}/${_test_name}.mpirun=${_n_cpu}.${_build_lowercase}) # full test name
         SET(_test_directory ${CMAKE_CURRENT_BINARY_DIR}/${_target}/mpirun=${_n_cpu}) # directory to run the test in
-        SET(_run_command mpirun -np ${_n_cpu} ${CMAKE_CURRENT_BINARY_DIR}/${_target}/${_target}) # the command to issue
+        SET(_run_command ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} ${_n_cpu} ${MPIEXEC_PREFLAGS} ${CMAKE_CURRENT_BINARY_DIR}/${_target}/${_target} ${MPIEXEC_POSTFLAGS}) # the command to issue
 
       ENDIF()
 
@@ -191,7 +205,7 @@ MACRO(DEAL_II_ADD_TEST _category _test_name _comparison_file)
         COMMAND rm -f ${_test_directory}/failing_diff
         COMMAND touch ${_test_directory}/diff
         COMMAND
-          ${TEST_DIFF}
+          ${${_test_diff_variable}} # see comment in line 72
             ${_test_directory}/output
             ${_comparison_file}
             > ${_test_directory}/diff
@@ -229,7 +243,6 @@ MACRO(DEAL_II_ADD_TEST _category _test_name _comparison_file)
           -DTRGT=${_diff_target}
           -DTEST=${_test_full}
           -DEXPECT=${_expect}
-          -DADDITIONAL_OUTPUT=${ARGN}
           -DDEAL_II_BINARY_DIR=${CMAKE_BINARY_DIR}
           -DGUARD_FILE=${CMAKE_CURRENT_BINARY_DIR}/${_target}/interrupt_guard.cc
           -P ${DEAL_II_SOURCE_DIR}/cmake/scripts/run_test.cmake
@@ -246,7 +259,7 @@ MACRO(DEAL_II_ADD_TEST _category _test_name _comparison_file)
       # when compiling the not yet existent executable that is shared
       # between the different tests.
       #
-      # Luckily CMake has a mechanism to force a test to be run when
+      # Luckily CMake has a mechanism to force a test to be run after
       # another has finished (and both are scheduled):
       #
       IF(NOT "${_n_cpu}" STREQUAL "0")

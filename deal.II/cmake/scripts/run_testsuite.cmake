@@ -86,14 +86,15 @@
 #     CTEST_COVERAGE() stage will be run. Test results must go into the
 #     "Experimental" section.
 #
+#   MAKEOPTS
+#     - Additional options that will be passed directly to make (or ninja).
+#
 # Furthermore, the following variables controlling the testsuite can be set
 # and will be automatically handed down to cmake:
 #
 #   TEST_DIFF
 #   TEST_TIME_LIMIT
 #   TEST_PICKUP_REGEX
-#   TEST_OVERRIDE_LOCATION
-#   NUMDIFF_DIR
 #
 # For details, consult the ./README file.
 #
@@ -163,10 +164,12 @@ IF("${CTEST_BINARY_DIRECTORY}" STREQUAL "")
   #
   SET(CTEST_BINARY_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 
-  IF( "${CTEST_BINARY_DIRECTORY}" STREQUAL "${CTEST_SOURCE_DIRECTORY}")
+  IF( "${CTEST_BINARY_DIRECTORY}" STREQUAL "${CTEST_SOURCE_DIRECTORY}"
+      AND NOT EXISTS ${CTEST_SOURCE_DIRECTORY}/CMakeCache.txt )
     MESSAGE(FATAL_ERROR "
-ctest was invoked in the source directory (or test source directory) and CTEST_BINARY_DIRECTORY is not set.
-Please either call ctest from within a designated build directory, or set CTEST_BINARY_DIRECTORY accordingly.
+ctest was invoked in the source directory and CTEST_BINARY_DIRECTORY is not
+set. Please either call ctest from within a designated build directory, or
+set CTEST_BINARY_DIRECTORY accordingly.
 "
       )
   ENDIF()
@@ -253,6 +256,10 @@ ENDIF()
 # Assemble configuration options, we need it now:
 #
 
+IF("${MAKEOPTS}" STREQUAL "")
+  SET(MAKEOPTS $ENV{MAKEOPTS})
+ENDIF()
+
 IF(NOT "${CONFIG_FILE}" STREQUAL "")
   SET(_options "-C${CONFIG_FILE}")
 ENDIF()
@@ -271,6 +278,7 @@ FOREACH(_var ${_variables})
       _var MATCHES "^(UMFPACK|ZLIB|LAPACK)_" OR
       _var MATCHES "^(CMAKE|DEAL_II)_(C|CXX|Fortran|BUILD)_(COMPILER|FLAGS)" OR
       _var MATCHES "^CMAKE_BUILD_TYPE$" OR
+      _var MATCHES "MAKEOPTS" OR
       ( NOT _var MATCHES "^[_]*CMAKE" AND _var MATCHES "_DIR$" ) )
     LIST(APPEND _options "-D${_var}=${${_var}}")
   ENDIF()
@@ -371,7 +379,9 @@ IF(${_result} EQUAL 0)
 
   STRING(REGEX REPLACE "^${_svn_WC_ROOT}/" "" _branch ${_svn_WC_URL})
   STRING(REGEX REPLACE "^branches/" "" _branch ${_branch})
+  STRING(REGEX REPLACE "^releases/" "" _branch ${_branch})
   STRING(REGEX REPLACE "/deal.II$" "" _branch ${_branch})
+  STRING(REGEX REPLACE "/" "" _branch ${_branch})
 
   SET(CTEST_BUILD_NAME "${CTEST_BUILD_NAME}-${_branch}")
 ENDIF()
@@ -499,7 +509,11 @@ MACRO(CLEAR_TARGETDIRECTORIES_TXT)
     )
 ENDMACRO()
 
-MESSAGE("-- CMake Options: ${_options}")
+MESSAGE("-- CMake Options:          ${_options}")
+
+IF(NOT "${MAKEOPTS}" STREQUAL "")
+  MESSAGE("-- MAKEOPTS:               ${MAKEOPTS}")
+ENDIF()
 
 
 ########################################################################
@@ -508,7 +522,12 @@ MESSAGE("-- CMake Options: ${_options}")
 #                                                                      #
 ########################################################################
 
-IF(NOT "${_branch}" STREQUAL "")
+IF("${_branch}" STREQUAL "")
+  #
+  # If we have no branch information, just assume we are on trunk:
+  #
+  SET_PROPERTY(GLOBAL PROPERTY SubProject "trunk")
+ELSE()
   SET_PROPERTY(GLOBAL PROPERTY SubProject ${_branch})
 ENDIF()
 
@@ -521,7 +540,7 @@ IF("${_res}" STREQUAL "0")
   # Only run the build stage if configure was successful:
 
   MESSAGE("-- Running CTEST_BUILD()")
-  CTEST_BUILD(TARGET NUMBER_ERRORS _res)
+  CTEST_BUILD(TARGET ${MAKEOPTS} NUMBER_ERRORS _res)
 
   IF("${_res}" STREQUAL "0")
     # Only run tests if the build was successful:
@@ -529,6 +548,7 @@ IF("${_res}" STREQUAL "0")
     MESSAGE("-- Running make setup_tests")
     EXECUTE_PROCESS(COMMAND ${CMAKE_COMMAND}
       --build ${CTEST_BINARY_DIRECTORY} --target setup_tests
+      -- ${MAKEOPTS}
       OUTPUT_QUIET RESULT_VARIABLE _res
       )
     IF(NOT "${_res}" STREQUAL "0")
@@ -610,4 +630,4 @@ IF("${_res}" STREQUAL "0")
   MESSAGE("-- Submission successful. Goodbye!")
 ENDIF()
 
-# .oO( This script is freaky 593 lines long... )
+# .oO( This script is freaky 632 lines long... )

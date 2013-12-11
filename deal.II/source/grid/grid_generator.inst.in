@@ -50,6 +50,8 @@ namespace GridGenerator \{
       Triangulation<deal_II_dimension> &,
       const unsigned int, const double, const double);
   
+
+
   template void
     subdivided_hyper_rectangle<deal_II_dimension>
     (Triangulation<deal_II_dimension> &,

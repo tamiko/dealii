@@ -15,22 +15,20 @@
 ## ---------------------------------------------------------------------
 
 #
-# This is a bloody hack to avoid a severe performance penalty when using
-# 12k top level targets with GNU Make that really does not like that...
-#
-# The only choice we have is to set up every test subdirectory as an
-# independent project. Unfortunately this adds quite a significant amount
-# of complexity :-(
+# This is a small project that provides some custom targets that need a
+# working, independent subproject because they are called back during
+# configure phase.
 #
 
-ADD_SUBDIRECTORY(quick_tests)
+IF(NOT DEFINED TEST_DIR)
+  MESSAGE(FATAL_ERROR "\n
+  The testsuite cannot be set up as an independent project.
+  Please configure \"deal.II\" directly instead.\n\n"
+    )
+ENDIF()
 
-#
-# Custom targets to set and clean up the testsuite:
-#
-
-# Setup tests:
-ADD_CUSTOM_TARGET(setup_tests)
+CMAKE_MINIMUM_REQUIRED(VERSION 2.8.8)
+PROJECT(testsuite NONE)
 
 # Regenerate tests (run "make rebuild_cache" in subprojects):
 ADD_CUSTOM_TARGET(regen_tests)
@@ -38,117 +36,25 @@ ADD_CUSTOM_TARGET(regen_tests)
 # Clean all tests
 ADD_CUSTOM_TARGET(clean_tests)
 
-# Remove all tests:
-ADD_CUSTOM_TARGET(prune_tests)
-
-#
-# Write a minimalistic CTestTestfile.cmake file to CMAKE_BINARY_DIR and
-# CMAKE_CURRENT_BINARY_DIR:
-#
-FILE(WRITE ${CMAKE_BINARY_DIR}/CTestTestfile.cmake
-  "SUBDIRS(tests)"
-  )
-FILE(WRITE ${CMAKE_CURRENT_BINARY_DIR}/CTestTestfile.cmake "")
-
-#
-# Pass all relevant "TEST_" and "_DIR" variables down to the subprojects:
-#
-SET(_options)
-LIST(APPEND _options -DDEAL_II_SOURCE_DIR=${CMAKE_SOURCE_DIR})
-LIST(APPEND _options -DDEAL_II_BINARY_DIR=${CMAKE_BINARY_DIR})
-FOREACH(_var
-    NUMDIFF_DIR
-    TEST_DIFF
-    TEST_OVERRIDE_LOCATION
-    TEST_PICKUP_REGEX
-    TEST_TIME_LIMIT
-    )
-  # always undefine:
-  LIST(APPEND _options "-U${_var}")
-  IF(DEFINED ${_var})
-    LIST(APPEND _options "-D${_var}=${${_var}}")
-  ENDIF()
-ENDFOREACH()
-
-#
-# Glob together a list of all subfolders to set up:
-#
 FILE(GLOB _categories RELATIVE ${TEST_DIR} ${TEST_DIR}/*)
 SET(_categories all-headers build_tests mesh_converter ${_categories})
 LIST(REMOVE_DUPLICATES _categories)
 
-#
-# Define a subproject for every enabled category:
-#
-
-MESSAGE(STATUS "Regenerating testsuite subprojects")
-
 FOREACH(_category ${_categories})
-  IF(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/${_category}/CMakeLists.txt)
-    SET(_category_dir ${CMAKE_CURRENT_SOURCE_DIR}/${_category})
-  ELSEIF(EXISTS ${TEST_DIR}/${_category}/CMakeLists.txt)
-    SET(_category_dir ${TEST_DIR}/${_category})
-  ELSE()
-    SET(_category_dir)
-  ENDIF()
-
-  IF(NOT "${_category_dir}" STREQUAL "")
-
-    ADD_CUSTOM_TARGET(setup_tests_${_category}
-      COMMAND ${CMAKE_COMMAND} -E make_directory
-        ${CMAKE_CURRENT_BINARY_DIR}/${_category}
-      COMMAND cd ${CMAKE_CURRENT_BINARY_DIR}/${_category} &&
-        ${CMAKE_COMMAND} -G${CMAKE_GENERATOR} ${_options} ${_category_dir}
-        > /dev/null # Shoo!
-      DEPENDS ${_category_dir}
-      COMMENT "Processing tests/${_category}"
-      )
-    ADD_DEPENDENCIES(setup_tests setup_tests_${_category})
-
-    # depend on a valid build directory:
-    ADD_DEPENDENCIES(setup_tests_${_category} setup_build_dir)
+  IF( EXISTS ${CMAKE_SOURCE_DIR}/${_category}/CMakeLists.txt OR
+      EXISTS ${TEST_DIR}/${_category}/CMakeLists.txt )
 
     ADD_CUSTOM_TARGET(regen_tests_${_category}
       COMMAND [ ! -d ${_category} ] || ${CMAKE_COMMAND}
-        --build ${CMAKE_CURRENT_BINARY_DIR}/${_category} --target regenerate
-        > /dev/null # Shoo!
+        --build ${CMAKE_BINARY_DIR}/${_category} --target regenerate
       )
     ADD_DEPENDENCIES(regen_tests regen_tests_${_category})
 
     ADD_CUSTOM_TARGET(clean_tests_${_category}
       COMMAND [ ! -d ${_category} ] || ${CMAKE_COMMAND}
-        --build ${CMAKE_CURRENT_BINARY_DIR}/${_category} --target clean
-        > /dev/null # Shoo!
+        --build ${CMAKE_BINARY_DIR}/${_category} --target clean
       )
     ADD_DEPENDENCIES(clean_tests clean_tests_${_category})
 
-    ADD_CUSTOM_TARGET(prune_tests_${_category}
-      COMMAND ${CMAKE_COMMAND} -E remove_directory
-        ${CMAKE_CURRENT_BINARY_DIR}/${_category}
-      )
-    ADD_DEPENDENCIES(prune_tests prune_tests_${_category})
-
-    FILE(APPEND ${CMAKE_CURRENT_BINARY_DIR}/CTestTestfile.cmake
-      "SUBDIRS(${_category})\n"
-      )
-
-    #
-    # Regenerate subprojects: The "regenerate" target of the subproject
-    # depends on "rebuild_cache" so that the subprojects rerun cmake if
-    # necessary.
-    # (TODO: Unfortunately this is sequential - due to the fact that we
-    # cannot call back into the main build system)
-    #
-
-    IF(EXISTS ${CMAKE_CURRENT_BINARY_DIR}/${_category}/CMakeCache.txt)
-      EXECUTE_PROCESS(
-        COMMAND ${CMAKE_COMMAND}
-        --build ${CMAKE_CURRENT_BINARY_DIR}/${_category} --target regenerate
-        OUTPUT_QUIET
-        )
-    ENDIF()
-
   ENDIF()
 ENDFOREACH()
-
-MESSAGE(STATUS "Regenerating testsuite subprojects - Done")

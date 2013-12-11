@@ -19,7 +19,7 @@
 // GridTools::find_cells_adjacent_to_vertex had a problem in that it
 // wasn't prepared to deal with anisotropic refinement
 
-
+#include "../tests.h"
 #include <deal.II/grid/tria.h>
 #include <deal.II/grid/grid_generator.h>
 #include <deal.II/grid/grid_refinement.h>
@@ -55,7 +55,7 @@ int main()
   Triangulation<2>::active_cell_iterator cell = tri.begin_active(), end = tri.end();
   for ( ; cell != end; ++cell )
     {
-      switch (rand()%4)
+      switch (Testing::rand()%4)
         {
           /// If a randomly drawn
           /// number is 0 or 1 we

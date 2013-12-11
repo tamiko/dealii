@@ -40,7 +40,7 @@ void test (PETScWrappers::MatrixBase &m)
     {
       if (i>=5)
         {
-          const double s = rand();
+          const double s = Testing::rand();
           m.add (i,i-5, s);
           norm_sqr += s*s;
           ++nnz;
@@ -48,18 +48,18 @@ void test (PETScWrappers::MatrixBase &m)
 
       if (i<N-5)
         {
-          const double s = rand();
+          const double s = Testing::rand();
           m.add (i,i+5, s);
           norm_sqr += s*s;
           ++nnz;
         }
 
-      const double s = rand();
+      const double s = Testing::rand();
       m.add (i,i,s);
       norm_sqr += s*s;
       ++nnz;
     }
-  m.compress ();
+  m.compress (VectorOperation::add);
 
   deallog << m.frobenius_norm() << ' ' << std::sqrt (norm_sqr)
           << std::endl;
@@ -72,7 +72,7 @@ void test (PETScWrappers::MatrixBase &m)
 
   // now remove the entries of row N/2. set
   // diagonal entries to rnd
-  const double rnd = rand();
+  const double rnd = Testing::rand();
   for (unsigned int i=0; i<N; ++i)
     {
       const double s = m.el(N/2,i);

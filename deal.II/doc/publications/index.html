@@ -15,7 +15,7 @@
   <body>
 
 
-    <h2>Publications on and with <acronym>deal.II</acronym></h2>
+    <h1>Publications on and with <acronym>deal.II</acronym></h1>
 
     <p>
       Our institutes are evaluated at regular intervals. Consequently,
@@ -68,7 +68,7 @@
 
 
       <a name="referencing"> </a>
-      <h3>Referencing <acronym>deal.II</acronym></h3>
+      <h2>Referencing <acronym>deal.II</acronym></h2>
 
     <p>
       If you write a paper using results obtained with the help of
@@ -94,40 +94,36 @@
 	(<a
 	    href="http://www.isc.tamu.edu/publications-reports/tr/0602.pdf">Preprint</a>)
 	<br>
-	<pre>
-	  @Article{BangerthHartmannKanschat2007,
-	  author = 	 {W. Bangerth and R. Hartmann and G. Kanschat},
-	  title = 	 {{deal.II} -- a General Purpose Object Oriented Finite Element Library},
-	  journal = 	 {ACM Trans. Math. Softw.},
-	  year = 	 2007,
-	  volume = 	 33,
-	  number = 	 4,
-	  pages = 	 {24/1--24/27}
-	  }</pre>
+<pre>
+@Article{BangerthHartmannKanschat2007,
+  author =  {W. Bangerth and R. Hartmann and G. Kanschat},
+  title =   {{deal.II} -- a General Purpose Object Oriented Finite Element Library},
+  journal = {ACM Trans. Math. Softw.},
+  year =    2007,
+  volume =  33,
+  number =  4,
+  pages =   {24/1--24/27}
+}
+</pre>
       </li>
-      <li> <a href="http://www.math.tamu.edu/~bangerth"
-              target="_top">W. Bangerth</a>,
-	<a href="http://www.math.clemson.edu/~heister"
-              target="_top">T. Heister</a>
-        and
-	<a href="http://www.math.tamu.edu/~kanschat"
-           target="_top">G. Kanschat</a>
-        <br>
-        <strong><acronym>deal.II</acronym> Differential Equations
-          Analysis Library, Technical Reference
+      <li>
+	Wolfgang Bangerth, Timo Heister, Luca Heltai, Guido Kanschat, Martin Kronbichler, Matthias Maier, and Toby D. Young <br/>
+        <strong>The <acronym>deal.II</acronym> Library, Version 8.0
         </strong>
         <br>
-	To be found on the project webpage <a href="http://www.dealii.org"
-					      target="_top">http://www.dealii.org</a>
+	<a href="http://arxiv.org/abs/1312.2266" target="_top">arxiv:1312.2266</a>, 2013.
 	<br>
-	<pre>
-	  @Manual{DealIIReference,
-	  title = 	 {{\tt deal.{I}{I}} Differential Equations Analysis Library,
-          Technical Reference},
-	  author = 	 {W. Bangerth and T. Heister and G. Kanschat and others},
-	  note =         {\texttt{http://www.dealii.org}},
-	  url =          {http://www.dealii.org}
-	  }</pre>
+<pre>
+@Misc{dealII80,
+          title =  {The {\tt deal.{I}{I}} Library, Version 8.0},
+          author = {W. Bangerth and T. Heister and L. Heltai and G. Kanschat
+                    and M. Kronbichler and M. Maier and B. Turcksin and T. D. Young},
+          note =   {\texttt{http://www.dealii.org}},
+          url =    {http://www.dealii.org},
+          year =   {2013}
+          }
+}
+</pre>
       </li>
     </ol>
 
@@ -154,8 +150,8 @@
 
     <p>
       The following publications explain in great detail the
-      implementation of algorithms and data structures of the hp, multigrid and
-      distributed mesh components of deal.II:
+      implementation of algorithms and data structures of the hp, multigrid,
+      distributed mesh, and matrix-free components of deal.II:
     </p>
 
     <ol>
@@ -206,6 +202,24 @@
         <br>
 	Comput. &amp; Struct., vol. 82, pp. 2437-2445, 2004
       </li>
+
+      <li> M. Kronbichler, K. Kormann
+	<br>
+	<strong>A generic interface for parallel cell-based finite element
+	  operator application
+	</strong>
+	<br>
+	Computers and Fluids, vol. 63, pp. 135-147, 2012
+        <br>
+	DOI: <a href="http://dx.doi.org/10.1016/j.compfluid.2012.04.012">10.1016/j.compfluid.2012.04.012</a>
+      </li>
+
+      <li> W. Bangerth, T. Heister
+	<br>
+	<strong>What makes computational open source software libraries successful?</strong>
+	<br>
+	Computational Science &amp; Discovery, vol. 6, article 015010, 2013.
+      </li>
     </ol>
 
     <p>  For massively parallel
@@ -231,8 +245,25 @@
 	</li>
       </ul>
 
+
+
+      <a name="2014"> </a>
+      <h2>Publications in 2014</h2>
+
+      <!-- Please enter alphabetically by name -->
+      <ol>
+	<li> T. Wick, G. Singh, M.F. Wheeler
+ 	  <br>
+	  <strong>Pressurized-Fracture propagation using a phase-field approach coupled to a reservoir simulator
+	  </strong>
+	  <br>
+	  SPE 168597-MS, SPE HFTC Proc. 2014.
+        </li>
+	</ol>
+
+
       <a name="2013"> </a>
-      <h3>Publications in 2013</h3>
+      <h2>Publications in 2013</h2>
 
       <!-- Please enter alphabetically by name -->
       <ol>
@@ -279,12 +310,28 @@
 	  Msc thesis, University of G&ouml;ttingen, Germany, 2013.
 	</li>
 
+	<li> O. Axelsson, P. Boyanova, M. Kronbichler, M. Neytcheva, X. Wu
+	  <br>
+          <strong>Numerical and computational efficiency of solvers for
+          two-phase problems
+          </strong>
+	  <br>
+	  Comput. Math. Appl., 65, 301-314, 2013.
+	</li>
+
 	<li> A. Barker, T. Rees, M. Stoll
 	  <br>
 	  <strong>A fast solver for an H<sub>1</sub> regularized
 	  PDE-constrained optimization problem</strong>
 	  <br>
 	  submitted, 2013.
+	</li>
+
+	<li> W. Bangerth, T. Heister
+	  <br>
+	  <strong>What makes computational open source software libraries successful?</strong>
+	  <br>
+	  Computational Science &amp; Discovery, vol. 6, article 015010, 2013.
 	</li>
 
 	<li> S. Bartels, R. H. Nochetto, A. J. Salgado
@@ -302,11 +349,33 @@
 	  Preprint, MPI Magdeburg, 2013.
 	</li>
 
+
+	<li> A. Bonito, D. Devaud
+	  <br>
+	  <strong>Adaptive Finite Element Methods for the Stokes Problems with Discontinuous Coefficients</strong>
+	  <br>
+	  submitted, 2013.
+	</li>
+
 	<li> A. Bonito, R. DeVore, R. H. Nochetto
 	  <br>
 	  <strong>Adaptive Finite Element Methods for Elliptic Problems with Discontinuous Coefficients</strong>
 	  <br>
-	  arXiv:1301.3203, submitted, 2013.
+	  SIAM J. Numer. Anal.  51  (2013),  no. 6, 3106--3134.
+	</li>
+
+	<li> A. Bonito, R. Glowinski
+	  <br>
+	  <strong>On the Nodal Set of the Eigenfunctions of the Laplace-Beltrami Operator for Bounded Surfaces in R3: A Computational Approach</strong>
+	  <br>
+	  submitted, 2013.
+	</li>
+
+	<li> A. Bonito, J.-L. Guermond, S. Lee
+	  <br>
+	  <strong>Two Modified Pressure-Correction Projection Methods for the Time-Dependent Stokes Equations</strong>
+	  <br>
+	  submitted, 2013.
 	</li>
 
 	<li> A. Bonito, I. Kyza, R. H. Nochetto
@@ -330,6 +399,13 @@
 	  <strong>Time-discrete higher order ALE formulations: Stability</strong>
 	  <br>
 	  SIAM J. Numer. Anal., 51(1), 577--608, 2013.
+	</li>
+
+	<li> A. Bonito, J. E. Pasciak
+	  <br>
+	  <strong>Numerical Approximation of Fractional Powers of Elliptic Operators</strong>
+	  <br>
+	  submitted, 2013.
 	</li>
 
 	<li> J. Bosch, M. Stoll, P. Benner
@@ -470,6 +546,23 @@
 	  Journal of Elasticity, in press, 2013.
 	</li>
 
+	<li> S. Frei, T. Richter, T. Wick
+	  <br>
+          <strong>Eulerian Techniques for Fluid-Structure Interactions - Part
+          I: Modeling and Simulation
+          </strong>
+	  <br>
+	  ENUMATH Proc., submitted Nov 2013.
+	</li>
+
+	<li> S. Frei, T. Richter, T. Wick
+	  <br>
+          <strong>Eulerian Techniques for Fluid-Structure Interactions - Part II: Applications
+          </strong>
+	  <br>
+	  ENUMATH Proc., submitted Nov 2013.
+	</li>
+
 	<li> A. Geringer, B. Lenhof, S. Diebels
 	  <br>
           <strong>Macroscopic modeling of foams: an order-parameter
@@ -573,14 +666,21 @@
 	  PhD thesis, University of Siegen, Germany, 2013.
 	</li>
 
+	<li> K. Kumar, T. van Noorden, M. F. Wheeler, T. Wick
+	  <br>
+          <strong>An ALE-based method for reaction-induced boundary movement towards clogging
+          </strong>
+	  <br>
+	  ENUMATH Proc., submitted Nov 2013.
+	</li>
+
 	<li> K. Kumar, M.F. Wheeler, T. Wick
  	  <br>
-	  <strong>Reactive flow in a thin channel
-and reaction-induced boundary movement in
-a monolithic ALE framework
+	  <strong>Reactive flow reaction-induced boundary movement in
+	    a thin channel
 	  </strong>
 	  <br>
-	  submitted to SISC, 2013.
+	  SIAM J. Sci. Comput. 35(6), pp. B1235-B1266, 2013
         </li>
 
 	<li> B. Lenhof, A. Geringer, S. Diebels
@@ -646,10 +746,27 @@ a monolithic ALE framework
 
 	<li> T. Richter, T. Wick
  	  <br>
+	  <strong>Solid growth and clogging in fluid-structure interaction computed in ALE and fully Eulerian coordinates
+	  </strong>
+	  <br>
+	  submitted Oct 2013 (peer-reviewed journal)
+        </li>
+
+	<li> T. Richter, T. Wick
+ 	  <br>
+	  <strong>On time discretizations of fluid-structure interactions
+	  </strong>
+	  <br>
+	  submitted Oct 2013 (book proceedings)
+        </li>
+
+
+	<li> T. Richter, T. Wick
+ 	  <br>
 	  <strong>Optimal Control and Parameter Estimation for Stationary Fluid-Structure Interaction Problems
 	  </strong>
 	  <br>
-	  SISC, accepted in May, 2013.
+	  SIAM J. Sci. Comput., accepted in May, 2013.
         </li>
 
 	<li> S. Roy, L. Heltai, D. Drapaca, F. Costanzo
@@ -738,6 +855,8 @@ a monolithic ALE framework
 	  ARMA Conference in San Francisco, Jun 23-26, 2013.
         </li>
 
+
+
 	<li> J. Weinbub, K. Rupp, S. Selberherr
  	  <br>
 	  <strong>ViennaX: a parallel plugin execution framework for
@@ -754,7 +873,7 @@ a monolithic ALE framework
   and Mesh Adaptivity
 	  </strong>
 	  <br>
-	  Comp. Mech., DOI: 10.1007/s00466-013-0890-3, 2013.
+	  Computational Mechanics, DOI: 10.1007/s00466-013-0890-3, 2013.
         </li>
 
 	<li> T. Wick
@@ -763,7 +882,7 @@ a monolithic ALE framework
   methods for fluid-structure interaction computations
 	  </strong>
 	  <br>
-	  Comp. Mech., DOI: 10.1007/s00466-013-0866-3, 2013.
+	  Computational Mechanics, DOI: 10.1007/s00466-013-0866-3, 2013.
         </li>
 
 	<li> T. Wick
@@ -841,7 +960,7 @@ a monolithic ALE framework
       </ol>
 
       <a name="2012"> </a>
-      <h3>Publications in 2012</h3>
+      <h2>Publications in 2012</h2>
 
       <!-- Please enter alphabetically by name -->
       <ol>
@@ -1202,15 +1321,6 @@ A Goal Oriented Software Library for Solving PDEs and Optimization Problems with
 	  University of Uppsala, research report, 2012.
         </li>
 
-	<li> M. Kronbichler, K. Kormann
-	  <br>
-	  <strong>A generic interface for parallel cell-based finite element
-	    operator application
-	  </strong>
-	  <br>
-	  Computers and Fluids, vol. 63, pp. 135-147, 2012.
-        </li>
-
 	<li> M. Kunkel
 	  <br>
 	  <strong>Nonsmooth Newton Methods and Convergence of
@@ -1441,7 +1551,7 @@ A Goal Oriented Software Library for Solving PDEs and Optimization Problems with
       </ol>
 
       <a name="2011"> </a>
-      <h3>Publications in 2011</h3>
+      <h2>Publications in 2011</h2>
 
       <!-- Please enter alphabetically by name -->
       <ol>
@@ -2031,7 +2141,7 @@ A Goal Oriented Software Library for Solving PDEs and Optimization Problems with
 
 
       <a name="2010"> </a>
-      <h3>Publications in 2010</h3>
+      <h2>Publications in 2010</h2>
 
       <!-- Please enter alphabetically by name -->
       <ol>
@@ -2577,7 +2687,7 @@ A Goal Oriented Software Library for Solving PDEs and Optimization Problems with
       </ol>
 
       <a name="2009"> </a>
-      <h3>Publications in 2009</h3>
+      <h2>Publications in 2009</h2>
 
       <!-- Please enter alphabetically by name -->
       <ol>
@@ -3031,7 +3141,7 @@ A Goal Oriented Software Library for Solving PDEs and Optimization Problems with
 
 
       <a name="2008"> </a>
-      <h3>Publications in 2008</h3>
+      <h2>Publications in 2008</h2>
 
       <!-- Please enter alphabetically by name -->
       <ol>
@@ -3398,7 +3508,7 @@ A Goal Oriented Software Library for Solving PDEs and Optimization Problems with
 
 
       <a name="2007"> </a>
-      <h3>Publications in 2007</h3>
+      <h2>Publications in 2007</h2>
       <!-- Please enter alphabetically by name -->
       <ol>
 	<li> N. Antonic, M. Vrdoljak
@@ -3736,7 +3846,7 @@ A Goal Oriented Software Library for Solving PDEs and Optimization Problems with
 
 
       <a name="2006"> </a>
-      <h3>Publications in 2006</h3>
+      <h2>Publications in 2006</h2>
 
       <ol>
 
@@ -4030,7 +4140,7 @@ A Goal Oriented Software Library for Solving PDEs and Optimization Problems with
 
 
       <a name="2005"> </a>
-      <h3>Publications in 2005</h3>
+      <h2>Publications in 2005</h2>
 
       <ol>
 
@@ -4256,7 +4366,7 @@ A Goal Oriented Software Library for Solving PDEs and Optimization Problems with
 
 
       <a name="2004"> </a>
-      <h3>Publications in 2004</h3>
+      <h2>Publications in 2004</h2>
 
       <ol>
 	<li> <a href="http://www.math.tamu.edu/~bangerth"
@@ -4435,7 +4545,7 @@ A Goal Oriented Software Library for Solving PDEs and Optimization Problems with
 
 
       <a name="2003"> </a>
-      <h3>Publications in 2003</h3>
+      <h2>Publications in 2003</h2>
 
       <ol>
 	<li>
@@ -4616,7 +4726,7 @@ A Goal Oriented Software Library for Solving PDEs and Optimization Problems with
 
 
       <a name="2002"> </a>
-      <h3>Publications in 2002</h3>
+      <h2>Publications in 2002</h2>
 
       <ol>
 
@@ -4749,7 +4859,7 @@ A Goal Oriented Software Library for Solving PDEs and Optimization Problems with
 
 
       <a name="2001"> </a>
-      <h3>Publications in 2001</h3>
+      <h2>Publications in 2001</h2>
 
       <ol>
 	<li> A. Barinka, T. Barsch, P. Charton, A. Cohen, S. Dahlke,
@@ -4789,7 +4899,7 @@ A Goal Oriented Software Library for Solving PDEs and Optimization Problems with
 
 
       <a name="2000"> </a>
-      <h3>Publications in 2000</h3>
+      <h2>Publications in 2000</h2>
 
       <ol>
 
@@ -4857,7 +4967,7 @@ A Goal Oriented Software Library for Solving PDEs and Optimization Problems with
 
 
       <a name="1999"> </a>
-      <h3>Publications in 1999</h3>
+      <h2>Publications in 1999</h2>
 
       <ol>
 	<li>
@@ -4915,7 +5025,7 @@ A Goal Oriented Software Library for Solving PDEs and Optimization Problems with
 
 
       <a name="1998"> </a>
-      <h3>Publications in 1998</h3>
+      <h2>Publications in 1998</h2>
 
       <ol>
 	<li>

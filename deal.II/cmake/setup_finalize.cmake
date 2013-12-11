@@ -124,10 +124,15 @@ _both(
 #                                ${CMAKE_CXX_COMPILER}
 "
   )
-_detailed(
-"#        CMAKE_GENERATOR:        ${CMAKE_GENERATOR}
-"
-  )
+
+IF(CMAKE_C_COMPILER_WORKS)
+  _detailed("#        CMAKE_C_COMPILER:       ${CMAKE_C_COMPILER}\n")
+ENDIF()
+IF(CMAKE_Fortran_COMPILER_WORKS)
+  _detailed("#        CMAKE_Fortran_COMPILER: ${CMAKE_Fortran_COMPILER}\n")
+ENDIF()
+_detailed("#        CMAKE_GENERATOR:        ${CMAKE_GENERATOR}\n")
+
 IF(CMAKE_CROSSCOMPILING)
   _both(
     "#\n#        CROSSCOMPILING!\n"
@@ -226,7 +231,7 @@ FOREACH(_var ${_features})
         IF( # MPI:
             _var2 MATCHES "^${_feature}_CXX_(COMPILER|COMPILE_FLAGS|LINK_FLAGS|LIBRARIES|INCLUDE_PATH)$" OR
             # Boost:
-            ( _feature MATCHES "BOOST" AND _var2 MATCHES "^Boost_(LIBRARIES|INCLUDE_DIRS)$" ) OR
+            ( _feature MATCHES "BOOST" AND _var2 MATCHES "^BOOST_(LIBRARIES|INCLUDE_DIRS)$" ) OR
             # TBB:
             ( _feature MATCHES "THREADS" AND _var2 MATCHES "^TBB_(LIBRARIES|INCLUDE_DIRS)$" ) OR
             # Generic:
@@ -269,8 +274,14 @@ ENDFOREACH()
 
 _summary(
 "#\n#  Detailed information (compiler flags, feature configuration) can be found in detailed.log
-#\n#  Run  $ make info  to print a help message with a list of top level targets\n"
+#\n#  Run  $ "
   )
+IF(CMAKE_GENERATOR MATCHES "Ninja")
+  _summary("ninja info")
+ELSE()
+_summary("make help")
+ENDIF()
+_summary("  to print a help message with a list of top level targets\n")
 
 _both("#\n###")
 

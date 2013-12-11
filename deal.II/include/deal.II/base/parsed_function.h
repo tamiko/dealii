@@ -221,8 +221,9 @@ namespace Functions
     void parse_parameters(ParameterHandler &prm);
 
     /**
-     * Get one value at the given
-     * point.
+     * Return all components of a
+     * vector-valued function at the
+     * given point @p p.
      */
     virtual void vector_value (const Point<dim> &p,
                                Vector<double>   &values) const;

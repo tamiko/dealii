@@ -63,7 +63,7 @@ void test ()
             sparsity.add(global, global+N);
           }
       }
-  sparsity.compress();
+  sparsity.compress ();
 
 
   // next build the sparse matrix itself

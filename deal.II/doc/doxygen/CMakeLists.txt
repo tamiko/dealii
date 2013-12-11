@@ -15,6 +15,27 @@
 ## ---------------------------------------------------------------------
 
 #
+# Generate the source documentation via doxygen:
+#
+
+FIND_PACKAGE(Perl)
+FIND_PACKAGE(Doxygen)
+
+#
+# Do we have all necessary dependencies?
+#
+IF(NOT PERL_FOUND)
+  MESSAGE(FATAL_ERROR
+    "Could not find a perl installation which is required for building the documentation"
+    )
+ENDIF()
+IF(NOT DOXYGEN_FOUND)
+  MESSAGE(FATAL_ERROR
+    "Could not find doxygen which is required for building the documentation"
+    )
+ENDIF()
+
+#
 # A glob. I'm sorry
 #
 file(GLOB DEAL_II_STEPS
@@ -25,7 +46,6 @@ file(GLOB DEAL_II_STEPS
 # Prepare the example steps for doxygen:
 #
 ADD_SUBDIRECTORY(tutorial) # uses ${DEAL_II_STEPS}
-ADD_SUBDIRECTORY(images)
 
 #
 # Prepare auxiliary files for doxygen:
@@ -36,20 +56,29 @@ CONFIGURE_FILE(
   )
 
 CONFIGURE_FILE(
-  ${CMAKE_CURRENT_SOURCE_DIR}/header.html.in
-  ${CMAKE_CURRENT_BINARY_DIR}/header.html
+  ${CMAKE_CURRENT_SOURCE_DIR}/scripts/mod_header.pl.in
+  ${CMAKE_CURRENT_BINARY_DIR}/scripts/mod_header.pl
   )
 
 CONFIGURE_FILE(
-  ${CMAKE_CURRENT_SOURCE_DIR}/footer.html
-  ${CMAKE_CURRENT_BINARY_DIR}/footer.html
-  COPYONLY
+  ${CMAKE_CURRENT_SOURCE_DIR}/scripts/mod_footer.pl.in
+  ${CMAKE_CURRENT_BINARY_DIR}/scripts/mod_footer.pl
   )
 
-CONFIGURE_FILE(
-  ${CMAKE_CURRENT_SOURCE_DIR}/deal.css
-  ${CMAKE_CURRENT_BINARY_DIR}/deal.II/deal.css
-  COPYONLY
+
+#
+# Generate header, footer and style files for doxygen
+#
+ADD_CUSTOM_COMMAND(
+  OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/header.html
+    ${CMAKE_CURRENT_BINARY_DIR}/footer.html
+  COMMAND ${DOXYGEN_EXECUTABLE} -w html header.html footer.html style.css options.dox
+  COMMAND ${PERL_EXECUTABLE} -pi~ ${CMAKE_CURRENT_BINARY_DIR}/scripts/mod_header.pl header.html
+  COMMAND ${PERL_EXECUTABLE} -pi~ ${CMAKE_CURRENT_BINARY_DIR}/scripts/mod_footer.pl footer.html
+  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+  DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/options.dox
+    ${CMAKE_CURRENT_BINARY_DIR}/scripts/mod_header.pl
+    ${CMAKE_CURRENT_BINARY_DIR}/scripts/mod_footer.pl
   )
 
 #
@@ -61,8 +90,10 @@ file(GLOB _doxygen_input
   ${CMAKE_SOURCE_DIR}/contrib/parameter_gui/main.cpp
   ${CMAKE_SOURCE_DIR}/doc/news/*.h
   ${CMAKE_SOURCE_DIR}/include/deal.II/**/*.h
-
+  )
+LIST(APPEND _doxygen_input
   ${CMAKE_BINARY_DIR}/include/deal.II/base/config.h
+  ${CMAKE_CURRENT_BINARY_DIR}/tutorial/tutorial.h
   )
 FOREACH(_step ${DEAL_II_STEPS})
   GET_FILENAME_COMPONENT(_step "${_step}" NAME)
@@ -100,20 +131,20 @@ ADD_CUSTOM_COMMAND(
   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
   DEPENDS
     tutorial
-    images
     ${CMAKE_CURRENT_BINARY_DIR}/options.dox
+    ${CMAKE_CURRENT_BINARY_DIR}/header.html
+    ${CMAKE_CURRENT_BINARY_DIR}/footer.html
     ${_doxygen_input}
-  COMMENT "Generating documentation via doxygen. This may take a _really_ long time..."
+  COMMENT "Generating documentation via doxygen."
   VERBATIM
   )
 ADD_CUSTOM_TARGET(doxygen ALL
   DEPENDS ${CMAKE_BINARY_DIR}/doxygen.log
   )
-
+ADD_DEPENDENCIES(documentation doxygen)
 
 INSTALL(FILES
   ${CMAKE_CURRENT_BINARY_DIR}/deal.tag
-  ${CMAKE_CURRENT_SOURCE_DIR}/stylesheet.css
   DESTINATION ${DEAL_II_DOCHTML_RELDIR}/doxygen
   COMPONENT documentation
   )

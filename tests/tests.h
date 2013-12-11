@@ -33,6 +33,58 @@
 #include <iomanip>
 
 
+// Cygwin has a different implementation for rand() which causes many tests to fail.
+// This here is a reimplementation that gives the same sequence of numbers as a program
+// that uses rand() on a typical linux machine.
+// we put this into a namespace to not conflict with stdlib
+namespace Testing
+{
+int rand(bool reseed=false, int seed=1) throw()
+{
+  static int r[32];
+  static int k;
+  static bool inited=false;
+  if (!inited || reseed)
+    {
+      //srand treats a seed 0 as 1 for some reason
+      r[0]=(seed==0)?1:seed;
+
+      for (int i=1; i<31; i++)
+        {
+          r[i] = (16807LL * r[i-1]) % 2147483647;
+          if (r[i] < 0)
+            r[i] += 2147483647;
+        }
+      k=31;
+      for (int i=31; i<34; i++)
+        {
+          r[k%32] = r[(k+32-31)%32];
+          k=(k+1)%32;
+        }
+
+      for (int i=34; i<344; i++)
+        {
+          r[k%32] = r[(k+32-31)%32] + r[(k+32-3)%32];
+          k=(k+1)%32;
+        }
+      inited=true;
+      if (reseed==true)
+        return 0;// do not generate new no
+    }
+
+  r[k%32] = r[(k+32-31)%32] + r[(k+32-3)%32];
+  int ret = r[k%32];
+  k=(k+1)%32;
+  return (unsigned int)ret >> 1;
+}
+
+// reseed our random number generator
+void srand(int seed) throw()
+{
+  rand(true, seed);
+}
+}
+
 // given the name of a file, copy it to deallog
 // and then delete it
 inline void cat_file(const char *filename)
@@ -238,6 +290,22 @@ private:
 
 
 
+/*
+ * Replace all occurences of ' &' by '& ' from the given file to hopefully be
+ * more compiler independent with respect to __PRETTY_FUNCTION__
+ *
+ * Also, while GCC prepends the name by "virtual " if the function is virtual,
+ * Intel's ICC does not do that, so filter that out as well.
+ */
+void unify_pretty_function (const std::string &filename)
+{
+
+  int error = std::system ((std::string ("sed -i -e 's/ \\&/ \\& /g' -e 's/ & ,/\\&,/g' -e 's/ \\& )/\\&)/g' -e 's/ \\& /\\& /g' -e 's/^DEAL::virtual /DEAL::/g' ") + filename).c_str());
+
+  Assert (error == 0,
+	  ExcInternalError());
+
+}
 
 #ifndef DEAL_II_STACKTRACE_SWITCH
 #define DEAL_II_STACKTRACE_SWITCH

@@ -62,42 +62,36 @@ namespace deal_II_exceptions
 
 ExceptionBase::ExceptionBase ()
   :
-  std::runtime_error(""),
   file(""),
   line(0),
   function(""),
   cond(""),
   exc(""),
-  stacktrace (0),
-  n_stacktrace_frames (0)
-{
-  // Construct a minimalistic error message:
-  generate_message();
-}
+  stacktrace (NULL),
+  n_stacktrace_frames (0),
+  what_str("")
+{}
 
 
 
 ExceptionBase::ExceptionBase (const ExceptionBase &exc)
   :
-  std::runtime_error (exc),
   file(exc.file),
   line(exc.line),
   function(exc.function),
   cond(exc.cond),
   exc(exc.exc),
-  stacktrace (0), // don't copy stacktrace to avoid double de-allocation problem
-  n_stacktrace_frames (0)
+  stacktrace (NULL), // don't copy stacktrace to avoid double de-allocation problem
+  n_stacktrace_frames (0),
+  what_str("") // don't copy the error message, it gets generated dynamically by what()
 {}
 
 
 
 ExceptionBase::~ExceptionBase () throw ()
 {
-  if (stacktrace != 0)
-    {
-      free (stacktrace);
-      stacktrace = 0;
-    }
+  free (stacktrace); // free(NULL) is allowed
+  stacktrace = NULL;
 }
 
 
@@ -115,23 +109,35 @@ void ExceptionBase::set_fields (const char *f,
   exc  = e;
 
   // If the system supports this, get a stacktrace how we got here:
-
-  if (stacktrace != 0)
-    {
-      free (stacktrace);
-      stacktrace = 0;
-    }
-
+  // Note that we defer the symbol lookup done by backtrace_symbols()
+  // to when we need it (see what() below). This is for performance
+  // reasons, as this requires loading libraries and can take in the
+  // order of seconds on some machines.
 #ifdef HAVE_GLIBC_STACKTRACE
-  void *array[25];
-  n_stacktrace_frames = backtrace(array, 25);
-  stacktrace = backtrace_symbols(array, n_stacktrace_frames);
+  n_stacktrace_frames = backtrace(raw_stacktrace, 25);
 #endif
-
-  // And finally populate the underlying std::runtime_error:
-  generate_message();
 }
 
+const char *ExceptionBase::what() const throw()
+{
+  // If no error c_string was generated so far, do it now:
+  if (what_str == "")
+    {
+#ifdef HAVE_GLIBC_STACKTRACE
+      // We have deferred the symbol lookup to this point to avoid costly
+      // runtime penalties due to linkage of external libraries by
+      // backtrace_symbols.
+
+      // first delete old stacktrace if necessary
+      free (stacktrace); // free(NULL) is allowed
+      stacktrace = backtrace_symbols(raw_stacktrace, n_stacktrace_frames);
+#endif
+
+      generate_message();
+    }
+
+  return what_str.c_str();
+}
 
 
 const char *ExceptionBase::get_exc_name () const
@@ -262,35 +268,43 @@ void ExceptionBase::print_stack_trace (std::ostream &out) const
 
 
 
-void ExceptionBase::generate_message ()
+void ExceptionBase::generate_message () const
 {
-  // build up a string with the error message...
-
-  std::ostringstream converter;
-
-  converter << std::endl
-            << "--------------------------------------------------------"
-            << std::endl;
-
-  // print out general data
-  print_exc_data (converter);
-  // print out exception specific data
-  print_info (converter);
-  print_stack_trace (converter);
-
-  if (!deal_II_exceptions::additional_assert_output.empty())
+  // build up a c_string with the error message.
+  // Guard this procedure with a try block, we shall not throw at this
+  // place...
+  try
     {
-      converter << "--------------------------------------------------------"
-                << std::endl
-                << deal_II_exceptions::additional_assert_output
+      std::ostringstream converter;
+
+      converter << std::endl
+                << "--------------------------------------------------------"
                 << std::endl;
+
+      // print out general data
+      print_exc_data (converter);
+      // print out exception specific data
+      print_info (converter);
+      print_stack_trace (converter);
+
+      if (!deal_II_exceptions::additional_assert_output.empty())
+        {
+          converter << "--------------------------------------------------------"
+                    << std::endl
+                    << deal_II_exceptions::additional_assert_output
+                    << std::endl;
+        }
+
+      converter << "--------------------------------------------------------"
+                << std::endl;
+
+      what_str = converter.str();
     }
-
-  converter << "--------------------------------------------------------"
-            << std::endl;
-
-  // ... and set up std::runtime_error with it:
-  static_cast<std::runtime_error &>(*this) = std::runtime_error(converter.str());
+  catch (...)
+    {
+      // On error, resume next. There is nothing better we can do...
+      what_str = "ExceptionBase::generate_message () failed";
+    }
 }
 
 

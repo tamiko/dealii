@@ -629,11 +629,30 @@ namespace GridGenerator
   }
 
 
+
+  template<>
+  void
+  parallelogram (Triangulation<3>  &tria,
+                 const Point<3> corners[3],
+                 const bool         colorize)
+  {
+    Assert (false, ExcNotImplemented());
+  }
+
+  template<>
+  void
+  parallelogram (Triangulation<1>  &tria,
+                 const Point<1> corners[1],
+                 const bool         colorize)
+  {
+    Assert (false, ExcNotImplemented());
+  }
+
 // Implementation for 2D only
   template<>
   void
   parallelogram (Triangulation<2>  &tria,
-                 const Point<2> (&corners)[2],
+                 const Point<2> corners[2],
                  const bool         colorize)
   {
     std::vector<Point<2> > vertices (GeometryInfo<2>::vertices_per_cell);
@@ -652,6 +671,25 @@ namespace GridGenerator
     // Assign boundary indicators
     if (colorize)
       colorize_hyper_rectangle (tria);
+  }
+
+
+  template<>
+  void
+  parallelogram (Triangulation<1>  &tria,
+                 const Tensor<2,1> &corners,
+                 const bool         colorize)
+  {
+    Assert (false, ExcNotImplemented());
+  }
+
+  template<>
+  void
+  parallelogram (Triangulation<3>  &tria,
+                 const Tensor<2,3> &corners,
+                 const bool         colorize)
+  {
+    Assert (false, ExcNotImplemented());
   }
 
 
@@ -693,12 +731,12 @@ namespace GridGenerator
 
     switch (dim)
       {
-        // A line (1d parallelepiped)
+      // A line (1d parallelepiped)
       case 1:
         vertices[1] = corners[0];
         break;
 
-        // A parallelogram (2d parallelepiped)
+      // A parallelogram (2d parallelepiped)
       case 2:
         // assign corners to vertices:
         vertices[1] = corners[0];
@@ -708,7 +746,7 @@ namespace GridGenerator
         vertices[3] = vertices[1] + vertices[2];
         break;
 
-        // A parallelepiped (3d parallelepiped)
+      // A parallelepiped (3d parallelepiped)
       case 3:
         // assign corners to vertices:
         vertices[1] = corners[0];
@@ -2461,10 +2499,9 @@ namespace GridGenerator
   {
     // Determine number of cells and vertices
     const unsigned int
-    n_cells = static_cast<unsigned int>(std::floor (half_length /
-                                                    std::max (radius_0,
-                                                              radius_1) +
-                                                    0.5));
+    n_cells = static_cast<unsigned int>(std::ceil (half_length /
+                                                   std::max (radius_0,
+                                                             radius_1)));
     const unsigned int n_vertices = 4 * (n_cells + 1);
     std::vector<Point<3> > vertices_tmp(n_vertices);
 

@@ -15,109 +15,152 @@
 ## ---------------------------------------------------------------------
 
 #
-# Setup necessary configuration in the testsuite subprojects.
-# This file is directly included by the test subprojects and not by the
-# main project.
+# This is a bloody hack to avoid a severe performance penalty when using
+# 12k top level targets with GNU Make that really does not like that...
 #
-# It is assumed that the following variables are set:
-#
-#    DEAL_II_BINARY_DIR
-#    DEAL_II_SOURCE_DIR
-#      - pointing to a source and binary directory of a deal.II build
-#
-# This file sets up the following options, that can be overwritten by
-# environment or command line:
-#
-#     TEST_DIFF
-#     TEST_OVERRIDE_LOCATION
-#     TEST_PICKUP_REGEX
-#     TEST_TIME_LIMIT
+# The only choice we have is to set up every test subdirectory as an
+# independent project. Unfortunately this adds quite a significant amount
+# of complexity :-(
 #
 
 #
-# Load all macros:
+# Setup the testsuite.
 #
-FILE(GLOB _macro_files ${DEAL_II_SOURCE_DIR}/cmake/macros/*.cmake)
-FOREACH(_file ${_macro_files})
-  INCLUDE(${_file})
-ENDFOREACH()
+
+SET_IF_EMPTY(MAKEOPTS $ENV{MAKEOPTS})
+
+MESSAGE(STATUS "")
+MESSAGE(STATUS "Setup testsuite with TEST_DIR ${TEST_DIR}")
+
+ADD_SUBDIRECTORY(
+  ${CMAKE_SOURCE_DIR}/tests/quick_tests
+  ${CMAKE_BINARY_DIR}/tests/quick_tests
+  )
 
 #
-# Pick up values from environment:
+# Write a minimalistic CTestTestfile.cmake file to CMAKE_BINARY_DIR and
+# CMAKE_BINARY_DIR/tests:
 #
+
+FILE(WRITE ${CMAKE_BINARY_DIR}/CTestTestfile.cmake
+  "SUBDIRS(tests)"
+  )
+
+FILE(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/tests)
+FILE(WRITE ${CMAKE_BINARY_DIR}/tests/CTestTestfile.cmake "")
+
+#
+# Custom targets to set and clean up the testsuite:
+#
+
+# Setup tests:
+ADD_CUSTOM_TARGET(setup_tests)
+
+# Remove all tests:
+ADD_CUSTOM_TARGET(prune_tests)
+
+# Regenerate tests (run "make rebuild_cache" in subprojects):
+ADD_CUSTOM_TARGET(regen_tests
+  COMMAND ${CMAKE_COMMAND}
+    --build ${CMAKE_BINARY_DIR}/tests --target regen_tests
+    -- ${MAKEOPTS}
+  )
+
+# Clean all tests
+ADD_CUSTOM_TARGET(clean_tests
+  COMMAND ${CMAKE_COMMAND}
+    --build ${CMAKE_BINARY_DIR}/tests --target clean_tests
+    -- ${MAKEOPTS}
+  )
+
+MESSAGE(STATUS "Setup testsuite")
+
+#
+# Provide custom targets to setup and prune the testsuite subproject:
+#
+
+EXECUTE_PROCESS(
+  COMMAND ${CMAKE_COMMAND} -G${CMAKE_GENERATOR}
+    -DTEST_DIR=${TEST_DIR}
+    ${CMAKE_SOURCE_DIR}/tests
+  WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/tests
+  OUTPUT_QUIET
+  )
+
+SET(_options)
+LIST(APPEND _options -DDEAL_II_SOURCE_DIR=${CMAKE_SOURCE_DIR})
+LIST(APPEND _options -DDEAL_II_BINARY_DIR=${CMAKE_BINARY_DIR})
 FOREACH(_var
-  DEAL_II_BINARY_DIR
-  DEAL_II_SOURCE_DIR
-  TEST_DIFF
-  TEST_TIME_LIMIT
-  TEST_PICKUP_REGEX
-  TEST_OVERRIDE_LOCATION
-  )
-  # Environment wins:
-  IF(DEFINED ENV{${_var}})
-    SET(${_var} $ENV{${_var}})
-  ENDIF()
-  IF(NOT "${_var}" STREQUAL "")
-    SET(${_var} "${${_var}}" CACHE STRING "")
+    DIFF_DIR
+    NUMDIFF_DIR
+    TEST_DIFF
+    TEST_PICKUP_REGEX
+    TEST_TIME_LIMIT
+    MPIEXEC
+    MPIEXEC_NUMPROC_FLAG
+    MPIEXEC_PREFLAGS
+    MPIEXEC_POSTFLAGS
+    )
+  # always undefine:
+  LIST(APPEND _options "-U${_var}")
+  IF(DEFINED ${_var})
+    LIST(APPEND _options "-D${_var}=${${_var}}")
   ENDIF()
 ENDFOREACH()
 
 #
-# We need deal.II and Perl as external packages:
+# Glob together a list of all subfolders to set up:
 #
-FIND_PACKAGE(deal.II 8.0 REQUIRED
-  HINTS ${DEAL_II_BINARY_DIR} ${DEAL_II_DIR}
-  )
-SET(CMAKE_CXX_COMPILER ${DEAL_II_CXX_COMPILER} CACHE STRING "CXX Compiler.")
 
-FIND_PACKAGE(Perl REQUIRED)
+FILE(GLOB _categories RELATIVE ${TEST_DIR} ${TEST_DIR}/*)
+SET(_categories all-headers build_tests mesh_converter ${_categories})
+LIST(REMOVE_DUPLICATES _categories)
 
 #
-# We need a diff tool, preferably numdiff:
+# Define a subproject for every enabled category:
 #
-FIND_PROGRAM(DIFF_EXECUTABLE
-  NAMES diff
-  )
 
-FIND_PROGRAM(NUMDIFF_EXECUTABLE
-  NAMES numdiff
-  HINTS ${NUMDIFF_DIR}
-  PATH_SUFFIXES bin
-  )
-
-MARK_AS_ADVANCED(DIFF_EXECUTABLE NUMDIFF_EXECUTABLE)
-
-IF( NUMDIFF_EXECUTABLE MATCHES "-NOTFOUND"
-    AND DIFF_EXECUTABLE MATCHES "-NOTFOUND" )
-  MESSAGE(FATAL_ERROR
-    "Could not find diff or numdiff. One of those are required for running the testsuite."
-    )
-ENDIF()
-
-IF("${TEST_DIFF}" STREQUAL "")
-  IF(NOT NUMDIFF_EXECUTABLE MATCHES "-NOTFOUND")
-      SET(TEST_DIFF ${NUMDIFF_EXECUTABLE} -a 1e-6 -s ' \\t\\n:')
+FOREACH(_category ${_categories})
+  IF(EXISTS ${CMAKE_SOURCE_DIR}/tests/${_category}/CMakeLists.txt)
+    SET(_category_dir ${CMAKE_SOURCE_DIR}/tests/${_category})
+  ELSEIF(EXISTS ${TEST_DIR}/${_category}/CMakeLists.txt)
+    SET(_category_dir ${TEST_DIR}/${_category})
   ELSE()
-      SET(TEST_DIFF ${DIFF_EXECUTABLE})
+    SET(_category_dir)
   ENDIF()
-ELSE()
-  # TODO: I have no idea how to prepare a custom string comming possibly
-  # through two layers of command line into a list...
-  SEPARATE_ARGUMENTS(TEST_DIFF ${TEST_DIFF})
-ENDIF()
 
-#
-# Set a default time limit of 600 seconds:
-#
-SET_IF_EMPTY(TEST_TIME_LIMIT 600)
+  IF(NOT "${_category_dir}" STREQUAL "")
+    ADD_CUSTOM_TARGET(setup_tests_${_category}
+      COMMAND ${CMAKE_COMMAND} -E make_directory
+        ${CMAKE_BINARY_DIR}/tests/${_category}
+      COMMAND cd ${CMAKE_BINARY_DIR}/tests/${_category} &&
+        ${CMAKE_COMMAND} -G${CMAKE_GENERATOR} ${_options} ${_category_dir}
+        > /dev/null
+      DEPENDS ${_category_dir}
+      COMMENT "Processing tests/${_category}"
+      )
+    ADD_DEPENDENCIES(setup_tests setup_tests_${_category})
 
-#
-# And finally, enable testing:
-#
-ENABLE_TESTING()
+    ADD_CUSTOM_TARGET(prune_tests_${_category}
+      COMMAND ${CMAKE_COMMAND} -E remove_directory
+        ${CMAKE_BINARY_DIR}/tests/${_category}
+      )
+    ADD_DEPENDENCIES(prune_tests prune_tests_${_category})
 
-#
-# A custom target that does absolutely nothing. It is used in the main
-# project to trigger a "make rebuild_cache" if necessary.
-#
-ADD_CUSTOM_TARGET(regenerate)
+    FILE(APPEND ${CMAKE_BINARY_DIR}/tests/CTestTestfile.cmake
+      "SUBDIRS(${_category})\n"
+      )
+  ENDIF()
+ENDFOREACH()
+MESSAGE(STATUS "Setup testsuite - Done")
+
+MESSAGE(STATUS "Regenerating testsuite subprojects")
+EXECUTE_PROCESS(
+  COMMAND ${CMAKE_COMMAND}
+    --build ${CMAKE_BINARY_DIR}/tests --target regen_tests
+    -- ${MAKEOPTS}
+  OUTPUT_QUIET
+  )
+MESSAGE(STATUS "Regenerating testsuite subprojects - Done")
+
+MESSAGE(STATUS "")

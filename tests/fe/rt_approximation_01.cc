@@ -293,7 +293,7 @@ public:
       {
         for (unsigned int i=0; i < deg; ++i)
           {
-            double c = ((double) rand ()) / ((double) RAND_MAX + 1);
+            double c = ((double) Testing::rand()) / ((double) RAND_MAX + 1);
             coeff[i] = c;
           }
         polys.push_back (Polynomials::Polynomial<double> (coeff));
@@ -490,7 +490,7 @@ int main ()
     MappingQ1Eulerian<2> mapping_euler (deformation, *dof_handler_def);
 
     // Try rotating the elements
-    for (double rotat = 0; rotat < 2 * M_PI; rotat += 0.25 * M_PI)
+    for (double rotat = 0; rotat < 2 * numbers::PI; rotat += 0.25 * numbers::PI)
       {
         // Rotate element
         VectorTools::project (*dof_handler_def, hn_constraints_def,
@@ -523,7 +523,7 @@ int main ()
     // Try arbitrary deformation ...
     for (unsigned int i=0; i < deformation.size (); ++i)
       {
-        double c = ((double) rand ()) / ((double) RAND_MAX + 1);
+        double c = ((double) Testing::rand()) / ((double) RAND_MAX + 1);
         deformation (i) = 0.35 * (c - 0.5);
       }
 

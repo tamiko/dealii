@@ -90,7 +90,7 @@ check ()
   hp::DoFHandler<dim> dof(tr);
   for (typename hp::DoFHandler<dim>::active_cell_iterator
        cell = dof.begin_active(); cell!=dof.end(); ++cell)
-    cell->set_active_fe_index (rand() % element.size());
+    cell->set_active_fe_index (Testing::rand() % element.size());
 
   dof.distribute_dofs(element);
 
@@ -117,9 +117,9 @@ check ()
 int main ()
 {
   std::ofstream logfile ("output");
-  logfile.precision (4);
+  logfile.precision (6);
   logfile.setf(std::ios::fixed);
-  deallog << std::setprecision(4) << std::fixed;
+  deallog << std::setprecision(6) << std::fixed;
   deallog.attach(logfile);
   deallog.depth_console (0);
 

@@ -230,7 +230,9 @@ namespace LocalIntegrators
      * valued version, namely on the face <i>F</i>
      * the vector
      * @f[
-     * \int_F \Bigl(\gamma (u-g) v - \partial_n u v - (u-g) \partial_n v\Bigr)\;ds.
+     * \int_F \Bigl(\gamma (\mathbf u- \mathbf g) \cdot \mathbf v
+     - \partial_n \mathbf u \cdot \mathbf v
+     - (\mathbf u-\mathbf g) \cdot \partial_n \mathbf v\Bigr)\;ds.
      * @f]
      *
      * Here, <i>u</i> is the finite element function whose values and
@@ -349,6 +351,20 @@ namespace LocalIntegrators
         }
     }
 
+    /**
+     * Flux for the interior penalty method for the Laplacian applied
+     * to the tangential components of a vector field, namely on
+     * the face <i>F</i> the matrices associated with the bilinear form
+     * @f[
+     * \int_F \Bigl( \gamma [u_\tau][v_\tau] - \{\nabla u_\tau\}[v_\tau\mathbf n] - [u_\tau\mathbf
+     * n]\{\nabla v_\tau\} \Bigr) \; ds.
+     * @f]
+     *
+     * @warning This function is still under development!
+     *
+     * @author Bärbel Janssen, Guido Kanschat
+     * @date 2013
+     */
     template <int dim>
     void ip_tangential_matrix (
       FullMatrix<double> &M11,
@@ -381,35 +397,47 @@ namespace LocalIntegrators
         {
           const double dx = fe1.JxW(k);
           const Point<dim> &n = fe1.normal_vector(k);
-	  for (unsigned int i=0; i<n_dofs; ++i)
-	    {
-	      for (unsigned int j=0; j<n_dofs; ++j)
-		{
-		  double u1dotn = 0.;
-		  double v1dotn = 0.;
-		  double u2dotn = 0.;
-		  double v2dotn = 0.;
-		  
-		  for (unsigned int d=0; d<dim; ++d)
-		    {
-		      u1dotn += n(d)*fe1.shape_value_component(j,k,d);
-		      v1dotn += n(d)*fe1.shape_value_component(i,k,d);
-		      u2dotn += n(d)*fe2.shape_value_component(j,k,d);
-		      v2dotn += n(d)*fe2.shape_value_component(i,k,d);
-		    }
-			  
-		  for (unsigned int d=0; d<fe1.get_fe().n_components(); ++d)
-		    {
-		      
-						       // multiply by 
-                      const double vi = fe1.shape_value_component(i,k,d)*(1-v1dotn);
-                      const double dnvi = n * fe1.shape_grad_component(i,k,d)*(1-v1dotn);
-                      const double ve = fe2.shape_value_component(i,k,d)*(1-v2dotn);
-                      const double dnve = n * fe2.shape_grad_component(i,k,d)*(1-v2dotn);
-                      const double ui = fe1.shape_value_component(j,k,d)*(1-u1dotn);
-                      const double dnui = n * fe1.shape_grad_component(j,k,d)*(1-u1dotn);
-                      const double ue = fe2.shape_value_component(j,k,d)*(1-u2dotn);
-                      const double dnue = n * fe2.shape_grad_component(j,k,d)*(1-u2dotn);
+          for (unsigned int i=0; i<n_dofs; ++i)
+            {
+              for (unsigned int j=0; j<n_dofs; ++j)
+                {
+                  double u1dotn = 0.;
+                  double v1dotn = 0.;
+                  double u2dotn = 0.;
+                  double v2dotn = 0.;
+
+                  double ngradu1n = 0.;
+                  double ngradv1n = 0.;
+                  double ngradu2n = 0.;
+                  double ngradv2n = 0.;
+
+                  for (unsigned int d=0; d<dim; ++d)
+                    {
+                      u1dotn += n(d)*fe1.shape_value_component(j,k,d);
+                      v1dotn += n(d)*fe1.shape_value_component(i,k,d);
+                      u2dotn += n(d)*fe2.shape_value_component(j,k,d);
+                      v2dotn += n(d)*fe2.shape_value_component(i,k,d);
+
+                      ngradu1n += n*fe1.shape_grad_component(j,k,d)*n(d);
+                      ngradv1n += n*fe1.shape_grad_component(i,k,d)*n(d);
+                      ngradu2n += n*fe2.shape_grad_component(j,k,d)*n(d);
+                      ngradv2n += n*fe2.shape_grad_component(i,k,d)*n(d);
+                    }
+
+                  for (unsigned int d=0; d<fe1.get_fe().n_components(); ++d)
+                    {
+                      const double vi = fe1.shape_value_component(i,k,d)-v1dotn*n(d);
+                      const double dnvi = n * fe1.shape_grad_component(i,k,d)-ngradv1n*n(d);
+
+                      const double ve = fe2.shape_value_component(i,k,d)-v2dotn*n(d);
+                      const double dnve = n * fe2.shape_grad_component(i,k,d)-ngradv2n*n(d);
+
+                      const double ui = fe1.shape_value_component(j,k,d)-u1dotn*n(d);
+                      const double dnui = n * fe1.shape_grad_component(j,k,d)-ngradu1n*n(d);
+
+                      const double ue = fe2.shape_value_component(j,k,d)-u2dotn*n(d);
+                      const double dnue = n * fe2.shape_grad_component(j,k,d)-ngradu2n*n(d);
+
                       M11(i,j) += dx*(-.5*nui*dnvi*ui-.5*nui*dnui*vi+nu*penalty*ui*vi);
                       M12(i,j) += dx*( .5*nui*dnvi*ue-.5*nue*dnue*vi-nu*penalty*vi*ue);
                       M21(i,j) += dx*(-.5*nue*dnve*ui+.5*nui*dnui*ve-nu*penalty*ui*ve);
@@ -421,7 +449,11 @@ namespace LocalIntegrators
     }
 
     /**
-     * Residual term for the symmetric interior penalty method.
+     * Residual term for the symmetric interior penalty method:
+     * @f[
+     * \int_F \Bigl( \gamma [u][v] - \{\nabla u\}[v\mathbf n] - [u\mathbf
+     * n]\{\nabla v\} \Bigr) \; ds.
+     * @f]
      *
      * @author Guido Kanschat
      * @date 2012
@@ -483,7 +515,12 @@ namespace LocalIntegrators
 
 
     /**
-     * Vector-valued residual term for the symmetric interior penalty method.
+     * Vector-valued residual term for the symmetric interior penalty method:
+     * @f[
+     * \int_F \Bigl( \gamma [\mathbf u]\cdot[\mathbf v]
+     - \{\nabla \mathbf u\}[\mathbf v\otimes \mathbf n]
+     - [\mathbf u\otimes \mathbf n]\{\nabla \mathbf v\} \Bigr) \; ds.
+     * @f]
      *
      * @author Guido Kanschat
      * @date 2012

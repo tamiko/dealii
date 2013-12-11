@@ -20,10 +20,6 @@
 # If TEST_PICKUP_REGEX is set, only tests matching the regex will be
 # processed.
 #
-# If TEST_OVERRIDE_LOCATION is set, a comparison file category/test.output
-# will be substituted by ${TEST_OVERRIDE_LOCATION}/category/test.output if
-# the latter exists.
-#
 # Usage:
 #     DEAL_II_PICKUP_TESTS()
 #
@@ -50,6 +46,30 @@ MACRO(DEAL_II_PICKUP_TESTS)
     ELSE()
       SET(_define_test FALSE)
     ENDIF()
+
+    #
+    # Respect compiler constraint:
+    #
+
+    STRING(REGEX MATCHALL
+      "compiler=[^=]*=(on|off|yes|no|true|false)" _matches ${_test}
+      )
+    FOREACH(_match ${_matches})
+      STRING(REGEX REPLACE
+        "^compiler=([^=]*)=(on|off|yes|no|true|false)$" "\\1"
+        _compiler ${_match}
+        )
+      STRING(REGEX MATCH "(on|off|yes|no|true|false)$" _boolean ${_match})
+
+      IF( ( "${CMAKE_CXX_COMPILER_ID}-${CMAKE_CXX_COMPILER_VERSION}"
+              MATCHES "^${_compiler}"
+            AND NOT ${_boolean} )
+          OR ( NOT "${CMAKE_CXX_COMPILER_ID}-${CMAKE_CXX_COMPILER_VERSION}"
+                   MATCHES "^${_compiler}"
+               AND ${_boolean} ) )
+        SET(_define_test FALSE)
+      ENDIF()
+    ENDFOREACH()
 
     #
     # Query configuration and check whether we support it. Otherwise
@@ -79,21 +99,8 @@ Invalid feature constraint \"${_match}\" in file
 \"${_comparison}\":
 The feature \"DEAL_II_${_feature}\" does not exist.\n"
           )
-        #SET(_define_test FALSE)
       ENDIF()
     ENDFOREACH()
-
-    #
-    # Respect TEST_OVERRIDE_LOCATION:
-    #
-
-    SET(_add_output)
-    IF(EXISTS ${TEST_OVERRIDE_LOCATION}/${_category}/${_test})
-      SET(_add_output
-        "!!NOTE!! Comparison file overriden by ${TEST_OVERRIDE_LOCATION}/${_category}/${_test}"
-        )
-      SET(_comparison "${TEST_OVERRIDE_LOCATION}/${_category}/${_test}")
-    ENDIF()
 
     IF(_define_test)
       STRING(REGEX REPLACE "\\..*" "" _test ${_test})

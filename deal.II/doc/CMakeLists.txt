@@ -14,43 +14,14 @@
 ##
 ## ---------------------------------------------------------------------
 
-
-
-
 #
 # Set up all necessary bits for the documentation
 #
 IF(DEAL_II_COMPONENT_DOCUMENTATION)
 
-  #
-  # Required packages for the document generation:
-  #
-  FIND_PACKAGE(Perl)
-  FIND_PACKAGE(Doxygen)
+  MESSAGE(STATUS "Setup documentation")
 
-  #
-  # Do we have all necessary dependencies?
-  #
-  IF(NOT PERL_FOUND)
-    MESSAGE(FATAL_ERROR
-      "Could not find a perl installation which is required for building the documentation"
-      )
-  ENDIF()
-  IF(NOT DOXYGEN_FOUND OR NOT DOXYGEN_DOT_FOUND)
-    MESSAGE(FATAL_ERROR
-      "Could not find doxygen and dot which is required for building the documentation"
-      )
-  ENDIF()
-
-  #
-  # Generate the source documentation via doxygen:
-  #
   ADD_SUBDIRECTORY(doxygen)
-
-  #
-  # A custom target with the same name as the component:
-  #
-  ADD_DEPENDENCIES(documentation doxygen)
 
   #
   # Install the static elements of the html documentation:
@@ -72,6 +43,8 @@ IF(DEAL_II_COMPONENT_DOCUMENTATION)
     DESTINATION ${DEAL_II_DOCHTML_RELDIR}
     COMPONENT documentation
     )
+
+  MESSAGE(STATUS "Setup documentation - Done")
 
 ENDIF(DEAL_II_COMPONENT_DOCUMENTATION)
 

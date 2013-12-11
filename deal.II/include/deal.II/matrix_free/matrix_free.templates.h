@@ -142,7 +142,8 @@ internal_reinit(const Mapping<dim>                          &mapping,
       // initialize the basic multithreading information that needs to be
       // passed to the DoFInfo structure
 #ifdef DEAL_II_WITH_THREADS
-      if (additional_data.tasks_parallel_scheme != AdditionalData::none)
+      if (additional_data.tasks_parallel_scheme != AdditionalData::none &&
+          multithread_info.n_threads() > 1)
         {
           task_info.use_multithreading = true;
           task_info.block_size = additional_data.tasks_block_size;
@@ -263,7 +264,8 @@ internal_reinit(const Mapping<dim>                            &mapping,
       // initialize the basic multithreading information that needs to be
       // passed to the DoFInfo structure
 #ifdef DEAL_II_WITH_THREADS
-      if (additional_data.tasks_parallel_scheme != AdditionalData::none)
+      if (additional_data.tasks_parallel_scheme != AdditionalData::none &&
+          multithread_info.n_threads() > 1)
         {
           task_info.use_multithreading = true;
           task_info.block_size = additional_data.tasks_block_size;
@@ -593,7 +595,7 @@ void MatrixFree<dim,Number>::initialize_indices
         for (types::global_dof_index i=start_index; i<end_index; ++i)
           if (constraint[no]->is_constrained(i)==true)
             dof_info[no].constrained_dofs.
-              push_back(static_cast<unsigned int>(i-start_index));
+            push_back(static_cast<unsigned int>(i-start_index));
       }
     }
 

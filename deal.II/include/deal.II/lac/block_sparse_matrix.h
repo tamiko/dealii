@@ -186,8 +186,11 @@ public:
    * sparsity patterns of the
    * parameter.
    *
-   * The elements of the matrix are
-   * set to zero by this function.
+   * You have to make sure that the lifetime of the sparsity structure is at
+   * least as long as that of this matrix or as long as reinit(const
+   * SparsityPattern &) is not called with a new sparsity structure.
+   *
+   * The elements of the matrix are set to zero by this function.
    */
   virtual void reinit (const BlockSparsityPattern &sparsity);
 //@}
@@ -275,7 +278,7 @@ public:
    * only one block column.
    */
   template <typename block_number,
-           typename nonblock_number>
+            typename nonblock_number>
   void vmult (BlockVector<block_number>          &dst,
               const Vector<nonblock_number> &src) const;
 
@@ -287,7 +290,7 @@ public:
    * only one block row.
    */
   template <typename block_number,
-           typename nonblock_number>
+            typename nonblock_number>
   void vmult (Vector<nonblock_number>    &dst,
               const BlockVector<block_number> &src) const;
 
@@ -322,7 +325,7 @@ public:
    * only one block row.
    */
   template <typename block_number,
-           typename nonblock_number>
+            typename nonblock_number>
   void Tvmult (BlockVector<block_number>  &dst,
                const Vector<nonblock_number> &src) const;
 
@@ -334,7 +337,7 @@ public:
    * only one block column.
    */
   template <typename block_number,
-           typename nonblock_number>
+            typename nonblock_number>
   void Tvmult (Vector<nonblock_number>    &dst,
                const BlockVector<block_number> &src) const;
 
@@ -498,7 +501,7 @@ BlockSparseMatrix<number>::vmult (BlockVector<block_number>       &dst,
 
 template <typename number>
 template <typename block_number,
-         typename nonblock_number>
+          typename nonblock_number>
 inline
 void
 BlockSparseMatrix<number>::vmult (BlockVector<block_number>     &dst,
@@ -511,7 +514,7 @@ BlockSparseMatrix<number>::vmult (BlockVector<block_number>     &dst,
 
 template <typename number>
 template <typename block_number,
-         typename nonblock_number>
+          typename nonblock_number>
 inline
 void
 BlockSparseMatrix<number>::vmult (Vector<nonblock_number>         &dst,
@@ -548,7 +551,7 @@ BlockSparseMatrix<number>::Tvmult (BlockVector<block_number>       &dst,
 
 template <typename number>
 template <typename block_number,
-         typename nonblock_number>
+          typename nonblock_number>
 inline
 void
 BlockSparseMatrix<number>::Tvmult (BlockVector<block_number>     &dst,
@@ -561,7 +564,7 @@ BlockSparseMatrix<number>::Tvmult (BlockVector<block_number>     &dst,
 
 template <typename number>
 template <typename block_number,
-         typename nonblock_number>
+          typename nonblock_number>
 inline
 void
 BlockSparseMatrix<number>::Tvmult (Vector<nonblock_number>         &dst,

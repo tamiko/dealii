@@ -159,7 +159,10 @@ namespace internal
 }
 
 //forward declaration of the data type for periodic face pairs
-namespace GridTools {template <typename CellIterator> struct PeriodicFacePair;}
+namespace GridTools
+{
+  template <typename CellIterator> struct PeriodicFacePair;
+}
 
 namespace parallel
 {
@@ -679,7 +682,7 @@ namespace parallel
       register_data_attach (const std::size_t size,
                             const std_cxx1x::function<void (const cell_iterator &,
                                                             const CellStatus,
-                                                            void *)> & pack_callback);
+                                                            void *)> &pack_callback);
 
       /**
        * The given function is called for
@@ -691,7 +694,7 @@ namespace parallel
       notify_ready_to_unpack (const unsigned int offset,
                               const std_cxx1x::function<void (const cell_iterator &,
                                                               const CellStatus,
-                                                              const void *)> & unpack_callback);
+                                                              const void *)> &unpack_callback);
 
       /**
        * Returns a permutation vector for the order the coarse
@@ -706,21 +709,24 @@ namespace parallel
 
 
       /**
-       * Join faces in the p4est forest due to periodic boundary conditions.
+       * Join faces in the p4est forest for periodic boundary conditions. As a
+       * result, each pair of faces will differ by at most one refinement level
+       * and ghost neighbors will be available across these faces.
        *
        * The vector can be filled by the function
        * GridTools::collect_periodic_faces.
        *
        * @todo At the moment just default orientation is implemented.
        *
-       * @note Before this function can be used the triangulation has to be
+       * @note Before this function can be used the Triangulation has to be
        * initialized and must not be refined.
        * Calling this function more than once is possible, but not recommended:
-       * The function destroys and rebuilds the p4est forest each time it is called.
+       * The function destroys and rebuilds the p4est forest each time it is
+       * called.
        */
       void
       add_periodicity
-      (const std::vector<GridTools::PeriodicFacePair<cell_iterator> >&);
+      (const std::vector<GridTools::PeriodicFacePair<cell_iterator> > &);
 
 
 
@@ -931,8 +937,8 @@ namespace parallel
        */
       void
       fill_vertices_with_ghost_neighbors
-        (std::map<unsigned int, std::set<dealii::types::subdomain_id> >
-         &vertices_with_ghost_neighbors);
+      (std::map<unsigned int, std::set<dealii::types::subdomain_id> >
+       &vertices_with_ghost_neighbors);
 
       template <int, int> friend class dealii::internal::DoFHandler::Policy::ParallelDistributed;
     };
@@ -1037,8 +1043,8 @@ namespace parallel
        */
       void
       fill_vertices_with_ghost_neighbors
-        (std::map<unsigned int, std::set<dealii::types::subdomain_id> >
-         &vertices_with_ghost_neighbors);
+      (std::map<unsigned int, std::set<dealii::types::subdomain_id> >
+       &vertices_with_ghost_neighbors);
 
     };
   }

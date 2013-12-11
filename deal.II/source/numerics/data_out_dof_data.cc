@@ -68,7 +68,7 @@ namespace internal
       if (use_face_values == false)
         {
           dealii::hp::QCollection<dim>
-            quadrature(QIterated<dim>(QTrapez<1>(), n_subdivisions));
+          quadrature(QIterated<dim>(QTrapez<1>(), n_subdivisions));
           n_q_points = quadrature[0].size();
           x_fe_values.resize(this->finite_elements.size());
           for (unsigned int i=0; i<this->finite_elements.size(); ++i)
@@ -93,7 +93,7 @@ namespace internal
       else
         {
           dealii::hp::QCollection<dim-1>
-            quadrature(QIterated<dim-1>(QTrapez<1>(), n_subdivisions));
+          quadrature(QIterated<dim-1>(QTrapez<1>(), n_subdivisions));
           n_q_points = quadrature[0].size();
           x_fe_face_values.resize(this->finite_elements.size());
           for (unsigned int i=0; i<this->finite_elements.size(); ++i)
@@ -157,7 +157,7 @@ namespace internal
         {
           Assert(data.x_fe_face_values.empty() == true, ExcInternalError());
           dealii::hp::QCollection<dim>
-            quadrature(QIterated<dim>(QTrapez<1>(), n_subdivisions));
+          quadrature(QIterated<dim>(QTrapez<1>(), n_subdivisions));
           x_fe_values.resize(this->finite_elements.size());
           for (unsigned int i=0; i<this->finite_elements.size(); ++i)
             {
@@ -181,7 +181,7 @@ namespace internal
       else
         {
           dealii::hp::QCollection<dim-1>
-            quadrature(QIterated<dim-1>(QTrapez<1>(), n_subdivisions));
+          quadrature(QIterated<dim-1>(QTrapez<1>(), n_subdivisions));
           x_fe_face_values.resize(this->finite_elements.size());
           for (unsigned int i=0; i<this->finite_elements.size(); ++i)
             {
@@ -633,7 +633,7 @@ namespace internal
 
 
 template <class DH,
-         int patch_dim, int patch_space_dim>
+          int patch_dim, int patch_space_dim>
 DataOut_DoFData<DH,patch_dim,patch_space_dim>::DataOut_DoFData ()
   :
   triangulation(0,typeid(*this).name()),
@@ -679,7 +679,7 @@ attach_triangulation (const Triangulation<DH::dimension,DH::space_dimension> &tr
 
 
 template <class DH,
-         int patch_dim, int patch_space_dim>
+          int patch_dim, int patch_space_dim>
 template <class VECTOR>
 void
 DataOut_DoFData<DH,patch_dim,patch_space_dim>::
@@ -717,7 +717,7 @@ add_data_vector (const VECTOR                             &vec,
 
 
 template <class DH,
-         int patch_dim, int patch_space_dim>
+          int patch_dim, int patch_space_dim>
 template <class VECTOR>
 void
 DataOut_DoFData<DH,patch_dim,patch_space_dim>::
@@ -785,7 +785,7 @@ add_data_vector (const VECTOR                             &vec,
 
 
 template <class DH,
-         int patch_dim, int patch_space_dim>
+          int patch_dim, int patch_space_dim>
 template <class VECTOR>
 void
 DataOut_DoFData<DH,patch_dim,patch_space_dim>::
@@ -812,7 +812,7 @@ add_data_vector (const VECTOR                           &vec,
 
 
 template <class DH,
-         int patch_dim, int patch_space_dim>
+          int patch_dim, int patch_space_dim>
 template <class VECTOR>
 void
 DataOut_DoFData<DH,patch_dim,patch_space_dim>::
@@ -835,7 +835,7 @@ add_data_vector (const DH                               &dof_handler,
 
 
 template <class DH,
-         int patch_dim, int patch_space_dim>
+          int patch_dim, int patch_space_dim>
 template <class VECTOR>
 void
 DataOut_DoFData<DH,patch_dim,patch_space_dim>::
@@ -868,7 +868,7 @@ add_data_vector (const DH                       &dof_handler,
 
 
 template <class DH,
-         int patch_dim, int patch_space_dim>
+          int patch_dim, int patch_space_dim>
 template <class VECTOR>
 void
 DataOut_DoFData<DH,patch_dim,patch_space_dim>::
@@ -908,7 +908,7 @@ add_data_vector (const DH                       &dof_handler,
 
 
 template <class DH,
-         int patch_dim, int patch_space_dim>
+          int patch_dim, int patch_space_dim>
 void DataOut_DoFData<DH,patch_dim,patch_space_dim>::clear_data_vectors ()
 {
   dof_data.erase (dof_data.begin(), dof_data.end());
@@ -922,7 +922,7 @@ void DataOut_DoFData<DH,patch_dim,patch_space_dim>::clear_data_vectors ()
 
 
 template <class DH,
-         int patch_dim, int patch_space_dim>
+          int patch_dim, int patch_space_dim>
 void
 DataOut_DoFData<DH,patch_dim,patch_space_dim>::
 clear_input_data_references ()
@@ -940,7 +940,7 @@ clear_input_data_references ()
 
 
 template <class DH,
-         int patch_dim, int patch_space_dim>
+          int patch_dim, int patch_space_dim>
 void
 DataOut_DoFData<DH,patch_dim,patch_space_dim>::clear ()
 {
@@ -958,7 +958,7 @@ DataOut_DoFData<DH,patch_dim,patch_space_dim>::clear ()
 
 
 template <class DH,
-         int patch_dim, int patch_space_dim>
+          int patch_dim, int patch_space_dim>
 std::vector<std::string>
 DataOut_DoFData<DH,patch_dim,patch_space_dim>::
 get_dataset_names () const
@@ -986,7 +986,7 @@ get_dataset_names () const
 
 
 template <class DH,
-         int patch_dim, int patch_space_dim>
+          int patch_dim, int patch_space_dim>
 std::vector<std_cxx1x::tuple<unsigned int, unsigned int, std::string> >
 DataOut_DoFData<DH,patch_dim,patch_space_dim>::get_vector_data_ranges () const
 {
@@ -1080,7 +1080,7 @@ DataOut_DoFData<DH,patch_dim,patch_space_dim>::get_vector_data_ranges () const
 
 
 template <class DH,
-         int patch_dim, int patch_space_dim>
+          int patch_dim, int patch_space_dim>
 const std::vector< dealii::DataOutBase::Patch<patch_dim, patch_space_dim> > &
 DataOut_DoFData<DH,patch_dim,patch_space_dim>::get_patches () const
 {
@@ -1090,14 +1090,14 @@ DataOut_DoFData<DH,patch_dim,patch_space_dim>::get_patches () const
 
 
 template <class DH,
-         int patch_dim, int patch_space_dim>
+          int patch_dim, int patch_space_dim>
 std::vector<std_cxx1x::shared_ptr<dealii::hp::FECollection<DH::dimension,DH::space_dimension> > >
 DataOut_DoFData<DH,patch_dim,patch_space_dim>::get_finite_elements() const
 {
   const unsigned int dhdim = DH::dimension;
   const unsigned int dhspacedim = DH::space_dimension;
   std::vector<std_cxx1x::shared_ptr<dealii::hp::FECollection<dhdim,dhspacedim> > >
-    finite_elements(this->dof_data.size());
+  finite_elements(this->dof_data.size());
   for (unsigned int i=0; i<this->dof_data.size(); ++i)
     {
       Assert (dof_data[i]->dof_handler != 0, ExcNoDoFHandlerSelected ());
@@ -1131,7 +1131,7 @@ DataOut_DoFData<DH,patch_dim,patch_space_dim>::get_finite_elements() const
 
 
 template <class DH,
-         int patch_dim, int patch_space_dim>
+          int patch_dim, int patch_space_dim>
 std::size_t
 DataOut_DoFData<DH,patch_dim,patch_space_dim>::memory_consumption () const
 {

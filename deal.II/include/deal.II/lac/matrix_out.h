@@ -134,7 +134,7 @@ public:
      *
      * Default value is one.
      */
-    size_type block_size;
+    unsigned int block_size;
 
     /**
      * If true, plot
@@ -149,9 +149,9 @@ public:
      * structure to their default
      * values.
      */
-    Options (const bool      show_absolute_values = false,
-             const size_type block_size           = 1,
-             const bool      discontinuous        = false);
+    Options (const bool         show_absolute_values = false,
+             const unsigned int block_size           = 1,
+             const bool         discontinuous        = false);
   };
 
   /**
@@ -365,16 +365,18 @@ MatrixOut::get_gridpoint_value (const Matrix   &matrix,
         return std::fabs(get_element (matrix, i, j));
       else
         return get_element (matrix, i, j);
-    };
+    }
 
   // if blocksize greater than one,
   // then compute average of elements
   double average = 0;
   size_type n_elements = 0;
   for (size_type row=i*options.block_size;
-       row < std::min(matrix.m(), (i+1)*options.block_size); ++row)
+       row < std::min(size_type(matrix.m()),
+                      size_type((i+1)*options.block_size)); ++row)
     for (size_type col=j*options.block_size;
-         col < std::min(matrix.m(), (j+1)*options.block_size); ++col, ++n_elements)
+         col < std::min(size_type(matrix.m()),
+                        size_type((j+1)*options.block_size)); ++col, ++n_elements)
       if (options.show_absolute_values == true)
         average += std::fabs(get_element (matrix, row, col));
       else

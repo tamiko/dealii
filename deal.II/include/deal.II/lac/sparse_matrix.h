@@ -453,6 +453,10 @@ namespace SparseMatrixIterators
 
 }
 
+/**
+ * @}
+ */
+
 
 //TODO: Add multithreading to the other vmult functions.
 
@@ -1493,8 +1497,8 @@ public:
    */
   template <class STREAM>
   void print (STREAM &out,
-	      const bool across = false,
-	      const bool diagonal_first = true) const;
+              const bool across = false,
+              const bool diagonal_first = true) const;
 
   /**
    * Print the matrix in the usual format, i.e. as a matrix and not as a list
@@ -1654,10 +1658,6 @@ private:
   template <typename,bool> friend class SparseMatrixIterators::Iterator;
   template <typename,bool> friend class SparseMatrixIterators::Accessor;
 };
-
-/**
- * @}
- */
 
 #ifndef DOXYGEN
 /*---------------------- Inline functions -----------------------------------*/
@@ -2477,8 +2477,8 @@ template <typename number>
 template <class STREAM>
 inline
 void SparseMatrix<number>::print (STREAM &out,
-				  const bool across,
-				  const bool diagonal_first) const
+                                  const bool across,
+                                  const bool diagonal_first) const
 {
   Assert (cols != 0, ExcNotInitialized());
   Assert (val != 0, ExcNotInitialized());

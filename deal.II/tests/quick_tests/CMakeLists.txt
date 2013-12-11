@@ -21,34 +21,42 @@ ENABLE_TESTING()
 
 # Use the first available build type (this prefers debug mode if available):
 LIST(GET DEAL_II_BUILD_TYPES 0 _mybuild)
-MESSAGE(STATUS "")
 MESSAGE(STATUS "Setup quick_tests in ${_mybuild} mode")
+
+SET(ALL_TESTS) # clean variable
 
 # define a macro to set up a quick test:
 MACRO(make_quicktest test_basename build_name mpi_run)
   STRING(TOLOWER ${build_name} _build_lowercase)
   SET(_target ${test_basename}.${_build_lowercase})
+  LIST(APPEND ALL_TESTS "${_target}")
   ADD_EXECUTABLE(${_target} EXCLUDE_FROM_ALL ${test_basename}.cc)
   DEAL_II_INSOURCE_SETUP_TARGET(${_target} ${build_name})
 
-  IF(NOT ${mpi_run} EQUAL "")
-  ADD_CUSTOM_COMMAND(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${_target}-OK
-    DEPENDS ${_target}
-    COMMAND mpirun -n ${mpi_run} ./${_target} > ${CMAKE_CURRENT_BINARY_DIR}/${_target}-OK 2>&1 || (rm ${_target}-OK  && exit 1)
-    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-    )
+  IF("${mpi_run}" STREQUAL "")
+    SET(_command ./${_target})
   ELSE()
-  ADD_CUSTOM_COMMAND(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${_target}-OK
+    SET(_command mpirun -n ${mpi_run} ./${_target})
+  ENDIF()
+  ADD_CUSTOM_TARGET(${_target}.run
     DEPENDS ${_target}
-    COMMAND ./${_target} > ${CMAKE_CURRENT_BINARY_DIR}/${_target}-OK 2>&1 || (rm ${_target}-OK  && exit 1)
+    COMMAND
+      ${_command} > ${_target}-OK 2>&1
+      ||(echo "${_target}: RUN failed. Output:"
+         && cat ${_target}-OK
+         && rm ${_target}-OK
+         && exit 1)
+    COMMAND echo "${_target}: PASSED."
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
     )
-  ENDIF()
 
-  ADD_CUSTOM_TARGET(${_target}.run 
-	DEPENDS ${_target}
-	DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/${_target}-OK
-	COMMAND echo "${_target}: PASSED.")
+  # this is a hack to make sure the -OK file is deleted
+  # even if compilation fails.
+  ADD_CUSTOM_TARGET(kill-${_target}-OK
+        COMMAND rm -f ${_target}-OK 
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+    )
+  ADD_DEPENDENCIES(${_target} kill-${_target}-OK)
 
   ADD_TEST(NAME ${_target}
     COMMAND ${CMAKE_COMMAND} -DTRGT=${_target}.run -DTEST=${_target}
@@ -60,7 +68,7 @@ MACRO(make_quicktest test_basename build_name mpi_run)
 ENDMACRO()
 
 
-# simple assembly/solver test. This makes sure we can compile and link correctly
+# Simple assembly/solver test. This makes sure we can compile and link correctly
 # in debug and release.
 FOREACH(_build ${DEAL_II_BUILD_TYPES})
   make_quicktest("step" ${_build} "")
@@ -85,15 +93,21 @@ IF (DEAL_II_WITH_P4EST)
   make_quicktest("p4est" ${_mybuild} 10)
 ENDIF()
 
+# Test petsc
+IF (DEAL_II_WITH_PETSC)
+  make_quicktest("step-petsc" ${_mybuild} "")
+ENDIF()
+
 # Test slepc
-IF (DEAL_II_WITH_SLEPC)
+IF (DEAL_II_WITH_PETSC AND DEAL_II_WITH_SLEPC)
   make_quicktest("step-slepc" ${_mybuild} "")
 ENDIF()
 
 # A custom test target:
 ADD_CUSTOM_TARGET(test
-  COMMAND ${CMAKE_CTEST_COMMAND} --force-new-ctest-process
+  COMMAND ${CMAKE_COMMAND} -D ALL_TESTS="${ALL_TESTS}" -P ${CMAKE_CURRENT_SOURCE_DIR}/run.cmake
   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
   )
+ADD_DEPENDENCIES(test build_library)
 
 MESSAGE(STATUS "Setup quick_tests in ${_mybuild} mode - Done")

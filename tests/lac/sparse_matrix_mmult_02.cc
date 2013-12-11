@@ -56,14 +56,14 @@ void test (const unsigned int n)
   for (unsigned int i=0; i<n; ++i)
     {
       for (unsigned int j=0; j<n; ++j)
-        A.set(i,j,std::rand());
+        A.set(i,j,Testing::rand());
       for (unsigned int j=0; j<n; ++j)
-        B.set(i,j,std::rand());
+        B.set(i,j,Testing::rand());
     }
 
   Vector<double> v(n);
   for (unsigned int j=0; j<n; ++j)
-    v(j) = std::rand();
+    v(j) = Testing::rand();
 
   // now form the matrix-matrix product and
   // initialize a test rhs
@@ -71,7 +71,7 @@ void test (const unsigned int n)
 
   Vector<double> x(n), y(n), z(n), tmp(n);
   for (unsigned int j=0; j<n; ++j)
-    x(j) = std::rand();
+    x(j) = Testing::rand();
 
   // then test for correctness
   C.vmult (y, x);
@@ -95,7 +95,7 @@ main ()
   std::ofstream logfile(logname.c_str());
   deallog.attach(logfile);
   deallog.depth_console(0);
-  std::srand(3391466);
+  Testing::srand(3391466);
 
   test(3);
   test(7);

@@ -15,6 +15,7 @@
 // ---------------------------------------------------------------------
 
 #include <deal.II/base/memory_consumption.h>
+#include <deal.II/base/multithread_info.h>
 #include <deal.II/base/quadrature.h>
 #include <deal.II/lac/vector.h>
 #include <deal.II/lac/block_vector.h>
@@ -1266,7 +1267,7 @@ namespace FEValuesViews
   {
     typedef FEValuesBase<dim,spacedim> FVB;
     Assert (fe_values.update_flags & update_values,
-            typename FVB::ExcAccessToUninitializedField());
+            typename FVB::ExcAccessToUninitializedField("update_values"));
     Assert (fe_values.present_cell.get() != 0,
             ExcMessage ("FEValues object is not reinit'ed to any cell"));
     AssertDimension (fe_function.size(),
@@ -1290,7 +1291,7 @@ namespace FEValuesViews
   {
     typedef FEValuesBase<dim,spacedim> FVB;
     Assert (fe_values.update_flags & update_gradients,
-            typename FVB::ExcAccessToUninitializedField());
+            typename FVB::ExcAccessToUninitializedField("update_gradients"));
     Assert (fe_values.present_cell.get() != 0,
             ExcMessage ("FEValues object is not reinit'ed to any cell"));
     AssertDimension (fe_function.size(),
@@ -1314,7 +1315,7 @@ namespace FEValuesViews
   {
     typedef FEValuesBase<dim,spacedim> FVB;
     Assert (fe_values.update_flags & update_hessians,
-            typename FVB::ExcAccessToUninitializedField());
+            typename FVB::ExcAccessToUninitializedField("update_hessians"));
     Assert (fe_values.present_cell.get() != 0,
             ExcMessage ("FEValues object is not reinit'ed to any cell"));
     AssertDimension (fe_function.size(),
@@ -1338,7 +1339,7 @@ namespace FEValuesViews
   {
     typedef FEValuesBase<dim,spacedim> FVB;
     Assert (fe_values.update_flags & update_hessians,
-            typename FVB::ExcAccessToUninitializedField());
+            typename FVB::ExcAccessToUninitializedField("update_hessians"));
     Assert (fe_values.present_cell.get() != 0,
             ExcMessage ("FEValues object is not reinit'ed to any cell"));
     AssertDimension (fe_function.size(),
@@ -1362,7 +1363,7 @@ namespace FEValuesViews
   {
     typedef FEValuesBase<dim,spacedim> FVB;
     Assert (fe_values.update_flags & update_values,
-            typename FVB::ExcAccessToUninitializedField());
+            typename FVB::ExcAccessToUninitializedField("update_values"));
     Assert (fe_values.present_cell.get() != 0,
             ExcMessage ("FEValues object is not reinit'ed to any cell"));
     AssertDimension (fe_function.size(),
@@ -1387,7 +1388,7 @@ namespace FEValuesViews
   {
     typedef FEValuesBase<dim,spacedim> FVB;
     Assert (fe_values.update_flags & update_gradients,
-            typename FVB::ExcAccessToUninitializedField());
+            typename FVB::ExcAccessToUninitializedField("update_gradients"));
     Assert (fe_values.present_cell.get() != 0,
             ExcMessage ("FEValues object is not reinit'ed to any cell"));
     AssertDimension (fe_function.size(),
@@ -1411,7 +1412,7 @@ namespace FEValuesViews
   {
     typedef FEValuesBase<dim,spacedim> FVB;
     Assert (fe_values.update_flags & update_gradients,
-            typename FVB::ExcAccessToUninitializedField());
+            typename FVB::ExcAccessToUninitializedField("update_gradients"));
     Assert (fe_values.present_cell.get() != 0,
             ExcMessage ("FEValues object is not reinit'ed to any cell"));
     AssertDimension (fe_function.size(),
@@ -1436,7 +1437,7 @@ namespace FEValuesViews
   {
     typedef FEValuesBase<dim,spacedim> FVB;
     Assert (fe_values.update_flags & update_gradients,
-            typename FVB::ExcAccessToUninitializedField());
+            typename FVB::ExcAccessToUninitializedField("update_gradients"));
     Assert (fe_values.present_cell.get() != 0,
             ExcMessage ("FEValues object is not reinit'ed to any cell"));
     AssertDimension (fe_function.size(),
@@ -1460,7 +1461,7 @@ namespace FEValuesViews
     typedef FEValuesBase<dim,spacedim> FVB;
 
     Assert (fe_values.update_flags & update_gradients,
-            typename FVB::ExcAccessToUninitializedField());
+            typename FVB::ExcAccessToUninitializedField("update_gradients"));
     Assert (fe_values.present_cell.get () != 0,
             ExcMessage ("FEValues object is not reinited to any cell"));
     AssertDimension (fe_function.size (),
@@ -1483,7 +1484,7 @@ namespace FEValuesViews
   {
     typedef FEValuesBase<dim,spacedim> FVB;
     Assert (fe_values.update_flags & update_hessians,
-            typename FVB::ExcAccessToUninitializedField());
+            typename FVB::ExcAccessToUninitializedField("update_hessians"));
     Assert (fe_values.present_cell.get() != 0,
             ExcMessage ("FEValues object is not reinit'ed to any cell"));
     AssertDimension (fe_function.size(),
@@ -1507,7 +1508,7 @@ namespace FEValuesViews
   {
     typedef FEValuesBase<dim,spacedim> FVB;
     Assert (fe_values.update_flags & update_hessians,
-            typename FVB::ExcAccessToUninitializedField());
+            typename FVB::ExcAccessToUninitializedField("update_hessians"));
     Assert (laplacians.size() == fe_values.n_quadrature_points,
             ExcDimensionMismatch(laplacians.size(), fe_values.n_quadrature_points));
     Assert (fe_values.present_cell.get() != 0,
@@ -1534,7 +1535,7 @@ namespace FEValuesViews
   {
     typedef FEValuesBase<dim, spacedim> FVB;
     Assert(fe_values.update_flags & update_values,
-           typename FVB::ExcAccessToUninitializedField());
+           typename FVB::ExcAccessToUninitializedField("update_values"));
     Assert(fe_values.present_cell.get() != 0,
            ExcMessage("FEValues object is not reinit'ed to any cell"));
     AssertDimension(fe_function.size(),
@@ -1558,7 +1559,7 @@ namespace FEValuesViews
   {
     typedef FEValuesBase<dim, spacedim> FVB;
     Assert(fe_values.update_flags & update_gradients,
-           typename FVB::ExcAccessToUninitializedField());
+           typename FVB::ExcAccessToUninitializedField("update_gradients"));
     Assert(fe_values.present_cell.get() != 0,
            ExcMessage("FEValues object is not reinit'ed to any cell"));
     AssertDimension(fe_function.size(),
@@ -1581,7 +1582,7 @@ namespace FEValuesViews
   {
     typedef FEValuesBase<dim, spacedim> FVB;
     Assert(fe_values.update_flags & update_values,
-           typename FVB::ExcAccessToUninitializedField());
+           typename FVB::ExcAccessToUninitializedField("update_values"));
     Assert(fe_values.present_cell.get() != 0,
            ExcMessage("FEValues object is not reinit'ed to any cell"));
     AssertDimension(fe_function.size(),
@@ -1605,7 +1606,7 @@ namespace FEValuesViews
   {
     typedef FEValuesBase<dim, spacedim> FVB;
     Assert(fe_values.update_flags & update_gradients,
-           typename FVB::ExcAccessToUninitializedField());
+           typename FVB::ExcAccessToUninitializedField("update_gradients"));
     Assert(fe_values.present_cell.get() != 0,
            ExcMessage("FEValues object is not reinit'ed to any cell"));
     AssertDimension(fe_function.size(),
@@ -2576,7 +2577,8 @@ void FEValuesBase<dim,spacedim>::get_function_values (
   const InputVector   &fe_function,
   std::vector<number> &values) const
 {
-  Assert (this->update_flags & update_values, ExcAccessToUninitializedField());
+  Assert (this->update_flags & update_values,
+          ExcAccessToUninitializedField("update_values"));
   AssertDimension (fe->n_components(), 1);
   Assert (present_cell.get() != 0,
           ExcMessage ("FEValues object is not reinit'ed to any cell"));
@@ -2599,7 +2601,8 @@ void FEValuesBase<dim,spacedim>::get_function_values (
   const VectorSlice<const std::vector<types::global_dof_index> > &indices,
   std::vector<number> &values) const
 {
-  Assert (this->update_flags & update_values, ExcAccessToUninitializedField());
+  Assert (this->update_flags & update_values,
+          ExcAccessToUninitializedField("update_values"));
   AssertDimension (fe->n_components(), 1);
   AssertDimension (indices.size(), dofs_per_cell);
 
@@ -2632,7 +2635,8 @@ void FEValuesBase<dim,spacedim>::get_function_values (
   Assert (present_cell.get() != 0,
           ExcMessage ("FEValues object is not reinit'ed to any cell"));
 
-  Assert (this->update_flags & update_values, ExcAccessToUninitializedField());
+  Assert (this->update_flags & update_values,
+          ExcAccessToUninitializedField("update_values"));
   AssertDimension (fe_function.size(), present_cell->n_dofs_for_dof_handler());
 
   // get function values of dofs on this cell
@@ -2656,7 +2660,8 @@ void FEValuesBase<dim,spacedim>::get_function_values (
   // number of function values is generated in each point.
   Assert (indices.size() % dofs_per_cell == 0,
           ExcNotMultiple(indices.size(), dofs_per_cell));
-  Assert (this->update_flags & update_values, ExcAccessToUninitializedField());
+  Assert (this->update_flags & update_values,
+          ExcAccessToUninitializedField("update_values"));
 
   VectorSlice<std::vector<Vector<number> > > val(values);
   if (indices.size() <= 100)
@@ -2689,7 +2694,8 @@ void FEValuesBase<dim,spacedim>::get_function_values (
   VectorSlice<std::vector<std::vector<double> > > values,
   bool quadrature_points_fastest) const
 {
-  Assert (this->update_flags & update_values, ExcAccessToUninitializedField());
+  Assert (this->update_flags & update_values,
+          ExcAccessToUninitializedField("update_values"));
 
   // Size of indices must be a multiple of dofs_per_cell such that an integer
   // number of function values is generated in each point.
@@ -2727,7 +2733,8 @@ FEValuesBase<dim,spacedim>::get_function_gradients (
   const InputVector           &fe_function,
   std::vector<Tensor<1,spacedim> > &gradients) const
 {
-  Assert (this->update_flags & update_gradients, ExcAccessToUninitializedField());
+  Assert (this->update_flags & update_gradients,
+          ExcAccessToUninitializedField("update_gradients"));
   AssertDimension (fe->n_components(), 1);
   Assert (present_cell.get() != 0,
           ExcMessage ("FEValues object is not reinit'ed to any cell"));
@@ -2749,7 +2756,8 @@ void FEValuesBase<dim,spacedim>::get_function_gradients (
   const VectorSlice<const std::vector<types::global_dof_index> > &indices,
   std::vector<Tensor<1,spacedim> > &gradients) const
 {
-  Assert (this->update_flags & update_gradients, ExcAccessToUninitializedField());
+  Assert (this->update_flags & update_gradients,
+          ExcAccessToUninitializedField("update_gradients"));
   AssertDimension (fe->n_components(), 1);
   AssertDimension (indices.size(), dofs_per_cell);
   if (dofs_per_cell <= 100)
@@ -2780,7 +2788,8 @@ FEValuesBase<dim,spacedim>::get_function_gradients (
   const InputVector                              &fe_function,
   std::vector<std::vector<Tensor<1,spacedim> > > &gradients) const
 {
-  Assert (this->update_flags & update_gradients, ExcAccessToUninitializedField());
+  Assert (this->update_flags & update_gradients,
+          ExcAccessToUninitializedField("update_gradients"));
   Assert (present_cell.get() != 0,
           ExcMessage ("FEValues object is not reinit'ed to any cell"));
   AssertDimension (fe_function.size(), present_cell->n_dofs_for_dof_handler());
@@ -2808,7 +2817,9 @@ void FEValuesBase<dim,spacedim>::get_function_gradients (
   // number of function values is generated in each point.
   Assert (indices.size() % dofs_per_cell == 0,
           ExcNotMultiple(indices.size(), dofs_per_cell));
-  Assert (this->update_flags & update_gradients, ExcAccessToUninitializedField());
+  Assert (this->update_flags & update_gradients,
+          ExcAccessToUninitializedField("update_gradients"));
+
   if (indices.size() <= 100)
     {
       double dof_values[100];
@@ -2841,7 +2852,8 @@ get_function_hessians (const InputVector                &fe_function,
                        std::vector<Tensor<2,spacedim> > &hessians) const
 {
   AssertDimension (fe->n_components(), 1);
-  Assert (this->update_flags & update_hessians, ExcAccessToUninitializedField());
+  Assert (this->update_flags & update_hessians,
+          ExcAccessToUninitializedField("update_hessians"));
   Assert (present_cell.get() != 0,
           ExcMessage ("FEValues object is not reinit'ed to any cell"));
   AssertDimension (fe_function.size(), present_cell->n_dofs_for_dof_handler());
@@ -2862,8 +2874,8 @@ void FEValuesBase<dim,spacedim>::get_function_hessians (
   const VectorSlice<const std::vector<types::global_dof_index> > &indices,
   std::vector<Tensor<2,spacedim> > &hessians) const
 {
-  Assert (this->update_flags & update_second_derivatives,
-          ExcAccessToUninitializedField());
+  Assert (this->update_flags & update_hessians,
+          ExcAccessToUninitializedField("update_hessians"));
   AssertDimension (fe_function.size(), present_cell->n_dofs_for_dof_handler());
   AssertDimension (indices.size(), dofs_per_cell);
   if (dofs_per_cell <= 100)
@@ -2895,7 +2907,8 @@ get_function_hessians (const InputVector                         &fe_function,
                        std::vector<std::vector<Tensor<2,spacedim> > > &hessians,
                        bool quadrature_points_fastest) const
 {
-  Assert (this->update_flags & update_hessians, ExcAccessToUninitializedField());
+  Assert (this->update_flags & update_hessians,
+          ExcAccessToUninitializedField("update_hessians"));
   Assert (present_cell.get() != 0,
           ExcMessage ("FEValues object is not reinit'ed to any cell"));
   AssertDimension (fe_function.size(), present_cell->n_dofs_for_dof_handler());
@@ -2919,8 +2932,8 @@ void FEValuesBase<dim, spacedim>::get_function_hessians (
   VectorSlice<std::vector<std::vector<Tensor<2,spacedim> > > > hessians,
   bool quadrature_points_fastest) const
 {
-  Assert (this->update_flags & update_second_derivatives,
-          ExcAccessToUninitializedField());
+  Assert (this->update_flags & update_hessians,
+          ExcAccessToUninitializedField("update_hessians"));
   Assert (indices.size() % dofs_per_cell == 0,
           ExcNotMultiple(indices.size(), dofs_per_cell));
   if (indices.size() <= 100)
@@ -2953,7 +2966,8 @@ void FEValuesBase<dim,spacedim>::get_function_laplacians (
   const InputVector   &fe_function,
   std::vector<number> &laplacians) const
 {
-  Assert (this->update_flags & update_hessians, ExcAccessToUninitializedField());
+  Assert (this->update_flags & update_hessians,
+          ExcAccessToUninitializedField("update_hessians"));
   AssertDimension (fe->n_components(), 1);
   Assert (present_cell.get() != 0,
           ExcMessage ("FEValues object is not reinit'ed to any cell"));
@@ -2975,7 +2989,8 @@ void FEValuesBase<dim,spacedim>::get_function_laplacians (
   const VectorSlice<const std::vector<types::global_dof_index> > &indices,
   std::vector<number> &laplacians) const
 {
-  Assert (this->update_flags & update_hessians, ExcAccessToUninitializedField());
+  Assert (this->update_flags & update_hessians,
+          ExcAccessToUninitializedField("update_hessians"));
   AssertDimension (fe->n_components(), 1);
   AssertDimension (indices.size(), dofs_per_cell);
   if (dofs_per_cell <= 100)
@@ -3006,7 +3021,8 @@ void FEValuesBase<dim,spacedim>::get_function_laplacians (
 {
   Assert (present_cell.get() != 0,
           ExcMessage ("FEValues object is not reinit'ed to any cell"));
-  Assert (this->update_flags & update_hessians, ExcAccessToUninitializedField());
+  Assert (this->update_flags & update_hessians,
+          ExcAccessToUninitializedField("update_hessians"));
   AssertDimension (fe_function.size(), present_cell->n_dofs_for_dof_handler());
 
   // get function values of dofs on this cell
@@ -3030,7 +3046,8 @@ void FEValuesBase<dim,spacedim>::get_function_laplacians (
   // number of function values is generated in each point.
   Assert (indices.size() % dofs_per_cell == 0,
           ExcNotMultiple(indices.size(), dofs_per_cell));
-  Assert (this->update_flags & update_hessians, ExcAccessToUninitializedField());
+  Assert (this->update_flags & update_hessians,
+          ExcAccessToUninitializedField("update_hessians"));
   if (indices.size() <= 100)
     {
       double dof_values[100];
@@ -3065,7 +3082,8 @@ void FEValuesBase<dim,spacedim>::get_function_laplacians (
 {
   Assert (indices.size() % dofs_per_cell == 0,
           ExcNotMultiple(indices.size(), dofs_per_cell));
-  Assert (this->update_flags & update_hessians, ExcAccessToUninitializedField());
+  Assert (this->update_flags & update_hessians,
+          ExcAccessToUninitializedField("update_hessians"));
   if (indices.size() <= 100)
     {
       double dof_values[100];
@@ -3105,7 +3123,7 @@ FEValuesBase<dim,spacedim>::get_normal_vectors () const
 {
   typedef FEValuesBase<dim,spacedim> FEVB;
   Assert (this->update_flags & update_normal_vectors,
-          typename FEVB::ExcAccessToUninitializedField());
+          typename FEVB::ExcAccessToUninitializedField("update_normal_vectors"));
   return this->normal_vectors;
 }
 
@@ -3240,15 +3258,33 @@ void
 FEValuesBase<dim,spacedim>::check_cell_similarity
 (const typename Triangulation<dim,spacedim>::cell_iterator &cell)
 {
-  // case that there has not been any cell
-  // before
+  // Unfortunately, the detection of simple geometries with CellSimilarity is
+  // sensitive to the first cell detected. When doing this with multiple
+  // threads, each thread will get its own scratch data object with an
+  // FEValues object in the implementation framework from late 2013, which is
+  // initialized to the first cell the thread sees. As this number might
+  // different between different runs (after all, the tasks are scheduled
+  // dynamically onto threads), this slight deviation leads to difference in
+  // roundoff errors that propagate through the program. Therefore, we need to
+  // disable CellSimilarity in case there is more than one thread in the
+  // problem. This will likely not affect many MPI test cases as there
+  // multithreading is disabled on default, but in many other situations
+  // because we rarely explicitly set the number of threads.
+  //
+  // TODO: Is it reasonable to introduce a flag "unsafe" in the constructor of
+  // FEValues to re-enable this feature?
+  if (multithread_info.n_threads() > 1)
+    {
+      cell_similarity = CellSimilarity::none;
+      return;
+    }
+
+  // case that there has not been any cell before
   if (this->present_cell.get() == 0)
     cell_similarity = CellSimilarity::none;
   else
-    // in MappingQ, data can have been
-    // modified during the last call. Then,
-    // we can't use that data on the new
-    // cell.
+    // in MappingQ, data can have been modified during the last call. Then, we
+    // can't use that data on the new cell.
     if (cell_similarity == CellSimilarity::invalid_next_cell)
       cell_similarity = CellSimilarity::none;
     else
@@ -3266,8 +3302,7 @@ FEValuesBase<dim,spacedim>::check_cell_similarity
           != cell->direction_flag() )
         cell_similarity =  CellSimilarity::inverted_translation;
     }
-  // TODO: here, one could implement other
-  // checks for similarity, e.g. for
+  // TODO: here, one could implement other checks for similarity, e.g. for
   // children of a parallelogram.
 }
 
@@ -3357,6 +3392,37 @@ FEValues<dim,spacedim>::initialize (const UpdateFlags update_flags)
 }
 
 
+namespace
+{
+  // Reset a std::auto_ptr. If we can, do not de-allocate the previously
+  // held memory but re-use it for the next item to avoid the repeated
+  // memory allocation. We do this because FEValues objects are heavily
+  // used in multithreaded contexts where memory allocations are evil.
+  template <typename Type, typename Pointer, typename Iterator>
+  void
+  reset_pointer_in_place_if_possible
+  (std::auto_ptr<Pointer> &present_cell,
+   const Iterator         &new_cell)
+  {
+    // see if the existing pointer is non-null and if the type of
+    // the old object pointed to matches that of the one we'd
+    // like to create
+    if (present_cell.get()
+        &&
+        (typeid(*present_cell.get()) == typeid(Type)))
+      {
+        // call destructor of the old object
+        static_cast<const Type *>(present_cell.get())->~Type();
+
+        // then construct a new object in-place
+        new(const_cast<void *>(static_cast<const void *>(present_cell.get()))) Type(new_cell);
+      }
+    else
+      // if the types don't match, there is nothing we can do here
+      present_cell.reset (new Type(new_cell));
+  }
+}
+
 
 template <int dim, int spacedim>
 void FEValues<dim,spacedim>::reinit (const typename Triangulation<dim,spacedim>::cell_iterator &cell)
@@ -3370,9 +3436,10 @@ void FEValues<dim,spacedim>::reinit (const typename Triangulation<dim,spacedim>:
   // care that old object gets
   // destroyed and also that this
   // object gets destroyed in the
-  // destruction of this class
-  this->present_cell.reset
-  (new typename FEValuesBase<dim,spacedim>::TriaCellIterator (cell));
+  // destruction of the current object
+  reset_pointer_in_place_if_possible<typename FEValuesBase<dim,spacedim>::TriaCellIterator>
+  (this->present_cell, cell);
+
   // this was the part of the work
   // that is dependent on the actual
   // data type of the iterator. now
@@ -3404,10 +3471,9 @@ FEValues<dim,spacedim>::reinit (const TriaIterator<DoFCellAccessor<DH, lda> > ce
   // care that old object gets
   // destroyed and also that this
   // object gets destroyed in the
-  // destruction of this class
-  this->present_cell.reset
-  (new typename FEValuesBase<dim,spacedim>::template
-   CellIterator<TriaIterator<DoFCellAccessor<DH, lda> > > (cell));
+  // destruction of the current object
+  reset_pointer_in_place_if_possible<typename FEValuesBase<dim,spacedim>::template CellIterator<TriaIterator<DoFCellAccessor<DH, lda> > > >
+  (this->present_cell, cell);
 
   // this was the part of the work
   // that is dependent on the actual
@@ -3483,7 +3549,7 @@ FEFaceValuesBase<dim,spacedim>::get_boundary_forms () const
 {
   typedef FEValuesBase<dim,spacedim> FEVB;
   Assert (this->update_flags & update_boundary_forms,
-          typename FEVB::ExcAccessToUninitializedField());
+          typename FEVB::ExcAccessToUninitializedField("update_boundary_forms"));
   return this->boundary_forms;
 }
 
@@ -3582,11 +3648,10 @@ FEFaceValues<dim,spacedim>::reinit (const TriaIterator<DoFCellAccessor<DH, lda> 
   // care that old object gets
   // destroyed and also that this
   // object gets destroyed in the
-  // destruction of this class
+  // destruction of the current object
   this->maybe_invalidate_previous_present_cell (cell);
-  this->present_cell.reset
-  (new typename FEValuesBase<dim,spacedim>::template
-   CellIterator<TriaIterator<DoFCellAccessor<DH, lda> > > (cell));
+  reset_pointer_in_place_if_possible<typename FEValuesBase<dim,spacedim>::template CellIterator<TriaIterator<DoFCellAccessor<DH, lda> > > >
+  (this->present_cell, cell);
 
   // this was the part of the work
   // that is dependent on the actual
@@ -3609,10 +3674,10 @@ void FEFaceValues<dim,spacedim>::reinit (const typename Triangulation<dim,spaced
   // care that old object gets
   // destroyed and also that this
   // object gets destroyed in the
-  // destruction of this class
+  // destruction of the current object
   this->maybe_invalidate_previous_present_cell (cell);
-  this->present_cell.reset
-  (new typename FEValuesBase<dim,spacedim>::TriaCellIterator (cell));
+  reset_pointer_in_place_if_possible<typename FEValuesBase<dim,spacedim>::TriaCellIterator>
+  (this->present_cell, cell);
 
   // this was the part of the work
   // that is dependent on the actual
@@ -3757,11 +3822,10 @@ void FESubfaceValues<dim,spacedim>::reinit (const TriaIterator<DoFCellAccessor<D
   // care that old object gets
   // destroyed and also that this
   // object gets destroyed in the
-  // destruction of this class
+  // destruction of the current object
   this->maybe_invalidate_previous_present_cell (cell);
-  this->present_cell.reset
-  (new typename FEValuesBase<dim,spacedim>::template
-   CellIterator<TriaIterator<DoFCellAccessor<DH, lda> > > (cell));
+  reset_pointer_in_place_if_possible<typename FEValuesBase<dim,spacedim>::template CellIterator<TriaIterator<DoFCellAccessor<DH, lda> > > >
+  (this->present_cell, cell);
 
   // this was the part of the work
   // that is dependent on the actual
@@ -3786,10 +3850,10 @@ void FESubfaceValues<dim,spacedim>::reinit (const typename Triangulation<dim,spa
   // care that old object gets
   // destroyed and also that this
   // object gets destroyed in the
-  // destruction of this class
+  // destruction of the current object
   this->maybe_invalidate_previous_present_cell (cell);
-  this->present_cell.reset
-  (new typename FEValuesBase<dim,spacedim>::TriaCellIterator (cell));
+  reset_pointer_in_place_if_possible<typename FEValuesBase<dim,spacedim>::TriaCellIterator>
+  (this->present_cell, cell);
 
   // this was the part of the work
   // that is dependent on the actual

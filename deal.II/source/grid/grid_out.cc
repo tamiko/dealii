@@ -368,6 +368,7 @@ namespace GridOutFlags
     label_cell_index(label_cell_index),
     label_material_id(label_material_id),
     label_subdomain_id(label_subdomain_id),
+    label_level_subdomain_id(false),
     draw_colorbar(draw_colorbar),
     draw_legend(draw_legend)
   {}
@@ -686,7 +687,7 @@ void GridOut::write_dx (const Triangulation<dim> &tria,
 
   for (unsigned int i=0; i<vertices.size(); ++i)
     if (vertex_used[i])
-        out << '\t' << vertices[i] << '\n';
+      out << '\t' << vertices[i] << '\n';
 
   // write cells or faces
   const bool write_cells = dx_flags.write_cells;

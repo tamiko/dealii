@@ -451,11 +451,11 @@ namespace VectorTools
    * replaced by a hp::MappingCollection in
    * case of a hp::DoFHandler.
    */
-  template <class VECTOR, class DH>
-  void interpolate (const Mapping<DH::dimension,DH::space_dimension>    &mapping,
-                    const DH              &dof,
-                    const Function<DH::space_dimension>   &function,
-                    VECTOR                &vec);
+  template <class VECTOR, int dim, int spacedim, template <int,int> class DH>
+  void interpolate (const Mapping<dim,spacedim>    &mapping,
+                    const DH<dim,spacedim>         &dof,
+                    const Function<spacedim>       &function,
+                    VECTOR                         &vec);
 
   /**
    * Calls the @p interpolate()
@@ -539,8 +539,8 @@ namespace VectorTools
    * constraints object.
    */
   template <int dim, int spacedim,
-           template <int,int> class DH,
-           class VECTOR>
+            template <int,int> class DH,
+            class VECTOR>
   void
   interpolate_to_different_mesh (const DH<dim, spacedim> &dof1,
                                  const VECTOR            &u1,
@@ -573,8 +573,8 @@ namespace VectorTools
    * at hanging nodes.
    */
   template <int dim, int spacedim,
-           template <int,int> class DH,
-           class VECTOR>
+            template <int,int> class DH,
+            class VECTOR>
   void
   interpolate_to_different_mesh (const DH<dim, spacedim> &dof1,
                                  const VECTOR            &u1,
@@ -597,8 +597,8 @@ namespace VectorTools
    * destination DoFHandler.
    */
   template <int dim, int spacedim,
-           template <int,int> class DH,
-           class VECTOR>
+            template <int,int> class DH,
+            class VECTOR>
   void
   interpolate_to_different_mesh (const InterGridMap<DH<dim, spacedim> > &intergridmap,
                                  const VECTOR                           &u1,
@@ -686,8 +686,8 @@ namespace VectorTools
                 VECTOR                   &vec,
                 const bool                enforce_zero_boundary = false,
                 const hp::QCollection<dim-1>  &q_boundary = hp::QCollection<dim-1>(dim > 1 ?
-                                                        QGauss<dim-1>(2) :
-                                                        Quadrature<dim-1>(0)),
+                                                            QGauss<dim-1>(2) :
+                                                            Quadrature<dim-1>(0)),
                 const bool                project_to_boundary_first = false);
 
   /**
@@ -703,8 +703,8 @@ namespace VectorTools
                 VECTOR                   &vec,
                 const bool                enforce_zero_boundary = false,
                 const hp::QCollection<dim-1>  &q_boundary = hp::QCollection<dim-1>(dim > 1 ?
-                                                        QGauss<dim-1>(2) :
-                                                        Quadrature<dim-1>(0)),
+                                                            QGauss<dim-1>(2) :
+                                                            Quadrature<dim-1>(0)),
                 const bool                project_to_boundary_first = false);
 
   /**
@@ -1404,7 +1404,7 @@ namespace VectorTools
 
 
   /**
-   * Compute the constraints that correspond to boundary conditions of the
+   * This function computes the constraints that correspond to boundary conditions of the
    * form $\vec n \cdot \vec u=0$, i.e. no normal flux if $\vec u$ is a
    * vector-valued quantity. These conditions have exactly the form handled by
    * the ConstraintMatrix class, so instead of creating a map between boundary
@@ -1563,8 +1563,19 @@ namespace VectorTools
    * There are cases where one cell contributes two tangential directions and
    * another one only one; for example, this would happen if both top and
    * front faces of the left cell belong to the boundary selected whereas only
-   * the top face of the right cell belongs to it. This case is not currently
-   * implemented.
+   * the top face of the right cell belongs to it, maybe indicating the the entire
+   * front part of the domain is a smooth manifold whereas the top really forms
+   * two separate manifolds that meet in a ridge, and that no-flux boundary
+   * conditions are only desired on the front manifold and the right one on top.
+   * In cases like these, it's difficult to define what should happen. The
+   * current implementation simply ignores the one contribution from the
+   * cell that only contributes one normal vector. In the example shown, this
+   * is acceptable because the normal vector for the front face of the left
+   * cell is the same as the normal vector provided by the front face of
+   * the right cell (the surface is planar) but it would be a problem if the
+   * front manifold would be curved. Regardless, it is unclear how one would
+   * proceed in this case and ignoring the single cell is likely the best
+   * one can do.
    *
    *
    * <h4>Results</h4>
@@ -2032,7 +2043,7 @@ namespace VectorTools
    * point_difference() function.
    *
    * @note If the cell in which the point is found
-   * is not locally owned, an exception of type 
+   * is not locally owned, an exception of type
    * VectorTools::ExcPointNotAvailableHere
    * is thrown.
    */
@@ -2059,9 +2070,9 @@ namespace VectorTools
    * this function uses an
    * arbitrary mapping to evaluate
    * the difference.
-   * 
+   *
    * @note If the cell in which the point is found
-   * is not locally owned, an exception of type 
+   * is not locally owned, an exception of type
    * VectorTools::ExcPointNotAvailableHere
    * is thrown.
    */
@@ -2089,7 +2100,7 @@ namespace VectorTools
    * point_difference() function.
    *
    * @note If the cell in which the point is found
-   * is not locally owned, an exception of type 
+   * is not locally owned, an exception of type
    * VectorTools::ExcPointNotAvailableHere
    * is thrown.
    */
@@ -2104,7 +2115,7 @@ namespace VectorTools
   * Same as above for hp.
   *
   * @note If the cell in which the point is found
-  * is not locally owned, an exception of type 
+  * is not locally owned, an exception of type
   * VectorTools::ExcPointNotAvailableHere
   * is thrown.
   */
@@ -2134,7 +2145,7 @@ namespace VectorTools
    * "step-3".
    *
    * @note If the cell in which the point is found
-   * is not locally owned, an exception of type 
+   * is not locally owned, an exception of type
    * VectorTools::ExcPointNotAvailableHere
    * is thrown.
    */
@@ -2146,9 +2157,9 @@ namespace VectorTools
 
   /**
   * Same as above for hp.
-  * 
+  *
   * @note If the cell in which the point is found
-  * is not locally owned, an exception of type 
+  * is not locally owned, an exception of type
   * VectorTools::ExcPointNotAvailableHere
   * is thrown.
   */
@@ -2174,7 +2185,7 @@ namespace VectorTools
    * mapping to evaluate the difference.
    *
    * @note If the cell in which the point is found
-   * is not locally owned, an exception of type 
+   * is not locally owned, an exception of type
    * VectorTools::ExcPointNotAvailableHere
    * is thrown.
    */
@@ -2190,7 +2201,7 @@ namespace VectorTools
   * Same as above for hp.
   *
   * @note If the cell in which the point is found
-  * is not locally owned, an exception of type 
+  * is not locally owned, an exception of type
   * VectorTools::ExcPointNotAvailableHere
   * is thrown.
   */
@@ -2216,7 +2227,7 @@ namespace VectorTools
    * mapping to evaluate the difference.
    *
    * @note If the cell in which the point is found
-   * is not locally owned, an exception of type 
+   * is not locally owned, an exception of type
    * VectorTools::ExcPointNotAvailableHere
    * is thrown.
    */
@@ -2231,7 +2242,7 @@ namespace VectorTools
   * Same as above for hp.
   *
   * @note If the cell in which the point is found
-  * is not locally owned, an exception of type 
+  * is not locally owned, an exception of type
   * VectorTools::ExcPointNotAvailableHere
   * is thrown.
   */

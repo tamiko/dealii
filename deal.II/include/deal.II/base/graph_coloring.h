@@ -40,6 +40,42 @@ namespace GraphColoring
   namespace internal
   {
     /**
+     * Given two sets of indices that are assumed to be sorted, determine
+     * whether they will have a nonempty intersection. The actual intersection is
+     * not computed.
+     * @param indices1 A set of indices, assumed sorted.
+     * @param indices2 A set of indices, assumed sorted.
+     * @return Whether the two sets of indices do have a nonempty intersection.
+     */
+    inline
+    bool
+    have_nonempty_intersection (const std::vector<types::global_dof_index> &indices1,
+                                const std::vector<types::global_dof_index> &indices2)
+    {
+      // we assume that both arrays are sorted, so we can walk
+      // them in lockstep and see if we encounter an index that's
+      // in both arrays. once we reach the end of either array,
+      // we know that there is no intersection
+      std::vector<types::global_dof_index>::const_iterator
+      p = indices1.begin(),
+      q = indices2.begin();
+      while ((p != indices1.end()) && (q != indices2.end()))
+        {
+          if (*p < *q)
+            ++p;
+          else if (*p > *q)
+            ++q;
+          else
+            // conflict found!
+            return true;
+        }
+
+      // no conflict found!
+      return false;
+    }
+
+
+    /**
      * Create a partitioning of the given range of iterators using a simplified
      * version of the Cuthill-McKee algorithm (Breadth First Search algorithm).
      * The function creates partitions that contain "zones" of iterators
@@ -105,7 +141,9 @@ namespace GraphColoring
           std::vector<Iterator> new_zone;
           for (; previous_zone_it!=previous_zone_end; ++previous_zone_it)
             {
-              std::vector<types::global_dof_index> conflict_indices = get_conflict_indices(*previous_zone_it);
+              const std::vector<types::global_dof_index>
+              conflict_indices = get_conflict_indices(*previous_zone_it);
+
               const unsigned int n_conflict_indices(conflict_indices.size());
               for (unsigned int i=0; i<n_conflict_indices; ++i)
                 {
@@ -141,6 +179,7 @@ namespace GraphColoring
               if (used_it.count(it)==0)
                 {
                   zones.push_back(std::vector<Iterator> (1,it));
+                  used_it.insert(it);
                   break;
                 }
         }
@@ -185,38 +224,27 @@ namespace GraphColoring
       std::vector<std::vector<types::global_dof_index> > conflict_indices(partition_size);
       std::vector<std::vector<unsigned int> > graph(partition_size);
 
-      // Get the conflict indices associated to each iterator. The conflict_indices have to be sorted so
-      // set_intersection can be used later.
+      // Get the conflict indices associated to each iterator. The conflict_indices have to
+      // be sorted so we can more easily find conflicts later on
       for (unsigned int i=0; i<partition_size; ++i)
         {
           conflict_indices[i] = get_conflict_indices(partition[i]);
-          std::sort(conflict_indices[i].begin(),conflict_indices[i].end());
+          std::sort(conflict_indices[i].begin(), conflict_indices[i].end());
         }
 
       // Compute the degree of each vertex of the graph using the
       // intersection of the conflict indices.
-      std::vector<types::global_dof_index> conflict_indices_intersection;
-      std::vector<types::global_dof_index>::iterator intersection_it;
       for (unsigned int i=0; i<partition_size; ++i)
         for (unsigned int j=i+1; j<partition_size; ++j)
-          {
-            conflict_indices_intersection.resize(std::max(conflict_indices[i].size(),
-                                                          conflict_indices[j].size()));
-            intersection_it = std::set_intersection(conflict_indices[i].begin(),
-                                                    conflict_indices[i].end(),
-                                                    conflict_indices[j].begin(),
-                                                    conflict_indices[j].end(),
-                                                    conflict_indices_intersection.begin());
-            // If the two iterators share indices then we increase the degree of the
-            // vertices and create an ''edge'' in the graph.
-            if (intersection_it!=conflict_indices_intersection.begin())
-              {
-                ++degrees[i];
-                ++degrees[j];
-                graph[i].push_back(j);
-                graph[j].push_back(i);
-              }
-          }
+          // If the two iterators share indices then we increase the degree of the
+          // vertices and create an ''edge'' in the graph.
+          if (have_nonempty_intersection (conflict_indices[i], conflict_indices[j]))
+            {
+              ++degrees[i];
+              ++degrees[j];
+              graph[i].push_back(j);
+              graph[j].push_back(i);
+            }
 
       // Sort the vertices by decreasing degree.
       std::vector<int>::iterator degrees_it;
@@ -347,7 +375,7 @@ namespace GraphColoring
             }
         }
 
-      // If there is more than one partition, do the same thing that we did for the even partitions 
+      // If there is more than one partition, do the same thing that we did for the even partitions
       // to the odd partitions
       if (partition_size>1)
         {
@@ -443,9 +471,11 @@ namespace GraphColoring
    * cells adjacent to the faces of the current cell (in the case of
    * discontinuous Galerkin methods, because there one computes face integrals
    * coupling the degrees of freedom connected by a common face -- see step-12).
-   * More generally, however, the conflict set needs to contain all degrees of
-   * freedom for which anything is written into the matrix or right hand side;
-   * in other words, if the writing happens through a function like
+   *
+   * @note The conflict set returned by the user defined function passed as
+   * third argument needs to accurately describe <i>all</i> degrees of
+   * freedom for which anything is written into the matrix or right hand side.
+   * In other words, if the writing happens through a function like
    * ConstraintMatrix::copy_local_to_global(), then the set of conflict indices
    * must actually contain not only the degrees of freedom on the current
    * cell, but also those they are linked to by constraints such as hanging
@@ -460,6 +490,9 @@ namespace GraphColoring
    * In any case, the result of the function will be so that iterators whose
    * conflict indicator sets have overlap will not be assigned to the same
    * color.
+   *
+   * @note The algorithm used in this function is described in a paper by
+   * Turcksin, Kronbichler and Bangerth, see @ref workstream_paper .
    *
    * @param[in] begin The first element of a range of iterators for which a
    *      coloring is sought.
@@ -479,8 +512,10 @@ namespace GraphColoring
   std::vector<std::vector<Iterator> >
   make_graph_coloring(const Iterator &begin,
                       const typename identity<Iterator>::type &end,
-                      const std_cxx1x::function<std::vector<types::global_dof_index> (const Iterator &)> &get_conflict_indices)
+                      const std_cxx1x::function<std::vector<types::global_dof_index> (const typename identity<Iterator>::type &)> &get_conflict_indices)
   {
+    Assert (begin != end, ExcMessage ("GraphColoring is not prepared to deal with empty ranges!"));
+
     // Create the partitioning.
     std::vector<std::vector<Iterator> >
     partitioning = internal::create_partitioning (begin,

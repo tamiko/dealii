@@ -2556,7 +2556,7 @@ template <typename VectorType>
 template <typename OtherNumber>
 inline
 void BlockVectorBase<VectorType>::extract_subvector_to (const std::vector<size_type> &indices,
-                                           std::vector<OtherNumber> &values) const
+                                                        std::vector<OtherNumber> &values) const
 {
   for (size_type i = 0; i < indices.size(); ++i)
     values[i] = operator()(indices[i]);
@@ -2571,11 +2571,12 @@ void BlockVectorBase<VectorType>::extract_subvector_to (ForwardIterator       in
                                                         const ForwardIterator indices_end,
                                                         OutputIterator        values_begin) const
 {
-  while (indices_begin != indices_end) 
-    { 
-      *values_begin = operator()(*indices_begin); 
-      indices_begin++; values_begin++; 
-    } 
+  while (indices_begin != indices_end)
+    {
+      *values_begin = operator()(*indices_begin);
+      indices_begin++;
+      values_begin++;
+    }
 }
 
 #endif // DOXYGEN

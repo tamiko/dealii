@@ -118,11 +118,11 @@ void evaluate_normal (DoFHandler<2>  &dof_handler,
                   double v_n = this_value_n[q_point](1);
 
                   deallog << "quadrature point " << q_point
-                          << " (u-u_n)*nx+(v-v_n)*ny="
+                          << " (u-u_n)*nx+(v-v_n)*ny = "
                           << (u-u_n) * nx + (v-v_n) * ny
-                          << ", u*nx+v*ny="
+                          << ", u*nx+v*ny = "
                           << u *nx + v *ny
-                          << ", u_n*nx+v_n*ny="
+                          << ", u_n*nx+v_n*ny = "
                           << u_n *nx + v_n *ny
                           << std::endl;
                 }
@@ -158,7 +158,7 @@ int main ()
   // values between 0 and 1.
   Vector<double> solution(dof_handler.n_dofs ());
   for (unsigned int i = 0; i < dof_handler.n_dofs (); ++i)
-    solution(i) = (double) rand () / (double) RAND_MAX;
+    solution(i) = (double) Testing::rand() / (double) RAND_MAX;
 
   // Now check if the function is
   // continuous in normal direction

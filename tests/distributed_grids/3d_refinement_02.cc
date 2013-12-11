@@ -71,7 +71,7 @@ void test(std::ostream & /*out*/)
     {
       std::vector<bool> flags (tr.n_active_cells(), false);
       {
-        const unsigned int x = rand() % flags.size();
+        const unsigned int x = Testing::rand() % flags.size();
         deallog << "Refining cell " << x << std::endl;
         flags[x] = true;
       }
