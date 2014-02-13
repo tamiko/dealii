@@ -922,9 +922,9 @@ public:
   /**
    * Does the same as the function above but can treat non quadratic matrices.
    */
-  template <typename MatrixType>
+  template <typename MatrixType, typename LocalType>
   void
-  distribute_local_to_global (const FullMatrix<double>     &local_matrix,
+  distribute_local_to_global (const FullMatrix<LocalType>  &local_matrix,
                               const std::vector<size_type> &row_indices,
                               const std::vector<size_type> &col_indices,
                               MatrixType                   &global_matrix) const;

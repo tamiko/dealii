@@ -1953,6 +1953,13 @@ BLOCK_SPARSITY_FUNCTIONS(TrilinosWrappers::BlockSparsityPattern);
       const std::vector<ConstraintMatrix::size_type> &, \
       MatrixType                      &) const
 
+#define COMPLEX_ONLY_MATRIX_FUNCTIONS(MatrixType) \
+  template void ConstraintMatrix::distribute_local_to_global<MatrixType > (\
+      const FullMatrix<std::complex<double> >        &, \
+      const std::vector<ConstraintMatrix::size_type> &, \
+      const std::vector<ConstraintMatrix::size_type> &, \
+      MatrixType                      &) const
+
 ONLY_MATRIX_FUNCTIONS(SparseMatrix<float>);
 ONLY_MATRIX_FUNCTIONS(SparseMatrix<double>);
 ONLY_MATRIX_FUNCTIONS(MatrixBlock<SparseMatrix<float> >);

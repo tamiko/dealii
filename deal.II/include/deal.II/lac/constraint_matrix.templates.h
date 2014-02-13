@@ -2589,12 +2589,12 @@ ConstraintMatrix::distribute_local_to_global (
 template <typename MatrixType>
 void
 ConstraintMatrix::distribute_local_to_global (
-  const FullMatrix<double>     &local_matrix,
+  const FullMatrix<LocalType>  &local_matrix,
   const std::vector<size_type> &row_indices,
   const std::vector<size_type> &col_indices,
   MatrixType                   &global_matrix) const
 {
-  typedef double number;
+  typedef LocalType number;
 
   AssertDimension (local_matrix.m(), row_indices.size());
   AssertDimension (local_matrix.n(), col_indices.size());
@@ -2618,7 +2618,7 @@ ConstraintMatrix::distribute_local_to_global (
   // create arrays for the column data (indices and values) that will then be
   // written into the matrix. Shortcut for deal.II sparse matrix
   std::vector<size_type> &cols = scratch_data->columns;
-  std::vector<number>     &vals = scratch_data->values;
+  std::vector<number>    &vals = scratch_data->values;
   cols.resize(n_actual_col_dofs);
   vals.resize(n_actual_col_dofs);
 
