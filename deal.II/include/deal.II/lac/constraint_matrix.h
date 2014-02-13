@@ -1,7 +1,7 @@
 // ---------------------------------------------------------------------
 // $Id$
 //
-// Copyright (C) 1998 - 2013 by the deal.II authors
+// Copyright (C) 1998 - 2014 by the deal.II authors
 //
 // This file is part of the deal.II library.
 //
@@ -182,7 +182,7 @@ public:
    * Constructor. The supplied IndexSet defines which indices might be
    * constrained inside this ConstraintMatrix. In a calculation with a
    * parallel::distributed::DoFHandler one should use
-   * locally_relevant_dofs. The IndexSet allows the ConstraintMatrix to safe
+   * locally_relevant_dofs. The IndexSet allows the ConstraintMatrix to save
    * memory. Otherwise internal data structures for all possible indices will
    * be created.
    */
@@ -194,7 +194,7 @@ public:
   ConstraintMatrix (const ConstraintMatrix &constraint_matrix);
 
   /**
-   * Reinit the ConstraintMatrix object and supply an IndexSet with lines that
+   * clear() the ConstraintMatrix object and supply an IndexSet with lines that
    * may be constrained. This function is only relevant in the distributed
    * case to supply a different IndexSet. Otherwise this routine is equivalent
    * to calling clear(). See the constructor for details.
@@ -1717,7 +1717,7 @@ distribute_local_to_global (const FullMatrix<double>     &local_matrix,
   Vector<double> dummy(0);
   distribute_local_to_global (local_matrix, dummy, local_dof_indices,
                               global_matrix, dummy, false,
-                              internal::bool2type<IsBlockMatrix<MatrixType>::value>());
+                              dealii::internal::bool2type<IsBlockMatrix<MatrixType>::value>());
 }
 
 
@@ -1737,7 +1737,7 @@ distribute_local_to_global (const FullMatrix<double>     &local_matrix,
   // the actual implementation follows in the cm.templates.h file.
   distribute_local_to_global (local_matrix, local_vector, local_dof_indices,
                               global_matrix, global_vector, use_inhomogeneities_for_rhs,
-                              internal::bool2type<IsBlockMatrix<MatrixType>::value>());
+                              dealii::internal::bool2type<IsBlockMatrix<MatrixType>::value>());
 }
 
 

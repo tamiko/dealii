@@ -273,7 +273,7 @@ Step6<dim>::~Step6 ()
 // The next function is setting up all the variables that describe the linear
 // finite element problem, such as the DoF handler, the matrices, and
 // vectors. The difference to what we did in step-5 is only that we now also
-// have to take care of handing node constraints. These constraints are
+// have to take care of hanging node constraints. These constraints are
 // handled almost transparently by the library, i.e. you only need to know
 // that they exist and how to get them, but you do not have to know how they
 // are formed or what exactly is done with them.
@@ -364,6 +364,7 @@ void Step6<dim>::setup_system ()
   system_matrix.reinit (sparsity_pattern);
 }
 
+
 // @sect4{Step6::assemble_system}
 
 // Next, we have to assemble the matrix again. There are two code changes
@@ -442,10 +443,11 @@ void Step6<dim>::assemble_system ()
       // Finally, transfer the contributions from @p cell_matrix and
       // @p cell_rhs into the global objects.
       cell->get_dof_indices (local_dof_indices);
-      constraints.distribute_local_to_global(cell_matrix,
-                                             cell_rhs,
-                                             local_dof_indices,
-                                             system_matrix, system_rhs);
+      constraints.distribute_local_to_global (cell_matrix,
+					      cell_rhs,
+					      local_dof_indices,
+					      system_matrix,
+					      system_rhs);
     }
   // Now we are done assembling the linear system.  The constrained nodes are
   // still in the linear system (there is a one on the diagonal of the matrix
@@ -453,7 +455,6 @@ void Step6<dim>::assemble_system ()
   // values are invalid. We compute the correct values for these nodes at the
   // end of the <code>solve</code> function.
 }
-
 
 
 // @sect4{Step6::solve}
@@ -475,8 +476,8 @@ void Step6<dim>::assemble_system ()
 template <int dim>
 void Step6<dim>::solve ()
 {
-  SolverControl           solver_control (1000, 1e-12);
-  SolverCG<>              solver (solver_control);
+  SolverControl      solver_control (1000, 1e-12);
+  SolverCG<>         solver (solver_control);
 
   PreconditionSSOR<> preconditioner;
   preconditioner.initialize(system_matrix, 1.2);
@@ -529,20 +530,23 @@ void Step6<dim>::solve ()
 // quartic function, for which a 3 point Gauss formula is sufficient since it
 // integrates polynomials up to order 5 exactly.)
 //
-// Secondly, the function wants a list of boundaries where we have imposed
-// Neumann value, and the corresponding Neumann values. This information is
+// Secondly, the function wants a list of boundary indicators for those
+// boundaries where we have imposed Neumann values of the kind
+// $\partial_n u(\mathbf x) = h(\mathbf x)$, along with a function $h(\mathbf x)$
+// for each such boundary. This information is
 // represented by an object of type <code>FunctionMap::type</code> that is
-// essentially a map from boundary indicators to function objects describing
-// Neumann boundary values (in the present example program, we do not use
+// a typedef to a map from boundary indicators to function objects describing
+// the Neumann boundary values. In the present example program, we do not use
 // Neumann boundary values, so this map is empty, and in fact constructed
 // using the default constructor of the map in the place where the function
-// call expects the respective function argument).
+// call expects the respective function argument.
 //
 // The output, as mentioned is a vector of values for all cells. While it may
-// make sense to compute the *value* of a degree of freedom very accurately,
-// it is usually not helpful to compute the *error indicator* corresponding to
-// a cell particularly accurately. We therefore typically use a vector of
-// floats instead of a vector of doubles to represent error indicators.
+// make sense to compute the <b>value</b> of a solution degree of freedom
+// very accurately, it is usually not necessary to compute the <b>error indicator</b>
+// corresponding to the solution on a cell particularly accurately. We therefore
+// typically use a vector of floats instead of a vector of doubles to represent
+// error indicators.
 template <int dim>
 void Step6<dim>::refine_grid ()
 {
@@ -636,7 +640,6 @@ void Step6<dim>::output_results (const unsigned int cycle) const
   GridOut grid_out;
   grid_out.write_eps (triangulation, output);
 }
-
 
 
 // @sect4{Step6::run}

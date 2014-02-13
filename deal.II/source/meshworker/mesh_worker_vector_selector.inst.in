@@ -24,7 +24,7 @@ for (deal_II_dimension : DIMENSIONS)
   \}
 }
 
-for (VECTOR : SERIAL_VECTORS ; deal_II_dimension : DIMENSIONS)
+for (VECTOR : REAL_SERIAL_VECTORS ; deal_II_dimension : DIMENSIONS)
 {
   namespace MeshWorker
   \{

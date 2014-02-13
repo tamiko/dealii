@@ -1,7 +1,7 @@
 // ---------------------------------------------------------------------
 // $Id$
 //
-// Copyright (C) 2003 - 2013 by the deal.II authors
+// Copyright (C) 2003 - 2014 by the deal.II authors
 //
 // This file is part of the deal.II library.
 //
@@ -2417,45 +2417,26 @@ namespace hp
 
 
 
-  template <>
-  void
-  DoFHandler<1>::
-  compute_quad_dof_identities (std::vector<types::global_dof_index> &) const
-  {}
-
-  template <>
-  void
-  DoFHandler<1,2>::
-  compute_quad_dof_identities (std::vector<types::global_dof_index> &) const
-  {}
-
-  template <>
-  void
-  DoFHandler<1,3>::
-  compute_quad_dof_identities (std::vector<types::global_dof_index> &) const
-  {}
-
-  template <>
-  void
-  DoFHandler<2>::
-  compute_quad_dof_identities (std::vector<types::global_dof_index> &) const
-  {}
-
-
-
-  template <>
-  void
-  DoFHandler<2,3>::
-  compute_quad_dof_identities (std::vector<types::global_dof_index> &) const
-  {}
-
-
-
-  template<int dim, int spacedim>
+  template <int dim, int spacedim>
   void
   DoFHandler<dim,spacedim>::
+  compute_quad_dof_identities (std::vector<types::global_dof_index> &) const
+  {
+    // this function should only be called for dim<3 where there are
+    // no quad dof identies. for dim>=3, the specialization below should
+    // take care of it
+    Assert (dim < 3, ExcInternalError());
+  }
+
+
+  template <>
+  void
+  DoFHandler<3,3>::
   compute_quad_dof_identities (std::vector<types::global_dof_index> &new_dof_indices) const
   {
+    const int dim = 3;
+    const int spacedim = 3;
+
     // we will mark quads that we
     // have already treated, so first
     // save and clear the user flags
@@ -2643,7 +2624,7 @@ namespace hp
 
       for (; cell != endc; ++cell)
         next_free_dof
-          = dealii::internal::hp::DoFHandler::Implementation::template distribute_dofs_on_cell<spacedim> (cell,
+          = dealii::internal::hp::DoFHandler::Implementation::distribute_dofs_on_cell<spacedim> (cell,
             next_free_dof);
 
       number_cache.n_global_dofs = next_free_dof;
@@ -3275,8 +3256,11 @@ namespace hp
                       endc = end ();
         for (; cell != endc; ++cell)
           {
-            // Look if the cell got children during
-            // refinement
+            // Look if the cell got children during refinement by
+            // checking whether it has children now but didn't have
+            // children before refinement (the has_children array is
+            // set in pre-refinement action)
+	    //
             // Note: Although one level is added to
             // the DoFHandler levels, when the
             // triangulation got one, for the buffer
@@ -3291,10 +3275,15 @@ namespace hp
             if (cell->has_children () &&
                 !(*has_children [cell->level ()])[cell->index ()])
               {
-                // Set active_fe_index in children to the
-                // same value as in the parent cell.
+                // Set active_fe_index in children to the same value
+                // as in the parent cell. we can't access the
+                // active_fe_index in the parent cell any more through
+                // cell->active_fe_index() since that function is not
+                // allowed for inactive cells, but we can access this
+                // information from the DoFLevels directly
                 for (unsigned int i = 0; i < cell->n_children(); ++i)
-                  cell->child (i)->set_active_fe_index (cell->active_fe_index ());
+		  cell->child (i)->set_active_fe_index
+		    (levels[cell->level()]->active_fe_index (cell->index()));
               }
           }
       }

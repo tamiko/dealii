@@ -1,7 +1,7 @@
 // ---------------------------------------------------------------------
 // $Id$
 //
-// Copyright (C) 1998 - 2013 by the deal.II authors
+// Copyright (C) 1998 - 2014 by the deal.II authors
 //
 // This file is part of the deal.II library.
 //
@@ -41,12 +41,11 @@ DEAL_II_NAMESPACE_OPEN
 namespace
 {
   template <class VectorType>
-  double
+  typename VectorType::value_type
   get_vector_element (const VectorType &vector,
                       const types::global_dof_index cell_number)
   {
-    // @whattodo Note, see another identical whattodo
-    // return vector[cell_number];
+    return vector[cell_number];
   }
 
 
@@ -801,24 +800,22 @@ namespace FEValuesViews
                   const dealii::Tensor<1, spacedim> *shape_gradient_ptr =
                     &shape_gradients[snc][0];
 
-                  switch (shape_function_data[shape_function].single_nonzero_component_index)
-                    {
-                    case 0:
-                    {
-                      for (unsigned int q_point = 0;
-                           q_point < n_quadrature_points; ++q_point)
-                        curls[q_point][0] -= value * (*shape_gradient_ptr++)[1];
-
-                      break;
-                    }
-
-                    default:
-                      for (unsigned int q_point = 0;
-                           q_point < n_quadrature_points; ++q_point)
-                        curls[q_point][0] += value * (*shape_gradient_ptr)[0];
-                    }
+                  Assert (shape_function_data[shape_function].single_nonzero_component >= 0,
+                          ExcInternalError());
+                  // we're in 2d, so the formula for the curl is simple:
+                  if (shape_function_data[shape_function].single_nonzero_component_index == 0)
+                    for (unsigned int q_point = 0;
+                        q_point < n_quadrature_points; ++q_point)
+                      curls[q_point][0] -= value * (*shape_gradient_ptr++)[1];
+                  else
+                    for (unsigned int q_point = 0;
+                        q_point < n_quadrature_points; ++q_point)
+                      curls[q_point][0] += value * (*shape_gradient_ptr++)[0];
                 }
               else
+                // we have multiple non-zero components in the shape functions. not
+                // all of them must necessarily be within the 2-component window
+                // this FEValuesViews::Vector object considers, however.
                 {
                   if (shape_function_data[shape_function].is_nonzero_shape_function_component[0])
                     {
@@ -888,17 +885,26 @@ namespace FEValuesViews
                       break;
                     }
 
-                    default:
+                    case 2:
+                    {
                       for (unsigned int q_point = 0;
                            q_point < n_quadrature_points; ++q_point)
                         {
                           curls[q_point][0] += value * (*shape_gradient_ptr)[1];
                           curls[q_point][1] -= value * (*shape_gradient_ptr++)[0];
                         }
+                      break;
+                    }
+
+                    default:
+                      Assert (false, ExcInternalError());
                     }
                 }
 
               else
+                // we have multiple non-zero components in the shape functions. not
+                // all of them must necessarily be within the 3-component window
+                // this FEValuesViews::Vector object considers, however.
                 {
                   if (shape_function_data[shape_function].is_nonzero_shape_function_component[0])
                     {
@@ -1001,7 +1007,7 @@ namespace FEValuesViews
     template <int dim, int spacedim>
     void
     do_function_values (const ::dealii::Vector<double> &dof_values,
-                        const Table<2,double>          &shape_values,
+                        const dealii::Table<2,double>          &shape_values,
                         const std::vector<typename SymmetricTensor<2,dim,spacedim>::ShapeFunctionData> &shape_function_data,
                         std::vector<dealii::SymmetricTensor<2,spacedim> > &values)
     {
@@ -1143,7 +1149,7 @@ namespace FEValuesViews
     template <int dim, int spacedim>
     void
     do_function_values (const ::dealii::Vector<double> &dof_values,
-                        const Table<2,double>          &shape_values,
+                        const dealii::Table<2,double>          &shape_values,
                         const std::vector<typename Tensor<2,dim,spacedim>::ShapeFunctionData> &shape_function_data,
                         std::vector<dealii::Tensor<2,spacedim> > &values)
     {
@@ -2202,7 +2208,7 @@ namespace internal
   template <typename Number>
   void
   do_function_values (const double          *dof_values_ptr,
-                      const Table<2,double> &shape_values,
+                      const dealii::Table<2,double> &shape_values,
                       std::vector<Number>   &values)
   {
     // scalar finite elements, so shape_values.size() == dofs_per_cell
@@ -2236,16 +2242,25 @@ namespace internal
   template <int dim, int spacedim, typename VectorType>
   void
   do_function_values (const double                      *dof_values_ptr,
-                      const Table<2,double>             &shape_values,
+                      const dealii::Table<2,double>             &shape_values,
                       const FiniteElement<dim,spacedim> &fe,
                       const std::vector<unsigned int> &shape_function_to_row_table,
                       VectorSlice<std::vector<VectorType> > &values,
                       const bool quadrature_points_fastest  = false,
                       const unsigned int component_multiple = 1)
   {
+    // initialize with zero
+    for (unsigned int i=0; i<values.size(); ++i)
+      std::fill_n (values[i].begin(), values[i].size(),
+                   typename VectorType::value_type());
+
+    // see if there the current cell has DoFs at all, and if not
+    // then there is nothing else to do.
     const unsigned int dofs_per_cell = fe.dofs_per_cell;
-    const unsigned int n_quadrature_points = dofs_per_cell > 0 ?
-                                             shape_values.n_cols() : 0;
+    if (dofs_per_cell == 0)
+      return;
+    
+    const unsigned int n_quadrature_points = shape_values.n_cols();
     const unsigned int n_components = fe.n_components();
 
     // Assert that we can write all components into the result vectors
@@ -2262,11 +2277,6 @@ namespace internal
         for (unsigned int i=0; i<values.size(); ++i)
           AssertDimension (values[i].size(), result_components);
       }
-
-    // initialize with zero
-    for (unsigned int i=0; i<values.size(); ++i)
-      std::fill_n (values[i].begin(), values[i].size(),
-                   typename VectorType::value_type());
 
     // add up contributions of trial functions.  now check whether the shape
     // function is primitive or not. if it is, then set its only non-zero
@@ -2370,9 +2380,19 @@ namespace internal
                            const bool quadrature_points_fastest  = false,
                            const unsigned int component_multiple = 1)
   {
+    // initialize with zero
+    for (unsigned int i=0; i<derivatives.size(); ++i)
+      std::fill_n (derivatives[i].begin(), derivatives[i].size(),
+                   Tensor<order,spacedim>());
+
+    // see if there the current cell has DoFs at all, and if not
+    // then there is nothing else to do.
     const unsigned int dofs_per_cell = fe.dofs_per_cell;
-    const unsigned int n_quadrature_points = dofs_per_cell > 0 ?
-                                             shape_derivatives[0].size() : 0;
+    if (dofs_per_cell == 0)
+      return;
+
+
+    const unsigned int n_quadrature_points = shape_derivatives[0].size();
     const unsigned int n_components = fe.n_components();
 
     // Assert that we can write all components into the result vectors
@@ -2389,11 +2409,6 @@ namespace internal
         for (unsigned int i=0; i<derivatives.size(); ++i)
           AssertDimension (derivatives[i].size(), result_components);
       }
-
-    // initialize with zero
-    for (unsigned int i=0; i<derivatives.size(); ++i)
-      std::fill_n (derivatives[i].begin(), derivatives[i].size(),
-                   Tensor<order,spacedim>());
 
     // add up contributions of trial functions.  now check whether the shape
     // function is primitive or not. if it is, then set its only non-zero
@@ -2486,9 +2501,19 @@ namespace internal
                           const bool quadrature_points_fastest  = false,
                           const unsigned int component_multiple = 1)
   {
+    // initialize with zero
+    for (unsigned int i=0; i<laplacians.size(); ++i)
+      std::fill_n (laplacians[i].begin(), laplacians[i].size(),
+                   typename VectorType::value_type());
+
+    // see if there the current cell has DoFs at all, and if not
+    // then there is nothing else to do.
     const unsigned int dofs_per_cell = fe.dofs_per_cell;
-    const unsigned int n_quadrature_points = dofs_per_cell > 0 ?
-                                             shape_hessians[0].size() : 0;
+    if (dofs_per_cell == 0)
+      return;
+
+
+    const unsigned int n_quadrature_points = shape_hessians[0].size();
     const unsigned int n_components = fe.n_components();
 
     // Assert that we can write all components into the result vectors
@@ -2505,11 +2530,6 @@ namespace internal
         for (unsigned int i=0; i<laplacians.size(); ++i)
           AssertDimension (laplacians[i].size(), result_components);
       }
-
-    // initialize with zero
-    for (unsigned int i=0; i<laplacians.size(); ++i)
-      std::fill_n (laplacians[i].begin(), laplacians[i].size(),
-                   typename VectorType::value_type());
 
     // add up contributions of trial functions.  now check whether the shape
     // function is primitive or not. if it is, then set its only non-zero

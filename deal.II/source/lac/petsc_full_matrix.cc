@@ -1,7 +1,7 @@
 // ---------------------------------------------------------------------
 // $Id$
 //
-// Copyright (C) 2004 - 2013 by the deal.II authors
+// Copyright (C) 2004 - 2014 by the deal.II authors
 //
 // This file is part of the deal.II library.
 //
@@ -24,12 +24,44 @@ DEAL_II_NAMESPACE_OPEN
 
 namespace PETScWrappers
 {
+
+  FullMatrix::FullMatrix ()
+  {
+    // empty constructor generate an empty matrix
+    do_reinit (0, 0);
+  }
+
   FullMatrix::FullMatrix (const size_type m,
                           const size_type n)
   {
+    do_reinit (m, n);
+  }
+
+  void
+  FullMatrix::reinit (const size_type m,
+		      const size_type n)
+  {
+    // get rid of old matrix and generate a
+    // new one
+#if DEAL_II_PETSC_VERSION_LT(3,2,0)
+    const int ierr = MatDestroy (matrix);
+#else
+    const int ierr = MatDestroy (&matrix);
+#endif
+    AssertThrow (ierr == 0, ExcPETScError(ierr));
+
+    do_reinit (m, n);
+  }
+
+  void
+  FullMatrix::do_reinit (const size_type m,
+			 const size_type n)
+  {
+    // use the call sequence indicating only a maximal number of
+    // elements per row for all rows globally
     const int ierr
-      = MatCreateSeqDense(PETSC_COMM_SELF, m, n, PETSC_NULL,
-                          &matrix);
+      = MatCreateSeqDense (PETSC_COMM_SELF, m, n, PETSC_NULL,
+			   &matrix);
 
     AssertThrow (ierr == 0, ExcPETScError(ierr));
   }

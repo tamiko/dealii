@@ -105,6 +105,20 @@ FIND_UMFPACK_LIBRARY(CCOLAMD ccolamd)
 FIND_UMFPACK_LIBRARY(CAMD camd)
 FIND_UMFPACK_LIBRARY(SuiteSparse_config suitesparseconfig)
 
+#
+# Test whether libsuitesparseconfig.xxx can be used for shared library
+# linkage. If not, exclude it from the command line.
+#
+LIST(APPEND CMAKE_REQUIRED_LIBRARIES
+  "-shared"
+  ${SuiteSparse_config_LIBRARY}
+  )
+CHECK_CXX_SOURCE_COMPILES("extern int SuiteSparse_version (int[3]);
+  void foo(int bar[3]) { SuiteSparse_version(bar);}"
+  LAPACK_SUITESPARSECONFIG_WITH_PIC
+  )
+RESET_CMAKE_REQUIRED()
+
 IF(EXISTS ${UMFPACK_INCLUDE_DIR}/umfpack.h)
   FILE(STRINGS "${UMFPACK_INCLUDE_DIR}/umfpack.h" UMFPACK_VERSION_MAJOR_STRING
     REGEX "#define.*UMFPACK_MAIN_VERSION")
@@ -161,8 +175,10 @@ IF(UMFPACK_FOUND)
     ${COLAMD_LIBRARY}
     ${CAMD_LIBRARY}
     ${AMD_LIBRARY}
-    ${SuiteSparse_config_LIBRARY}
     )
+  IF(LAPACK_SUITESPARSECONFIG_WITH_PIC OR NOT BUILD_SHARED_LIBS)
+    LIST(APPEND UMFPACK_LIBRARIES ${SuiteSparse_config_LIBRARY})
+  ENDIF()
 
   #
   # For good measure:
@@ -179,9 +195,7 @@ IF(UMFPACK_FOUND)
   # lib does not record its dependence on librt.so as evidenced
   # by ldd :-( ):
   #
-  SWITCH_LIBRARY_PREFERENCE()
-  FIND_LIBRARY(rt_LIBRARY NAMES rt)
-  SWITCH_LIBRARY_PREFERENCE()
+  FIND_SYSTEM_LIBRARY(rt_LIBRARY NAMES rt)
   MARK_AS_ADVANCED(rt_LIBRARY)
   IF(NOT rt_LIBRARY MATCHES "-NOTFOUND")
     LIST(APPEND UMFPACK_LIBRARIES ${rt_LIBRARY})

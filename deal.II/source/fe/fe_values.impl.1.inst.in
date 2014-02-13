@@ -15,7 +15,7 @@
 // ---------------------------------------------------------------------
 
 
-for (VEC : SERIAL_VECTORS)
+for (VEC : REAL_SERIAL_VECTORS)
   {
     template <int dim, int spacedim>
     template <typename CI>
@@ -27,3 +27,17 @@ for (VEC : SERIAL_VECTORS)
       cell->get_interpolated_dof_values (in, out);
     \}
   }
+
+for (VEC : COMPLEX_SERIAL_VECTORS)
+  {
+    template <int dim, int spacedim>
+    template <typename CI>
+    void
+    FEValuesBase<dim,spacedim>::CellIterator<CI>::
+    get_interpolated_dof_values (const VEC                     &in,
+			         Vector<std::complex<double> > &out) const
+    \{
+      cell->get_interpolated_dof_values (in, out);
+    \}
+  }
+

@@ -19,7 +19,7 @@
 // Declarations of member functions of FEValuesBase::CellIteratorBase
 // and derived classes
 
-for (VEC : SERIAL_VECTORS)
+for (VEC : REAL_SERIAL_VECTORS; S : REAL_SCALARS)
   {
 				      /// Call
 				      /// @p get_interpolated_dof_values
@@ -29,4 +29,16 @@ for (VEC : SERIAL_VECTORS)
     void
     get_interpolated_dof_values (const VEC      &in,
 				 Vector<double> &out) const;
+  }
+
+for (VEC : COMPLEX_SERIAL_VECTORS; S : COMPLEX_SCALARS)
+  {
+				      /// Call
+				      /// @p get_interpolated_dof_values
+				      /// of the iterator with the
+				      /// given arguments.
+    virtual
+    void
+    get_interpolated_dof_values (const VEC      &in,
+				 Vector<S> &out) const;
   }

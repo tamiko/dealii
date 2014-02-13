@@ -622,7 +622,7 @@ FE_DGQ<dim, spacedim>::has_support_on_face (const unsigned int shape_index,
       // (==face 0 in some sense), the
       // second on face 1:
       return (((shape_index == 0) && (face_index == 0)) ||
-              ((shape_index == 1) && (face_index == 1)));
+              ((shape_index == this->degree) && (face_index == 1)));
     };
 
     case 2:
@@ -668,6 +668,19 @@ FE_DGQ<dim, spacedim>::has_support_on_face (const unsigned int shape_index,
     }
   return true;
 }
+
+
+
+template <int dim, int spacedim>
+Table<2,bool>
+FE_DGQ<dim,spacedim>::get_constant_modes () const
+{
+  Table<2,bool> constant_modes(1, this->dofs_per_cell);
+  for (unsigned int i=0; i<this->dofs_per_cell; ++i)
+    constant_modes(0,i) = true;
+  return constant_modes;
+}
+
 
 
 

@@ -977,7 +977,8 @@ next_cell:
         // is for.
         if (!found && cells_searched < n_cells)
           {
-            find_active_cell_around_point_internal(container, searched_cells, adjacent_cells);
+            find_active_cell_around_point_internal<dim,Container,spacedim>
+            (container, searched_cells, adjacent_cells);
           }
       }
 
@@ -1098,7 +1099,8 @@ next_cell:
             // the cells in adjacent_cells.
             if (!found && cells_searched < n_cells)
               {
-                find_active_cell_around_point_internal(container, searched_cells, adjacent_cells);
+                find_active_cell_around_point_internal<dim,hp::DoFHandler,spacedim>
+                (container, searched_cells, adjacent_cells);
               }
 
           }
@@ -2083,15 +2085,20 @@ next_cell:
 
 
   template <template <int,int> class Container, int dim, int spacedim>
+#ifndef _MSC_VER
   std::map<typename Container<dim-1,spacedim>::cell_iterator,
       typename Container<dim,spacedim>::face_iterator>
+#else
+  typename ExtractBoundaryMesh<Container,dim,spacedim>::return_type
+#endif
       extract_boundary_mesh (const Container<dim,spacedim> &volume_mesh,
                              Container<dim-1,spacedim>     &surface_mesh,
                              const std::set<types::boundary_id> &boundary_ids)
   {
-// Assumption:
-//    We are relying below on the fact that Triangulation::create_triangulation(...) will keep the order
-//    pass by CellData and that it will not reorder the vertices.
+// This function works using the following assumption:
+//    Triangulation::create_triangulation(...) will create cells that preserve
+//    the order of cells passed in using the CellData argument; also,
+//    that it will not reorder the vertices.
 
     std::map<typename Container<dim-1,spacedim>::cell_iterator,
         typename Container<dim,spacedim>::face_iterator>
