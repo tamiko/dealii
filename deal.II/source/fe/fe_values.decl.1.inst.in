@@ -39,6 +39,6 @@ for (VEC : COMPLEX_SERIAL_VECTORS; S : COMPLEX_SCALARS)
 				      /// given arguments.
     virtual
     void
-    get_interpolated_dof_values (const VEC &in,
-				 Vector<S> &out) const = 0;
+    get_interpolated_dof_values (const VEC                     &in,
+				 Vector<std::complex<double> > &out) const = 0;
   }

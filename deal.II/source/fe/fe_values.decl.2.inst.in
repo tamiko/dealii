@@ -27,18 +27,18 @@ for (VEC : REAL_SERIAL_VECTORS; S : REAL_SCALARS)
 				      /// given arguments.
     virtual
     void
-    get_interpolated_dof_values (const VEC      &in,
-				 Vector<double> &out) const;
+    get_interpolated_dof_values (const VEC &in,
+				 Vector<S> &out) const;
   }
 
-for (VEC : COMPLEX_SERIAL_VECTORS; S : COMPLEX_SCALARS)
+for (VEC : COMPLEX_SERIAL_VECTORS)
   {
 				      /// Call
 				      /// @p get_interpolated_dof_values
-				      /// of the iterator with the
+			 	      /// of the iterator with the
 				      /// given arguments.
     virtual
     void
-    get_interpolated_dof_values (const VEC      &in,
-				 Vector<S> &out) const;
+    get_interpolated_dof_values (const VEC                     &in,
+				 Vector<std::complex<double> > &out) const;
   }
