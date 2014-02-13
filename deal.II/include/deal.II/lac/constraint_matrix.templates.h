@@ -846,13 +846,13 @@ ConstraintMatrix::set_zero (VectorType &vec) const
 
 
 
-template <typename VectorType>
+template <typename VectorType, typename LocalType>
 void
 ConstraintMatrix::
-distribute_local_to_global (const Vector<double>            &local_vector,
+distribute_local_to_global (const Vector<LocalType>      &local_vector,
                             const std::vector<size_type> &local_dof_indices,
-                            VectorType                      &global_vector,
-                            const FullMatrix<double>        &local_matrix) const
+                            VectorType                   &global_vector,
+                            const FullMatrix<LocalType>  &local_matrix) const
 {
   Assert (sorted == true, ExcMatrixNotClosed());
   AssertDimension (local_vector.size(), local_dof_indices.size());
@@ -862,10 +862,7 @@ distribute_local_to_global (const Vector<double>            &local_vector,
   const size_type n_local_dofs = local_vector.size();
   if (lines.empty())
     {
-      /* @whattodo Note: the Vector and FullMatrix coming in should be
-	 complex */
-      /* global_vector.add(local_dof_indices, local_vector); */
-	Assert ((false), ExcMessage ("This function is corrupt: @whattodo"));
+      global_vector.add(local_dof_indices, local_vector); 
     }
   else
     for (size_type i=0; i<n_local_dofs; ++i)
@@ -897,8 +894,8 @@ distribute_local_to_global (const Vector<double>            &local_vector,
               global_vector(local_dof_indices[j]) -= val * local_matrix(j,i);
             else
               {
-                const double matrix_entry = local_matrix(j,i);
-                if (matrix_entry == 0)
+                const LocalType matrix_entry = local_matrix(j,i);
+                if (matrix_entry == LocalType ()) // == 0
                   continue;
 
                 const ConstraintLine &position_j =
@@ -1855,15 +1852,15 @@ namespace internals
   // the origin of each global entry and finds out which data we need to
   // collect.
   static inline
-  double resolve_matrix_entry (const GlobalRowsFromLocal &global_rows,
-                               const GlobalRowsFromLocal &global_cols,
-                               const size_type            i,
-                               const size_type            j,
-                               const size_type            loc_row,
-                               const FullMatrix<double> &local_matrix)
+  double resolve_matrix_entry (const GlobalRowsFromLocal   &global_rows,
+                               const GlobalRowsFromLocal   &global_cols,
+                               const size_type             i,
+                               const size_type             j,
+                               const size_type             loc_row,
+                               const FullMatrix<LocalType> &local_matrix)
   {
     const size_type loc_col = global_cols.local_row(j);
-    double col_val;
+    LocalType col_val;
 
     // case 1: row has direct contribution in local matrix. decide whether col
     // has a direct contribution. if not, set the value to zero.
@@ -1886,8 +1883,8 @@ namespace internals
     // the direct and indirect references in the given column.
     for (size_type q=0; q<global_rows.size(i); ++q)
       {
-        double add_this = (loc_col != numbers::invalid_size_type)
-                          ? local_matrix(global_rows.local_row(i,q), loc_col) : 0;
+	LocalType add_this = (loc_col != numbers::invalid_size_type)
+	                      ? local_matrix(global_rows.local_row(i,q), loc_col) : 0;
 
         for (size_type p=0; p<global_cols.size(j); ++p)
           add_this += (local_matrix(global_rows.local_row(i,q),
@@ -1904,17 +1901,17 @@ namespace internals
   // computes all entries that need to be written into global_rows[i]. Lists
   // the resulting values in val_ptr, and the corresponding column indices in
   // col_ptr.
-  template <typename number>
+  template <typename number, typename LocalType>
   inline
   void
-  resolve_matrix_row (const GlobalRowsFromLocal &global_rows,
-                      const GlobalRowsFromLocal &global_cols,
-                      const size_type            i,
-                      const size_type            column_start,
-                      const size_type            column_end,
-                      const FullMatrix<double>  &local_matrix,
-                      size_type                *&col_ptr,
-                      number                   *&val_ptr)
+  resolve_matrix_row (const GlobalRowsFromLocal   &global_rows,
+                      const GlobalRowsFromLocal   &global_cols,
+                      const size_type              i,
+                      const size_type              column_start,
+                      const size_type              column_end,
+                      const FullMatrix<LocalType> &local_matrix,
+                      size_type                   *&col_ptr,
+                      number                      *&val_ptr)
   {
     if (column_end == column_start)
       return;
@@ -1929,14 +1926,14 @@ namespace internals
         global_cols.have_indirect_rows() == false)
       {
         AssertIndexRange(loc_row, local_matrix.m());
-        const double *matrix_ptr = &local_matrix(loc_row, 0);
+        const LocalType *matrix_ptr = &local_matrix(loc_row, 0);
 
         for (size_type j=column_start; j<column_end; ++j)
           {
             const size_type loc_col = global_cols.local_row(j);
             AssertIndexRange(loc_col, local_matrix.n());
-            const double col_val = matrix_ptr[loc_col];
-            if (col_val != 0.)
+            const LocalType col_val = matrix_ptr[loc_col];
+            if (col_val != LocalType ())
               {
                 *val_ptr++ = static_cast<number> (col_val);
                 *col_ptr++ = global_cols.global_row(j);
@@ -1950,12 +1947,12 @@ namespace internals
       {
         for (size_type j=column_start; j<column_end; ++j)
           {
-            double col_val = resolve_matrix_entry (global_rows, global_cols, i, j,
-                                                   loc_row, local_matrix);
+	    LocalType col_val = resolve_matrix_entry (global_rows, global_cols, i, j,
+						      loc_row, local_matrix);
 
             // if we got some nontrivial value, append it to the array of
             // values.
-            if (col_val != 0.)
+            if (col_val != LocalType ())
               {
                 *val_ptr++ = static_cast<number> (col_val);
                 *col_ptr++ = global_cols.global_row(j);
@@ -1970,14 +1967,14 @@ namespace internals
   // SparseMatrix<number>.
   namespace dealiiSparseMatrix
   {
-    template <typename SparseMatrixIterator>
+    template <typename SparseMatrixIterator, typename LocalType>
     static inline
-    void add_value (const double          value,
+    void add_value (const LocalType       value,
                     const size_type       row,
                     const size_type       column,
                     SparseMatrixIterator &matrix_values)
     {
-      if (value != 0.)
+      if (value != LocalType ())
         {
           while (matrix_values->column() < column)
             ++matrix_values;
@@ -1992,15 +1989,15 @@ namespace internals
   // similar as before, now with shortcut for deal.II sparse matrices. this
   // lets us avoid using extra arrays, and does all the operations just in
   // place, i.e., in the respective matrix row
-  template <typename number>
+  template <typename number, typename LocalType>
   inline
   void
-  resolve_matrix_row (const GlobalRowsFromLocal &global_rows,
-                      const size_type            i,
-                      const size_type            column_start,
-                      const size_type            column_end,
-                      const FullMatrix<double>  &local_matrix,
-                      SparseMatrix<number>      *sparse_matrix)
+  resolve_matrix_row (const GlobalRowsFromLocal   &global_rows,
+                      const size_type              i,
+                      const size_type              column_start,
+                      const size_type              column_end,
+                      const FullMatrix<LocalType> &local_matrix,
+                      SparseMatrix<number>        *sparse_matrix)
   {
     if (column_end == column_start)
       return;
@@ -2027,12 +2024,12 @@ namespace internals
         if (global_rows.have_indirect_rows() == false)
           {
             AssertIndexRange (loc_row, local_matrix.m());
-            const double *matrix_ptr = &local_matrix(loc_row, 0);
+            const LocalType *matrix_ptr = &local_matrix(loc_row, 0);
 
             for (size_type j=column_start; j<column_end; ++j)
               {
                 const size_type loc_col = global_rows.local_row(j);
-                const double col_val = matrix_ptr[loc_col];
+                const LocalType col_val = matrix_ptr[loc_col];
                 dealiiSparseMatrix::add_value (col_val, row,
                                                global_rows.global_row(j),
                                                matrix_values);
@@ -2042,8 +2039,8 @@ namespace internals
           {
             for (size_type j=column_start; j<column_end; ++j)
               {
-                double col_val = resolve_matrix_entry (global_rows, global_rows, i, j,
-                                                       loc_row, local_matrix);
+		LocalType col_val = resolve_matrix_entry (global_rows, global_rows, i, j,
+							  loc_row, local_matrix);
                 dealiiSparseMatrix::add_value (col_val, row,
                                                global_rows.global_row(j),
                                                matrix_values);
@@ -2056,13 +2053,13 @@ namespace internals
         if (global_rows.have_indirect_rows() == false)
           {
             AssertIndexRange (loc_row, local_matrix.m());
-            const double *matrix_ptr = &local_matrix(loc_row, 0);
+            const LocalType *matrix_ptr = &local_matrix(loc_row, 0);
 
             sparse_matrix->begin(row)->value() += matrix_ptr[loc_row];
             for (size_type j=column_start; j<i; ++j)
               {
                 const size_type loc_col = global_rows.local_row(j);
-                const double col_val = matrix_ptr[loc_col];
+                const LocalType col_val = matrix_ptr[loc_col];
                 dealiiSparseMatrix::add_value(col_val, row,
                                               global_rows.global_row(j),
                                               matrix_values);
@@ -2070,7 +2067,7 @@ namespace internals
             for (size_type j=i+1; j<column_end; ++j)
               {
                 const size_type loc_col = global_rows.local_row(j);
-                const double col_val = matrix_ptr[loc_col];
+                const LocalType col_val = matrix_ptr[loc_col];
                 dealiiSparseMatrix::add_value(col_val, row,
                                               global_rows.global_row(j),
                                               matrix_values);
@@ -2083,7 +2080,7 @@ namespace internals
                                     loc_row, local_matrix);
             for (size_type j=column_start; j<i; ++j)
               {
-                double col_val = resolve_matrix_entry (global_rows, global_rows, i, j,
+                LocalType col_val = resolve_matrix_entry (global_rows, global_rows, i, j,
                                                        loc_row, local_matrix);
                 dealiiSparseMatrix::add_value (col_val, row,
                                                global_rows.global_row(j),
@@ -2091,7 +2088,7 @@ namespace internals
               }
             for (size_type j=i+1; j<column_end; ++j)
               {
-                double col_val = resolve_matrix_entry (global_rows, global_rows, i, j,
+                LocalType col_val = resolve_matrix_entry (global_rows, global_rows, i, j,
                                                        loc_row, local_matrix);
                 dealiiSparseMatrix::add_value (col_val, row,
                                                global_rows.global_row(j),
@@ -2104,12 +2101,12 @@ namespace internals
       {
         ++matrix_values; // jump over diagonal element
         AssertIndexRange (loc_row, local_matrix.m());
-        const double *matrix_ptr = &local_matrix(loc_row, 0);
+        const LocalType *matrix_ptr = &local_matrix(loc_row, 0);
 
         for (size_type j=column_start; j<column_end; ++j)
           {
             const size_type loc_col = global_rows.local_row(j);
-            const double col_val = matrix_ptr[loc_col];
+            const LocalType col_val = matrix_ptr[loc_col];
             if (row==global_rows.global_row(j))
               sparse_matrix->begin(row)->value() += col_val;
             else
@@ -2123,7 +2120,7 @@ namespace internals
         ++matrix_values; // jump over diagonal element
         for (size_type j=column_start; j<column_end; ++j)
           {
-            double col_val = resolve_matrix_entry (global_rows, global_rows, i,
+	    LocalType col_val = resolve_matrix_entry (global_rows, global_rows, i,
                                                    j, loc_row, local_matrix);
             if (row==global_rows.global_row(j))
               sparse_matrix->begin(row)->value() += col_val;
@@ -2235,7 +2232,7 @@ add_this_index:
   inline void
   set_matrix_diagonals (const internals::GlobalRowsFromLocal &global_rows,
                         const std::vector<size_type>         &local_dof_indices,
-                        const FullMatrix<double>             &local_matrix,
+                        const FullMatrix<LocalType>          &local_matrix,
                         const ConstraintMatrix               &constraints,
                         MatrixType                           &global_matrix,
                         VectorType                           &global_vector,
@@ -2243,18 +2240,18 @@ add_this_index:
   {
     if (global_rows.n_constraints() > 0)
       {
-        double average_diagonal = 0;
+	LocalType average_diagonal = 0;
         for (size_type i=0; i<local_matrix.m(); ++i)
-          average_diagonal += std::fabs (local_matrix(i,i));
+          average_diagonal += std::abs (local_matrix(i,i)); // @whattodo: Is it ok to do abs over complex?
         average_diagonal /= static_cast<double>(local_matrix.m());
 
         for (size_type i=0; i<global_rows.n_constraints(); i++)
           {
-            const size_type local_row = global_rows.constraint_origin(i);
+            const size_type local_row  = global_rows.constraint_origin(i);
             const size_type global_row = local_dof_indices[local_row];
             const typename MatrixType::value_type new_diagonal
-              = (std::fabs(local_matrix(local_row,local_row)) != 0 ?
-                 std::fabs(local_matrix(local_row,local_row)) : average_diagonal);
+              = (std::abs(local_matrix(local_row,local_row)) != 0 ?
+                 std::abs(local_matrix(local_row,local_row)) : average_diagonal);
             global_matrix.add(global_row, global_row, new_diagonal);
 
             // if the use_inhomogeneities_for_rhs flag is set to true, the
@@ -2262,11 +2259,7 @@ add_this_index:
             // of fill in a zero in the ith components with an inhomogeneity,
             // we set those to: inhomogeneity(i)*global_matrix (i,i).
             if (use_inhomogeneities_for_rhs == true)
-	      {
-		/* @whattodo */
-		/* global_vector(global_row) += constraints.get_inhomogeneity(global_row) * new_diagonal; */
-		Assert ((false), ExcMessage ("This function is corrupt: @whattodo"));
-	      }
+	      global_vector(global_row) += constraints.get_inhomogeneity(global_row) * new_diagonal; 
           }
       }
   }
@@ -2447,13 +2440,13 @@ double
 ConstraintMatrix::
 resolve_vector_entry (const size_type                       i,
                       const internals::GlobalRowsFromLocal &global_rows,
-                      const Vector<double>                 &local_vector,
+                      const Vector<LocalType>              &local_vector,
                       const std::vector<size_type>         &local_dof_indices,
-                      const FullMatrix<double>             &local_matrix) const
+                      const FullMatrix<LocalType>          &local_matrix) const
 {
   const size_type loc_row = global_rows.local_row(i);
   const size_type n_inhomogeneous_rows = global_rows.n_inhomogeneities();
-  double val = 0;
+  LocalType val = 0;
   // has a direct contribution from some local entry. If we have inhomogeneous
   // constraints, compute the contribution of the inhomogeneity in the current
   // row.
@@ -2471,7 +2464,7 @@ resolve_vector_entry (const size_type                       i,
   for (size_type q=0; q<global_rows.size(i); ++q)
     {
       const size_type loc_row_q = global_rows.local_row(i,q);
-      double add_this = local_vector (loc_row_q);
+      LocalType add_this = local_vector (loc_row_q);
       for (size_type k=0; k<n_inhomogeneous_rows; ++k)
         add_this -= (lines[lines_cache[calculate_line_index
                                        (local_dof_indices
@@ -2489,8 +2482,8 @@ resolve_vector_entry (const size_type                       i,
 template <typename MatrixType, typename VectorType>
 void
 ConstraintMatrix::distribute_local_to_global (
-  const FullMatrix<double>        &local_matrix,
-  const Vector<double>            &local_vector,
+  const FullMatrix<LocalType>     &local_matrix,
+  const Vector<LocalType>         &local_vector,
   const std::vector<size_type>    &local_dof_indices,
   MatrixType                      &global_matrix,
   VectorType                      &global_vector,
@@ -2576,12 +2569,12 @@ ConstraintMatrix::distribute_local_to_global (
       // hand side.
       if (use_vectors == true)
         {
-          const double val = resolve_vector_entry (i, global_rows,
-                                                   local_vector,
-                                                   local_dof_indices,
-                                                   local_matrix);
+          const LocalType val = resolve_vector_entry (i, global_rows,
+						      local_vector,
+						      local_dof_indices,
+						      local_matrix);
 
-          if (val != 0)
+          if (val != LocalType ())
             global_vector(row) += static_cast<typename VectorType::value_type>(val);
         }
     }
@@ -2656,8 +2649,8 @@ ConstraintMatrix::distribute_local_to_global (
 template <typename MatrixType, typename VectorType>
 void
 ConstraintMatrix::
-distribute_local_to_global (const FullMatrix<double>     &local_matrix,
-                            const Vector<double>         &local_vector,
+distribute_local_to_global (const FullMatrix<LocalType>  &local_matrix,
+                            const Vector<LocalType>      &local_vector,
                             const std::vector<size_type> &local_dof_indices,
                             MatrixType                   &global_matrix,
                             VectorType                   &global_vector,
@@ -2754,12 +2747,12 @@ distribute_local_to_global (const FullMatrix<double>     &local_matrix,
 
           if (use_vectors == true)
             {
-              const double val = resolve_vector_entry (i, global_rows,
-                                                       local_vector,
-                                                       local_dof_indices,
-                                                       local_matrix);
+              const LocalType val = resolve_vector_entry (i, global_rows,
+							  local_vector,
+							  local_dof_indices,
+							  local_matrix);
 
-              if (val != 0)
+              if (val != LocalType ())
                 global_vector(global_indices[i]) +=
                   static_cast<typename VectorType::value_type>(val);
             }
