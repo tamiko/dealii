@@ -15,28 +15,38 @@
 // ---------------------------------------------------------------------
 
 
-for (VEC : REAL_SERIAL_VECTORS)
+for (VEC : SERIAL_VECTORS_REAL; S: REAL_SCALARS)
   {
     template <int dim, int spacedim>
     void
     FEValuesBase<dim,spacedim>::TriaCellIterator::
-    get_interpolated_dof_values (const VEC      &,
-    			         Vector<double> &) const
+    get_interpolated_dof_values (const VEC &,
+    			         Vector<S> &) const
     \{
       Assert (false, ExcMessage (message_string));
     \}
   }
-
-
-for (VEC : COMPLEX_SERIAL_VECTORS)
+  
+for (VEC : SERIAL_VECTORS_COMPLEX)
   {
     template <int dim, int spacedim>
     void
     FEValuesBase<dim,spacedim>::TriaCellIterator::
-    get_interpolated_dof_values (const VEC                     &,
+    get_interpolated_dof_values (const VEC &,
     			         Vector<std::complex<double> > &) const
     \{
       Assert (false, ExcMessage (message_string));
     \}
-  }
-
+  }  
+  
+for (S: SCALARS)
+  {
+   template <int dim, int spacedim>
+   void
+   FEValuesBase<dim,spacedim>::TriaCellIterator::
+   get_interpolated_dof_values (const IndexSet &,
+                                Vector<S> &) const
+   \{
+      Assert (false, ExcMessage (message_string));
+   \}
+  }  

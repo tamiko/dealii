@@ -1709,10 +1709,10 @@ public:
    * Since this function allows for fairly general combinations of argument
    * sizes, be aware that the checks on the arguments may not detect errors.
    */
-  template <class InputVector>
+  template <class InputVector, typename number>
   void get_function_values (const InputVector &fe_function,
                             const VectorSlice<const std::vector<types::global_dof_index> > &indices,
-                            VectorSlice<std::vector<std::vector<double> > > values,
+                            VectorSlice<std::vector<std::vector<number> > > values,
                             const bool quadrature_points_fastest) const;
 
   //@}
@@ -1751,9 +1751,9 @@ public:
    * type IndexSet, then the function is represented as one that is either
    * zero or one, depending on whether a DoF index is in the set or not.
    */
-  template <class InputVector>
+  template <class InputVector, typename number>
   void get_function_gradients (const InputVector      &fe_function,
-                               std::vector<Tensor<1,spacedim> > &gradients) const;
+                               std::vector<Tensor<1,spacedim,number> > &gradients) const;
 
   /**
    * This function does the same as the other get_function_gradients(), but
@@ -1769,27 +1769,27 @@ public:
    * derivative in coordinate direction $d$ of the $c$th vector component of
    * the vector field at quadrature point $q$ of the current cell.
    */
-  template <class InputVector>
+  template <class InputVector, typename number>
   void get_function_gradients (const InputVector               &fe_function,
-                               std::vector<std::vector<Tensor<1,spacedim> > > &gradients) const;
+                               std::vector<std::vector<Tensor<1,spacedim,number> > > &gradients) const;
 
   /**
    * Function gradient access with more flexibility. see get_function_values()
    * with corresponding arguments.
    */
-  template <class InputVector>
+  template <class InputVector, typename number>
   void get_function_gradients (const InputVector &fe_function,
                                const VectorSlice<const std::vector<types::global_dof_index> > &indices,
-                               std::vector<Tensor<1,spacedim> > &gradients) const;
+                               std::vector<Tensor<1,spacedim,number> > &gradients) const;
 
   /**
    * Function gradient access with more flexibility. see get_function_values()
    * with corresponding arguments.
    */
-  template <class InputVector>
+  template <class InputVector, typename number>
   void get_function_gradients (const InputVector &fe_function,
                                const VectorSlice<const std::vector<types::global_dof_index> > &indices,
-                               VectorSlice<std::vector<std::vector<Tensor<1,spacedim> > > > gradients,
+                               VectorSlice<std::vector<std::vector<Tensor<1,spacedim,number> > > > gradients,
                                bool quadrature_points_fastest = false) const;
 
   /**
@@ -1860,10 +1860,10 @@ public:
    * type IndexSet, then the function is represented as one that is either
    * zero or one, depending on whether a DoF index is in the set or not.
    */
-  template <class InputVector>
+  template <class InputVector, typename number>
   void
   get_function_hessians (const InputVector &fe_function,
-                         std::vector<Tensor<2,spacedim> > &hessians) const;
+                         std::vector<Tensor<2,spacedim,number> > &hessians) const;
 
   /**
    * This function does the same as the other get_function_hessians(), but
@@ -1880,31 +1880,31 @@ public:
    * component of the vector field at quadrature point $q$ of the current
    * cell.
    */
-  template <class InputVector>
+  template <class InputVector, typename number>
   void
   get_function_hessians (const InputVector      &fe_function,
-                         std::vector<std::vector<Tensor<2,spacedim> > > &hessians,
+                         std::vector<std::vector<Tensor<2,spacedim,number> > > &hessians,
                          bool quadrature_points_fastest = false) const;
 
   /**
    * Access to the second derivatives of a function with more flexibility. see
    * get_function_values() with corresponding arguments.
    */
-  template <class InputVector>
+  template <class InputVector, typename number>
   void get_function_hessians (
     const InputVector &fe_function,
     const VectorSlice<const std::vector<types::global_dof_index> > &indices,
-    std::vector<Tensor<2,spacedim> > &hessians) const;
+    std::vector<Tensor<2,spacedim,number> > &hessians) const;
 
   /**
    * Access to the second derivatives of a function with more flexibility. see
    * get_function_values() with corresponding arguments.
    */
-  template <class InputVector>
+  template <class InputVector, typename number>
   void get_function_hessians (
     const InputVector &fe_function,
     const VectorSlice<const std::vector<types::global_dof_index> > &indices,
-    VectorSlice<std::vector<std::vector<Tensor<2,spacedim> > > > hessians,
+    VectorSlice<std::vector<std::vector<Tensor<2,spacedim,number> > > > hessians,
     bool quadrature_points_fastest = false) const;
 
   /**

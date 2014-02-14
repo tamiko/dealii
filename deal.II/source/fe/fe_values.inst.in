@@ -64,7 +64,7 @@ for (dof_handler : DOFHANDLER_TEMPLATES; deal_II_dimension : DIMENSIONS; deal_II
 
 
 
-for (VEC : REAL_SERIAL_VECTORS; deal_II_dimension : DIMENSIONS; deal_II_space_dimension :  SPACE_DIMENSIONS)
+for (VEC : SERIAL_VECTORS_REAL; deal_II_dimension : DIMENSIONS; deal_II_space_dimension :  SPACE_DIMENSIONS)
   {
 #if deal_II_dimension <= deal_II_space_dimension
 #if (deal_II_space_dimension == DIM_A) || (deal_II_space_dimension == DIM_B)
@@ -137,7 +137,7 @@ for (VEC : REAL_SERIAL_VECTORS; deal_II_dimension : DIMENSIONS; deal_II_space_di
 
 
 
-for (VEC : REAL_SERIAL_VECTORS; deal_II_dimension : DIMENSIONS; deal_II_space_dimension :  SPACE_DIMENSIONS)
+for (VEC : SERIAL_VECTORS_REAL; deal_II_dimension : DIMENSIONS; deal_II_space_dimension :  SPACE_DIMENSIONS)
   {
 #if deal_II_dimension <= deal_II_space_dimension
 #if (deal_II_space_dimension == DIM_A) || (deal_II_space_dimension == DIM_B)
@@ -254,6 +254,17 @@ for (VEC : REAL_SERIAL_VECTORS; deal_II_dimension : DIMENSIONS; deal_II_space_di
 #endif
   }
 
+for (VEC : SERIAL_VECTORS_COMPLEX; deal_II_dimension : DIMENSIONS; deal_II_space_dimension :  SPACE_DIMENSIONS)
+  {
+#if deal_II_dimension <= deal_II_space_dimension
+#if (deal_II_space_dimension == DIM_A) || (deal_II_space_dimension == DIM_B)
+
+//    template
+//      void FEValuesBase<deal_II_dimension,deal_II_space_dimension>::get_function_values<VEC>
+//      (const VEC&, std::vector<std::complex<double> >&) const;
+#endif
+#endif      
+  }
 
 // instantiations for VEC=IndexSet
 

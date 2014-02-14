@@ -15,29 +15,49 @@
 // ---------------------------------------------------------------------
 
 
-for (VEC : REAL_SERIAL_VECTORS)
+for (VEC : SERIAL_VECTORS_REAL; S: REAL_SCALARS)
   {
     template <int dim, int spacedim>
     template <typename CI>
     void
     FEValuesBase<dim,spacedim>::CellIterator<CI>::
     get_interpolated_dof_values (const VEC      &in,
-			         Vector<double> &out) const
+			         Vector<S> &out) const
     \{
       cell->get_interpolated_dof_values (in, out);
     \}
   }
-
-for (VEC : COMPLEX_SERIAL_VECTORS)
+  
+for (VEC : SERIAL_VECTORS_COMPLEX)
   {
     template <int dim, int spacedim>
     template <typename CI>
     void
     FEValuesBase<dim,spacedim>::CellIterator<CI>::
-    get_interpolated_dof_values (const VEC                     &in,
+    get_interpolated_dof_values (const VEC      &in,
 			         Vector<std::complex<double> > &out) const
     \{
       cell->get_interpolated_dof_values (in, out);
     \}
-  }
+  }  
 
+  
+ for (S: SCALARS)
+  {
+  
+  template <int dim, int spacedim>
+  template <typename CI>
+  void
+  FEValuesBase<dim,spacedim>::CellIterator<CI>::
+  get_interpolated_dof_values (const IndexSet &in,
+                               Vector<S> &out) const
+  \{
+    Assert (cell->has_children() == false, ExcNotImplemented());
+
+    std::vector<types::global_dof_index> dof_indices (cell->get_fe().dofs_per_cell);
+    cell->get_dof_indices (dof_indices);
+
+    for (unsigned int i=0; i<cell->get_fe().dofs_per_cell; ++i)
+      out[i] = (in.is_element (dof_indices[i]) ? 1 : 0);
+  \}
+  } 
