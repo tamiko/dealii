@@ -957,13 +957,13 @@ public:
    * Same as above for complex.
    */
   template <typename MatrixType, typename VectorType>
-  void
+    void
     distribute_local_to_global (const FullMatrix<std::complex<double> > &local_matrix,
-                              const Vector<double>                      &local_vector,
-                              const std::vector<size_type>              &local_dof_indices,
-                              MatrixType                                &global_matrix,
-                              VectorType                                &global_vector,
-                              bool                                      use_inhomogeneities_for_rhs = false) const;
+				const Vector<std::complex<double> >     &local_vector,
+				const std::vector<size_type>            &local_dof_indices,
+				MatrixType                              &global_matrix,
+				VectorType                              &global_vector,
+				bool                                    use_inhomogeneities_for_rhs = false) const;
 
   /**
    * Do a similar operation as the distribute_local_to_global() function that
@@ -1781,15 +1781,15 @@ distribute_local_to_global (const FullMatrix<double>     &local_matrix,
 
 // Complex case (maybe can be merged with the function above)
 template <typename MatrixType, typename VectorType>
-inline
-void
-ConstraintMatrix::
+  inline
+  void
+  ConstraintMatrix::
   distribute_local_to_global (const FullMatrix<std::complex<double> > &local_matrix,
 			      const Vector<std::complex<double> >     &local_vector,
-                            const std::vector<size_type>              &local_dof_indices,
-                            MatrixType                                &global_matrix,
-                            VectorType                                &global_vector,
-                            bool                                      use_inhomogeneities_for_rhs) const
+			      const std::vector<size_type>            &local_dof_indices,
+			      MatrixType                              &global_matrix,
+			      VectorType                              &global_vector,
+			      bool                                     use_inhomogeneities_for_rhs) const
 {
   // enter the internal function with the respective block information set,
   // the actual implementation follows in the cm.templates.h file.
