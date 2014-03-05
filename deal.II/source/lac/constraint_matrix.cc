@@ -1761,11 +1761,14 @@ ConstraintMatrix::resolve_indices (std::vector<types::global_dof_index> &indices
                                            const FullMatrix<double>        &) const
 
 #ifdef DEAL_II_WITH_PETSC
+#ifndef PETSC_USE_COMPLEX
 VECTOR_FUNCTIONS(PETScWrappers::MPI::Vector);
 VECTOR_FUNCTIONS(PETScWrappers::MPI::BlockVector);
+#else
 // if PETSC_COMPLEX @whattodo check this works
-VECTOR_FUNCTIONS_COMPLEX(PETScWrappers::MPI::Vector);
-VECTOR_FUNCTIONS_COMPLEX(PETScWrappers::MPI::BlockVector);
+COMPLEX_VECTOR_FUNCTIONS(PETScWrappers::MPI::Vector);
+COMPLEX_VECTOR_FUNCTIONS(PETScWrappers::MPI::BlockVector);
+#endif
 #endif
 
 #ifdef DEAL_II_WITH_TRILINOS

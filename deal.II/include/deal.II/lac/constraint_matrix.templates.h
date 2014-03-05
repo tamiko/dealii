@@ -1851,8 +1851,9 @@ namespace internals
   // resolves constraints of one column at the innermost loop. goes through
   // the origin of each global entry and finds out which data we need to
   // collect.
+  template<typename LocalType>
   static inline
-  double resolve_matrix_entry (const GlobalRowsFromLocal   &global_rows,
+  LocalType resolve_matrix_entry (const GlobalRowsFromLocal   &global_rows,
                                const GlobalRowsFromLocal   &global_cols,
                                const size_type             i,
                                const size_type             j,
@@ -2228,7 +2229,7 @@ add_this_index:
   // degrees of freedom to which this dof is constrained are also constrained
   // (the usual case with hanging nodes in 3d). however, in the line below, we
   // do actually do something with this dof
-  template <typename MatrixType, typename VectorType>
+  template <typename MatrixType, typename VectorType, typename LocalType>
   inline void
   set_matrix_diagonals (const internals::GlobalRowsFromLocal &global_rows,
                         const std::vector<size_type>         &local_dof_indices,
@@ -2435,8 +2436,9 @@ make_sorted_row_list (const std::vector<size_type> &local_dof_indices,
 
 
 // Resolve the constraints from the vector and apply inhomogeneities.
+template< typename LocalType>
 inline
-double
+LocalType
 ConstraintMatrix::
 resolve_vector_entry (const size_type                       i,
                       const internals::GlobalRowsFromLocal &global_rows,
@@ -2479,7 +2481,7 @@ resolve_vector_entry (const size_type                       i,
 
 // internal implementation for distribute_local_to_global for standard
 // (non-block) matrices
-template <typename MatrixType, typename VectorType>
+template <typename MatrixType, typename VectorType, typename LocalType>
 void
 ConstraintMatrix::distribute_local_to_global (
   const FullMatrix<LocalType>     &local_matrix,
@@ -2586,7 +2588,7 @@ ConstraintMatrix::distribute_local_to_global (
 
 
 
-template <typename MatrixType>
+template <typename MatrixType, typename LocalType>
 void
 ConstraintMatrix::distribute_local_to_global (
   const FullMatrix<LocalType>  &local_matrix,
@@ -2646,7 +2648,7 @@ ConstraintMatrix::distribute_local_to_global (
 
 // similar function as above, but now specialized for block matrices. See the
 // other function for additional comments.
-template <typename MatrixType, typename VectorType>
+template <typename MatrixType, typename VectorType, typename LocalType>
 void
 ConstraintMatrix::
 distribute_local_to_global (const FullMatrix<LocalType>  &local_matrix,

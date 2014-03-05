@@ -814,7 +814,7 @@ public:
    */
   template <typename VectorType, typename LocalType>
   void
-  distribute_local_to_global (const Vector<double>         &local_vector,
+  distribute_local_to_global (const Vector<LocalType>      &local_vector,
                               const std::vector<size_type> &local_dof_indices,
                               VectorType                   &global_vector,
                               const FullMatrix<LocalType>  &local_matrix) const;
@@ -1752,7 +1752,7 @@ distribute_local_to_global (const FullMatrix<std::complex<double> > &local_matri
 {
   // create a dummy and hand on to the function actually implementing this
   // feature in the cm.templates.h file.
-  Vector<double> dummy(0);
+  Vector<std::complex<double> > dummy(0);
   distribute_local_to_global (local_matrix, dummy, local_dof_indices,
                               global_matrix, dummy, false,
                               dealii::internal::bool2type<IsBlockMatrix<MatrixType>::value>());
