@@ -1000,7 +1000,7 @@ namespace FEValuesViews
     template <int dim, int spacedim>
     void
     do_function_values (const ::dealii::Vector<double> &dof_values,
-                        const Table<2,double>          &shape_values,
+                        const dealii::Table<2,double>          &shape_values,
                         const std::vector<typename SymmetricTensor<2,dim,spacedim>::ShapeFunctionData> &shape_function_data,
                         std::vector<dealii::SymmetricTensor<2,spacedim> > &values)
     {
@@ -1142,7 +1142,7 @@ namespace FEValuesViews
     template <int dim, int spacedim>
     void
     do_function_values (const ::dealii::Vector<double> &dof_values,
-                        const Table<2,double>          &shape_values,
+                        const dealii::Table<2,double>          &shape_values,
                         const std::vector<typename Tensor<2,dim,spacedim>::ShapeFunctionData> &shape_function_data,
                         std::vector<dealii::Tensor<2,spacedim> > &values)
     {
@@ -2201,7 +2201,7 @@ namespace internal
   template <typename Number, typename Number2>
   void
   do_function_values (const Number2         *dof_values_ptr,
-                      const Table<2,double> &shape_values,
+                      const dealii::Table<2,double> &shape_values,
                       std::vector<Number>   &values)
   {
     // scalar finite elements, so shape_values.size() == dofs_per_cell
@@ -2235,7 +2235,7 @@ namespace internal
   template <int dim, int spacedim, typename VectorType, typename Number>
   void
   do_function_values (const Number                      *dof_values_ptr,
-                      const Table<2,double>             &shape_values,
+                      const dealii::Table<2,double>             &shape_values,
                       const FiniteElement<dim,spacedim> &fe,
                       const std::vector<unsigned int> &shape_function_to_row_table,
                       VectorSlice<std::vector<VectorType> > &values,
