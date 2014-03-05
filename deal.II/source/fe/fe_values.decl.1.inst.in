@@ -19,7 +19,7 @@
 // Declarations of member functions of FEValuesBase::CellIteratorBase
 // and derived classes
 
-for (VEC : SERIAL_VECTORS_REAL; S: REAL_SCALARS)
+for (VEC : REAL_SERIAL_VECTORS; S: REAL_SCALARS)
   {
 				      /// Call
 				      /// @p get_interpolated_dof_values
@@ -31,7 +31,7 @@ for (VEC : SERIAL_VECTORS_REAL; S: REAL_SCALARS)
 				 Vector<S> &out) const = 0;
   }
   
-for (VEC : SERIAL_VECTORS_COMPLEX)
+for (VEC : COMPLEX_SERIAL_VECTORS)
   {
 				      /// Call
 				      /// @p get_interpolated_dof_values

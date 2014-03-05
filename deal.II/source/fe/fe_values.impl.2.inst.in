@@ -15,7 +15,7 @@
 // ---------------------------------------------------------------------
 
 
-for (VEC : SERIAL_VECTORS_REAL; S: REAL_SCALARS)
+for (VEC : REAL_SERIAL_VECTORS; S: REAL_SCALARS)
   {
     template <int dim, int spacedim>
     void
@@ -27,7 +27,7 @@ for (VEC : SERIAL_VECTORS_REAL; S: REAL_SCALARS)
     \}
   }
   
-for (VEC : SERIAL_VECTORS_COMPLEX)
+for (VEC : COMPLEX_SERIAL_VECTORS)
   {
     template <int dim, int spacedim>
     void
