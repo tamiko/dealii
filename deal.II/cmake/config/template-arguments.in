@@ -4,6 +4,11 @@ COMPLEX_SCALARS := { std::complex<double>;
                      std::complex<float>;
                      std::complex<long double> }
 
+SCALARS    := { double; float; long double ; 
+                     std::complex<double>;
+                     std::complex<float>;
+                     std::complex<long double> }                     
+
 DERIVATIVE_TENSORS := { double;
 			Tensor<1,deal_II_dimension>;
 			Tensor<2,deal_II_dimension> }
@@ -83,6 +88,12 @@ EXTERNAL_PARALLEL_VECTORS := { @DEAL_II_EXPAND_TRILINOS_MPI_VECTOR@;
 REAL_EXTERNAL_SEQUENTIAL_VECTORS := { @DEAL_II_EXPAND_TRILINOS_VECTOR@;
                                       @DEAL_II_EXPAND_TRILINOS_BLOCKVECTOR@;
                                     }
+
+COMPLEX_EXTERNAL_SEQUENTIAL_VECTORS := { 
+                                 @DEAL_II_EXPAND_PETSC_VECTOR@;
+                                 @DEAL_II_EXPAND_PETSC_BLOCKVECTOR@
+                               }                                                            
+                                    
 
 COMPLEX_EXTERNAL_PARALLEL_VECTORS := { @DEAL_II_EXPAND_TRILINOS_MPI_VECTOR@;
                                        @DEAL_II_EXPAND_TRILINOS_MPI_BLOCKVECTOR@;
