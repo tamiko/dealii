@@ -988,7 +988,7 @@ namespace
     // orientation
     //
     // while we're at it, also copy the neighborship information between cells
-    typename Triangulation<dim>::active_cell_iterator
+    typename Triangulation<dim, spacedim>::active_cell_iterator
     cell = triangulation.begin_active(),
     endc = triangulation.end();
     for (; cell != endc; ++cell)
@@ -3897,7 +3897,7 @@ namespace parallel
       for (i = 0; i < l; i++)
         {
           typename dealii::Triangulation<dim,spacedim>::cell_iterator cell (triangulation, i, dealii_index);
-          child_id = internal::p4est::functions<dim>::quadrant_ancestor_id (&quad, i + 1);
+          child_id = dealii::internal::p4est::functions<dim>::quadrant_ancestor_id (&quad, i + 1);
           Assert (cell->has_children (), ExcMessage ("p4est quadrant does not correspond to a cell!"));
           dealii_index = cell->child_index(child_id);
         }
