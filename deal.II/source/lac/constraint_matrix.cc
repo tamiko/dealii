@@ -1765,7 +1765,6 @@ ConstraintMatrix::resolve_indices (std::vector<types::global_dof_index> &indices
 VECTOR_FUNCTIONS(PETScWrappers::MPI::Vector);
 VECTOR_FUNCTIONS(PETScWrappers::MPI::BlockVector);
 #else
-// if PETSC_COMPLEX @whattodo check this works
 COMPLEX_VECTOR_FUNCTIONS(PETScWrappers::MPI::Vector);
 COMPLEX_VECTOR_FUNCTIONS(PETScWrappers::MPI::BlockVector);
 #endif
@@ -1876,7 +1875,16 @@ MATRIX_VECTOR_FUNCTIONS(ChunkSparseMatrix<float>, Vector<float>);
 // BLOCK_MATRIX_VECTOR_FUNCTIONS(BlockSparseMatrixEZ<float>,  Vector<float>);
 
 #ifdef DEAL_II_WITH_PETSC
-// #if PETSC_COMPLEX @whattodo: Implement this and check
+#ifndef PETSC_USE_COMPLEX
+MATRIX_FUNCTIONS(PETScWrappers::SparseMatrix);
+BLOCK_MATRIX_FUNCTIONS(PETScWrappers::BlockSparseMatrix);
+MATRIX_FUNCTIONS(PETScWrappers::MPI::SparseMatrix);
+BLOCK_MATRIX_FUNCTIONS(PETScWrappers::MPI::BlockSparseMatrix);
+MATRIX_VECTOR_FUNCTIONS(PETScWrappers::SparseMatrix, PETScWrappers::Vector);
+BLOCK_MATRIX_VECTOR_FUNCTIONS(PETScWrappers::BlockSparseMatrix, PETScWrappers::BlockVector);
+MATRIX_VECTOR_FUNCTIONS(PETScWrappers::MPI::SparseMatrix, PETScWrappers::MPI::Vector);
+BLOCK_MATRIX_VECTOR_FUNCTIONS(PETScWrappers::MPI::BlockSparseMatrix ,PETScWrappers::MPI::BlockVector);
+#else
 COMPLEX_MATRIX_FUNCTIONS(PETScWrappers::SparseMatrix);
 COMPLEX_BLOCK_MATRIX_FUNCTIONS(PETScWrappers::BlockSparseMatrix);
 COMPLEX_MATRIX_FUNCTIONS(PETScWrappers::MPI::SparseMatrix);
@@ -1885,16 +1893,7 @@ COMPLEX_MATRIX_VECTOR_FUNCTIONS(PETScWrappers::SparseMatrix, PETScWrappers::Vect
 COMPLEX_BLOCK_MATRIX_VECTOR_FUNCTIONS(PETScWrappers::BlockSparseMatrix, PETScWrappers::BlockVector);
 COMPLEX_MATRIX_VECTOR_FUNCTIONS(PETScWrappers::MPI::SparseMatrix, PETScWrappers::MPI::Vector);
 COMPLEX_BLOCK_MATRIX_VECTOR_FUNCTIONS(PETScWrappers::MPI::BlockSparseMatrix ,PETScWrappers::MPI::BlockVector);
-// #else
-// MATRIX_FUNCTIONS(PETScWrappers::SparseMatrix);
-// BLOCK_MATRIX_FUNCTIONS(PETScWrappers::BlockSparseMatrix);
-// MATRIX_FUNCTIONS(PETScWrappers::MPI::SparseMatrix);
-// BLOCK_MATRIX_FUNCTIONS(PETScWrappers::MPI::BlockSparseMatrix);
-// MATRIX_VECTOR_FUNCTIONS(PETScWrappers::SparseMatrix, PETScWrappers::Vector);
-// BLOCK_MATRIX_VECTOR_FUNCTIONS(PETScWrappers::BlockSparseMatrix, PETScWrappers::BlockVector);
-// MATRIX_VECTOR_FUNCTIONS(PETScWrappers::MPI::SparseMatrix, PETScWrappers::MPI::Vector);
-// BLOCK_MATRIX_VECTOR_FUNCTIONS(PETScWrappers::MPI::BlockSparseMatrix ,PETScWrappers::MPI::BlockVector);
-// #endif
+#endif
 #endif
 
 #ifdef DEAL_II_WITH_TRILINOS
