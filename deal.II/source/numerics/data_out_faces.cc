@@ -251,7 +251,6 @@ build_one_patch (const FaceDescriptor *cell_and_face,
             = std::distance (this->triangulation->begin_active(),
                              typename Triangulation<dimension,space_dimension>::active_cell_iterator(cell_and_face->first));
 
-	  // @whattodo - this next line does not cause a problem (yet), but probably will one day.
           const double value
             = this->cell_data[dataset]->get_cell_data_value (cell_number);
           for (unsigned int q=0; q<n_q_points; ++q)
