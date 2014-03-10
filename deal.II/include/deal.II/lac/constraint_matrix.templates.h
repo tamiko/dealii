@@ -2243,7 +2243,7 @@ add_this_index:
       {
 	LocalType average_diagonal = 0;
         for (size_type i=0; i<local_matrix.m(); ++i)
-          average_diagonal += std::abs (local_matrix(i,i)); // @whattodo: Is it ok to do abs over complex?
+          average_diagonal += std::abs (local_matrix(i,i));
         average_diagonal /= static_cast<double>(local_matrix.m());
 
         for (size_type i=0; i<global_rows.n_constraints(); i++)
