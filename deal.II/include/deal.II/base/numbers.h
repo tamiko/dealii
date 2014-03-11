@@ -210,12 +210,6 @@ namespace numbers
      */
     static
     real_type abs (const number &x);
-
-    /**
-     * Return true if this number is zero.
-     */
-    static
-    bool is_zero (const number &x);
   };
 
 
@@ -279,12 +273,6 @@ namespace numbers
      */
     static
     real_type abs (const std::complex<number> &x);
-
-    /**
-     * Return true if this number is zero.
-     */
-    static
-    bool is_zero (const std::complex<number> &x);
   };
 
 }
@@ -332,17 +320,6 @@ namespace numbers
 
 
   template <typename number>
-  bool
-  NumberTraits<number>::is_zero (const number &x)
-  {
-    if (x == 0)
-      return true;
-    else
-      return false;
-  }
-
-
-  template <typename number>
   std::complex<number>
   NumberTraits<std::complex<number> >::conjugate (const std::complex<number> &x)
   {
@@ -366,18 +343,6 @@ namespace numbers
   {
     return std::norm (x);
   }
-
-
-  template <typename number>
-  bool
-  NumberTraits<std::complex<number> >::is_zero (const std::complex<number> &x)
-  {
-    if ((std::real (x) == 0) && (std::imag (x) == 0))
-      return true;
-    else
-      return false;
-  }
-
 }
 
 
