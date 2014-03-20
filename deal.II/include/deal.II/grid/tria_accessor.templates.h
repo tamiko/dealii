@@ -39,6 +39,11 @@ namespace parallel
   {
     template <int, int> class Triangulation;
   }
+  
+  namespace shared
+  {
+    template <int, int> class Triangulation;
+  }
 }
 
 
@@ -2982,6 +2987,13 @@ bool
 CellAccessor<dim,spacedim>::is_locally_owned () const
 {
   Assert (this->active(), ExcMessage("is_locally_owned() only works on active cells!"));
+  
+  const parallel::shared::Triangulation<dim,spacedim> *pst
+    = dynamic_cast<const parallel::shared::Triangulation<dim,spacedim> *>(this->tria);
+
+  if (pst != 0)
+    return (this->subdomain_id() == pst->locally_owned_subdomain());
+    
 #ifndef DEAL_II_WITH_P4EST
   return true;
 #else
@@ -3004,6 +3016,12 @@ inline
 bool
 CellAccessor<dim,spacedim>::is_locally_owned_on_level () const
 {
+  const parallel::shared::Triangulation<dim,spacedim> *pst
+    = dynamic_cast<const parallel::shared::Triangulation<dim,spacedim> *>(this->tria);
+
+  if (pst != 0)
+    return (this->level_subdomain_id() == pst->locally_owned_subdomain());
+    
 #ifndef DEAL_II_WITH_P4EST
   return true;
 #else
@@ -3024,6 +3042,16 @@ bool
 CellAccessor<dim,spacedim>::is_ghost () const
 {
   Assert (this->active(), ExcMessage("is_ghost() only works on active cells!"));
+  
+  if (is_artificial() || this->has_children())
+    return false;
+
+  const parallel::shared::Triangulation<dim,spacedim> *pst
+    = dynamic_cast<const parallel::shared::Triangulation<dim,spacedim> *>(this->tria);
+
+  if (pst != 0)
+    return (this->subdomain_id() != pst->locally_owned_subdomain());
+  
 #ifndef DEAL_II_WITH_P4EST
   return false;
 #else
@@ -3048,6 +3076,13 @@ bool
 CellAccessor<dim,spacedim>::is_artificial () const
 {
   Assert (this->active(), ExcMessage("is_artificial() only works on active cells!"));
+  
+  const parallel::shared::Triangulation<dim,spacedim> *pst
+    = dynamic_cast<const parallel::shared::Triangulation<dim,spacedim> *>(this->tria);
+
+  if (pst != 0)
+    return this->subdomain_id() == numbers::artificial_subdomain_id;//could probably keep this line only?
+    
 #ifndef DEAL_II_WITH_P4EST
   return false;
 #else

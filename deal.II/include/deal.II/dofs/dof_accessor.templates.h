@@ -3261,8 +3261,10 @@ void
 DoFCellAccessor<DH,level_dof_access>::get_dof_indices (std::vector<types::global_dof_index> &dof_indices) const
 {
   Assert (this->active(), ExcMessage ("get_dof_indices() only works on active cells."));
-  Assert (this->is_artificial() == false,
-          ExcMessage ("Can't ask for DoF indices on artificial cells."));
+  
+  Assert ( (dynamic_cast<const dealii::parallel::distributed::Triangulation<DH::dimension,DH::space_dimension>*>(this->tria)==0)
+         ||(this->is_artificial() == false),
+          ExcMessage ("Can't ask for DoF indices on artificial cells of distributed triangulation."));
   AssertDimension (dof_indices.size(), this->get_fe().dofs_per_cell);
 
   const types::global_dof_index *cache

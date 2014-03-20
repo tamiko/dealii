@@ -997,6 +997,47 @@ namespace parallel
 
 #endif
 
+namespace parallel
+{
+  namespace shared
+  {
+    template <int dim, int spacedim = dim>
+    class Triangulation : public dealii::Triangulation<dim,spacedim>
+    {
+    public:
+      /**
+       * Constructor.
+       */
+      Triangulation (MPI_Comm mpi_communicator);
+
+      /**
+       * Destructor.
+       */
+      virtual ~Triangulation ();
+
+      types::subdomain_id locally_owned_subdomain () const;
+
+      /**
+       * Return the MPI communicator used by this triangulation.
+       */
+      MPI_Comm get_communicator () const;
+      
+      virtual void execute_coarsening_and_refinement ();
+      
+      virtual void 	create_triangulation (const std::vector< Point< spacedim > > &vertices, 
+      									  const std::vector< CellData< dim > > &cells, 
+      									  const SubCellData &subcelldata);
+      
+      
+    private:
+      MPI_Comm mpi_communicator;
+      types::subdomain_id my_subdomain;
+      types::subdomain_id num_subdomains;
+      
+      void mark_artificial();
+    };
+  }
+}
 
 DEAL_II_NAMESPACE_CLOSE
 

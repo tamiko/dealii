@@ -4000,6 +4000,109 @@ namespace parallel
 #endif // DEAL_II_WITH_P4EST
 
 
+namespace parallel
+{
+  namespace shared
+  {
+    template <int dim, int spacedim>
+    Triangulation<dim,spacedim>::Triangulation (MPI_Comm mpi_communicator):
+        dealii::Triangulation<dim,spacedim>(),
+    	mpi_communicator (Utilities::MPI::
+                          duplicate_communicator(mpi_communicator)),
+        my_subdomain (Utilities::MPI::this_mpi_process (this->mpi_communicator)),
+        num_subdomains(Utilities::MPI::n_mpi_processes(mpi_communicator))
+    {
+
+    }
+
+
+    template <int dim, int spacedim>
+    Triangulation<dim,spacedim>::~Triangulation ()
+    {
+
+    }
+
+
+
+    template <int dim, int spacedim>
+    types::subdomain_id
+    Triangulation<dim,spacedim>::locally_owned_subdomain () const
+    {
+      return my_subdomain;
+    }
+    
+    template <int dim, int spacedim>
+    void 
+    Triangulation<dim,spacedim>::execute_coarsening_and_refinement () {
+    	  dealii::Triangulation<dim,spacedim>::execute_coarsening_and_refinement ();
+    	  dealii::GridTools::partition_triangulation (num_subdomains, *this);
+    	  mark_artificial();
+    }
+    
+    template <int dim, int spacedim>
+    void 	
+    Triangulation<dim,spacedim>::create_triangulation (const std::vector< Point< spacedim > > &vertices, 
+    												   const std::vector< CellData< dim > > &cells, 
+    												   const SubCellData &subcelldata) {												   
+      try
+        {
+          dealii::Triangulation<dim,spacedim>::
+          create_triangulation (vertices, cells, subcelldata);
+        }
+      catch (const typename dealii::Triangulation<dim,spacedim>::DistortedCellList &)
+        {
+          // the underlying triangulation should not be checking for distorted
+          // cells
+          AssertThrow (false, ExcInternalError());
+        }
+      dealii::GridTools::partition_triangulation (num_subdomains, *this);
+      mark_artificial();
+    }
+
+
+    template <int dim, int spacedim>
+    MPI_Comm
+    Triangulation<dim,spacedim>::get_communicator () const
+    {
+      return mpi_communicator;
+    }
+    
+    template <int dim, int spacedim>
+    void
+    Triangulation<dim,spacedim>::mark_artificial() 
+    {
+    
+    	std::vector<bool > marked_vertices(this->n_vertices(),false);
+        for (typename dealii::Triangulation<dim,spacedim>::active_cell_iterator
+                   cell = this->begin_active();
+                   cell != this->end(); ++cell)
+            if (cell->subdomain_id() == this->locally_owned_subdomain())
+                for (unsigned int v=0; v<GeometryInfo<dim>::vertices_per_cell; ++v)
+                    marked_vertices[cell->vertex_index(v)] = true;
+                    
+                    
+                    
+        for (typename dealii::Triangulation<dim,spacedim>::active_cell_iterator
+                   cell = this->begin_active();
+                   cell != this->end(); ++cell)
+            if (cell->subdomain_id() != this->locally_owned_subdomain()) {
+            	bool is_ghost = false;
+            	for (unsigned int v=0; v<GeometryInfo<dim>::vertices_per_cell; ++v)
+            		if (marked_vertices[cell->vertex_index(v)] == true)
+            		{
+            			is_ghost = true;
+            			break;
+        			}
+        		if (is_ghost)
+        			continue;
+        			
+        		cell->set_subdomain_id(numbers::artificial_subdomain_id);	
+        	}		    
+    }
+    
+
+  }
+}
 
 
 /*-------------- Explicit Instantiations -------------------------------*/
