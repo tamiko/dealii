@@ -1132,6 +1132,9 @@ namespace DoFTools
            ExcDimensionMismatch(subdomain_association.size(),
                                 dof_handler.n_dofs()));
 
+    Assert(dof_handler.n_dofs() > 0,
+    	   ExcMessage("Number of DoF is not positive. "
+    			      "This could happen when the function is called before NumberCache is written."));
     // preset all values by an invalid value
     std::fill_n (subdomain_association.begin(), dof_handler.n_dofs(),
                  numbers::invalid_subdomain_id);

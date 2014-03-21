@@ -970,8 +970,6 @@ namespace internal
       distribute_dofs (DoFHandler<dim,spacedim> &dof_handler) const
       {
     	  NumberCache number_cache = Sequential<dim,spacedim>::distribute_dofs (dof_handler);
-    	  //correct number_cache:
-    	  number_cache.locally_owned_dofs = dealii::DoFTools::locally_owned_dofs_with_subdomain(dof_handler,dof_handler.get_tria().locally_owned_subdomain() );
     	  return number_cache;
       }
 

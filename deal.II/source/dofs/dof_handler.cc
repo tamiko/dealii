@@ -810,6 +810,11 @@ DoFHandler<dim,spacedim>::initialize(
   // decide whether we need a
   // sequential or a parallel
   // distributed policy
+  if (dynamic_cast<const parallel::shared::Triangulation< dim, spacedim>*>
+ 	  (&t)
+ 	  != 0)
+ 	policy.reset (new internal::DoFHandler::Policy::ParallelShared<dim,spacedim>());
+  else
   if (dynamic_cast<const parallel::distributed::Triangulation< dim, spacedim >*>
       (&t)
       == 0)
@@ -1169,6 +1174,10 @@ void DoFHandler<dim,spacedim>::distribute_dofs (const FiniteElement<dim,spacedim
   // hand things off to the policy
   number_cache = policy->distribute_dofs (*this);
 
+  //since get_subdomain_association querry n_dofs()
+  //the need to re-work locally_owned_dofs outside of policy class
+  if (dynamic_cast<const parallel::shared::Triangulation<dim,spacedim>*>(&*tria) == 0)
+	  number_cache.locally_owned_dofs = dealii::DoFTools::locally_owned_dofs_with_subdomain(*this,(*this).get_tria().locally_owned_subdomain() );
   // initialize the block info object
   // only if this is a sequential
   // triangulation. it doesn't work
