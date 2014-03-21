@@ -1372,6 +1372,11 @@ namespace DoFTools
   extract_locally_relevant_dofs (const DH &dof_handler,
                                  IndexSet &dof_set);
 
+  template <class DH>
+  IndexSet
+  locally_owned_dofs_with_subdomain (const DH                  &dof_handler,
+  		                             const types::subdomain_id  subdomain   );
+
   /**
    * For each DoF, return in the output array to which subdomain (as
    * given by the <tt>cell->subdomain_id()</tt> function) it

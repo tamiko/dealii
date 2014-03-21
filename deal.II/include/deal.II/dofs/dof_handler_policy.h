@@ -22,6 +22,7 @@
 #include <deal.II/base/config.h>
 #include <deal.II/base/exceptions.h>
 #include <deal.II/base/template_constraints.h>
+#include <deal.II/dofs/dof_tools.h>
 
 #include <vector>
 #include <map>

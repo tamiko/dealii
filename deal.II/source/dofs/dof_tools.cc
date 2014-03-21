@@ -1075,7 +1075,44 @@ namespace DoFTools
       active_fe_indices[index] = cell->active_fe_index();
   }
 
+  template <class DH>
+  IndexSet
+  locally_owned_dofs_with_subdomain (const DH                  &dof_handler,
+		                             const types::subdomain_id  subdomain   )
+  {
+	  IndexSet index_set (dof_handler.n_dofs());
+	  std::vector< types::subdomain_id > subdomain_association(dof_handler.n_dofs());
+	  DoFTools::get_subdomain_association(dof_handler,subdomain_association);
+	  types::global_dof_index i_min=0, i_max_plus_1=0;
 
+	  //loop over subdomain_association
+	  //and populate IndexSet when
+	  //a given subdomain is found
+	  bool found_start = false;
+	  for (types::global_dof_index ind = 0; ind < subdomain_association.size(); ind++)
+	  {
+		  if (!found_start && (subdomain_association[ind]== subdomain) )
+		  {
+			  found_start = true;
+			  i_min = ind;
+		  }
+		  if (found_start && (subdomain_association[ind] != subdomain) )
+		  {
+			  found_start = false;
+			  i_max_plus_1 = ind;
+			  index_set.add_range(i_min,i_max_plus_1);
+		  }
+	  }
+
+	  // we have found the starting element, but not the end.
+	  // the last element must have the same subdomain id,
+	  // thus use it to add the range
+	  if (found_start) {
+		  index_set.add_range(i_min,subdomain_association.size());
+	  }
+	  index_set.compress();
+	  return index_set;
+  }
 
   template <class DH>
   void

@@ -73,6 +73,8 @@ namespace internal
       policy_name = "Policy::Sequential<";
     else if (dynamic_cast<const typename dealii::internal::DoFHandler::Policy::ParallelDistributed<dim,spacedim>*>(&policy))
       policy_name = "Policy::ParallelDistributed<";
+    else if (dynamic_cast<const typename dealii::internal::DoFHandler::Policy::ParallelShared<dim,spacedim>*>(&policy))
+      policy_name = "Policy::ParallelShared<";
     else
       AssertThrow(false, ExcNotImplemented());
     policy_name += Utilities::int_to_string(dim)+
@@ -763,6 +765,11 @@ DoFHandler<dim,spacedim>::DoFHandler (const Triangulation<dim,spacedim> &tria)
   // decide whether we need a
   // sequential or a parallel
   // distributed policy
+  if (dynamic_cast<const parallel::shared::Triangulation< dim, spacedim>*>
+	  (&tria)
+	  != 0)
+	policy.reset (new internal::DoFHandler::Policy::ParallelShared<dim,spacedim>());
+  else
   if (dynamic_cast<const parallel::distributed::Triangulation< dim, spacedim >*>
       (&tria)
       == 0)
