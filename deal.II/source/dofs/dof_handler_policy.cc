@@ -963,7 +963,41 @@ namespace internal
         return number_cache;
       }
 
+      /* --------------------- class ParallelSequential ---------------- */
+      template <int dim, int spacedim>
+      NumberCache
+      ParallelShared<dim,spacedim>::
+      distribute_dofs (DoFHandler<dim,spacedim> &dof_handler) const
+      {
+    	  NumberCache number_cache = Sequential<dim,spacedim>::distribute_dofs (dof_handler);
+    	  //correct number_cache:
 
+
+    	  return number_cache;
+      }
+
+      template <int dim, int spacedim>
+      void
+      ParallelShared<dim,spacedim>::
+      distribute_mg_dofs (DoFHandler<dim,spacedim> &dof_handler,
+                          std::vector<NumberCache> &number_caches) const
+      {
+    	  NumberCache number_cache = Sequential<dim,spacedim>:: distribute_mg_dofs (dof_handler, number_caches);
+    	  Assert(false,ExcMessage("Not implemented"));
+    	  return number_cache;
+      }
+
+      template <int dim, int spacedim>
+      NumberCache
+      ParallelShared<dim,spacedim>::
+      renumber_dofs (const std::vector<types::global_dof_index> &new_numbers,
+                     dealii::DoFHandler<dim,spacedim> &dof_handler) const
+      {
+    	  NumberCache number_cache = Sequential<dim,spacedim>::renumber_dofs (new_numbers,dof_handler);
+    	  //correct number_cache:
+
+    	  return number_cache;
+      }
 
       /* --------------------- class ParallelDistributed ---------------- */
 

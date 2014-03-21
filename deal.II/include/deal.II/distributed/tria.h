@@ -1005,6 +1005,9 @@ namespace parallel
     class Triangulation : public dealii::Triangulation<dim,spacedim>
     {
     public:
+      typedef typename dealii::Triangulation<dim,spacedim>::active_cell_iterator active_cell_iterator;
+      typedef typename dealii::Triangulation<dim,spacedim>::cell_iterator        cell_iterator;
+
       /**
        * Constructor.
        */
@@ -1033,8 +1036,6 @@ namespace parallel
       MPI_Comm mpi_communicator;
       types::subdomain_id my_subdomain;
       types::subdomain_id num_subdomains;
-      
-      void mark_artificial();
     };
   }
 }

@@ -1113,10 +1113,9 @@ namespace DoFTools
     endc = dof_handler.end();
     for (; cell!=endc; ++cell)
       {
-        //can comment it since the case of distributed triangulations is handled above.
-        //Assert (cell->is_artificial() == false,
-        //        ExcMessage ("You can't call this function for meshes that "
-        //                    "have artificial cells."));
+        Assert (cell->is_artificial() == false,
+                ExcMessage ("You can't call this function for meshes that "
+                            "have artificial cells."));
 
         const types::subdomain_id subdomain_id = cell->subdomain_id();
         const unsigned int dofs_per_cell = cell->get_fe().dofs_per_cell;

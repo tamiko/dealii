@@ -4036,7 +4036,6 @@ namespace parallel
     Triangulation<dim,spacedim>::execute_coarsening_and_refinement () {
     	  dealii::Triangulation<dim,spacedim>::execute_coarsening_and_refinement ();
     	  dealii::GridTools::partition_triangulation (num_subdomains, *this);
-    	  mark_artificial();
     }
     
     template <int dim, int spacedim>
@@ -4056,7 +4055,6 @@ namespace parallel
           AssertThrow (false, ExcInternalError());
         }
       dealii::GridTools::partition_triangulation (num_subdomains, *this);
-      mark_artificial();
     }
 
 
@@ -4066,40 +4064,6 @@ namespace parallel
     {
       return mpi_communicator;
     }
-    
-    template <int dim, int spacedim>
-    void
-    Triangulation<dim,spacedim>::mark_artificial() 
-    {
-    
-    	std::vector<bool > marked_vertices(this->n_vertices(),false);
-        for (typename dealii::Triangulation<dim,spacedim>::active_cell_iterator
-                   cell = this->begin_active();
-                   cell != this->end(); ++cell)
-            if (cell->subdomain_id() == this->locally_owned_subdomain())
-                for (unsigned int v=0; v<GeometryInfo<dim>::vertices_per_cell; ++v)
-                    marked_vertices[cell->vertex_index(v)] = true;
-                    
-                    
-                    
-        for (typename dealii::Triangulation<dim,spacedim>::active_cell_iterator
-                   cell = this->begin_active();
-                   cell != this->end(); ++cell)
-            if (cell->subdomain_id() != this->locally_owned_subdomain()) {
-            	bool is_ghost = false;
-            	for (unsigned int v=0; v<GeometryInfo<dim>::vertices_per_cell; ++v)
-            		if (marked_vertices[cell->vertex_index(v)] == true)
-            		{
-            			is_ghost = true;
-            			break;
-        			}
-        		if (is_ghost)
-        			continue;
-        			
-        		cell->set_subdomain_id(numbers::artificial_subdomain_id);	
-        	}		    
-    }
-    
 
   }
 }

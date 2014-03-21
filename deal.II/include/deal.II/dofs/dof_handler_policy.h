@@ -127,6 +127,25 @@ namespace internal
                        dealii::DoFHandler<dim,spacedim> &dof_handler) const;
       };
 
+      template <int dim, int spacedim>
+      class ParallelShared : public Sequential<dim,spacedim>
+      {
+      public:
+    	  virtual
+    	  NumberCache
+    	  distribute_dofs (dealii::DoFHandler<dim,spacedim> &dof_handler) const;
+
+    	  virtual
+    	  void
+    	  distribute_mg_dofs (dealii::DoFHandler<dim,spacedim> &dof_handler,
+    	                      std::vector<NumberCache> &number_caches) const;
+
+    	  virtual
+    	  NumberCache
+    	  renumber_dofs (const std::vector<types::global_dof_index>  &new_numbers,
+    	                 dealii::DoFHandler<dim,spacedim> &dof_handler) const;
+      };
+
 
       /**
        * This class implements the
