@@ -1,5 +1,5 @@
 // ---------------------------------------------------------------------
-// $Id$
+// $Id: product_matrix_01.cc 32491 2014-02-14 20:52:51Z bangerth $
 //
 // Copyright (C) 2014 by the deal.II authors
 //
@@ -14,9 +14,7 @@
 //
 // ---------------------------------------------------------------------
 
-
-// check ProductMatrix::vmult
-
+// Check ProductMatrix::constructor1
 
 #include "../tests.h"
 #include <deal.II/base/logstream.h>
@@ -29,52 +27,64 @@
 #include <cmath>
 
 template<typename number>
-void
-check()
-{
-  const double Adata[] =
-    {
-	  2, 3,
-	  4, 5
-    };
+  void
+  checkConstructor1(FullMatrix<number> &A, FullMatrix<number> &B)
+  {
+    deallog << "Init with empty constructor" << std::endl;
+    GrowingVectorMemory < Vector<number> > mem;
+    ProductMatrix < Vector<number> > P;
+    P.initialize(A, B, mem);
 
-  const double Bdata[] =
-    {
-	  0, 1,
-	  2, 3
-    };
+    deallog << "Multiplying with all ones vector" << std::endl;
+    Vector<number> V(B.n());
+    for (unsigned int i = 0; i < V.size(); ++i)
+      V(i) = 1;
 
+    Vector<number> O(A.m());
 
-  FullMatrix<float> A(2,2);
-  FullMatrix<double> B(2,2);
+    P.vmult(O, V);
 
-  A.fill(Adata);
-  B.fill(Bdata);
+    // Check the dimensions of the result matrix
+    Assert(A.m() == O.size(), ExcInternalError());
+    deallog << "Dimensions of result vector verified" << std::endl;
 
-  GrowingVectorMemory<Vector<number> > mem;
+    // Verifying results with Method 2: O=(A*B)*V
+    FullMatrix<number> AB_Product(A.m(), B.n());
+    Vector<number> O_(A.m());
 
-  ProductMatrix<Vector<number> > AB(A,B,mem);
+    A.mmult(AB_Product, B, false);
+    AB_Product.vmult(O_, V);
 
-  Vector<number> u(2);
-  Vector<number> v(2);
+    Assert(O == O_, ExcInternalError());
+    deallog << "Result vector data verified" << std::endl;
 
-  u(0) = 1.;
-  u(1) = 2.;
+    for (unsigned int i = 0; i < O.size(); ++i)
+      deallog << O(i) << '\t';
+    deallog << std::endl;
+  }
 
-  AB.vmult(v,u);
-
-  deallog << v(0) << '\t' << v(1) << std::endl;
-}
-
-
-int main()
+int
+main()
 {
   std::ofstream logfile("output");
+  deallog << std::fixed;
   deallog << std::setprecision(4);
   deallog.attach(logfile);
   deallog.depth_console(0);
   deallog.threshold_double(1.e-10);
 
-  check<double>();
-  check<float>();
+  const double Adata[] =
+    { 2, 3, 4, 5 };
+
+  const double Bdata[] =
+    { 0, 1, 2, 3 };
+
+  FullMatrix<double> A(2, 2);
+  FullMatrix<double> B(2, 2);
+
+  A.fill(Adata);
+  B.fill(Bdata);
+
+  checkConstructor1<double>(A, B);
+
 }
