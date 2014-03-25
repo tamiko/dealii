@@ -1174,10 +1174,6 @@ void DoFHandler<dim,spacedim>::distribute_dofs (const FiniteElement<dim,spacedim
   // hand things off to the policy
   policy->distribute_dofs (*this,number_cache);
 
-  //since get_subdomain_association querry n_dofs()
-  //the need to re-work locally_owned_dofs outside of policy class
-  if (dynamic_cast<const parallel::shared::Triangulation<dim,spacedim>*>(&*tria) == 0)
-	  number_cache.locally_owned_dofs = dealii::DoFTools::locally_owned_dofs_with_subdomain(*this,(*this).get_tria().locally_owned_subdomain() );
   // initialize the block info object
   // only if this is a sequential
   // triangulation. it doesn't work

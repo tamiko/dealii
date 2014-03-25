@@ -969,6 +969,8 @@ namespace internal
     		           NumberCache & number_cache) const
       {
     	  Sequential<dim,spacedim>::distribute_dofs (dof_handler,number_cache);
+    	  DoFRenumbering::subdomain_wise (dof_handler);
+    	  number_cache.locally_owned_dofs = dealii::DoFTools::locally_owned_dofs_with_subdomain(dof_handler,dof_handler.get_tria().locally_owned_subdomain() );
       }
 
       template <int dim, int spacedim>
