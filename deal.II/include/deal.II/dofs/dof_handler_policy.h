@@ -70,8 +70,9 @@ namespace internal
          * the object given as last argument.
          */
         virtual
-        NumberCache
-        distribute_dofs (dealii::DoFHandler<dim,spacedim> &dof_handler) const = 0;
+        void
+        distribute_dofs (dealii::DoFHandler<dim,spacedim> &dof_handler,
+        		         NumberCache &number_cache) const = 0;
 
         /**
          * Distribute the multigrid dofs on each level
@@ -86,9 +87,10 @@ namespace internal
          * specified by the first argument.
          */
         virtual
-        NumberCache
+        void
         renumber_dofs (const std::vector<types::global_dof_index> &new_numbers,
-                       dealii::DoFHandler<dim,spacedim> &dof_handler) const = 0;
+                       dealii::DoFHandler<dim,spacedim> &dof_handler,
+                       NumberCache & number_cache) const = 0;
       };
 
 
@@ -107,8 +109,9 @@ namespace internal
          * the object given as last argument.
          */
         virtual
-        NumberCache
-        distribute_dofs (dealii::DoFHandler<dim,spacedim> &dof_handler) const;
+        void
+        distribute_dofs (dealii::DoFHandler<dim,spacedim> &dof_handler,
+        		         NumberCache &number_cache) const;
 
         /**
          * Distribute multigrid DoFs.
@@ -123,9 +126,10 @@ namespace internal
          * specified by the first argument.
          */
         virtual
-        NumberCache
+        void
         renumber_dofs (const std::vector<types::global_dof_index>  &new_numbers,
-                       dealii::DoFHandler<dim,spacedim> &dof_handler) const;
+                       dealii::DoFHandler<dim,spacedim> &dof_handler,
+                       NumberCache & number_cache) const;
       };
 
       template <int dim, int spacedim>
@@ -133,8 +137,9 @@ namespace internal
       {
       public:
     	  virtual
-    	  NumberCache
-    	  distribute_dofs (dealii::DoFHandler<dim,spacedim> &dof_handler) const;
+    	  void
+    	  distribute_dofs (dealii::DoFHandler<dim,spacedim> &dof_handler,
+    			           NumberCache & number_cache) const;
 
     	  virtual
     	  void
@@ -142,9 +147,10 @@ namespace internal
     	                      std::vector<NumberCache> &number_caches) const;
 
     	  virtual
-    	  NumberCache
+    	  void
     	  renumber_dofs (const std::vector<types::global_dof_index>  &new_numbers,
-    	                 dealii::DoFHandler<dim,spacedim> &dof_handler) const;
+    	                 dealii::DoFHandler<dim,spacedim> &dof_handler,
+    	                 NumberCache & number_cache) const;
       };
 
 
@@ -164,8 +170,9 @@ namespace internal
          * the object given as last argument.
          */
         virtual
-        NumberCache
-        distribute_dofs (dealii::DoFHandler<dim,spacedim> &dof_handler) const;
+        void
+        distribute_dofs (dealii::DoFHandler<dim,spacedim> &dof_handler,
+        		         NumberCache &number_cache) const;
 
         /**
          * Distribute multigrid DoFs.
@@ -180,9 +187,10 @@ namespace internal
          * specified by the first argument.
          */
         virtual
-        NumberCache
+        void
         renumber_dofs (const std::vector<types::global_dof_index>  &new_numbers,
-                       dealii::DoFHandler<dim,spacedim> &dof_handler) const;
+                       dealii::DoFHandler<dim,spacedim> &dof_handler,
+                       NumberCache &number_cache) const;
       };
     }
   }

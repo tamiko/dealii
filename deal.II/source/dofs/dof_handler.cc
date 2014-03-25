@@ -1172,7 +1172,7 @@ void DoFHandler<dim,spacedim>::distribute_dofs (const FiniteElement<dim,spacedim
   internal::DoFHandler::Implementation::reserve_space (*this);
 
   // hand things off to the policy
-  number_cache = policy->distribute_dofs (*this);
+  policy->distribute_dofs (*this,number_cache);
 
   //since get_subdomain_association querry n_dofs()
   //the need to re-work locally_owned_dofs outside of policy class
@@ -1290,7 +1290,7 @@ DoFHandler<dim,spacedim>::renumber_dofs (const std::vector<types::global_dof_ind
               ExcMessage ("New DoF index is not less than the total number of dofs."));
 #endif
 
-  number_cache = policy->renumber_dofs (new_numbers, *this);
+  policy->renumber_dofs (new_numbers, *this,number_cache);
 }
 
 
