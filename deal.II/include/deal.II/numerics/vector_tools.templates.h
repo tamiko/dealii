@@ -280,17 +280,20 @@ namespace VectorTools
 
 
 
-
+  // @whattodo TODO: To return functionality for complex numbers, this
+  // needs to be templated with Number and instantiated for
+  // REAL_SERIAL_VECTORS+double and
+  // COMPLEX_SERIAL_VECTORS+complex<double>
   template <int dim, class InVector, class OutVector, int spacedim>
   void
   interpolate (const DoFHandler<dim,spacedim>  &dof_1,
                const DoFHandler<dim,spacedim>  &dof_2,
-               const FullMatrix<double>        &transfer,
+               const FullMatrix<double>        &transfer, // <- FullMatrix<std::complex>
                const InVector                  &data_1,
                OutVector                       &data_2)
   {
     Vector<double> cell_data_1(dof_1.get_fe().dofs_per_cell); // <- Vector<std::complex>
-    Vector<double> cell_data_2(dof_2.get_fe().dofs_per_cell);
+    Vector<double> cell_data_2(dof_2.get_fe().dofs_per_cell); // <- Vector<std::complex>
 
     std::vector<short unsigned int> touch_count (dof_2.n_dofs(), 0); //TODO: check on datatype... kinda strange (UK)
     std::vector<types::global_dof_index>       local_dof_indices (dof_2.get_fe().dofs_per_cell);
@@ -301,13 +304,7 @@ namespace VectorTools
 
     for (; h != endh; ++h, ++l)
       {
-	// @whattodo Some of the problems in petsc_vector_base.h are
-	// instantiated here. Should look into DoFCellAccessor too. It
-	// looks like *maybe* vector_tools needs to be templated (run
-	// grep -R "double" on that file). Additionally, *this* file
-	// needs to be templated with "number".
-	/* h->get_dof_values(data_1, cell_data_1);  */
-	Assert ((false), ExcMessage ("This function is corrupt: @whattodo"));
+	h->get_dof_values(data_1, cell_data_1);  
 
         transfer.vmult(cell_data_2, cell_data_1);
 
@@ -318,8 +315,7 @@ namespace VectorTools
           {
             data_2(local_dof_indices[j]) += cell_data_2(j);
 
-            // count, how often we have
-            // added to this dof
+            // count, how often we have added to this dof
             Assert (touch_count[local_dof_indices[j]] < numbers::internal_face_boundary_id,
                     ExcInternalError());
             ++touch_count[local_dof_indices[j]];
