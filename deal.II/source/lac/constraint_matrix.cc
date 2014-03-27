@@ -1975,10 +1975,17 @@ ONLY_MATRIX_FUNCTIONS(TrilinosWrappers::BlockSparseMatrix);
 #endif
 
 #ifdef DEAL_II_WITH_PETSC
+#ifndef PETSC_USE_COMPLEX
+ONLY_MATRIX_FUNCTIONS(PETScWrappers::SparseMatrix);
+ONLY_MATRIX_FUNCTIONS(PETScWrappers::BlockSparseMatrix);
+ONLY_MATRIX_FUNCTIONS(PETScWrappers::MPI::SparseMatrix);
+ONLY_MATRIX_FUNCTIONS(PETScWrappers::MPI::BlockSparseMatrix);
+#else
 COMPLEX_ONLY_MATRIX_FUNCTIONS(PETScWrappers::SparseMatrix);
 COMPLEX_ONLY_MATRIX_FUNCTIONS(PETScWrappers::BlockSparseMatrix);
 COMPLEX_ONLY_MATRIX_FUNCTIONS(PETScWrappers::MPI::SparseMatrix);
 COMPLEX_ONLY_MATRIX_FUNCTIONS(PETScWrappers::MPI::BlockSparseMatrix);
+#endif
 #endif
 
 #include "constraint_matrix.inst"
