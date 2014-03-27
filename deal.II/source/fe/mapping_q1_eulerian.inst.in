@@ -15,14 +15,16 @@
 // ---------------------------------------------------------------------
 
 
-
-for (deal_II_dimension : DIMENSIONS; deal_II_space_dimension :  SPACE_DIMENSIONS)
+// TODO[TY]: allow this to be instantiated by PETScWrappers::Vector and PETSC_WITH_COMPLEX
+for (deal_II_dimension : DIMENSIONS; deal_II_space_dimension : SPACE_DIMENSIONS)
   {
 #if deal_II_dimension <= deal_II_space_dimension 	
     template class MappingQ1Eulerian<deal_II_dimension, Vector<double>,	deal_II_space_dimension>;
     template class MappingQ1Eulerian<deal_II_dimension, Vector<float>,	deal_II_space_dimension>;
 #ifdef DEAL_II_WITH_PETSC
+#ifdef PETSC_WITH_COMPLEX
     template class MappingQ1Eulerian<deal_II_dimension, PETScWrappers::Vector, deal_II_space_dimension>;
+#endif
 #endif
 #endif
   }

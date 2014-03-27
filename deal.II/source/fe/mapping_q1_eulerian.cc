@@ -78,10 +78,7 @@ compute_mapping_support_points(const typename Triangulation<dim,spacedim>::cell_
   // now get the values of the shift
   // vectors at the vertices
   Vector<double> mapping_values (shiftmap_dof_handler->get_fe().dofs_per_cell);
-
-  // @whattodo Some of the problems in petsc_vector_base.h are instantiated here.
-  // dof_cell->get_dof_values (*euler_transform_vectors, mapping_values); <- complaint line 
-  Assert ((false), ExcMessage ("This function is corrupt: @whattodo"));
+  dof_cell->get_dof_values (*euler_transform_vectors, mapping_values); 
 
   for (unsigned int i=0; i<GeometryInfo<dim>::vertices_per_cell; ++i)
     {
