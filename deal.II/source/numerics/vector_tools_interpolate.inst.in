@@ -33,11 +33,21 @@ for (VEC : REAL_SERIAL_VECTORS ; deal_II_dimension : DIMENSIONS; deal_II_space_d
          const Function<deal_II_space_dimension>&,
          VEC&);
 
+      \}
+#endif
+  }
+
+
+for (VEC : REAL_SERIAL_VECTORS ; deal_II_dimension : DIMENSIONS; deal_II_space_dimension :  SPACE_DIMENSIONS; NUMBER : double)
+  {
+#if deal_II_dimension <= deal_II_space_dimension
+    namespace VectorTools \{
+
       template
         void interpolate
         (const DoFHandler<deal_II_dimension,deal_II_space_dimension>&,
          const DoFHandler<deal_II_dimension,deal_II_space_dimension>&,
-         const FullMatrix<double>&,
+         const FullMatrix<NUMBER>&,
          const VEC&,
          VEC&);
 
