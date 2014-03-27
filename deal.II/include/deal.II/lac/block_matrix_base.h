@@ -1282,7 +1282,7 @@ private:
      * reordered when writing local to
      * global).
      */
-    std::vector<std::vector<double> > column_values;
+    std::vector<std::vector<value_type> > column_values;
 
     /**
      * A mutex variable used to guard access to the member
@@ -2069,9 +2069,9 @@ BlockMatrixBase<MatrixType>::set (const size_type  row,
   // comes from an element matrix).
   for (size_type j=0; j<n_cols; ++j)
     {
-      double value = values[j];
+      number value = values[j];
 
-      if (value == 0 && elide_zero_values == true)
+      if (value == number(0) && elide_zero_values == true)
         continue;
 
       const std::pair<unsigned int, size_type>
@@ -2316,9 +2316,9 @@ BlockMatrixBase<MatrixType>::add (const size_type  row,
   // it comes from an element matrix).
   for (size_type j=0; j<n_cols; ++j)
     {
-      double value = values[j];
+	  number value = values[j];
 
-      if (value == 0 && elide_zero_values == true)
+      if (value == number(0) && elide_zero_values == true)
         continue;
 
       const std::pair<unsigned int, size_type>

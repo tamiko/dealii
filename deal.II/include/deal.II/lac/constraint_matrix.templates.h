@@ -2637,11 +2637,7 @@ ConstraintMatrix::distribute_local_to_global (
                                      local_matrix, col_ptr, val_ptr);
       const size_type n_values = col_ptr - &cols[0];
       if (n_values > 0)
-	{
-	  /* @whattodo Note, this is a tricky one! */
-	  /* global_matrix.add(row, n_values, &cols[0], &vals[0], false, true); */
-	  Assert ((false), ExcMessage ("This function is corrupt: @whattodo"));
-	}
+	      global_matrix.add(row, n_values, &cols[0], &vals[0], false, true);
     }
 }
 
