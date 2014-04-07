@@ -2358,11 +2358,12 @@ namespace MatrixTools
 	      break;
 	    }
 
+
         // figure out which rows of the matrix we
         // have to eliminate on this processor
         std::vector<types::global_dof_index> constrained_rows;
         for (std::map<types::global_dof_index,double>::const_iterator
-             dof  = boundary_values.begin();
+	     dof  = boundary_values.begin();
              dof != boundary_values.end();
              ++dof)
           if ((dof->first >= local_range.first) &&

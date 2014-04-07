@@ -1,4 +1,4 @@
- // ---------------------------------------------------------------------
+// ---------------------------------------------------------------------
 // $Id$
 //
 // Copyright (C) 2013, 2014 by the deal.II authors
@@ -148,6 +148,20 @@ inconvenience this causes.
 <h3>Specific improvements</h3>
 
 <ol>
+  <li> New: GridTools::laplace_transform() now takes an addition, optional
+  parameter that indicates the "stiffness" of the mapping.
+  <br>
+  (Denis Davydov, Jean-Paul Pelteret, 2014/04/07)
+  </li>
+
+  <li> Fixed: DoFTools::extract_constant_modes now correctly identifies both
+  constant modes in the scalar element FE_Q_DG0, which has been realized by a
+  few modifications in how the constant modes propagate from the element to
+  the extract_constant_modes() function.
+  <br>
+  (Martin Kronbichler, 2014/04/04)
+  </li>
+
   <li> Fixed: GridTools::laplace_transform had previously announced in
   the documentation that one can also set the location of interior points,
   but this was not in fact what was implemented. This has now been fixed:
