@@ -1001,6 +1001,11 @@ namespace parallel
 {
   namespace shared
   {
+
+   /**
+    * This is an extension of dealii::Triangulation class to automatically
+    * partition trianguation using MPI.
+    */
     template <int dim, int spacedim = dim>
     class Triangulation : public dealii::Triangulation<dim,spacedim>
     {
@@ -1018,15 +1023,33 @@ namespace parallel
        */
       virtual ~Triangulation ();
 
+      /**
+       * Return locally owned subdomain id,
+       * which is equivalent to the rank of the current mpi process in
+       * communicator provided to class constructor.
+       */
       types::subdomain_id locally_owned_subdomain () const;
 
       /**
-       * Return the MPI communicator used by this triangulation.
+       * Return MPI communicator used by this triangulation.
        */
       MPI_Comm get_communicator () const;
       
+      /**
+       * Coarsen and refine the mesh according to refinement and
+       * coarsening flags set.
+       *
+       * This step is equivalent to the dealii::Triangulation class
+       * with an addition of calling dealii::GridTools::partition_triangulation() at the end.
+       */
       virtual void execute_coarsening_and_refinement ();
       
+      /**
+        * Create a triangulation.
+        *
+        * This function also partitions triangulation based on the
+        * MPI communicator provided to constructor.
+        */
       virtual void 	create_triangulation (const std::vector< Point< spacedim > > &vertices, 
       									  const std::vector< CellData< dim > > &cells, 
       									  const SubCellData &subcelldata);

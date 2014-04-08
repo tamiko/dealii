@@ -1372,6 +1372,12 @@ namespace DoFTools
   extract_locally_relevant_dofs (const DH &dof_handler,
                                  IndexSet &dof_set);
 
+  /**
+   * Extract the set of global DoF indices distributed on
+   * cells with the given subdomain id. This function should be used for
+   * DoFHandler objects built on dealii::Triangulation or parallel::shared::Triangulation
+   * classes. Internally the funciton is based on DoFTools::get_subdomain_association.
+   */
   template <class DH>
   IndexSet
   locally_owned_dofs_with_subdomain (const DH                  &dof_handler,

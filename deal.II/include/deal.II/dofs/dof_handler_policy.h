@@ -133,20 +133,45 @@ namespace internal
                        NumberCache & number_cache) const;
       };
 
+      /**
+        * This class implements the
+        * policy for operations when
+        * we use a
+        * parallel::shared::Triangulation
+        * object.
+        */
       template <int dim, int spacedim>
       class ParallelShared : public Sequential<dim,spacedim>
       {
       public:
+
+    	  /**
+    	    * Distribute degrees of freedom on
+    	    * the object given as first argument.
+    	    *
+    	    * On distribution, DoFs are renumbered subdomain-wise and
+    	    * number_cache.n_locally_owned_dofs_per_processor[i] and
+    	    * number_cache.locally_owned_dofs are updated consistently.
+    	    */
     	  virtual
     	  void
     	  distribute_dofs (dealii::DoFHandler<dim,spacedim> &dof_handler,
     			           NumberCache & number_cache) const;
 
+    	  /**
+    	   * This function is not yet implemented.
+    	   */
     	  virtual
     	  void
     	  distribute_mg_dofs (dealii::DoFHandler<dim,spacedim> &dof_handler,
     	                      std::vector<NumberCache> &number_caches) const;
 
+    	  /**
+    	    * Renumber degrees of freedom as
+    	    * specified by the first argument.
+    	    *
+    	    * On renumbering, number_cache.locally_owned_dofs is updated consistently.
+    	    */
     	  virtual
     	  void
     	  renumber_dofs (const std::vector<types::global_dof_index>  &new_numbers,
