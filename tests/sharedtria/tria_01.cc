@@ -22,7 +22,7 @@
 #include <deal.II/base/logstream.h>
 #include <deal.II/base/tensor.h>
 #include <deal.II/grid/tria.h>
-#include <deal.II/distributed/tria.h>
+#include <deal.II/distributed/shared_tria.h>
 #include <deal.II/grid/tria_accessor.h>
 #include <deal.II/grid/tria_iterator.h>
 #include <deal.II/grid/grid_generator.h>
@@ -66,8 +66,7 @@ void test()
   GridGenerator::hyper_cube(tr);
   tr.begin_active()->set_refine_flag();
   tr.execute_coarsening_and_refinement ();
-  if (tr.locally_owned_subdomain()==0)
-    tr.begin_active()->set_refine_flag();
+  tr.begin_active()->set_refine_flag();
   tr.execute_coarsening_and_refinement ();
 
   deallog
