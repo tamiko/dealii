@@ -1554,6 +1554,7 @@ namespace Step18
 
     // Then set up a global vector into which we merge the local indicators
     // from each of the %parallel processes:
+    // TODO: get rid of this
     const unsigned int n_local_cells
       = GridTools::count_cells_with_subdomain_association (triangulation,
                                                            this_mpi_process);
