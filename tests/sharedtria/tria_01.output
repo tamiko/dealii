@@ -1,0 +1,6 @@
+
+DEAL:0:2d:: locally_owned_subdomain(): 0
+ n_active_cells: 7
+ n_levels: 3
+ n_global_levels: 3
+
