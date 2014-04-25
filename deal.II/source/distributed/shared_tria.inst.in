@@ -1,5 +1,5 @@
 // ---------------------------------------------------------------------
-// $Id$
+// $Id: tria.inst.in 32674 2014-03-20 16:57:24Z denis.davydov $
 //
 // Copyright (C) 2010 - 2013 by the deal.II authors
 //
@@ -18,44 +18,9 @@
 
 for (deal_II_dimension : DIMENSIONS)
   {
-
-#   ifdef DEAL_II_WITH_P4EST
-
-    namespace internal
-    \{
-      namespace p4est
-      \{
-#if     deal_II_dimension > 1
-        template
-        void
-        init_quadrant_children<deal_II_dimension>
-        (const types<deal_II_dimension>::quadrant & p4est_cell,
-         types<deal_II_dimension>::quadrant (&p4est_children)[GeometryInfo<deal_II_dimension>::max_children_per_cell]);
-
-        template
-        void
-        init_coarse_quadrant<deal_II_dimension>
-        (types<deal_II_dimension>::quadrant & quad);
-
-        template
-        bool
-        quadrant_is_equal<deal_II_dimension>
-        (const types<deal_II_dimension>::quadrant & q1,
-         const types<deal_II_dimension>::quadrant & q2);
-
-        template
-        bool
-        quadrant_is_ancestor<deal_II_dimension>
-        (const types<deal_II_dimension>::quadrant & q1,
-         const types<deal_II_dimension>::quadrant & q2);
-#      endif
-      \}
-    \}
-#   endif // DEAL_II_WITH_P4EST
-
     namespace parallel
     \{
-      namespace distributed
+      namespace shared
       \{
         template class Triangulation<deal_II_dimension>;
 #       if deal_II_dimension < 3

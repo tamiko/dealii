@@ -20,12 +20,14 @@ SET(_src
   grid_refinement.cc
   solution_transfer.cc
   tria.cc
+  shared_tria.cc
   )
 
 SET(_inst
   grid_refinement.inst.in
   solution_transfer.inst.in
   tria.inst.in
+  shared_tria.inst.in
   )
 
 FILE(GLOB _header
