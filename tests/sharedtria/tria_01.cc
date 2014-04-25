@@ -84,6 +84,15 @@ void test()
     deallog << v[i] << " ";
     deallog << std::endl;*/
 
+  deallog << "subdomains: ";
+  typename  parallel::distributed::Triangulation<dim>::active_cell_iterator it=tr.begin_active();
+  for (; it!=tr.end(); ++it)
+    {
+      deallog << it->subdomain_id() << " ";
+    }
+  deallog << std::endl;
+  
+    
   write_mesh(tr, "mesh");
 }
 
