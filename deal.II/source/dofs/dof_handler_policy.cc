@@ -934,6 +934,9 @@ namespace internal
                      dealii::DoFHandler<dim,spacedim> &dof_handler,
                      NumberCache &number_cache) const
       {
+        //reset number cache.
+        number_cache = NumberCache ();
+
         Implementation::renumber_dofs (new_numbers, IndexSet(0),
                                        dof_handler, true);
 
@@ -995,6 +998,9 @@ namespace internal
                      dealii::DoFHandler<dim,spacedim> &dof_handler,
                      NumberCache &number_cache) const
       {
+          //reset number cache.
+          number_cache = NumberCache ();
+
     	  Sequential<dim,spacedim>::renumber_dofs (new_numbers,dof_handler,number_cache);
     	  //correct number_cache:
     	  number_cache.locally_owned_dofs = dealii::DoFTools::locally_owned_dofs_with_subdomain(dof_handler,dof_handler.get_tria().locally_owned_subdomain() );
@@ -2438,6 +2444,8 @@ namespace internal
         Assert (new_numbers.size() == dof_handler.locally_owned_dofs().n_elements(),
                 ExcInternalError());
 
+        //reset number cache.
+        number_cache = NumberCache ();
 
 #ifndef DEAL_II_WITH_P4EST
         Assert (false, ExcNotImplemented());
