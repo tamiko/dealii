@@ -88,10 +88,10 @@ namespace internal
          * specified by the first argument.
          */
         virtual
-        void
+        NumberCache
         renumber_dofs (const std::vector<types::global_dof_index> &new_numbers,
                        dealii::DoFHandler<dim,spacedim> &dof_handler,
-                       NumberCache & number_cache) const = 0;
+                       NumberCache & number_cache_current) const = 0;
       };
 
 
@@ -127,10 +127,10 @@ namespace internal
          * specified by the first argument.
          */
         virtual
-        void
+        NumberCache
         renumber_dofs (const std::vector<types::global_dof_index>  &new_numbers,
                        dealii::DoFHandler<dim,spacedim> &dof_handler,
-                       NumberCache & number_cache) const;
+                       NumberCache & number_cache_current) const;
       };
 
       /**
@@ -173,10 +173,10 @@ namespace internal
     	    * On renumbering, number_cache.locally_owned_dofs is updated consistently.
     	    */
     	  virtual
-    	  void
+    	  NumberCache
     	  renumber_dofs (const std::vector<types::global_dof_index>  &new_numbers,
     	                 dealii::DoFHandler<dim,spacedim> &dof_handler,
-    	                 NumberCache & number_cache) const;
+    	                 NumberCache & number_cache_current) const;
       };
 
 
@@ -213,10 +213,10 @@ namespace internal
          * specified by the first argument.
          */
         virtual
-        void
+        NumberCache
         renumber_dofs (const std::vector<types::global_dof_index>  &new_numbers,
                        dealii::DoFHandler<dim,spacedim> &dof_handler,
-                       NumberCache &number_cache) const;
+                       NumberCache &number_cache_current) const;
       };
     }
   }

@@ -928,15 +928,12 @@ namespace internal
       }
 
       template <int dim, int spacedim>
-      void
+      NumberCache
       Sequential<dim,spacedim>::
       renumber_dofs (const std::vector<types::global_dof_index> &new_numbers,
                      dealii::DoFHandler<dim,spacedim> &dof_handler,
-                     NumberCache &number_cache) const
+                     NumberCache &number_cache_current) const
       {
-        //reset number cache.
-        number_cache = NumberCache ();
-
         Implementation::renumber_dofs (new_numbers, IndexSet(0),
                                        dof_handler, true);
 
@@ -946,6 +943,7 @@ namespace internal
         // have to set the elements
         // of the structure
         // appropriately anyway
+        NumberCache number_cache;
         number_cache.n_global_dofs        = dof_handler.n_dofs();
         number_cache.n_locally_owned_dofs = number_cache.n_global_dofs;
 
@@ -962,6 +960,7 @@ namespace internal
         number_cache.locally_owned_dofs_per_processor
           = std::vector<IndexSet> (1,
                                    number_cache.locally_owned_dofs);
+        return number_cache;
       }
 
       /* --------------------- class ParallelSequential ---------------- */
@@ -992,18 +991,18 @@ namespace internal
       }
 
       template <int dim, int spacedim>
-      void
+      NumberCache
       ParallelShared<dim,spacedim>::
       renumber_dofs (const std::vector<types::global_dof_index> &new_numbers,
                      dealii::DoFHandler<dim,spacedim> &dof_handler,
-                     NumberCache &number_cache) const
+                     NumberCache &number_cache_current) const
       {
-          //reset number cache.
-          number_cache = NumberCache ();
-
-    	  Sequential<dim,spacedim>::renumber_dofs (new_numbers,dof_handler,number_cache);
+          NumberCache number_cache = Sequential<dim,spacedim>::renumber_dofs (new_numbers,dof_handler,number_cache_current);
+          //update current number cache
+          number_cache_current = number_cache;
     	  //correct number_cache:
     	  number_cache.locally_owned_dofs = dealii::DoFTools::locally_owned_dofs_with_subdomain(dof_handler,dof_handler.get_tria().locally_owned_subdomain() );
+    	  return number_cache;
       }
 
       /* --------------------- class ParallelDistributed ---------------- */
@@ -2435,17 +2434,16 @@ namespace internal
 
 
       template <int dim, int spacedim>
-      void
+      NumberCache
       ParallelDistributed<dim, spacedim>::
       renumber_dofs (const std::vector<dealii::types::global_dof_index> &new_numbers,
                      dealii::DoFHandler<dim,spacedim> &dof_handler,
-                     NumberCache &number_cache) const
+                     NumberCache &number_cache_current) const
       {
         Assert (new_numbers.size() == dof_handler.locally_owned_dofs().n_elements(),
                 ExcInternalError());
 
-        //reset number cache.
-        number_cache = NumberCache ();
+        NumberCache number_cache;
 
 #ifndef DEAL_II_WITH_P4EST
         Assert (false, ExcNotImplemented());
@@ -2689,6 +2687,7 @@ namespace internal
         }
 #endif
 
+        return number_cache;
       }
     }
   }
