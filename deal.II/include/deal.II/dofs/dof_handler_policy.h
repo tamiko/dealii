@@ -71,9 +71,9 @@ namespace internal
          * the object given as last argument.
          */
         virtual
-        void
+        NumberCache
         distribute_dofs (dealii::DoFHandler<dim,spacedim> &dof_handler,
-        		         NumberCache &number_cache) const = 0;
+        		         NumberCache &number_cache_current) const = 0;
 
         /**
          * Distribute the multigrid dofs on each level
@@ -110,9 +110,9 @@ namespace internal
          * the object given as last argument.
          */
         virtual
-        void
+        NumberCache
         distribute_dofs (dealii::DoFHandler<dim,spacedim> &dof_handler,
-        		         NumberCache &number_cache) const;
+        		         NumberCache &number_cache_current) const;
 
         /**
          * Distribute multigrid DoFs.
@@ -154,9 +154,9 @@ namespace internal
     	    * number_cache.locally_owned_dofs are updated consistently.
     	    */
     	  virtual
-    	  void
+    	  NumberCache
     	  distribute_dofs (dealii::DoFHandler<dim,spacedim> &dof_handler,
-    			           NumberCache & number_cache) const;
+    			           NumberCache & number_cache_current) const;
 
     	  /**
     	   * This function is not yet implemented.
@@ -196,7 +196,7 @@ namespace internal
          * the object given as last argument.
          */
         virtual
-        void
+        NumberCache
         distribute_dofs (dealii::DoFHandler<dim,spacedim> &dof_handler,
         		         NumberCache &number_cache) const;
 

@@ -870,10 +870,10 @@ namespace internal
 
 
       template <int dim, int spacedim>
-      void
+      NumberCache
       Sequential<dim,spacedim>::
       distribute_dofs (DoFHandler<dim,spacedim> &dof_handler,
-    		           NumberCache & number_cache ) const
+    		           NumberCache & number_cache_current ) const
       {
         const types::global_dof_index n_dofs =
           Implementation::distribute_dofs (0,
@@ -882,6 +882,7 @@ namespace internal
 
         // now set the elements of the
         // number cache appropriately
+        NumberCache number_cache;
         number_cache.n_global_dofs        = n_dofs;
         number_cache.n_locally_owned_dofs = number_cache.n_global_dofs;
 
@@ -898,6 +899,7 @@ namespace internal
         number_cache.locally_owned_dofs_per_processor
           = std::vector<IndexSet> (1,
                                    number_cache.locally_owned_dofs);
+        return number_cache;
       }
 
 
@@ -965,12 +967,14 @@ namespace internal
 
       /* --------------------- class ParallelSequential ---------------- */
       template <int dim, int spacedim>
-      void
+      NumberCache
       ParallelShared<dim,spacedim>::
       distribute_dofs (DoFHandler<dim,spacedim> &dof_handler,
-    		           NumberCache & number_cache) const
+    		           NumberCache & number_cache_current) const
       {
-    	  Sequential<dim,spacedim>::distribute_dofs (dof_handler,number_cache);
+    	  NumberCache number_cache = Sequential<dim,spacedim>::distribute_dofs (dof_handler,number_cache_current);
+    	  //update current number cache in DoFHandler
+    	  number_cache_current = number_cache;
     	  DoFRenumbering::subdomain_wise (dof_handler);
     	  const parallel::shared::Triangulation<dim,spacedim> *shared_tr = dynamic_cast<const parallel::shared::Triangulation<dim,spacedim>*>(&dof_handler.get_tria());
     	  const unsigned int n_mpi_processes =  Utilities::MPI::n_mpi_processes( shared_tr->get_communicator () );
@@ -978,6 +982,7 @@ namespace internal
     	  for (unsigned int i=0; i<n_mpi_processes; ++i)
     		  number_cache.n_locally_owned_dofs_per_processor[i]  = DoFTools::count_dofs_with_subdomain_association (dof_handler, i);
     	  number_cache.locally_owned_dofs = dealii::DoFTools::locally_owned_dofs_with_subdomain(dof_handler,dof_handler.get_tria().locally_owned_subdomain() );
+    	  return number_cache;
       }
 
       template <int dim, int spacedim>
@@ -1968,11 +1973,12 @@ namespace internal
 
 
       template <int dim, int spacedim>
-      void
+      NumberCache
       ParallelDistributed<dim, spacedim>::
       distribute_dofs (DoFHandler<dim,spacedim> &dof_handler,
-    		           NumberCache &number_cache) const
+    		           NumberCache &number_cache_current) const
       {
+        NumberCache number_cache;
 
 #ifndef DEAL_II_WITH_P4EST
         (void)dof_handler;
@@ -2184,6 +2190,7 @@ namespace internal
 #endif // DEBUG
 #endif // DEAL_II_WITH_P4EST
 
+        return number_cache;
       }
 
 

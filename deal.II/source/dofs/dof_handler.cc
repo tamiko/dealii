@@ -1172,7 +1172,7 @@ void DoFHandler<dim,spacedim>::distribute_dofs (const FiniteElement<dim,spacedim
   internal::DoFHandler::Implementation::reserve_space (*this);
 
   // hand things off to the policy
-  policy->distribute_dofs (*this,number_cache);
+  number_cache = policy->distribute_dofs (*this,number_cache);
 
   // initialize the block info object
   // only if this is a sequential
