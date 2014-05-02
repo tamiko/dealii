@@ -1373,15 +1373,13 @@ namespace DoFTools
                                  IndexSet &dof_set);
 
   /**
-   * Extract the set of global DoF indices distributed on
-   * cells with the given subdomain id. This function should be used for
+   * Extract the set of global DoF indices distributed on cells. This function should be used for
    * DoFHandler objects built on dealii::Triangulation or parallel::shared::Triangulation
    * classes. Internally the funciton is based on DoFTools::get_subdomain_association.
    */
   template <class DH>
-  IndexSet
-  locally_owned_dofs_with_subdomain (const DH                  &dof_handler,
-  		                             const types::subdomain_id  subdomain   );
+  std::vector<IndexSet>
+  locally_owned_dofs_with_subdomain (const DH   &dof_handler);
 
   /**
    * For each DoF, return in the output array to which subdomain (as

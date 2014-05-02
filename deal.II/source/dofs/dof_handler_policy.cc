@@ -966,6 +966,7 @@ namespace internal
       }
 
       /* --------------------- class ParallelSequential ---------------- */
+
       template <int dim, int spacedim>
       NumberCache
       ParallelShared<dim,spacedim>::
@@ -976,12 +977,11 @@ namespace internal
     	  //update current number cache in DoFHandler
     	  number_cache_current = number_cache;
     	  DoFRenumbering::subdomain_wise (dof_handler);
-    	  const parallel::shared::Triangulation<dim,spacedim> *shared_tr = dynamic_cast<const parallel::shared::Triangulation<dim,spacedim>*>(&dof_handler.get_tria());
-    	  const unsigned int n_mpi_processes =  Utilities::MPI::n_mpi_processes( shared_tr->get_communicator () );
-    	  number_cache.n_locally_owned_dofs_per_processor.resize (n_mpi_processes);
-    	  for (unsigned int i=0; i<n_mpi_processes; ++i)
-    		  number_cache.n_locally_owned_dofs_per_processor[i]  = DoFTools::count_dofs_with_subdomain_association (dof_handler, i);
-    	  number_cache.locally_owned_dofs = dealii::DoFTools::locally_owned_dofs_with_subdomain(dof_handler,dof_handler.get_tria().locally_owned_subdomain() );
+    	  number_cache.locally_owned_dofs_per_processor = DoFTools::locally_owned_dofs_with_subdomain (dof_handler);
+    	  number_cache.locally_owned_dofs = number_cache.locally_owned_dofs_per_processor[dof_handler.get_tria().locally_owned_subdomain()];
+    	  number_cache.n_locally_owned_dofs_per_processor.resize (number_cache.locally_owned_dofs_per_processor.size());
+    	  for (unsigned int i = 0; i < number_cache.n_locally_owned_dofs_per_processor.size(); i++)
+    		  number_cache.n_locally_owned_dofs_per_processor[i] = number_cache.locally_owned_dofs_per_processor[i].n_elements();
     	  return number_cache;
       }
 
@@ -1006,8 +1006,9 @@ namespace internal
           //update current number cache
           number_cache_current = number_cache;
     	  //correct number_cache:
-    	  number_cache.locally_owned_dofs = dealii::DoFTools::locally_owned_dofs_with_subdomain(dof_handler,dof_handler.get_tria().locally_owned_subdomain() );
-    	  return number_cache;
+		  number_cache.locally_owned_dofs_per_processor = DoFTools::locally_owned_dofs_with_subdomain (dof_handler);
+		  number_cache.locally_owned_dofs = number_cache.locally_owned_dofs_per_processor[dof_handler.get_tria().locally_owned_subdomain()];
+		  return number_cache;
       }
 
       /* --------------------- class ParallelDistributed ---------------- */

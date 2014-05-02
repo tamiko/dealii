@@ -1076,42 +1076,65 @@ namespace DoFTools
   }
 
   template <class DH>
-  IndexSet
-  locally_owned_dofs_with_subdomain (const DH                  &dof_handler,
-		                             const types::subdomain_id  subdomain   )
+  std::vector<IndexSet>
+  locally_owned_dofs_with_subdomain (const DH  &dof_handler)
   {
-	  IndexSet index_set (dof_handler.n_dofs());
+	  //the following is a random process (flip of a coin), thus should be called once only.
 	  std::vector< types::subdomain_id > subdomain_association(dof_handler.n_dofs());
 	  DoFTools::get_subdomain_association(dof_handler,subdomain_association);
-	  types::global_dof_index i_min=0, i_max_plus_1=0;
+
+	  const unsigned int num_subdomains = 1 + (*max_element(subdomain_association.begin(), subdomain_association.end()));
+
+	  std::vector<IndexSet> index_sets (num_subdomains,IndexSet(dof_handler.n_dofs()));
+	  std::vector<types::global_dof_index> i_min(num_subdomains,0),
+			                               i_max_plus_1(num_subdomains,0);
 
 	  //loop over subdomain_association
 	  //and populate IndexSet when
 	  //a given subdomain is found
-	  bool found_start = false;
+	  std::vector<bool> found_start(num_subdomains,false);
 	  for (types::global_dof_index ind = 0; ind < subdomain_association.size(); ind++)
 	  {
-		  if (!found_start && (subdomain_association[ind]== subdomain) )
+		  for (unsigned int i = 0; i < num_subdomains; i++)
 		  {
-			  found_start = true;
-			  i_min = ind;
-		  }
-		  if (found_start && (subdomain_association[ind] != subdomain) )
-		  {
-			  found_start = false;
-			  i_max_plus_1 = ind;
-			  index_set.add_range(i_min,i_max_plus_1);
+			  if (!found_start[i] && (subdomain_association[ind]== i) )
+			  {
+				  found_start[i] = true;
+				  i_min[i] = ind;
+				  break;
+			  }
+			  if (found_start[i] && (subdomain_association[ind] != i) )
+			  {
+				  found_start[i] = false;
+				  i_max_plus_1[i] = ind;
+				  index_sets[i].add_range(i_min[i],i_max_plus_1[i]);
+				  break;
+			  }
 		  }
 	  }
-
+	  //check that only 1 found_start[i] is true:
+	  {
+		  bool found = false;
+		  for (unsigned int i = 0; i < num_subdomains; i++)
+		  {
+			  if (found_start[i])
+			  {
+				  Assert(!found, ExcInternalError())
+				  found = true;
+			  }
+		  }
+	  }
 	  // we have found the starting element, but not the end.
 	  // the last element must have the same subdomain id,
 	  // thus use it to add the range
-	  if (found_start) {
-		  index_set.add_range(i_min,subdomain_association.size());
+	  for (unsigned int i = 0;i< num_subdomains; i++)
+	  {
+		  if (found_start[i]) {
+			  index_sets[i].add_range(i_min[i],subdomain_association.size());
+		  }
+		  index_sets[i].compress();
 	  }
-	  index_set.compress();
-	  return index_set;
+	  return index_sets;
   }
 
   template <class DH>
