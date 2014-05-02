@@ -63,7 +63,7 @@ namespace parallel
        */
       Triangulation (MPI_Comm mpi_communicator,
     		         const typename dealii::Triangulation<dim,spacedim>::MeshSmoothing =
-    		         typename Triangulation<dim,spacedim>::MeshSmoothing(Triangulation<dim,spacedim>::none));
+		     (dealii::Triangulation<dim,spacedim>::none) );
 
       /**
        * Destructor.
