@@ -41,6 +41,7 @@ DEAL_II_NAMESPACE_OPEN
 
 template <int, int> class Triangulation;
 
+
 namespace parallel
 {
   namespace shared
@@ -60,7 +61,9 @@ namespace parallel
       /**
        * Constructor.
        */
-      Triangulation (MPI_Comm mpi_communicator);
+      Triangulation (MPI_Comm mpi_communicator,
+    		         const typename dealii::Triangulation<dim,spacedim>::MeshSmoothing =
+    		         typename Triangulation<dim,spacedim>::MeshSmoothing(Triangulation<dim,spacedim>::none));
 
       /**
        * Destructor.
@@ -98,11 +101,59 @@ namespace parallel
       									  const std::vector< CellData< dim > > &cells, 
       									  const SubCellData &subcelldata);
       
+      /**
+       * Return the number of active cells owned by each of the MPI
+       * processes that contribute to this triangulation. The element
+       * of this vector indexed by locally_owned_subdomain() equals
+       * the result of n_locally_owned_active_cells().
+       */
+      const std::vector<unsigned int> &
+      n_locally_owned_active_cells_per_processor () const;
+
+      /**
+       * Return the number of active cells in the triangulation that
+       * are locally owned, i.e. that have a subdomain_id equal to
+       * locally_owned_subdomain().
+       *
+       */
+      unsigned int n_locally_owned_active_cells () const;
+
+      /**
+       * Return the sum over all processors of the number of active
+       * cells owned by each processor. This equals the overall number
+       * of active cells in the shared triangulation.
+       */
+      types::global_dof_index n_global_active_cells () const;
+
+      /**
+       * Returns the global maximum level. This may be bigger than n_levels.
+       */
+      virtual unsigned int n_global_levels () const;
+
       
     private:
       MPI_Comm mpi_communicator;
       types::subdomain_id my_subdomain;
       types::subdomain_id num_subdomains;
+
+      struct NumberCache
+      {
+    	  std::vector<unsigned int> n_locally_owned_active_cells;
+    	  types::global_dof_index   n_global_active_cells;
+    	  unsigned int              n_global_levels;
+
+    	  NumberCache();
+      };
+
+      NumberCache number_cache;
+
+      /**
+       * Update the number_cache variable after mesh creation or
+       * refinement.
+       */
+      void update_number_cache ();
+
+
     };
   }
 }
