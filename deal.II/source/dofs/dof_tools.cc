@@ -1086,54 +1086,33 @@ namespace DoFTools
 	  const unsigned int num_subdomains = 1 + (*max_element(subdomain_association.begin(), subdomain_association.end()));
 
 	  std::vector<IndexSet> index_sets (num_subdomains,IndexSet(dof_handler.n_dofs()));
-	  std::vector<types::global_dof_index> i_min(num_subdomains,0),
-			                               i_max_plus_1(num_subdomains,0);
 
 	  //loop over subdomain_association
 	  //and populate IndexSet when
-	  //a given subdomain is found
-	  std::vector<bool> found_start(num_subdomains,false);
-	  for (types::global_dof_index ind = 0; ind < subdomain_association.size(); ind++)
+	  //a change in subdomain ID is found
+	  types::global_dof_index i_min = 0;
+	  types::global_dof_index cur_subdomain = subdomain_association[0];
+	  for (types::global_dof_index ind = 1; ind < subdomain_association.size(); ind++)
 	  {
-		  for (unsigned int i = 0; i < num_subdomains; i++)
+		  //found index different from the current one
+		  if (subdomain_association[ind] != cur_subdomain)
 		  {
-			  if (!found_start[i] && (subdomain_association[ind]== i) )
-			  {
-				  found_start[i] = true;
-				  i_min[i] = ind;
-				  break;
-			  }
-			  if (found_start[i] && (subdomain_association[ind] != i) )
-			  {
-				  found_start[i] = false;
-				  i_max_plus_1[i] = ind;
-				  index_sets[i].add_range(i_min[i],i_max_plus_1[i]);
-				  break;
-			  }
+			  index_sets[cur_subdomain].add_range(i_min,ind);
+			  i_min = ind;
+			  cur_subdomain = subdomain_association[ind];
 		  }
 	  }
-	  //check that only 1 found_start[i] is true:
+	  //the very last element is of different index
+	  if (i_min == subdomain_association.size()-1)
 	  {
-		  bool found = false;
-		  for (unsigned int i = 0; i < num_subdomains; i++)
-		  {
-			  if (found_start[i])
-			  {
-				  Assert(!found, ExcInternalError())
-				  found = true;
-			  }
-		  }
+		  index_sets[cur_subdomain].add_index(i_min);
 	  }
-	  // we have found the starting element, but not the end.
-	  // the last element must have the same subdomain id,
-	  // thus use it to add the range
+	  else //there are at least two different indices
+	  {
+		  index_sets[cur_subdomain].add_range(i_min,subdomain_association.size());
+	  }
 	  for (unsigned int i = 0;i< num_subdomains; i++)
-	  {
-		  if (found_start[i]) {
-			  index_sets[i].add_range(i_min[i],subdomain_association.size());
-		  }
 		  index_sets[i].compress();
-	  }
 	  return index_sets;
   }
 

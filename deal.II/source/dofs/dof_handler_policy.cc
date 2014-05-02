@@ -976,12 +976,14 @@ namespace internal
     	  NumberCache number_cache = Sequential<dim,spacedim>::distribute_dofs (dof_handler,number_cache_current);
     	  //update current number cache in DoFHandler
     	  number_cache_current = number_cache;
+    	  //number_cache.n_global_dofs;
     	  DoFRenumbering::subdomain_wise (dof_handler);
     	  number_cache.locally_owned_dofs_per_processor = DoFTools::locally_owned_dofs_with_subdomain (dof_handler);
     	  number_cache.locally_owned_dofs = number_cache.locally_owned_dofs_per_processor[dof_handler.get_tria().locally_owned_subdomain()];
     	  number_cache.n_locally_owned_dofs_per_processor.resize (number_cache.locally_owned_dofs_per_processor.size());
     	  for (unsigned int i = 0; i < number_cache.n_locally_owned_dofs_per_processor.size(); i++)
     		  number_cache.n_locally_owned_dofs_per_processor[i] = number_cache.locally_owned_dofs_per_processor[i].n_elements();
+    	  number_cache.n_locally_owned_dofs = number_cache.n_locally_owned_dofs_per_processor[dof_handler.get_tria().locally_owned_subdomain()];
     	  return number_cache;
       }
 
