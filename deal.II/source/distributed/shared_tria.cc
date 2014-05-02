@@ -147,6 +147,7 @@ namespace parallel
     Triangulation<dim,spacedim>::execute_coarsening_and_refinement () {
     	  dealii::Triangulation<dim,spacedim>::execute_coarsening_and_refinement ();
     	  dealii::GridTools::partition_triangulation (num_subdomains, *this);
+    	  update_number_cache ();
     }
     
     template <int dim, int spacedim>
@@ -166,6 +167,7 @@ namespace parallel
           AssertThrow (false, ExcInternalError());
         }
       dealii::GridTools::partition_triangulation (num_subdomains, *this);
+      update_number_cache ();
     }
 
 

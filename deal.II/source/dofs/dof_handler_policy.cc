@@ -1004,12 +1004,15 @@ namespace internal
                      dealii::DoFHandler<dim,spacedim> &dof_handler,
                      NumberCache &number_cache_current) const
       {
-          NumberCache number_cache = Sequential<dim,spacedim>::renumber_dofs (new_numbers,dof_handler,number_cache_current);
+    	  NumberCache number_cache = Sequential<dim,spacedim>::renumber_dofs (new_numbers,dof_handler,number_cache_current);
           //update current number cache
           number_cache_current = number_cache;
     	  //correct number_cache:
 		  number_cache.locally_owned_dofs_per_processor = DoFTools::locally_owned_dofs_with_subdomain (dof_handler);
 		  number_cache.locally_owned_dofs = number_cache.locally_owned_dofs_per_processor[dof_handler.get_tria().locally_owned_subdomain()];
+		  for (unsigned int i = 0; i < number_cache.n_locally_owned_dofs_per_processor.size(); i++)
+		      number_cache.n_locally_owned_dofs_per_processor[i] = number_cache.locally_owned_dofs_per_processor[i].n_elements();
+		  number_cache.n_locally_owned_dofs = number_cache.n_locally_owned_dofs_per_processor[dof_handler.get_tria().locally_owned_subdomain()];
 		  return number_cache;
       }
 
