@@ -1004,7 +1004,49 @@ namespace internal
                      dealii::DoFHandler<dim,spacedim> &dof_handler,
                      NumberCache &number_cache_current) const
       {
-    	  NumberCache number_cache = Sequential<dim,spacedim>::renumber_dofs (new_numbers,dof_handler,number_cache_current);
+    	  //shift:
+    	  std::vector<types::global_dof_index> gathered_new_numbers;
+    	  if ( new_numbers.size() < dof_handler.n_dofs())
+    	  {
+    		  //gather sizes of new_nubers
+    		  const parallel::shared::Triangulation< dim, spacedim > *tr
+    		              = (dynamic_cast<const parallel::shared::Triangulation<dim,spacedim>*>
+    		                 (&dof_handler.get_tria()));
+    		  Assert (tr != 0, ExcInternalError());
+    		  const unsigned int n_cpu = Utilities::MPI::n_mpi_processes(tr->get_communicator());
+
+    		  std::vector<types::global_dof_index> global_n_dofs(n_cpu);
+    		  types::global_dof_index n_dofs = new_numbers.size();
+    		  MPI_Allgather(&n_dofs,           1, DEAL_II_DOF_INDEX_MPI_TYPE,
+    				        &global_n_dofs[0], 1, DEAL_II_DOF_INDEX_MPI_TYPE,
+    				        tr->get_communicator());
+
+    		  std::vector<types::global_dof_index> local_new_numbers (new_numbers.size(),0);
+    		  types::global_dof_index shift = 0;
+    		  for (unsigned int i = 0; i < tr->locally_owned_subdomain(); i++ )
+    			  shift+=global_n_dofs[i];
+
+    		  for (unsigned int i = 0; i < new_numbers.size(); i++)
+    			  local_new_numbers[i] = new_numbers[i]+shift;
+
+    		  //Assert ( std::max_element(local_new_numbers.begin(),local_new_numbers.end()) < dof_handler.n_dofs(),ExcInternalError() );
+
+    		  gathered_new_numbers.resize(dof_handler.n_dofs());
+    		  MPI_Allgather(&local_new_numbers[0],    local_new_numbers.size(), DEAL_II_DOF_INDEX_MPI_TYPE,
+    		     	        &gathered_new_numbers[0], local_new_numbers.size(), DEAL_II_DOF_INDEX_MPI_TYPE,
+    		     	         tr->get_communicator());
+    	  }
+    	  else
+    	  {
+    		  gathered_new_numbers = new_numbers;
+    	  }
+    	  //debug:
+    	  //for (unsigned int i = 0; i < new_numbers.size(); i++)
+    	  //  std::cout<<dof_handler.get_tria().locally_owned_subdomain()<<" "<<i<<" "<<new_numbers[i]<<std::endl;
+    	  //for (unsigned int i = 0; i < gathered_new_numbers.size();i++)
+          //  std::cout<<dof_handler.get_tria().locally_owned_subdomain()<<" "<<i<<" "<<gathered_new_numbers[i]<<std::endl;
+
+    	  NumberCache number_cache = Sequential<dim,spacedim>::renumber_dofs (gathered_new_numbers,dof_handler,number_cache_current);
           //update current number cache
           number_cache_current = number_cache;
     	  //correct number_cache:
