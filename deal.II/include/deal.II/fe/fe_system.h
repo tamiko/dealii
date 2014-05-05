@@ -1,7 +1,7 @@
 // ---------------------------------------------------------------------
 // $Id$
 //
-// Copyright (C) 1999 - 2013 by the deal.II authors
+// Copyright (C) 1999 - 2014 by the deal.II authors
 //
 // This file is part of the deal.II library.
 //
@@ -214,7 +214,7 @@ public:
   /**
    * Same as above but for any number of base elements. Pointers to the base
    * elements and their multiplicities are passed as vectors to this
-   * constructor. The length of these vectors is assumed to be equal.
+   * constructor. The lengths of these vectors are assumed to be equal.
    */
 
   FESystem (const std::vector<const FiniteElement<dim,spacedim>*> &fes,
@@ -347,12 +347,8 @@ public:
   base_element (const unsigned int index) const;
 
   /**
-   * Check for non-zero values on a face.
-   *
    * This function returns @p true, if the shape function @p shape_index has
-   * non-zero values on the face @p face_index.
-   *
-   * Implementation of the interface in FiniteElement
+   * non-zero function values somewhere on the face @p face_index.
    */
   virtual bool has_support_on_face (const unsigned int shape_index,
                                     const unsigned int face_index) const;

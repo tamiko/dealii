@@ -1,7 +1,7 @@
 // ---------------------------------------------------------------------
 // $Id: 2d_refinement_01.cc 31349 2013-10-20 19:07:06Z maier $
 //
-// Copyright (C) 2008 - 2013 by the deal.II authors
+// Copyright (C) 2008 - 2014 by the deal.II authors
 //
 // This file is part of the deal.II library.
 //
@@ -33,7 +33,7 @@
 #include <fstream>
 #include <deal.II/fe/fe_q.h>
 
-template <int dim, int spacedim=dim>
+template <int dim, int spacedim>
 void write_vtk (const parallel::distributed::Triangulation<dim,spacedim> &tria,
                 const char                                *filename)
 {
@@ -45,25 +45,19 @@ void write_vtk (const parallel::distributed::Triangulation<dim,spacedim> &tria,
 
   // copy the .pvtu and .vtu files
   // into the logstream
-  {
-    std::ifstream in((std::string(filename) + ".pvtu").c_str());
-    while (in)
-      {
-        std::string s;
-        std::getline(in, s);
-        deallog.get_file_stream() << s << "\n";
-      }
-  }
-
-  {
-    std::ifstream in((std::string(filename) + "_0000.vtu").c_str());
-    while (in)
-      {
-        std::string s;
-        std::getline(in, s);
-        deallog.get_file_stream() << s << "\n";
-      }
-  }
+  int myid = Utilities::MPI::this_mpi_process (MPI_COMM_WORLD);
+  if (myid==0)
+    {
+      cat_file((std::string(filename) + ".pvtu").c_str());
+      cat_file((std::string(filename) + "_0000.vtu").c_str());
+    }
+  else if (myid==1)
+      cat_file((std::string(filename) + "_0001.vtu").c_str());
+  else if (myid==2)
+      cat_file((std::string(filename) + "_0002.vtu").c_str());
+  else
+    AssertThrow(false, ExcNotImplemented());
+  
 }
 
 template<int dim, int spacedim>
@@ -73,7 +67,7 @@ void test(std::ostream & /*out*/)
 
   GridGenerator::torus(tr, 1, 0.2);
   tr.refine_global();
-  
+
   tr.begin_active()->set_refine_flag();
   (++(tr.begin_active()))->set_refine_flag();
 
@@ -112,6 +106,6 @@ int main(int argc, char *argv[])
   MPILogInitAll init;
 
   deallog.push("2-3");
-  test<2,3>(deallog.get_file_stream());  
+  test<2,3>(deallog.get_file_stream());
   deallog.pop();
 }

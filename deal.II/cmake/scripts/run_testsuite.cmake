@@ -1,7 +1,7 @@
 ## ---------------------------------------------------------------------
 ## $Id$
 ##
-## Copyright (C) 2013 by the deal.II authors
+## Copyright (C) 2013, 2014 by the deal.II authors
 ##
 ## This file is part of the deal.II library.
 ##
@@ -69,7 +69,7 @@
 #       "Nightly"          - Reserved for nightly regression tests for
 #                            build bots on various architectures
 #
-#       "Regression Tests" - Reserved for the regression tester
+#       "Regression Tests" - Reserved for the "official" regression tester
 #
 #   CONFIG_FILE
 #     - A configuration file (see ../deal.II/docs/development/Config.sample)
@@ -245,7 +245,7 @@ ENDIF()
 MESSAGE("-- CTEST_SITE:             ${CTEST_SITE}")
 
 IF( "${TRACK}" STREQUAL "Regression Tests"
-    AND NOT CTEST_SITE MATCHES "c0541" )
+    AND NOT CTEST_SITE MATCHES "tester" )
   MESSAGE(FATAL_ERROR "
 I'm sorry ${CTEST_SITE}, I'm afraid I can't do that.
 The TRACK \"Regression Tests\" is not for you.
@@ -546,7 +546,7 @@ IF("${_res}" STREQUAL "0")
   IF("${_res}" STREQUAL "0")
     # Only run tests if the build was successful:
 
-    MESSAGE("-- Running make setup_tests")
+    MESSAGE("-- Running setup_tests")
     EXECUTE_PROCESS(COMMAND ${CMAKE_COMMAND}
       --build ${CTEST_BINARY_DIRECTORY} --target setup_tests
       -- ${MAKEOPTS}

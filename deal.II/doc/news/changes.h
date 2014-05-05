@@ -148,6 +148,79 @@ inconvenience this causes.
 <h3>Specific improvements</h3>
 
 <ol>
+  <li> New: The class VectorizedArray<Number> now provides methods
+  VectorizedArray::load(ptr) to read from arbitrary pointer addresses and
+  VectorizedArray::store(ptr) to write to arbitrary pointer addresses,
+  as opposed to the data layout of VectorizedArray that requires pointers
+  to be aligned by the size of the array in bytes. This also circumvents
+  a (rare) compiler optimization bug with gcc-4.6 on SSE code in combination
+  with function calls, e.g. to std::sin.
+  <br>
+  (Martin Kronbichler, 2014/05/05)
+  </li>
+
+  <li> Changed: Namespace SparsityTools had a local typedef <code>size_type</code>
+  that was set equal to types::global_dof_index. This typedef has been removed
+  and we now use SparsityPattern::size_type wherever applicable as this is the
+  type we really want to use. (The code worked previously because
+  types::global_dof_index and SparsityPattern::size_type happen to be the same
+  as far as the underlying type is concerned; however, they are different
+  semantically.)
+  <br>
+  (Wolfgang Bangerth, 2014/05/04)
+  </li>
+
+  <li> Updated: The step-16 tutorial program was updated to the new layout
+  multigrid objects and thus avoids using deprecated interfaces.
+  <br>
+  (Martin Kronbichler, 2014/05/03)
+  </li>
+
+  <li> Fixed: FE_DGQArbitraryNodes::has_support_on_face was broken when
+  polynomials with support points not on the element boundary were used.
+  This is now fixed.
+  <br>
+  (Martin Kronbichler, 2014/04/30)
+  </li>
+
+  <li> Fixed: parallel::distributed::Triangulation::load now has an
+  additional parameter <code>autopartition</code> to control p4est's behavior of
+  rebalancing triangulations between MPI nodes upon reading. It is
+  particularly useful to disable this behavior when data is stored
+  separately (examples for this are in the regression tests mpi/p4est_save_0?).
+  <br>
+  (Alexander Grayver, Matthias Maier, 2014/04/26)
+  </li>
+
+  <li> Fixed: GridTools::find_active_cell_around_point() could get into an infinite
+  loop if the point we are looking for is in fact not within the domain. This is now
+  fixed.
+  <br>
+  (Giorgos Kourakos, Timo Heister, Wolfgang Bangerth, 2014/04/14)
+  </li>
+
+  <li> Changed: TableBase<N,T> now uses AlignedVector for storing data
+  instead of std::vector, which allows its use for VectorizedArray<Number>
+  data fields which require more alignment.
+  <br>
+  (Martin Kronbichler, 2014/04/09)
+  </li>
+
+  <li> Improved: Piola transformation for FE_BDM is now active.
+  <br>
+  (Guido Kanschat, 2014/04/09)
+  </li>
+
+  <li> Changed: operator< for cell iterators no longer looks at
+  (level-)subdomain ids but only compares level() and index(). This makes the
+  ordering inconsistent between processes on a
+  parallel::distributed::Triangulation, but fixes the problem that the
+  ordering of cells changes under mesh refinement or other causes for changing
+  the subdomain id.
+  <br>
+  (Timo Heister, 2014/04/08)
+  </li>
+  
   <li> New: GridTools::laplace_transform() now takes an addition, optional
   parameter that indicates the "stiffness" of the mapping.
   <br>

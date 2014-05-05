@@ -388,7 +388,7 @@ namespace TimeStepping
     tendency = f(t,y);
     residual = tendency;
     residual.sadd(delta_t,1.0,old_y);
-    residual.sadd(1.0,-1.,y);
+    residual.sadd(-1.0,1.,y);
   }
 
 
@@ -505,7 +505,7 @@ namespace TimeStepping
         tmp[3] = -212./729.;
         this->a.push_back(tmp);
         tmp.resize(5);
-        tmp[0] = -9017./3168.;
+        tmp[0] = 9017./3168.;
         tmp[1] = -355./33.;
         tmp[2] = 46732./5247.;
         tmp[3] = 49./176.;

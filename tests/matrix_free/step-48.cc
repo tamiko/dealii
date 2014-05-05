@@ -1,7 +1,7 @@
 // ---------------------------------------------------------------------
 // $Id$
 //
-// Copyright (C) 2012 - 2013 by the deal.II authors
+// Copyright (C) 2012 - 2014 by the deal.II authors
 //
 // This file is part of the deal.II library.
 //
@@ -207,8 +207,6 @@ namespace Step48
 
   private:
     void make_grid_and_dofs ();
-    void oldstyle_operation ();
-    void assemble_system ();
     void output_results (const unsigned int timestep_number);
 
 #ifdef DEAL_II_WITH_P4EST
