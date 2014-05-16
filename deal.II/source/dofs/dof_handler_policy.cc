@@ -1017,7 +1017,24 @@ namespace internal
 						 (&dof_handler.get_tria()));
 			  Assert (tr != 0, ExcInternalError());
 			  const unsigned int n_cpu = Utilities::MPI::n_mpi_processes(tr->get_communicator());
+			  const unsigned int this_process =  Utilities::MPI::this_mpi_process(tr->get_communicator());
 			  std::vector<types::global_dof_index> gathered_new_numbers(dof_handler.n_dofs(),0);
+
+			  //debug (TODO: remove when everything works):
+			  if (false)
+			  {
+				 unsigned int cur_process = 0;
+			     while(cur_process!=n_cpu){
+			      if(cur_process==this_process){
+			        std::cout<<"process "<<this_process<<": "<<std::endl;
+			        for(types::global_dof_index i=0; i< new_numbers.size(); i++)
+			        	std::cout<<new_numbers[i]<<" ";
+			        std::cout<<std::endl<<std::flush;
+			      }
+			      MPI_Barrier(MPI_COMM_WORLD);
+			      cur_process++;
+			    }
+			  }
 
 			  //gather new numbers among processors into one vector
 			  {
@@ -1037,7 +1054,7 @@ namespace internal
 				  for (types::global_dof_index ind = 0; ind < iset.n_elements(); ind++)
 				  {
 					  const types::global_dof_index target = iset.nth_index_in_set(ind);
-					  const types::global_dof_index value  = shift + gathered_new_numbers[shift+ind];
+					  const types::global_dof_index value  = gathered_new_numbers[shift+ind];
 					  Assert(target < dof_handler.n_dofs(), ExcInternalError() );
 					  Assert(value  < dof_handler.n_dofs(), ExcInternalError() );
 					  global_gathered_numbers[target] = value;
