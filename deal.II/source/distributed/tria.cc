@@ -2011,7 +2011,7 @@ namespace parallel
                    const Settings settings_)
       :
       // do not check for distorted cells
-      dealii::Triangulation<dim,spacedim>
+      dealii::parallel::Triangulation<dim,spacedim>
       (smooth_grid,
        false),
       mpi_communicator (Utilities::MPI::

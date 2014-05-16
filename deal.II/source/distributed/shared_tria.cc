@@ -50,8 +50,8 @@ namespace parallel
 
     template <int dim, int spacedim>
     Triangulation<dim,spacedim>::Triangulation (MPI_Comm mpi_communicator,
-    		                                    const typename dealii::Triangulation<dim,spacedim>::MeshSmoothing):
-        dealii::Triangulation<dim,spacedim>(),
+    		                                    const typename dealii::Triangulation<dim,spacedim>::MeshSmoothing smooth_grid):
+        dealii::parallel::Triangulation<dim,spacedim>(smooth_grid,false),
     	mpi_communicator (Utilities::MPI::
                           duplicate_communicator(mpi_communicator)),
         my_subdomain (Utilities::MPI::this_mpi_process (this->mpi_communicator)),

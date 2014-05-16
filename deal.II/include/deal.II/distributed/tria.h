@@ -27,6 +27,8 @@
 #include <deal.II/base/std_cxx1x/function.h>
 #include <deal.II/base/std_cxx1x/tuple.h>
 
+#include <deal.II/distributed/shared_tria.h>
+
 #include <set>
 #include <vector>
 #include <list>
@@ -306,7 +308,7 @@ namespace parallel
      * @ingroup distributed
      */
     template <int dim, int spacedim = dim>
-    class Triangulation : public dealii::Triangulation<dim,spacedim>
+    class Triangulation : public dealii::parallel::Triangulation<dim,spacedim>
     {
     public:
      /**
