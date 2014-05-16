@@ -52,7 +52,7 @@ namespace parallel
       /**
        * Constructor.
        */
-      Triangulation (const typename dealii::Triangulation<dim,spacedim>::MeshSmoothing smooth_grid = dealii::Triangulation<dim,spacedim>::none,
+	Triangulation (const typename dealii::Triangulation<dim,spacedim>::MeshSmoothing smooth_grid = (dealii::Triangulation<dim,spacedim>::none),
     		         const bool check_for_distorted_cells = false) :
     		  dealii::Triangulation<dim,spacedim>(smooth_grid,check_for_distorted_cells) {};
 
