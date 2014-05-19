@@ -863,8 +863,10 @@ namespace PETScWrappers
                                          const Vector &v) const
     {
       Vector tmp (v);
+      Vector copy_u (u);
+      Vector & conj = dynamic_cast<Vector&>(copy_u.conjugate());
       vmult (tmp, v);
-      return u*tmp;
+      return conj*tmp;
     }
 
   }

@@ -449,7 +449,7 @@ namespace PETScWrappers
 
       /**
        * Compute the matrix scalar
-       * product $\left(u,Mv\right)$.
+       * product $\left(conjugate(u),Mv\right)$.
        *
        * The implementation of this function
        * is not as efficient as the one in
@@ -457,7 +457,7 @@ namespace PETScWrappers
        * deal.II (i.e. the original one, not
        * the PETSc wrapper class) since PETSc
        * doesn't support this operation and
-       * needs a temporary vector.
+       * needs two temporary vectors.
        */
       PetscScalar matrix_scalar_product (const Vector &u,
                                          const Vector &v) const;
