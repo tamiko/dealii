@@ -864,9 +864,9 @@ namespace PETScWrappers
     {
       Vector tmp (v);
       Vector copy_u (u);
-      Vector & conj = dynamic_cast<Vector&>(copy_u.conjugate());
       vmult (tmp, v);
-      return conj*tmp;
+      copy_u.conjugate();
+      return copy_u*tmp;
     }
 
   }
