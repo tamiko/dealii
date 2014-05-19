@@ -157,6 +157,12 @@ namespace GridTools
 
 namespace parallel
 {
+
+  // forward declaration of the base class
+  template <int dim, int spacedim>
+  class Triangulation;
+  
+  
   namespace distributed
   {
 
