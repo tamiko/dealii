@@ -187,6 +187,8 @@ void test ()
   
   deallog<<"conj*vmult:"<< conjugate*tmp<<std::endl;
   
+  deallog<<"vector*vmult:"<< vector*tmp<<std::endl;
+  
   deallog<<"matrix_scalar_product: ";
   const std::complex<double> norm =
 	  mass_matrix.matrix_scalar_product(vector, vector);
