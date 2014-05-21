@@ -41,7 +41,7 @@ void test (PETScWrappers::Vector &v,
         {
           const PetscScalar wi = std::complex<double> (5.0-i,2.5*(i%6));
           w(i) = wi;
-          product += vi*wi;
+          product += PetscConj(vi)*wi;
         }
     }
 

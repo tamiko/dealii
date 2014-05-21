@@ -544,6 +544,9 @@ namespace PETScWrappers
      * Return the scalar product of two
      * vectors. The vectors must have the
      * same size.
+     *
+     * For complex valued vector, this gives
+     * $\left(v^\ast,vec\right)$.
      */
     PetscScalar operator * (const VectorBase &vec) const;
 
