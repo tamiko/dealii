@@ -1,5 +1,5 @@
 // ---------------------------------------------------------------------
-// $Id: testsuite.html 32446 2014-02-10 14:31:22Z bangerth $
+// $Id: testsuite.html 32446 2014-05-21 14:31:22Z davydov $
 //
 // Copyright (C) 2013 by the deal.II Authors
 //
@@ -14,8 +14,8 @@
 //
 // ---------------------------------------------------------------------
 
-// test that matrix_scalar_product of a symmetric matrix 
-// applied to the same vector result in a real number
+// test FEValuesBase::get_function_values() 
+// when used with complex vector;
 
 
 #include "../tests.h"
