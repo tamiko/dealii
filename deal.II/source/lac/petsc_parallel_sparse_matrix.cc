@@ -855,7 +855,8 @@ namespace PETScWrappers
     {
       Vector tmp (v);
       vmult (tmp, v);
-      return tmp*v;
+      //note, that v*tmp returns conjugate(v) * tmp
+      return v*tmp;
     }
 
     PetscScalar
@@ -863,10 +864,9 @@ namespace PETScWrappers
                                          const Vector &v) const
     {
       Vector tmp (v);
-      Vector copy_u (u);
       vmult (tmp, v);
-      copy_u.conjugate();
-      return copy_u*tmp;
+      //note, that u*tmp returns conjugate(u) * tmp
+      return u*tmp;
     }
 
   }

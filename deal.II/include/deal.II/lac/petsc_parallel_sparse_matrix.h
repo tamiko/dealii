@@ -424,7 +424,7 @@ namespace PETScWrappers
        * of the vector $v$ with respect
        * to the norm induced by this
        * matrix,
-       * i.e. $\left(v,Mv\right)$. This
+       * i.e. $\left(v^\ast,Mv\right)$. This
        * is useful, e.g. in the finite
        * element context, where the
        * $L_2$ norm of a function
@@ -449,7 +449,7 @@ namespace PETScWrappers
 
       /**
        * Compute the matrix scalar
-       * product $\left(conjugate(u),Mv\right)$.
+       * product $\left(u^\ast,Mv\right)$.
        *
        * The implementation of this function
        * is not as efficient as the one in
@@ -457,7 +457,7 @@ namespace PETScWrappers
        * deal.II (i.e. the original one, not
        * the PETSc wrapper class) since PETSc
        * doesn't support this operation and
-       * needs two temporary vectors.
+       * needs a temporary vector.
        */
       PetscScalar matrix_scalar_product (const Vector &u,
                                          const Vector &v) const;
