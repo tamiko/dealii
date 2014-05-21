@@ -49,43 +49,22 @@
 
 using namespace dealii;
 
-static const unsigned int dim = 2;
-
-void test ()
+template<int dim>
+void test (const unsigned int poly_degree = 1)
 {
 
   MPI_Comm mpi_communicator (MPI_COMM_WORLD);
    const unsigned int n_mpi_processes (Utilities::MPI::n_mpi_processes(mpi_communicator));
    const unsigned int this_mpi_process (Utilities::MPI::this_mpi_process(mpi_communicator));
-   
-   ConditionalOStream pcout (std::cout,
-           (Utilities::MPI::this_mpi_process(mpi_communicator)
-            == 0));
   
   parallel::distributed::Triangulation<dim> tria(mpi_communicator,
                    typename Triangulation<dim>::MeshSmoothing
                    (Triangulation<dim>::smoothing_on_refinement |
                     Triangulation<dim>::smoothing_on_coarsening));
 
-  if (false)
-   {
-    Triangulation<dim>   triangulation1;
-    Triangulation<dim>   triangulation2;
-    Triangulation<dim>   triangulation12;
-    GridGenerator::hyper_cube (triangulation1, -1,0); //create a square [-1,0]^d domain
-    GridGenerator::hyper_cube (triangulation2, -1,0); //create a square [-1,0]^d domain
-    Point<dim> shift_vector;
-    shift_vector[0] = 1.0;
-    GridTools::shift(shift_vector,triangulation2);
-    GridGenerator::merge_triangulations (triangulation1, triangulation2, tria);
-   }  
-  else
-  {
-     GridGenerator::hyper_cube (tria, -1,0);
-	 //tria.refine_global (1);
-  } 
+  GridGenerator::hyper_cube (tria, -1,0);
+  tria.refine_global (3);
   
-  const unsigned int poly_degree = 1;
   FE_Q<dim> fe(poly_degree);
       
   DoFHandler<dim> dof_handler(tria);
@@ -95,7 +74,7 @@ void test ()
   IndexSet locally_relevant_dofs;
   DoFTools::extract_locally_relevant_dofs (dof_handler,locally_relevant_dofs);
   
-  PETScWrappers::MPI::Vector vector, conjugate;
+  PETScWrappers::MPI::Vector vector;
   PETScWrappers::MPI::SparseMatrix mass_matrix;
   
 
@@ -116,8 +95,6 @@ void test ()
   //assemble mass matrix:
   mass_matrix = 0.0;
 	  {
-		  //a separate quadrature formula
-		  //enough for mass and kinetic matrices assembly
 		  QGauss<dim> quadrature_formula(poly_degree+1);
 		  FEValues<dim> fe_values (fe, quadrature_formula,
 				                   update_values | update_gradients | update_JxW_values);
@@ -158,44 +135,48 @@ void test ()
 			 mass_matrix.compress (VectorOperation::add);
 	  }			   
   
-  vector = std::complex<double>(1.0,-1.0);
-  
-  //deallog<<"original vector: "<<std::endl;
-  //vector.print(std::cout);
+  for (unsigned int i = 0; i < locally_owned_dofs.n_elements(); i++) {
+       double re = 0,
+              im = 0;
+      if ( i % 2 ) {
+         re = 1.0*i;
+         im = 1.0*(this_mpi_process+1);
+      } else if (i % 3) {
+      	 re = 0.0;
+      	 im = -1.0*(this_mpi_process+1);
+      } else {
+         re = 3.0*i;
+         im = 0.0;
+      }
+      const PetscScalar val = re+im*PETSC_i;
+      vector   ( locally_owned_dofs.nth_index_in_set(i)) = val;
+  }
+  vector.compress(VectorOperation::insert);	
+  constraints.distribute(vector);
   
   deallog<<"symmetric: "<<mass_matrix.is_symmetric()<<std::endl;
   deallog<<"hermitian: "<<mass_matrix.is_hermitian()<<std::endl;
   
-  //mass_matrix.print(std::cout);
-  
   PETScWrappers::MPI::Vector tmp(vector);
   mass_matrix.vmult (tmp, vector);
   
-  //pcout<<"vmult: "<<std::endl;
-  //tmp.print(std::cout);
-  //correct output ^^^ is:
-  // 0.25000 - 0.25000i
-  // 0.25000 - 0.25000i
-  // 0.25000 - 0.25000i
-  // 0.25000 - 0.25000i
+  const std::complex<double> norm1 = vector*tmp;
+  deallog<<"(conj(vector),M vector): "<<std::endl;
+  deallog<<"real part:      "<<PetscRealPart(norm1)<<std::endl;
+  deallog<<"imaginary part: "<<PetscImaginaryPart(norm1)<<std::endl;
   
-  conjugate = vector;
-  conjugate.conjugate();
-  //pcout<<"conjugate vector: "<<std::endl;
-  //conjugate.print(std::cout);
-  
-  
-  deallog<<"conj*vmult:"<< conjugate*tmp<<std::endl;
-  
-  deallog<<"vector*vmult:"<< vector*tmp<<std::endl;
-  
-  deallog<<"matrix_scalar_product: ";
-  const std::complex<double> norm =
+  const std::complex<double> norm2 =
 	  mass_matrix.matrix_scalar_product(vector, vector);
-  deallog<<norm<<std::endl;
-  //correct output is:
-  // (2,0)
-}//*/
+  deallog<<"matrix_scalar_product(vec,vec): "<<std::endl;
+  deallog<<"real part:      "<<PetscRealPart(norm2)<<std::endl;
+  deallog<<"imaginary part: "<<PetscImaginaryPart(norm2)<<std::endl;
+    
+  const std::complex<double> norm3 =
+	  mass_matrix.matrix_norm_square(vector);
+  deallog<<"matrix_norm_square(vec): "<<std::endl;
+  deallog<<"real part:      "<<PetscRealPart(norm3)<<std::endl;
+  deallog<<"imaginary part: "<<PetscImaginaryPart(norm3)<<std::endl;
+}
 
 
 int main (int argc, char *argv[])
@@ -207,6 +188,6 @@ int main (int argc, char *argv[])
   
    Utilities::MPI::MPI_InitFinalize mpi_initialization (argc, argv);
    
-   test ();
+   test<2>();
    
 }
