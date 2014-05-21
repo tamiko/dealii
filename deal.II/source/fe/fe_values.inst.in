@@ -259,9 +259,9 @@ for (VEC : COMPLEX_SERIAL_VECTORS; deal_II_dimension : DIMENSIONS; deal_II_space
 #if deal_II_dimension <= deal_II_space_dimension
 #if (deal_II_space_dimension == DIM_A) || (deal_II_space_dimension == DIM_B)
 
-//    template
-//      void FEValuesBase<deal_II_dimension,deal_II_space_dimension>::get_function_values<VEC>
-//      (const VEC&, std::vector<std::complex<double> >&) const;
+    template
+    void FEValuesBase<deal_II_dimension,deal_II_space_dimension>::get_function_values<VEC>
+    (const VEC&, std::vector<std::complex<double> >&) const;
 #endif
 #endif      
   }
