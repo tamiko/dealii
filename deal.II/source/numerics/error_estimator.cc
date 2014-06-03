@@ -793,21 +793,21 @@ template <int dim, int spacedim>
 template <typename InputVector, class DH>
 void
 KellyErrorEstimator<dim, spacedim>::
-estimate (const Mapping<dim, spacedim>      &mapping,
-          const DH                &dof_handler,
-          const Quadrature<dim-1> &quadrature,
+estimate (const Mapping<dim, spacedim>               &mapping,
+          const DH                                   &dof_handler,
+          const Quadrature<dim-1>                    &quadrature,
           const typename FunctionMap<spacedim>::type &neumann_bc,
-          const InputVector       &solution,
-          Vector<float>           &error,
-          const ComponentMask &component_mask,
-          const Function<spacedim>     *coefficients,
-          const unsigned int       n_threads,
-          const types::subdomain_id subdomain_id,
-          const types::material_id       material_id)
+          const InputVector                          &solution,
+          Vector<float>                              &error,
+          const ComponentMask                        &component_mask,
+          const Function<spacedim>                   *coefficients,
+          const unsigned int                          n_threads,
+          const types::subdomain_id                   subdomain_id,
+          const types::material_id                    material_id)
 {
   // just pass on to the other function
   const std::vector<const InputVector *> solutions (1, &solution);
-  std::vector<Vector<float>*>              errors (1, &error);
+  std::vector<Vector<float>*>            errors (1, &error);
   estimate (mapping, dof_handler, quadrature, neumann_bc, solutions, errors,
             component_mask, coefficients, n_threads, subdomain_id, material_id);
 }
@@ -817,16 +817,16 @@ template <int dim, int spacedim>
 template <typename InputVector, class DH>
 void
 KellyErrorEstimator<dim,spacedim>::
-estimate (const DH                &dof_handler,
-          const Quadrature<dim-1> &quadrature,
+estimate (const DH                                   &dof_handler,
+          const Quadrature<dim-1>                    &quadrature,
           const typename FunctionMap<spacedim>::type &neumann_bc,
-          const InputVector       &solution,
-          Vector<float>           &error,
-          const ComponentMask &component_mask,
-          const Function<spacedim>     *coefficients,
-          const unsigned int       n_threads,
-          const types::subdomain_id subdomain_id,
-          const types::material_id       material_id)
+          const InputVector                          &solution,
+          Vector<float>                              &error,
+          const ComponentMask                        &component_mask,
+          const Function<spacedim>                   *coefficients,
+          const unsigned int                          n_threads,
+          const types::subdomain_id                   subdomain_id,
+          const types::material_id                    material_id)
 {
   estimate(StaticMappingQ1<dim,spacedim>::mapping, dof_handler, quadrature, neumann_bc, solution,
            error, component_mask, coefficients, n_threads,
@@ -838,21 +838,21 @@ template <int dim, int spacedim>
 template <typename InputVector, class DH>
 void
 KellyErrorEstimator<dim, spacedim>::
-estimate (const Mapping<dim, spacedim>      &mapping,
-          const DH                &dof_handler,
-          const hp::QCollection<dim-1> &quadrature,
+estimate (const Mapping<dim, spacedim>               &mapping,
+          const DH                                   &dof_handler,
+          const hp::QCollection<dim-1>               &quadrature,
           const typename FunctionMap<spacedim>::type &neumann_bc,
-          const InputVector       &solution,
-          Vector<float>           &error,
-          const ComponentMask &component_mask,
-          const Function<spacedim>     *coefficients,
-          const unsigned int       n_threads,
-          const types::subdomain_id subdomain_id,
-          const types::material_id       material_id)
+          const InputVector                          &solution,
+          Vector<float>                              &error,
+          const ComponentMask                        &component_mask,
+          const Function<spacedim>                   *coefficients,
+          const unsigned int                          n_threads,
+          const types::subdomain_id                   subdomain_id,
+          const types::material_id                    material_id)
 {
   // just pass on to the other function
   const std::vector<const InputVector *> solutions (1, &solution);
-  std::vector<Vector<float>*>              errors (1, &error);
+  std::vector<Vector<float>*>            errors (1, &error);
   estimate (mapping, dof_handler, quadrature, neumann_bc, solutions, errors,
             component_mask, coefficients, n_threads, subdomain_id, material_id);
 }
@@ -865,13 +865,13 @@ KellyErrorEstimator<dim, spacedim>::
 estimate (const DH                &dof_handler,
           const hp::QCollection<dim-1> &quadrature,
           const typename FunctionMap<spacedim>::type &neumann_bc,
-          const InputVector       &solution,
-          Vector<float>           &error,
-          const ComponentMask &component_mask,
-          const Function<spacedim>     *coefficients,
-          const unsigned int       n_threads,
-          const types::subdomain_id subdomain_id,
-          const types::material_id       material_id)
+          const InputVector                          &solution,
+          Vector<float>                              &error,
+          const ComponentMask                        &component_mask,
+          const Function<spacedim>                   *coefficients,
+          const unsigned int                          n_threads,
+          const types::subdomain_id                   subdomain_id,
+          const types::material_id                    material_id)
 {
   estimate(StaticMappingQ1<dim, spacedim>::mapping, dof_handler, quadrature, neumann_bc, solution,
            error, component_mask, coefficients, n_threads,
@@ -885,17 +885,17 @@ template <int dim, int spacedim>
 template <typename InputVector, class DH>
 void
 KellyErrorEstimator<dim, spacedim>::
-estimate (const Mapping<dim, spacedim>                  &mapping,
-          const DH                            &dof_handler,
-          const hp::QCollection<dim-1>        &face_quadratures,
+estimate (const Mapping<dim, spacedim>               &mapping,
+          const DH                                   &dof_handler,
+          const hp::QCollection<dim-1>               &face_quadratures,
           const typename FunctionMap<spacedim>::type &neumann_bc,
-          const std::vector<const InputVector *> &solutions,
-          std::vector<Vector<float>*>              &errors,
-          const ComponentMask                  &component_mask,
-          const Function<spacedim>                 *coefficients,
-          const unsigned int                   ,
-          const types::subdomain_id          subdomain_id_,
-          const types::material_id                   material_id)
+          const std::vector<const InputVector *>     &solutions,
+          std::vector<Vector<float>*>                &errors,
+          const ComponentMask                        &component_mask,
+          const Function<spacedim>                   *coefficients,
+          const unsigned int                          ,
+          const types::subdomain_id                   subdomain_id_,
+          const types::material_id                    material_id)
 {
 #ifdef DEAL_II_WITH_P4EST
   if (dynamic_cast<const parallel::distributed::Triangulation<dim,spacedim>*>
