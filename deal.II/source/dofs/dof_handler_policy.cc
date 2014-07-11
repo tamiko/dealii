@@ -1022,6 +1022,8 @@ namespace internal
 	      const unsigned int this_process =
 		  Utilities::MPI::this_mpi_process (tr->get_communicator ());
 	      std::vector<types::global_dof_index> gathered_new_numbers (dof_handler.n_dofs (), 0);
+	      Assert(this_process == dof_handler.get_tria ().locally_owned_subdomain (),
+	             ExcInternalError())
 
 	      //debug (TODO: remove when everything works):
 	      if (renumber_debug)
@@ -1057,15 +1059,18 @@ namespace internal
 		  for (unsigned int i = 0; i < n_cpu; i++)
 		    {
 		      displs[i]  = shift;
+		      //rcounts[i] = dof_handler.n_locally_owned_dofs_per_processor()[i];
 		      rcounts[i] = number_cache_current.n_locally_owned_dofs_per_processor[i];
 		      shift     += rcounts[i];
 		    }
+		  Assert(((int)new_numbers_copy.size()) == rcounts[this_process],
+		  	 ExcInternalError());
 		  MPI_Allgatherv (&new_numbers_copy[0],     new_numbers_copy.size (),
 				  DEAL_II_DOF_INDEX_MPI_TYPE,
 				  &gathered_new_numbers[0], &rcounts[0],
 				  &displs[0],
 				  DEAL_II_DOF_INDEX_MPI_TYPE,
-				 tr->get_communicator ());
+				  tr->get_communicator ());
 		}
 
 	      //debug (TODO: remove when everything works):
@@ -1117,9 +1122,9 @@ namespace internal
 		  shift += iset.n_elements ();
 		}
 
-	      Assert(*max_element(flag_1.begin(), flag_1.end()) == 1,
+	      Assert(*std::max_element(flag_1.begin(), flag_1.end()) == 1,
 		     ExcInternalError());
-	      Assert(*min_element(flag_1.begin(), flag_1.end()) == 1,
+	      Assert(*std::min_element(flag_1.begin(), flag_1.end()) == 1,
 		     ExcInternalError());
 	      Assert((*std::max_element(flag_2.begin(), flag_2.end())) == 1,
 		     ExcInternalError());
