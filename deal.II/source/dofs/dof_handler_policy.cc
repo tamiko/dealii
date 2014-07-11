@@ -1003,82 +1003,132 @@ namespace internal
       renumber_dofs (const std::vector<types::global_dof_index> &new_numbers,
                      dealii::DoFHandler<dim,spacedim> &dof_handler,
                      NumberCache &number_cache_current) const
-      {
-    	  std::vector<types::global_dof_index> global_gathered_numbers(dof_handler.n_dofs(),0);
-    	  if (new_numbers.size() == dof_handler.n_dofs())
-    	  {
-    		  global_gathered_numbers = new_numbers;
-    	  }
-    	  else
-    	  {
-    		  Assert (new_numbers.size() == dof_handler.locally_owned_dofs().n_elements(), ExcInternalError());
-			  const parallel::shared::Triangulation< dim, spacedim > *tr
-					  = (dynamic_cast<const parallel::shared::Triangulation<dim,spacedim>*>
-						 (&dof_handler.get_tria()));
-			  Assert (tr != 0, ExcInternalError());
-			  const unsigned int n_cpu = Utilities::MPI::n_mpi_processes(tr->get_communicator());
-			  const unsigned int this_process =  Utilities::MPI::this_mpi_process(tr->get_communicator());
-			  std::vector<types::global_dof_index> gathered_new_numbers(dof_handler.n_dofs(),0);
+	{
+	  std::vector<types::global_dof_index> global_gathered_numbers (dof_handler.n_dofs (), 0);
+	  if (new_numbers.size () == dof_handler.n_dofs ())
+	    {
+	      global_gathered_numbers = new_numbers;
+	    }
+	  else
+	    {
+	      const bool renumber_debug = true;
 
-			  //debug (TODO: remove when everything works):
-			  if (false)
-			  {
-				 unsigned int cur_process = 0;
-			     while(cur_process!=n_cpu){
-			      if(cur_process==this_process){
-			        std::cout<<"process "<<this_process<<": "<<std::endl;
-			        for(types::global_dof_index i=0; i< new_numbers.size(); i++)
-			        	std::cout<<new_numbers[i]<<" ";
-			        std::cout<<std::endl<<std::flush;
-			      }
-			      MPI_Barrier(MPI_COMM_WORLD);
-			      cur_process++;
-			    }
-			  }
+	      Assert(new_numbers.size() == dof_handler.locally_owned_dofs().n_elements(),
+		     ExcInternalError());
+	      const parallel::shared::Triangulation<dim, spacedim> *tr =
+		  (dynamic_cast<const parallel::shared::Triangulation<dim, spacedim>*> (&dof_handler.get_tria ()));
+	      Assert(tr != 0, ExcInternalError());
+	      const unsigned int n_cpu = Utilities::MPI::n_mpi_processes (tr->get_communicator ());
+	      const unsigned int this_process =
+		  Utilities::MPI::this_mpi_process (tr->get_communicator ());
+	      std::vector<types::global_dof_index> gathered_new_numbers (dof_handler.n_dofs (), 0);
 
-			  //gather new numbers among processors into one vector
-			  {
-				  std::vector<types::global_dof_index> new_numbers_copy(new_numbers);
-				  MPI_Allgather(&new_numbers_copy[0],     new_numbers_copy.size(), DEAL_II_DOF_INDEX_MPI_TYPE,
-						  	  	&gathered_new_numbers[0], new_numbers_copy.size(), DEAL_II_DOF_INDEX_MPI_TYPE,
-			      		        tr->get_communicator());
-			  }
+	      //debug (TODO: remove when everything works):
+	      if (renumber_debug)
+		{
+		  unsigned int cur_process = 0;
+		  while (cur_process != n_cpu)
+		    {
+		      if (cur_process == this_process)
+			{
+			  std::cout << "process " << this_process << ": " << std::endl;
+			  for (types::global_dof_index i = 0;
+			      i < new_numbers.size (); i++)
+			    std::cout << new_numbers[i] << " ";
 
-			  //put new numbers according to the current locally_owned_dofs_per_processor IndexSets
-			  types::global_dof_index shift = 0;
-			  std::vector<unsigned int> flag_1(dof_handler.n_dofs(),0),
-					                    flag_2(dof_handler.n_dofs(),0);
+			  std::cout << std::endl << std::flush;
+			}
+		      MPI_Barrier (tr->get_communicator ());
+		      cur_process++;
+		    }
+		}
+
+	      //gather new numbers among processors into one vector
+		{
+		  std::vector<types::global_dof_index> new_numbers_copy (new_numbers);
+		  MPI_Barrier (tr->get_communicator ());
+		  MPI_Allgather (&new_numbers_copy[0],     new_numbers_copy.size (),
+				 DEAL_II_DOF_INDEX_MPI_TYPE,
+				 &gathered_new_numbers[0], new_numbers_copy.size (),
+				 DEAL_II_DOF_INDEX_MPI_TYPE,
+				 tr->get_communicator ());
+		}
+
+	      //debug (TODO: remove when everything works):
+	      if (renumber_debug)
+		{
+		  unsigned int cur_process = 0;
+		  while (cur_process != n_cpu)
+		    {
+		      if (cur_process == this_process)
+		        {
+			  std::cout << "gathered at processor "<<cur_process<<" : "<<std::endl;
+			  for (types::global_dof_index i = 0;
+			      i < dof_handler.n_dofs (); i++)
+			    std::cout << gathered_new_numbers[i] << " ";
+
+			  std::cout << std::endl << std::flush;
 			  for (unsigned int i = 0; i < n_cpu; i++)
-			  {
-				  const IndexSet & iset = number_cache_current.locally_owned_dofs_per_processor[i];
-				  for (types::global_dof_index ind = 0; ind < iset.n_elements(); ind++)
-				  {
-					  const types::global_dof_index target = iset.nth_index_in_set(ind);
-					  const types::global_dof_index value  = gathered_new_numbers[shift+ind];
-					  Assert(target < dof_handler.n_dofs(), ExcInternalError() );
-					  Assert(value  < dof_handler.n_dofs(), ExcInternalError() );
-					  global_gathered_numbers[target] = value;
-					  flag_1[target]++;
-					  flag_2[value]++;
-				  }
-				  shift+=iset.n_elements();
-			  }
-			  Assert(*max_element(flag_1.begin(), flag_1.end()) == 1, ExcInternalError() );
-			  Assert(*min_element(flag_1.begin(), flag_1.end()) == 1, ExcInternalError() );
-			  Assert(*max_element(flag_2.begin(), flag_2.end()) == 1, ExcInternalError() );
-			  Assert(*min_element(flag_2.begin(), flag_2.end()) == 1, ExcInternalError() );
-    	  }
-    	  NumberCache number_cache = Sequential<dim,spacedim>::renumber_dofs (global_gathered_numbers,dof_handler,number_cache_current);
-		  //update current number cache
-		  number_cache_current = number_cache;
-		  //correct number_cache:
-		  number_cache.locally_owned_dofs_per_processor = DoFTools::locally_owned_dofs_with_subdomain (dof_handler);
-		  number_cache.locally_owned_dofs = number_cache.locally_owned_dofs_per_processor[dof_handler.get_tria().locally_owned_subdomain()];
-		  for (unsigned int i = 0; i < number_cache.n_locally_owned_dofs_per_processor.size(); i++)
-			  number_cache.n_locally_owned_dofs_per_processor[i] = number_cache.locally_owned_dofs_per_processor[i].n_elements();
-		  number_cache.n_locally_owned_dofs = number_cache.n_locally_owned_dofs_per_processor[dof_handler.get_tria().locally_owned_subdomain()];
-		  return number_cache;
-      }
+			    {
+			      std::cout<<"locally owned dofs["<<i<<"] : ";
+			      number_cache_current.locally_owned_dofs_per_processor[i].print(std::cout);
+			    }
+		        }
+		      MPI_Barrier (tr->get_communicator ());
+		      cur_process++;
+		    }
+		}
+
+	      //put new numbers according to the current locally_owned_dofs_per_processor IndexSets
+	      types::global_dof_index shift = 0;
+	      std::vector<unsigned int> flag_1 (dof_handler.n_dofs (), 0),
+					flag_2 (dof_handler.n_dofs (), 0);
+	      for (unsigned int i = 0; i < n_cpu; i++)
+		{
+		  const IndexSet & iset =
+		      number_cache_current.locally_owned_dofs_per_processor[i];
+		  for (types::global_dof_index ind = 0;
+		      ind < iset.n_elements (); ind++)
+		    {
+		      const types::global_dof_index target = iset.nth_index_in_set (ind);
+		      const types::global_dof_index value  = gathered_new_numbers[shift + ind];
+		      Assert(target < dof_handler.n_dofs(), ExcInternalError());
+		      Assert(value  < dof_handler.n_dofs(), ExcInternalError());
+		      global_gathered_numbers[target] = value;
+		      if (renumber_debug )
+			std::cout<<"p"<<this_process<<" "<<target<<" -> "<<value<<std::endl;
+		      flag_1[target]++;
+		      flag_2[value]++;
+		    }
+		  shift += iset.n_elements ();
+		}
+
+	      Assert(*max_element(flag_1.begin(), flag_1.end()) == 1,
+		     ExcInternalError());
+	      Assert(*min_element(flag_1.begin(), flag_1.end()) == 1,
+		     ExcInternalError());
+	      Assert((*std::max_element(flag_2.begin(), flag_2.end())) == 1,
+		     ExcInternalError());
+	      Assert((*std::min_element(flag_2.begin(), flag_2.end())) == 1,
+		     ExcInternalError());
+	    }
+	  NumberCache number_cache =
+	      Sequential<dim, spacedim>::renumber_dofs (global_gathered_numbers, dof_handler, number_cache_current);
+	  //update current number cache
+	  number_cache_current = number_cache;
+	  //correct number_cache:
+	  number_cache.locally_owned_dofs_per_processor =
+	      DoFTools::locally_owned_dofs_with_subdomain (dof_handler);
+	  number_cache.locally_owned_dofs =
+	      number_cache.locally_owned_dofs_per_processor[dof_handler.get_tria ().locally_owned_subdomain ()];
+	  for (unsigned int i = 0;
+	      i < number_cache.n_locally_owned_dofs_per_processor.size (); i++)
+	    number_cache.n_locally_owned_dofs_per_processor[i] = number_cache.locally_owned_dofs_per_processor[i].n_elements ();
+
+	  number_cache.n_locally_owned_dofs =
+	      number_cache.n_locally_owned_dofs_per_processor[dof_handler.get_tria ().locally_owned_subdomain ()];
+	  return number_cache;
+	}
 
       /* --------------------- class ParallelDistributed ---------------- */
 
