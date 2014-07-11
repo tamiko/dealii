@@ -1011,7 +1011,7 @@ namespace internal
 	    }
 	  else
 	    {
-	      const bool renumber_debug = true;
+	      const bool renumber_debug = false;
 
 	      Assert(new_numbers.size() == dof_handler.locally_owned_dofs().n_elements(),
 		     ExcInternalError());
@@ -1046,11 +1046,25 @@ namespace internal
 	      //gather new numbers among processors into one vector
 		{
 		  std::vector<types::global_dof_index> new_numbers_copy (new_numbers);
-		  MPI_Barrier (tr->get_communicator ());
-		  MPI_Allgather (&new_numbers_copy[0],     new_numbers_copy.size (),
-				 DEAL_II_DOF_INDEX_MPI_TYPE,
-				 &gathered_new_numbers[0], new_numbers_copy.size (),
-				 DEAL_II_DOF_INDEX_MPI_TYPE,
+		  // displs:
+		  // Entry i specifies the displacement (relative to recvbuf )
+		  // at which to place the incoming data from process i
+		  // rcounts:
+		  // containing the number of elements that are to be received from each process
+		  std::vector<int> displs(n_cpu),
+		                   rcounts(n_cpu);
+		  types::global_dof_index shift = 0;
+		  for (unsigned int i = 0; i < n_cpu; i++)
+		    {
+		      displs[i]  = shift;
+		      rcounts[i] = number_cache_current.n_locally_owned_dofs_per_processor[i];
+		      shift     += rcounts[i];
+		    }
+		  MPI_Allgatherv (&new_numbers_copy[0],     new_numbers_copy.size (),
+				  DEAL_II_DOF_INDEX_MPI_TYPE,
+				  &gathered_new_numbers[0], &rcounts[0],
+				  &displs[0],
+				  DEAL_II_DOF_INDEX_MPI_TYPE,
 				 tr->get_communicator ());
 		}
 
