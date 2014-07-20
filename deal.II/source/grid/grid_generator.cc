@@ -45,7 +45,6 @@
 DEAL_II_NAMESPACE_OPEN
 
 
-
 namespace GridGenerator
 {
   namespace
@@ -165,19 +164,6 @@ namespace GridGenerator
             if (cell->center()(d) > 0) id += 1 << d;
           cell->set_material_id(id);
         }
-    }
-
-
-    /**
-     * Assign boundary number zero to the inner shell boundary and 1 to the
-     * outer.
-     */
-    void colorize_hyper_shell (Triangulation<1> &,
-                               const Point<1> &,
-                               const double,
-                               const double)
-    {
-      Assert (false, ExcNotImplemented());
     }
 
 
@@ -421,7 +407,8 @@ namespace GridGenerator
   template <int dim, int spacedim>
   void hyper_cube (Triangulation<dim,spacedim> &tria,
                    const double                 left,
-                   const double                 right)
+                   const double                 right,
+		   const bool                   colorize)
   {
     Assert (left < right,
             ExcMessage ("Invalid left-to-right bounds of hypercube"));
@@ -437,7 +424,7 @@ namespace GridGenerator
         p1(i) = left;
         p2(i) = right;
       }
-    hyper_rectangle (tria, p1, p2);
+    hyper_rectangle (tria, p1, p2, colorize);
   }
 
 
@@ -3428,6 +3415,10 @@ namespace GridGenerator
     GridTools::delete_duplicated_vertices (vertices, cells,
 					   subcell_data,
 					   considered_vertices);
+
+    // reorder the cells to ensure that they satisfy the convention for
+    // edge and face directions
+    GridReordering<dim, spacedim>::reorder_cells(cells, true);
     result.clear ();
     result.create_triangulation (vertices, cells, subcell_data);
   }

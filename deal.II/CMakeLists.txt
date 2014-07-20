@@ -32,6 +32,11 @@
 # General configuration for cmake:
 #
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8.8)
+IF(NOT ${CMAKE_VERSION} VERSION_LESS 3.0.0)
+  CMAKE_POLICY(SET CMP0026 OLD) # enable target LOCATION property
+  CMAKE_POLICY(SET CMP0037 OLD) # allow to override the generic 'help' target
+ENDIF()
+
 MESSAGE(STATUS "This is CMake ${CMAKE_VERSION}")
 
 LIST(APPEND CMAKE_MODULE_PATH
@@ -152,7 +157,7 @@ ADD_SUBDIRECTORY(cmake/config) # has to be included after source
 ADD_SUBDIRECTORY(contrib) # has to be included after source
 ADD_SUBDIRECTORY(examples)
 
-INCLUDE(setup_testsuite)
+ADD_SUBDIRECTORY(tests)
 
 #
 # And finally, print the configuration:

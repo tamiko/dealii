@@ -470,7 +470,11 @@ namespace TrilinosWrappers
    *   TrilinosWrappers::SparsityPattern object that in turn has been
    *   initialized with the reinit function specifying three index sets, one
    *   for the rows, one for the columns and for the larger set of @p
-   *   writeable_rows, and the operation is an addition.
+   *   writeable_rows, and the operation is an addition. If Trilinos version
+   *   11.10 and greater is used, initializing from a
+   *   TrilinosWrappers::SparsityPattern that has been filled by a function
+   *   similar to DoFTools::make_sparsity_pattern always results in a matrix
+   *   that allows several processes to write into the same matrix row.
    * </ul>
    *
    * Note that all other reinit methods and constructors of
@@ -1325,7 +1329,10 @@ namespace TrilinosWrappers
                      const TrilinosScalar          new_diag_value = 0);
 
     /**
-     * Make an in-place transpose of a matrix.
+     * Sets an internal flag so that all operations performed by the matrix,
+     * i.e., multiplications, are done in transposed order. However, this does
+     * not reshape the matrix to transposed form directly, so care should be
+     * taken when using this flag.
      */
     void transpose ();
 

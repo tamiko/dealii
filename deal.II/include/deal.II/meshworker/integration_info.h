@@ -132,22 +132,26 @@ namespace MeshWorker
      */
     void clear();
 
+    /**
+     * Return a reference to the FiniteElement that was used to
+     * initialize this object.
+     */
+    const FiniteElement<dim, spacedim>& finite_element() const;
+      
     /// This is true if we are assembling for multigrid
     bool multigrid;
     /// Access to finite element
     /**
-     * This is the access function being used, if the constructor for
-     * a single element was used. It throws an exception, if applied
-     * to a vector of elements.
+     * This is the access function being used, if initialize() for a
+     * single element was used (without the BlockInfo argument). It
+     * throws an exception, if applied to a vector of elements.
      */
     const FEValuesBase<dim, spacedim> &fe_values () const;
 
     /// Access to finite elements
     /**
-     * This access function must be used if the constructor for a
-     * group of elements was used.
-     *
-     * @see DGBlockSplitApplication
+     * This access function must be used if the initalize() for a
+     * group of elements was used (with a valid BlockInfo object).
      */
     const FEValuesBase<dim, spacedim> &fe_values (const unsigned int i) const;
 
@@ -206,6 +210,11 @@ namespace MeshWorker
     std::size_t memory_consumption () const;
 
   private:
+      /**
+       * The pointer to the (system) element used for initialization.
+       */
+      SmartPointer<const FiniteElement<dim, spacedim>, IntegrationInfo<dim, spacedim> > fe_pointer;
+      
     /**
      * Use the finite element functions in #global_data and fill the
      * vectors #values, #gradients and #hessians with values according
@@ -248,7 +257,7 @@ namespace MeshWorker
    * undertaken to use this class.
    *
    * First, you should consider if you need values from any vectors in a
-   * NamedData object. If so, fill the VectorSelector objects
+   * AnyData object. If so, fill the VectorSelector objects
    * #cell_selector, #boundary_selector and #face_selector with their names
    * and the data type (value, gradient, Hessian) to be extracted.
    *
@@ -315,15 +324,20 @@ namespace MeshWorker
     template <typename VECTOR>
     void initialize(const FiniteElement<dim, spacedim> &el,
                     const Mapping<dim, spacedim> &mapping,
+                    const AnyData &data,
+		    const VECTOR& dummy,
+                    const BlockInfo *block_info = 0);
+    /**
+     * @deprecated Use AnyData instead of NamedData.
+     */
+    template <typename VECTOR>
+    void initialize(const FiniteElement<dim, spacedim> &el,
+                    const Mapping<dim, spacedim> &mapping,
                     const NamedData<VECTOR *> &data,
                     const BlockInfo *block_info = 0);
 
     /**
-     * Initialize the IntegrationInfo objects contained.
-     *
-     * Before doing so, add update flags necessary to produce the data
-     * needed and also set uninitialized quadrature rules to Gauss
-     * formulas, which integrate polynomial bilinear forms exactly.
+     * @deprecated Use AnyData instead of NamedData.
      */
     template <typename VECTOR>
     void initialize(const FiniteElement<dim, spacedim> &el,
@@ -574,6 +588,7 @@ namespace MeshWorker
     gradients(other.gradients),
     hessians(other.hessians),
     global_data(other.global_data),
+    fe_pointer(other.fe_pointer),
     n_components(other.n_components)
   {
     fevalv.resize(other.fevalv.size());
@@ -611,6 +626,7 @@ namespace MeshWorker
     const UpdateFlags flags,
     const BlockInfo *block_info)
   {
+    fe_pointer = &el;
     if (block_info == 0 || block_info->local().size() == 0)
       {
         fevalv.resize(1);
@@ -630,6 +646,14 @@ namespace MeshWorker
   }
 
 
+  template <int dim, int spacedim>
+  inline const FiniteElement<dim, spacedim> &
+  IntegrationInfo<dim,spacedim>::finite_element() const
+  {
+    Assert (fe_pointer !=0, ExcNotInitialized());
+    return *fe_pointer;
+  }
+  
   template <int dim, int spacedim>
   inline const FEValuesBase<dim, spacedim> &
   IntegrationInfo<dim,spacedim>::fe_values() const
@@ -764,6 +788,44 @@ namespace MeshWorker
                                                             face_flags, block_info);
     neighbor.template initialize<FEFaceValues<dim,sdim> >(el, mapping, face_quadrature,
                                                           neighbor_flags, block_info);
+  }
+
+
+  template <int dim, int sdim>
+  template <typename VECTOR>
+  void
+  IntegrationInfoBox<dim,sdim>::initialize(
+    const FiniteElement<dim,sdim> &el,
+    const Mapping<dim,sdim> &mapping,
+    const AnyData &data,
+    const VECTOR& dummy,
+    const BlockInfo *block_info)
+  {
+    initialize(el, mapping, block_info);
+    std_cxx1x::shared_ptr<VectorData<VECTOR, dim, sdim> > p;
+    VectorDataBase<dim,sdim>* pp;
+    
+    p = std_cxx1x::shared_ptr<VectorData<VECTOR, dim, sdim> >(new VectorData<VECTOR, dim, sdim> (cell_selector));
+    // Public member function of parent class was not found without
+    // explicit cast
+    pp = &*p;
+    pp->initialize(data);
+    cell_data = p;
+    cell.initialize_data(p);
+
+    p = std_cxx1x::shared_ptr<VectorData<VECTOR, dim, sdim> >(new VectorData<VECTOR, dim, sdim> (boundary_selector));
+    pp = &*p;
+    pp->initialize(data);
+    boundary_data = p;
+    boundary.initialize_data(p);
+
+    p = std_cxx1x::shared_ptr<VectorData<VECTOR, dim, sdim> >(new VectorData<VECTOR, dim, sdim> (face_selector));
+    pp = &*p;
+    pp->initialize(data);
+    face_data = p;
+    face.initialize_data(p);
+    subface.initialize_data(p);
+    neighbor.initialize_data(p);
   }
 
 

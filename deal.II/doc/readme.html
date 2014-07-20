@@ -6,7 +6,7 @@
     <title>The deal.II Readme</title>
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
     <link href="screen.css" rel="StyleSheet"/>
-    <meta name="copyright" content="Copyright (C) 1998 - 2013 by the deal.II Authors"/>
+    <meta name="copyright" content="Copyright (C) 1998 - 2014 by the deal.II Authors"/>
     <meta name="date" content="$Date$"/>
     <meta name="svn_id" content="$Id$"/>
     <meta name="keywords" content="deal.II"/>
@@ -14,17 +14,6 @@
 
   <body>
 
-
-    <h4 align="center" style="color: red">
-     <strong class="red">Note: Since version 8.0, deal.II uses
-       <a href="http://www.cmake.org" target="_top">CMake</a> to
-       configure and build. For using the previous build
-       system used until deal.II version 7.3, see
-       <a href="http://www.dealii.org/7.3.0/readme.html"
-       target="_top">the old ReadMe file</a>.
-     </strong>
-     <br />
-    </h4>
 
 
 <h1>Installation instructions and further information
@@ -537,27 +526,6 @@
 	</p>
       </dd>
 
-      <dt>
-	<a name="functionparser"></a>
-	<a href="http://warp.povusers.org/FunctionParser/">FunctionParser</a>
-      </dt>
-      <dd>
-	<p>
-	  <a href="http://warp.povusers.org/FunctionParser/">FunctionParser</a>
-	  is a library that allows to enter functions in text form and have them
-	  interpreted at run time. This is particularly useful in input
-	  parameter files. <code>cmake</code> will usually find the version of
-	  this library that comes bundled with <acronym>deal.II</acronym>.
-	  The function parser library has its own license; if you want to use
-	  it with deal.II, please read it and make sure that you agree with it.
-	  You can find it
-	  <a href="http://warp.povusers.org/FunctionParser/">here</a>. We
-	  include FunctionParser in the deal.II distributions courtesy of its author,
-	  <a href="http://iki.fi/warp/">Juha Nieminen</a>.
-	</p>
-      </dd>
-
-
       <dt><a name="HDF5"></a><a href="http://www.hdfgroup.org/HDF5/">HDF5</a></dt>
       <dd>
 	<p>
@@ -611,6 +579,22 @@
 	  For a detailed description on how to compile MUMPS (and
 	  some dependencies) and linking with deal.II, see
 	  <a href="external-libs/mumps.html" target="body">this page</a>.
+	</p>
+      </dd>
+
+
+      <dt>
+	<a name="muparser"></a>
+	<a href="http://muparser.beltoforion.de/">muparser</a>
+      </dt>
+      <dd>
+	<p>
+	  <a href="http://muparser.beltoforion.de/">muparser</a>
+	  is a library that allows to enter functions in text form and have them
+	  interpreted at run time. This is particularly useful in input
+	  parameter files. <code>cmake</code> will usually find the version of
+	  this library that comes bundled with <acronym>deal.II</acronym>, but you
+	  can specify <code>-DMUPARSER_DIR=/path/to/muparser</code> if desired.
 	</p>
       </dd>
 
@@ -798,7 +782,8 @@
       in order to determine the directions of future work on the
       library. We are also very much interested in incorporating any
       work and bug fixes by third parties into the library. Of course,
-      you will be credited for this on the <a href="authors.html">authors page</a>.
+      you will be credited for this on
+      the <a href="http://www.dealii.org/authors.html" target="_top">authors page</a>.
     </p>
 
     <p>
@@ -807,7 +792,7 @@
       libraries we create. To this end, we collect
       publications with results obtained using <acronym>deal.II</acronym>. Please
       let us know if you have publications that we can add
-      <a href="publications/index.html">to this page</a>.
+      <a href="http://www.dealii.org/publications.html">to this page</a>.
     </p>
 
     <a name="license"></a>
@@ -842,7 +827,7 @@
           the license of the deal.II project granted to you.</b>
 	</li>
         <li>
-          We, <a href="authors.html">the deal.II Authors</a>, do not require
+          We, <a href="http://www.dealii.org/authors.html" target="_top">the deal.II Authors</a>, do not require
           copyright assignments for contributions. This means that the
           copyright for code contributions in the deal.II project is held by
           its respective contributors who have each agreed to release their
@@ -853,7 +838,7 @@
           later), we ask for the courtesy that scientific publications
           presenting results obtained with this libraries acknowledge its
           use. Please cite one of the papers referenced
-          <a href="publications/index.html">here</a>.
+          <a href="http://www.dealii.org/publications.html">here</a>.
 	</li>
 	<li>
           <acronym>deal.II</acronym> can interface with a number of <a
@@ -865,8 +850,8 @@
           <a href="http://threadingbuildingblocks.org/"
             target="_top">Threading Building Blocks</a>,
           <a href="http://www.boost.org/" target="_top">BOOST</a> and
-          <a href="http://warp.povusers.org/FunctionParser/"
-            target="_top">FunctionParser</a>, courtesy of their authors.
+          <a href="http://muparser.beltoforion.de/"
+            target="_top">muparser</a>, courtesy of their authors.
           These are also covered by their own licenses; please refer to
           their webpages for more information.
 	</li>
@@ -874,7 +859,7 @@
 
   <hr />
   <address>
-    <a href="authors.html" target="body">The deal.II Authors</a>
+    <a href="http://www.dealii.org/authors.html" target="_top">The deal.II Authors</a>
     $Date$
   </address>
   <div class="right">

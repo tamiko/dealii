@@ -35,6 +35,20 @@ namespace internal
   namespace MatrixFreeFunctions
   {
     /**
+     * An enum that encodes the type of element detected during
+     * initialization. FEEvaluation will select the most efficient algorithm
+     * based on the given element type.
+     */
+    enum ElementType
+      {
+        tensor_general,
+        tensor_symmetric,
+        truncated_tensor,
+        tensor_symmetric_plus_dg0,
+        tensor_gausslobatto
+      };
+
+    /**
      * The class that stores the shape functions, gradients and Hessians
      * evaluated for a tensor product finite element and tensor product
      * quadrature formula on the unit cell. Because of this structure, only
@@ -72,55 +86,68 @@ namespace internal
                    const unsigned int base_element = 0);
 
       /**
-       * Returns the memory consumption of this
-       * class in bytes.
+       * Returns the memory consumption of this class in bytes.
        */
       std::size_t memory_consumption () const;
 
       /**
-       * Stores the shape values of the 1D finite
-       * element evaluated on all 1D quadrature
-       * points in vectorized format, i.e., as an
-       * array of
-       * VectorizedArray<dim>::n_array_elements
-       * equal elements. The length of this array is
-       * <tt>n_dofs_1d * n_q_points_1d</tt> and
-       * quadrature points are the index running
-       * fastest.
+       * Encodes the type of element detected at construction. FEEvaluation
+       * will select the most efficient algorithm based on the given element
+       * type.
+       */
+      ElementType element_type;
+          
+      /**
+       * Stores the shape values of the 1D finite element evaluated on all 1D
+       * quadrature points in vectorized format, i.e., as an array of
+       * VectorizedArray<dim>::n_array_elements equal elements. The length of
+       * this array is <tt>n_dofs_1d * n_q_points_1d</tt> and quadrature
+       * points are the index running fastest.
        */
       AlignedVector<VectorizedArray<Number> > shape_values;
 
       /**
-       * Stores the shape gradients of the 1D finite
-       * element evaluated on all 1D quadrature
-       * points in vectorized format, i.e., as an
-       * array of
-       * VectorizedArray<dim>::n_array_elements
-       * equal elements. The length of this array is
-       * <tt>n_dofs_1d * n_q_points_1d</tt> and
-       * quadrature points are the index running
-       * fastest.
+       * Stores the shape gradients of the 1D finite element evaluated on all
+       * 1D quadrature points in vectorized format, i.e., as an array of
+       * VectorizedArray<dim>::n_array_elements equal elements. The length of
+       * this array is <tt>n_dofs_1d * n_q_points_1d</tt> and quadrature
+       * points are the index running fastest.
        */
       AlignedVector<VectorizedArray<Number> > shape_gradients;
 
       /**
-       * Stores the shape Hessians of the 1D finite
-       * element evaluated on all 1D quadrature
-       * points in vectorized format, i.e., as an
-       * array of
-       * VectorizedArray<dim>::n_array_elements
-       * equal elements. The length of this array is
-       * <tt>n_dofs_1d * n_q_points_1d</tt> and
-       * quadrature points are the index running
-       * fastest.
+       * Stores the shape Hessians of the 1D finite element evaluated on all
+       * 1D quadrature points in vectorized format, i.e., as an array of
+       * VectorizedArray<dim>::n_array_elements equal elements. The length of
+       * this array is <tt>n_dofs_1d * n_q_points_1d</tt> and quadrature
+       * points are the index running fastest.
        */
       AlignedVector<VectorizedArray<Number> > shape_hessians;
 
       /**
-       * Stores the indices from cell DoFs to face
-       * DoFs. The rows go through the
-       * <tt>2*dim</tt> faces, and the columns the
-       * DoFs on the faces.
+       * Stores the shape values in a different format, namely the so-called
+       * even-odd scheme where the symmetries in shape_values are used for
+       * faster evaluation.
+       */
+      AlignedVector<VectorizedArray<Number> > shape_val_evenodd;
+
+      /**
+       * Stores the shape gradients in a different format, namely the
+       * so-called even-odd scheme where the symmetries in shape_gradients are
+       * used for faster evaluation.
+       */
+      AlignedVector<VectorizedArray<Number> > shape_gra_evenodd;
+
+      /**
+       * Stores the shape second derivatives in a different format, namely the
+       * so-called even-odd scheme where the symmetries in shape_hessians are
+       * used for faster evaluation.
+       */
+      AlignedVector<VectorizedArray<Number> > shape_hes_evenodd;
+
+      /**
+       * Stores the indices from cell DoFs to face DoFs. The rows go through
+       * the <tt>2*dim</tt> faces, and the columns the DoFs on the faces.
        */
       dealii::Table<2,unsigned int>  face_indices;
 
@@ -143,15 +170,14 @@ namespace internal
       std::vector<Number>    subface_value[2];
 
       /**
-       * Non-vectorized version of shape
-       * values. Needed when evaluating face info.
+       * Non-vectorized version of shape values. Needed when evaluating face
+       * info.
        */
       std::vector<Number>    shape_values_number;
 
       /**
-       * Non-vectorized version of shape
-       * gradients. Needed when evaluating face
-       * info.
+       * Non-vectorized version of shape gradients. Needed when evaluating
+       * face info.
        */
       std::vector<Number>    shape_gradient_number;
 
@@ -165,28 +191,43 @@ namespace internal
       std::vector<unsigned int> lexicographic_numbering;
 
       /**
-       * Stores the number of quadrature points in
-       * @p dim dimensions for a cell.
+       * Stores the degree of the element.
+       */
+      unsigned int fe_degree;
+
+      /**
+       * Stores the number of quadrature points in @p dim dimensions for a
+       * cell.
        */
       unsigned int n_q_points;
 
       /**
-       * Stores the number of DoFs per cell in @p
-       * dim dimensions.
+       * Stores the number of DoFs per cell in @p dim dimensions.
        */
       unsigned int dofs_per_cell;
 
       /**
-       * Stores the number of quadrature points per
-       * face in @p dim dimensions.
+       * Stores the number of quadrature points per face in @p dim dimensions.
        */
       unsigned int n_q_points_face;
 
       /**
-       * Stores the number of DoFs per face in @p
-       * dim dimensions.
+       * Stores the number of DoFs per face in @p dim dimensions.
        */
       unsigned int dofs_per_face;
+
+      /**
+       * Checks whether we have symmetries in the shape values. In that case,
+       * also fill the shape_???_evenodd fields.
+       */
+      bool check_1d_shapes_symmetric(const unsigned int n_q_points_1d);
+
+      /**
+       * Checks whether symmetric 1D basis functions are such that the shape
+       * values form a diagonal matrix, which allows to use specialized
+       * algorithms that save some operations.
+       */
+      bool check_1d_shapes_gausslobatto();
     };
 
 
@@ -200,6 +241,7 @@ namespace internal
                                   const FiniteElement<dim> &fe_in,
                                   const unsigned int base_element_number)
       :
+      fe_degree (0),
       n_q_points (0),
       dofs_per_cell (0)
     {

@@ -22,6 +22,7 @@
 #include <deal.II/base/config.h>
 #include <deal.II/base/exceptions.h>
 #include <deal.II/base/point.h>
+#include <deal.II/base/data_out_base.h>
 #include <deal.II/grid/tria.h>
 #include <deal.II/fe/mapping.h>
 
@@ -713,18 +714,6 @@ namespace GridOutFlags
         const bool label_subdomain_id = false,
         const bool draw_colorbar = true,
         const bool draw_legend = true);
-
-    /**
-     * Declare parameters in
-     * ParameterHandler.
-     */
-//    static void declare_parameters (ParameterHandler &param);
-
-    /**
-     * Parse parameters of
-     * ParameterHandler.
-     */
-//    void parse_parameters (ParameterHandler &param);
   };
 
   /**
@@ -755,6 +744,25 @@ namespace GridOutFlags
     void parse_parameters (ParameterHandler &param);
   };
 
+
+  /**
+   * Flags for grid output in Vtk format. These flags are the same as
+   * those declared in DataOutBase::VtkFlags.
+   *
+   * @ingroup output
+   */
+  struct Vtk : public DataOutBase::VtkFlags
+  {};
+
+
+  /**
+   * Flags for grid output in Vtu format. These flags are the same as
+   * those declared in DataOutBase::VtuFlags.
+   *
+   * @ingroup output
+   */
+  struct Vtu : public DataOutBase::VtkFlags
+  {};
 }
 
 
@@ -863,7 +871,11 @@ public:
     /// write() calls write_svg()
     svg,
     /// write() calls write_mathgl()
-    mathgl
+    mathgl,
+    /// write() calls write_vtk()
+    vtk,
+    /// write() calls write_vtu()
+    vtu
   };
 
   /**
@@ -883,8 +895,8 @@ public:
    * Not implemented for the
    * codimension one case.
    */
-  template <int dim>
-  void write_dx (const Triangulation<dim> &tria,
+  template <int dim, int spacedim>
+  void write_dx (const Triangulation<dim,spacedim> &tria,
                  std::ostream             &out) const;
 
   /**
@@ -1032,10 +1044,10 @@ public:
    *
    * Not implemented for the codimension one case.
    */
-  template <int dim>
-  void write_eps (const Triangulation<dim> &tria,
+  template <int dim, int spacedim>
+  void write_eps (const Triangulation<dim, spacedim> &tria,
                   std::ostream             &out,
-                  const Mapping<dim>       *mapping=0) const;
+                  const Mapping<dim, spacedim>       *mapping=0) const;
 
   /**
    * Write two-dimensional XFig-file.
@@ -1055,10 +1067,10 @@ public:
    *
    * Not implemented for the codimension one case.
    */
-  template <int dim>
-  void write_xfig (const Triangulation<dim> &tria,
+  template <int dim, int spacedim>
+  void write_xfig (const Triangulation<dim, spacedim> &tria,
                    std::ostream              &out,
-                   const Mapping<dim>        *mapping=0) const;
+                   const Mapping<dim, spacedim>        *mapping=0) const;
 
   /**
    * Write the triangulation in the SVG format.
@@ -1078,17 +1090,22 @@ public:
    * colorbar can be drawn to encode the chosen coloring.  Moreover, a
    * cell label can be added, showing level index, etc.
    *
-   * @note Yet only implemented for
+   * @note This function is currently only implemented for
    * two-dimensional grids in two
    * space dimensions.
-   *
+   */
+  void write_svg (const Triangulation<2,2> &tria,
+                  std::ostream             &out) const;
+
+  /**
+   * Declaration of the same function as above for all other dimensions and
+   * space dimensions. This function is not currently implemented and is only
+   * declared to exist to support dimension independent programming.
    */
   template <int dim, int spacedim>
   void write_svg (const Triangulation<dim,spacedim> &tria,
                   std::ostream                      &out) const;
 
-  void write_svg (const Triangulation<2,2> &tria,
-                  std::ostream             &out) const;
 
   /**
    * Write triangulation in MathGL script format. To interpret this
@@ -1096,18 +1113,32 @@ public:
    *
    * To get a handle on the resultant MathGL script within a graphical
    * environment an interpreter is needed. A suggestion to start with
-   * is <code>mglview</code>, which is bundled with MathGL.  With
+   * is <code>mglview</code>, which is bundled with MathGL.
    * <code>mglview</code> can interpret and display small-to-medium
    * MathGL scripts in a graphical window and enables conversion to
    * other formats such as EPS, PNG, JPG, SVG, as well as view/display
    * animations. Some minor editing, such as modifying the lighting or
    * alpha channels, can also be done.
    *
-   * @note Not implemented for the codimensional one case.
+   * @note Not implemented for the codimension one case.
    */
-  template <int dim>
-  void write_mathgl (const Triangulation<dim> &tria,
+  template <int dim, int spacedim>
+  void write_mathgl (const Triangulation<dim, spacedim> &tria,
                      std::ostream             &out) const;
+
+  /**
+   * Write triangulation in VTK format.
+   */
+  template <int dim, int spacedim>
+  void write_vtk (const Triangulation<dim,spacedim> &tria,
+                  std::ostream                      &out) const;
+
+  /**
+   * Write triangulation in VTU format.
+   */
+  template <int dim, int spacedim>
+  void write_vtu (const Triangulation<dim,spacedim> &tria,
+                  std::ostream                      &out) const;
 
   /**
    * Write grid to @p out according to the given data format. This
@@ -1180,16 +1211,26 @@ public:
   void set_flags (const GridOutFlags::MathGL &flags);
 
   /**
-   * Provide a function which tells us which
-   * suffix with a given output format
-   * usually has. At present the following
-   * formats are defined:
+   * Set flags for VTK output
+   */
+  void set_flags (const GridOutFlags::Vtk &flags);
+
+  /**
+   * Set flags for VTU output
+   */
+  void set_flags (const GridOutFlags::Vtu &flags);
+
+  /**
+   * Provide a function that can tell us which
+   * suffix a given output format
+   * usually has. For example, it defines the following mappings:
    * <ul>
    * <li> @p OpenDX: <tt>.dx</tt>
    * <li> @p gnuplot: <tt>.gnuplot</tt>
    * <li> @p ucd: <tt>.inp</tt>
    * <li> @p eps: <tt>.eps</tt>.
    * </ul>
+   * Similar mappings are provided for all implemented formats.
    *
    * Since this function does not need data from this object, it is
    * static and can thus be called without creating an object of this
@@ -1312,9 +1353,19 @@ private:
   GridOutFlags::Svg svg_flags;
 
   /**
-   * Flags for OpenDX output.
+   * Flags for MathGL output.
    */
   GridOutFlags::MathGL mathgl_flags;
+
+  /**
+   * Flags for VTK output.
+   */
+  GridOutFlags::Vtk vtk_flags;
+
+  /**
+   * Flags for VTU output.
+   */
+  GridOutFlags::Vtu vtu_flags;
 
   /**
    * Write the grid information about faces to @p out. Only those
@@ -1556,12 +1607,14 @@ private:
    * 1d. Simply returns zero.
    */
   unsigned int n_boundary_faces (const Triangulation<1,1> &tria) const;
+
   /**
    * Declaration of the specialization of above function for 1d,
    * 2sd. Simply returns zero.
    */
   unsigned int n_boundary_faces (const Triangulation<1,2> &tria) const;
   unsigned int n_boundary_faces (const Triangulation<1,3> &tria) const;
+
   /**
    * Return the number of lines in the triangulation which have a
    * boundary indicator not equal to zero. Only these lines are

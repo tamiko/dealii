@@ -14,12 +14,10 @@
 ##
 ## ---------------------------------------------------------------------
 
-
 #
 # Configuration for thread support in deal.II with the help of the tbb
 # library:
 #
-
 
 #
 # Set up general threading:
@@ -168,6 +166,7 @@ MACRO(FEATURE_THREADS_CONFIGURE_EXTERNAL)
 
   LIST(APPEND THREADS_LIBRARIES ${TBB_LIBRARIES})
   LIST(APPEND THREADS_INCLUDE_DIRS ${TBB_INCLUDE_DIRS})
+  LIST(APPEND THREADS_USER_INCLUDE_DIRS ${TBB_USER_INCLUDE_DIRS})
 
 ENDMACRO()
 

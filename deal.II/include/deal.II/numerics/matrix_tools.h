@@ -19,6 +19,7 @@
 
 
 #include <deal.II/base/config.h>
+#include <deal.II/base/function.h>
 #include <deal.II/base/exceptions.h>
 #include <deal.II/base/thread_management.h>
 #include <deal.II/lac/constraint_matrix.h>
@@ -862,7 +863,7 @@ namespace MatrixTools
    * too expensive without direct access to
    * the PETSc data structures. (This leads
    * to the situation where the action
-   * indicates by the default value of the
+   * indicated by the default value of the
    * last argument is actually not
    * implemented; that argument has
    * <code>true</code> as its default value
@@ -966,7 +967,7 @@ namespace MatrixTools
    * direct access to the Trilinos
    * data structures. (This leads to
    * the situation where the action
-   * indicates by the default value
+   * indicated by the default value
    * of the last argument is actually
    * not implemented; that argument
    * has <code>true</code> as its
@@ -1023,7 +1024,7 @@ namespace MatrixTools
    * direct access to the Trilinos
    * data structures. (This leads to
    * the situation where the action
-   * indicates by the default value
+   * indicated by the default value
    * of the last argument is actually
    * not implemented; that argument
    * has <code>true</code> as its

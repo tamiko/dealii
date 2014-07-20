@@ -1185,21 +1185,91 @@ public:
   bool at_boundary () const;
 
   /**
-   * Return a constant reference to a
-   * boundary object used for this
-   * object. This function is a shortcut to
-   * retrieving the boundary indicator
-   * using boundary_indicator() and then
-   * asking the
-   * Triangulation::get_boundary() function
-   * for the boundary object.
+   * Return a constant reference to the manifold object used for this
+   * object. This function exists for backward compatibility and calls
+   * get_manifold() internally.
    */
   const Boundary<dim,spacedim> &get_boundary () const;
+    
+  /**
+   * Return a constant reference to the manifold object used for this object.
+   *
+   * As explained in
+   * @ref boundary "Boundary and manifold description for triangulations",
+   * the process involved in finding the appropriate manifold description
+   * involves querying both the manifold or boundary indicators. See there
+   * for more information.
+   */
+  const Boundary<dim,spacedim> &get_manifold () const;
 
   /**
    * @}
    */
 
+  /**
+   *  @name Dealing with manifold indicators
+   */
+  /**
+   * @{
+   */
+
+  /**
+   * Return the manifold indicator of this
+   * object.
+   *
+   * If the return value is the special value
+   * numbers::flat_manifold_id, then this object is associated with a
+   * standard Cartesian Manifold Description.
+   *
+   * @see @ref GlossManifoldIndicator "Glossary entry on manifold indicators"
+   */
+  types::manifold_id manifold_id () const;
+
+  /**
+   * Set the manifold indicator.  The same applies as for the
+   * <tt>manifold_id()</tt> function.
+   *
+   * Note that it only sets the manifold object of the current object
+   * itself, not the indicators of the ones that bound it, nor of its
+   * children. For example, in 3d, if this function is called on a
+   * face, then the manifold indicator of the 4 edges that bound the
+   * face remain unchanged. If you want to set the manifold indicators
+   * of face, edges and all children at the same time, use the
+   * set_all_manifold_ids() function.
+   *
+   *
+   * @ingroup manifold
+   *
+   * @see @ref GlossManifoldIndicator "Glossary entry on manifold indicators"
+   */
+  void set_manifold_id (const types::manifold_id) const;
+
+  /**
+   * Do as set_manifold_id()
+   * but also set the manifold
+   * indicators of the objects that
+   * bound the current object. For
+   * example, in 3d, if
+   * set_manifold_id() is
+   * called on a face, then the
+   * manifold indicator of the 4
+   * edges that bound the face
+   * remain unchanged. On the other
+   * hand, the manifold indicators
+   * of face and edges are all set
+   * at the same time using the
+   * current function.
+   *
+   * @ingroup manifold
+   *
+   * @see @ref GlossManifoldIndicator "Glossary entry on manifold indicators"
+   */
+  void set_all_manifold_ids (const types::manifold_id) const;
+
+  /**
+   * @}
+   */    
+    
 
   /**
    * @name User data
@@ -2019,22 +2089,28 @@ public:
   bool at_boundary () const;
 
   /**
-   * Boundary indicator of this
-   * object. The convention for one
-   * dimensional triangulations is
-   * that left end vertices have
-   * boundary indicator zero, and
-   * right end vertices have
-   * boundary indicator one.
+   * Return the boundary indicator of this object. The convention for one
+   * dimensional triangulations is that left end vertices (of each line
+   * segment from which the triangulation may be constructed) have boundary
+   * indicator zero, and right end vertices have boundary indicator one,
+   * unless explicitly set differently.
    *
-   * If the return value is the special
-   * value numbers::internal_face_boundary_id,
-   * then this object is in the
-   * interior of the domain.
+   * If the return value is the special value
+   * numbers::internal_face_boundary_id, then this object is in the interior
+   * of the domain.
    *
    * @see @ref GlossBoundaryIndicator "Glossary entry on boundary indicators"
    */
   types::boundary_id boundary_indicator () const;
+
+  /**
+   * Return the manifold indicator of this
+   * object. 
+   *
+   * @see @ref GlossManifoldIndicator "Glossary entry on manifold indicators"
+   */
+  types::manifold_id manifold_id () const;
+
 
   /**
    *  @name Orientation of sub-objects
@@ -2177,10 +2253,19 @@ public:
   set_boundary_indicator (const types::boundary_id);
 
   /**
-   * Since this object only represents a
-   * single vertex, call
-   * set_boundary_indicator with the same
-   * argument.
+   * Set the manifold indicator of this vertex. This does nothing so far since
+   * manifolds are only used to refine and map objects, but vertices are not
+   * refined and the mapping is trivial. This function is here only to allow
+   * dimension independent programming.
+   */
+  void
+  set_manifold_id (const types::manifold_id);
+
+  /**
+   * Set the boundary indicator of this object and all of its
+   * lower-dimensional sub-objects.  Since this object only represents a
+   * single vertex, there are no lower-dimensional obejct and this function is
+   * equivalent to calling set_boundary_indicator with the same argument.
    *
    * @ingroup boundary
    *
@@ -2188,6 +2273,20 @@ public:
    */
   void
   set_all_boundary_indicators (const types::boundary_id);
+
+  /**
+   * Set the manifold indicator of this object and all of its
+   * lower-dimensional sub-objects.  Since this object only represents a
+   * single vertex, there are no lower-dimensional obejct and this function is
+   * equivalent to calling set_manifold_indicator with the same argument.
+   *
+   * @ingroup manifold
+   *
+   * @see @ref GlossManifoldIndicator "Glossary entry on manifold indicators"
+   */
+    
+  void
+  set_all_manifold_ids (const types::manifold_id);
   /**
    * @}
    */
@@ -2860,13 +2959,11 @@ public:
   bool direction_flag () const;
 
   /**
-   *  Index of the parent of this cell.
-   *  The level of the parent is one
-   *  lower than that of the
-   *  present cell, if the parent
-   *  of a cell is accessed. If the
-   *  parent does not exist (i.e., if the object is at the coarsest level of
-   *  the mesh hierarchy), an exception is generated.
+   *  Index of the parent of this cell within the level of the triangulation
+   *  to which the parent cell belongs. The level of the parent is of course
+   *  one lower than that of the present cell. If the parent does not exist
+   *  (i.e., if the object is at the coarsest level of the mesh hierarchy), an
+   *  exception is generated.
    */
   int parent_index () const;
 
@@ -3025,12 +3122,11 @@ public:
    * may be different as to whether
    * a point is in- or outside the
    * cell in real space.
-
-   In case of codim>0, the point is first projected
-   to the manifold where the cell is embedded and
-   then check if this projection is inside the cell.
-
-  */
+   *
+   * In case of codim>0, the point is first projected
+   * to the manifold where the cell is embedded and
+   * then check if this projection is inside the cell.
+   */
   bool point_inside (const Point<spacedim> &p) const;
 
   /**
@@ -3051,10 +3147,16 @@ public:
 
   /**
    * Return a unique ID for the current cell. This ID is constructed from the
-   * path in the hierarchy from the coarse father cell and works correctly
-   * in parallel computations.
+   * path in the hierarchy from the coarse father cell and works correctly in
+   * parallel computations using objects of type
+   * parallel::distributed::Triangulation. This function is therefore useful
+   * in providing a unique identifier for cells (active or not) that also
+   * works for parallel triangulations. See the documentation of the CellId
+   * class for more information.
    *
-   * Note: This operation takes O(log(level)) time.
+   * @note This operation takes O(level) time to compute. In most practicaly
+   * cases, the number of levels of a triangulation will depend
+   * logarithmically on the number of cells in the triangulation.
    */
   CellId id() const;
 
@@ -3286,6 +3388,8 @@ template <> bool CellAccessor<1,2>::point_inside (const Point<2> &) const;
 template <> bool CellAccessor<1,3>::point_inside (const Point<3> &) const;
 template <> bool CellAccessor<2,3>::point_inside (const Point<3> &) const;
 // -------------------------------------------------------------------
+
+template <> void TriaAccessor<3,3,3>::set_all_manifold_ids (const types::manifold_id) const;
 
 #endif // DOXYGEN
 
