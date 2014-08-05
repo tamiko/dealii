@@ -1,5 +1,5 @@
 // ---------------------------------------------------------------------
-// $Id$
+// $Id: dof_handler_policy.cc 33139 2014-07-11 21:32:23Z denis.davydov $
 //
 // Copyright (C) 1998 - 2013 by the deal.II authors
 //
@@ -1056,11 +1056,17 @@ namespace internal
 		  std::vector<int> displs(n_cpu),
 		                   rcounts(n_cpu);
 		  types::global_dof_index shift = 0;
+		  //set rcounts based on new_numbers:
+		  int cur_count = new_numbers_copy.size ();
+		  MPI_Allgather (&cur_count,  1, MPI_INT,
+		  		 &rcounts[0], 1, MPI_INT,
+		  		 tr->get_communicator ());
+
 		  for (unsigned int i = 0; i < n_cpu; i++)
 		    {
 		      displs[i]  = shift;
 		      //rcounts[i] = dof_handler.n_locally_owned_dofs_per_processor()[i];
-		      rcounts[i] = number_cache_current.n_locally_owned_dofs_per_processor[i];
+		      //rcounts[i] = number_cache_current.n_locally_owned_dofs_per_processor[i];
 		      shift     += rcounts[i];
 		    }
 		  Assert(((int)new_numbers_copy.size()) == rcounts[this_process],
@@ -1140,12 +1146,43 @@ namespace internal
 	      DoFTools::locally_owned_dofs_with_subdomain (dof_handler);
 	  number_cache.locally_owned_dofs =
 	      number_cache.locally_owned_dofs_per_processor[dof_handler.get_tria ().locally_owned_subdomain ()];
+	  //sequential renumbering returns a vector of size 1 here:
+	  number_cache.n_locally_owned_dofs_per_processor.resize(number_cache.locally_owned_dofs_per_processor.size());
 	  for (unsigned int i = 0;
 	      i < number_cache.n_locally_owned_dofs_per_processor.size (); i++)
 	    number_cache.n_locally_owned_dofs_per_processor[i] = number_cache.locally_owned_dofs_per_processor[i].n_elements ();
 
 	  number_cache.n_locally_owned_dofs =
 	      number_cache.n_locally_owned_dofs_per_processor[dof_handler.get_tria ().locally_owned_subdomain ()];
+
+	  //debug:
+	  if (false)
+	  {
+	    const parallel::shared::Triangulation<dim, spacedim> *tr =
+	      (dynamic_cast<const parallel::shared::Triangulation<dim, spacedim>*> (&dof_handler.get_tria ()));
+	    Assert(tr != 0, ExcInternalError());
+	    const unsigned int n_cpu = Utilities::MPI::n_mpi_processes (tr->get_communicator ());
+	    const unsigned int this_process =
+	    		  Utilities::MPI::this_mpi_process (tr->get_communicator ());
+	    Assert (number_cache.n_locally_owned_dofs_per_processor.size() == n_cpu,
+	            ExcInternalError());
+	    unsigned int cur_process = 0;
+	    while (cur_process != n_cpu)
+	      {
+		if (cur_process == this_process)
+		  {
+		    std::cout << std::endl << std::flush;
+		    for (unsigned int i = 0; i < n_cpu; i++)
+		      {
+			std::cout << "locally owned dofs[" << i << "] : ";
+			number_cache.locally_owned_dofs_per_processor[i].print (std::cout);
+		      }
+		  }
+		MPI_Barrier (tr->get_communicator ());
+		cur_process++;
+	      }
+	  }
+
 	  return number_cache;
 	}
 
