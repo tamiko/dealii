@@ -62,8 +62,8 @@ ENDFOREACH()
 SET(_categories
   a-framework algorithms all-headers aniso base bits build_tests codim_one
   deal.II distributed_grids fe gla grid hp integrators lac lapack manifold
-  matrix_free mesh_converter metis mpi multigrid mumps petsc serialization
-  slepc trilinos umfpack
+  matrix_free mesh_converter metis mpi multigrid mumps petsc petsc_complex
+  serialization slepc slepc_complex trilinos umfpack
   )
 
 #
