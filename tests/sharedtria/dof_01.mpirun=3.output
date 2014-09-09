@@ -1,50 +1,50 @@
 
 DEAL:0:2d::n_dofs: 818
 DEAL:0:2d::n_locally_owned_dofs: 289
-DEAL:0:2d::n_locally_owned_dofs_per_processor: 289 232 297  sum: 818
+DEAL:0:2d::n_locally_owned_dofs_per_processor: 289 241 288  sum: 818
 DEAL:0:2d::n_dofs: 1754
-DEAL:0:2d::n_locally_owned_dofs: 566
-DEAL:0:2d::n_locally_owned_dofs_per_processor: 566 607 581  sum: 1754
+DEAL:0:2d::n_locally_owned_dofs: 594
+DEAL:0:2d::n_locally_owned_dofs_per_processor: 594 572 588  sum: 1754
 DEAL:0:2d::n_dofs: 3056
-DEAL:0:2d::n_locally_owned_dofs: 1018
-DEAL:0:2d::n_locally_owned_dofs_per_processor: 1018 992 1046  sum: 3056
+DEAL:0:2d::n_locally_owned_dofs: 1023
+DEAL:0:2d::n_locally_owned_dofs_per_processor: 1023 996 1037  sum: 3056
 DEAL:0:3d::n_dofs: 13282
-DEAL:0:3d::n_locally_owned_dofs: 4428
-DEAL:0:3d::n_locally_owned_dofs_per_processor: 4428 4262 4592  sum: 13282
+DEAL:0:3d::n_locally_owned_dofs: 4343
+DEAL:0:3d::n_locally_owned_dofs_per_processor: 4343 4342 4597  sum: 13282
 DEAL:0:3d::n_dofs: 41826
-DEAL:0:3d::n_locally_owned_dofs: 13741
-DEAL:0:3d::n_locally_owned_dofs_per_processor: 13741 14200 13885  sum: 41826
+DEAL:0:3d::n_locally_owned_dofs: 14020
+DEAL:0:3d::n_locally_owned_dofs_per_processor: 14020 13820 13986  sum: 41826
 
 DEAL:1:2d::n_dofs: 818
-DEAL:1:2d::n_locally_owned_dofs: 232
-DEAL:1:2d::n_locally_owned_dofs_per_processor: 289 232 297  sum: 818
+DEAL:1:2d::n_locally_owned_dofs: 241
+DEAL:1:2d::n_locally_owned_dofs_per_processor: 289 241 288  sum: 818
 DEAL:1:2d::n_dofs: 1754
-DEAL:1:2d::n_locally_owned_dofs: 607
-DEAL:1:2d::n_locally_owned_dofs_per_processor: 566 607 581  sum: 1754
+DEAL:1:2d::n_locally_owned_dofs: 572
+DEAL:1:2d::n_locally_owned_dofs_per_processor: 594 572 588  sum: 1754
 DEAL:1:2d::n_dofs: 3056
-DEAL:1:2d::n_locally_owned_dofs: 992
-DEAL:1:2d::n_locally_owned_dofs_per_processor: 1018 992 1046  sum: 3056
+DEAL:1:2d::n_locally_owned_dofs: 996
+DEAL:1:2d::n_locally_owned_dofs_per_processor: 1023 996 1037  sum: 3056
 DEAL:1:3d::n_dofs: 13282
-DEAL:1:3d::n_locally_owned_dofs: 4262
-DEAL:1:3d::n_locally_owned_dofs_per_processor: 4428 4262 4592  sum: 13282
+DEAL:1:3d::n_locally_owned_dofs: 4342
+DEAL:1:3d::n_locally_owned_dofs_per_processor: 4343 4342 4597  sum: 13282
 DEAL:1:3d::n_dofs: 41826
-DEAL:1:3d::n_locally_owned_dofs: 14200
-DEAL:1:3d::n_locally_owned_dofs_per_processor: 13741 14200 13885  sum: 41826
+DEAL:1:3d::n_locally_owned_dofs: 13820
+DEAL:1:3d::n_locally_owned_dofs_per_processor: 14020 13820 13986  sum: 41826
 
 
 DEAL:2:2d::n_dofs: 818
-DEAL:2:2d::n_locally_owned_dofs: 297
-DEAL:2:2d::n_locally_owned_dofs_per_processor: 289 232 297  sum: 818
+DEAL:2:2d::n_locally_owned_dofs: 288
+DEAL:2:2d::n_locally_owned_dofs_per_processor: 289 241 288  sum: 818
 DEAL:2:2d::n_dofs: 1754
-DEAL:2:2d::n_locally_owned_dofs: 581
-DEAL:2:2d::n_locally_owned_dofs_per_processor: 566 607 581  sum: 1754
+DEAL:2:2d::n_locally_owned_dofs: 588
+DEAL:2:2d::n_locally_owned_dofs_per_processor: 594 572 588  sum: 1754
 DEAL:2:2d::n_dofs: 3056
-DEAL:2:2d::n_locally_owned_dofs: 1046
-DEAL:2:2d::n_locally_owned_dofs_per_processor: 1018 992 1046  sum: 3056
+DEAL:2:2d::n_locally_owned_dofs: 1037
+DEAL:2:2d::n_locally_owned_dofs_per_processor: 1023 996 1037  sum: 3056
 DEAL:2:3d::n_dofs: 13282
-DEAL:2:3d::n_locally_owned_dofs: 4592
-DEAL:2:3d::n_locally_owned_dofs_per_processor: 4428 4262 4592  sum: 13282
+DEAL:2:3d::n_locally_owned_dofs: 4597
+DEAL:2:3d::n_locally_owned_dofs_per_processor: 4343 4342 4597  sum: 13282
 DEAL:2:3d::n_dofs: 41826
-DEAL:2:3d::n_locally_owned_dofs: 13885
-DEAL:2:3d::n_locally_owned_dofs_per_processor: 13741 14200 13885  sum: 41826
+DEAL:2:3d::n_locally_owned_dofs: 13986
+DEAL:2:3d::n_locally_owned_dofs_per_processor: 14020 13820 13986  sum: 41826
 
