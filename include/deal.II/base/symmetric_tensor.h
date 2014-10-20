@@ -1,5 +1,4 @@
 // ---------------------------------------------------------------------
-// $Id$
 //
 // Copyright (C) 2005 - 2014 by the deal.II authors
 //
@@ -1065,7 +1064,7 @@ namespace internal
     Accessor<rank,dim,constness,P,Number>::
     Accessor ()
       :
-      tensor (*static_cast<tensor_type*>(0)),
+      tensor (*static_cast<tensor_type *>(0)),
       previous_indices ()
     {
       Assert (false, ExcMessage ("You can't call the default constructor of this class."));
@@ -1106,7 +1105,7 @@ namespace internal
     Accessor<rank,dim,constness,1,Number>::
     Accessor ()
       :
-      tensor (*static_cast<tensor_type*>(0)),
+      tensor (*static_cast<tensor_type *>(0)),
       previous_indices ()
     {
       Assert (false, ExcMessage ("You can't call the default constructor of this class."));
@@ -2250,8 +2249,8 @@ double third_invariant (const SymmetricTensor<2,dim,Number> &t)
 template <int dim, typename Number>
 Number trace (const SymmetricTensor<2,dim,Number> &d)
 {
-  Number t=0;
-  for (unsigned int i=0; i<dim; ++i)
+  Number t = d.data[0];
+  for (unsigned int i=1; i<dim; ++i)
     t += d.data[i];
   return t;
 }

@@ -1,5 +1,4 @@
 // ---------------------------------------------------------------------
-// $Id$
 //
 // Copyright (C) 2011 - 2014 by the deal.II authors
 //
@@ -438,7 +437,7 @@ public:
    * to the function object.
    */
   template <typename OutVector, typename InVector>
-  void cell_loop (const std_cxx1x::function<void (const MatrixFree<dim,Number> &,
+  void cell_loop (const std_cxx11::function<void (const MatrixFree<dim,Number> &,
                                                   OutVector &,
                                                   const InVector &,
                                                   const std::pair<unsigned int,
@@ -451,7 +450,7 @@ public:
    * a function pointer to a member function of class @p CLASS with the
    * signature <code>cell_operation (const MatrixFree<dim,Number> &, OutVector
    * &, InVector &, std::pair<unsigned int,unsigned int>&)const</code>. This
-   * method obviates the need to call std_cxx1x::bind to bind the class into
+   * method obviates the need to call std_cxx11::bind to bind the class into
    * the given function in case the local function needs to access data in the
    * class (i.e., it is a non-static member function).
    */
@@ -541,7 +540,7 @@ public:
    * usually prefer this data structure as the data exchange information can
    * be reused from one vector to another.
    */
-  const std_cxx1x::shared_ptr<const Utilities::MPI::Partitioner> &
+  const std_cxx11::shared_ptr<const Utilities::MPI::Partitioner> &
   get_vector_partitioner (const unsigned int vector_component=0) const;
 
   /**
@@ -968,7 +967,7 @@ MatrixFree<dim,Number>::initialize_dof_vector(parallel::distributed::Vector<Numb
 
 template <int dim, typename Number>
 inline
-const std_cxx1x::shared_ptr<const Utilities::MPI::Partitioner> &
+const std_cxx11::shared_ptr<const Utilities::MPI::Partitioner> &
 MatrixFree<dim,Number>::get_vector_partitioner (const unsigned int comp) const
 {
   AssertIndexRange (comp, n_components());
@@ -2033,7 +2032,7 @@ namespace internal
       tbb::task *execute ()
       {
         tbb::empty_task *root = new( tbb::task::allocate_root() )
-          tbb::empty_task;
+        tbb::empty_task;
         unsigned int evens = task_info.partition_evens[partition];
         unsigned int odds  = task_info.partition_odds[partition];
         unsigned int n_blocked_workers =
@@ -2046,14 +2045,14 @@ namespace internal
         for (unsigned int j=0; j<evens; j++)
           {
             worker[j] = new(root->allocate_child())
-              CellWork<Worker>(function, task_info.
-                               partition_color_blocks_row_index[partition]+2*j,
-                               task_info, false);
+            CellWork<Worker>(function, task_info.
+                             partition_color_blocks_row_index[partition]+2*j,
+                             task_info, false);
             if (j>0)
               {
                 worker[j]->set_ref_count(2);
                 blocked_worker[j-1]->dummy = new(worker[j]->allocate_child())
-                  tbb::empty_task;
+                tbb::empty_task;
                 worker[j-1]->spawn(*blocked_worker[j-1]);
               }
             else
@@ -2061,24 +2060,24 @@ namespace internal
             if (j<evens-1)
               {
                 blocked_worker[j] = new(worker[j]->allocate_child())
-                  CellWork<Worker>(function, task_info.
-                                   partition_color_blocks_row_index
-                                   [partition] + 2*j+1, task_info, true);
+                CellWork<Worker>(function, task_info.
+                                 partition_color_blocks_row_index
+                                 [partition] + 2*j+1, task_info, true);
               }
             else
               {
                 if (odds==evens)
                   {
                     worker[evens] = new(worker[j]->allocate_child())
-                      CellWork<Worker>(function, task_info.
-                                       partition_color_blocks_row_index[partition]+2*j+1,
-                                       task_info, false);
+                    CellWork<Worker>(function, task_info.
+                                     partition_color_blocks_row_index[partition]+2*j+1,
+                                     task_info, false);
                     worker[j]->spawn(*worker[evens]);
                   }
                 else
                   {
                     tbb::empty_task *child = new(worker[j]->allocate_child())
-                      tbb::empty_task();
+                    tbb::empty_task();
                     worker[j]->spawn(*child);
                   }
               }
@@ -2231,7 +2230,7 @@ template <typename OutVector, typename InVector>
 inline
 void
 MatrixFree<dim, Number>::cell_loop
-(const std_cxx1x::function<void (const MatrixFree<dim,Number> &,
+(const std_cxx11::function<void (const MatrixFree<dim,Number> &,
                                  OutVector &,
                                  const InVector &,
                                  const std::pair<unsigned int,
@@ -2251,14 +2250,14 @@ MatrixFree<dim, Number>::cell_loop
       // to simplify the function calls, bind away all arguments except the
       // cell range
       typedef
-      std_cxx1x::function<void (const std::pair<unsigned int,unsigned int> &range)>
+      std_cxx11::function<void (const std::pair<unsigned int,unsigned int> &range)>
       Worker;
 
-      const Worker func = std_cxx1x::bind (std_cxx1x::ref(cell_operation),
-                                           std_cxx1x::cref(*this),
-                                           std_cxx1x::ref(dst),
-                                           std_cxx1x::cref(src),
-                                           std_cxx1x::_1);
+      const Worker func = std_cxx11::bind (std_cxx11::ref(cell_operation),
+                                           std_cxx11::cref(*this),
+                                           std_cxx11::ref(dst),
+                                           std_cxx11::cref(src),
+                                           std_cxx11::_1);
 
       if (task_info.use_partition_partition == true)
         {
@@ -2521,19 +2520,19 @@ MatrixFree<dim,Number>::cell_loop
  OutVector      &dst,
  const InVector &src) const
 {
-  // here, use std_cxx1x::bind to hand a function handler with the appropriate
+  // here, use std_cxx11::bind to hand a function handler with the appropriate
   // argument to the other loop function
-  std_cxx1x::function<void (const MatrixFree<dim,Number> &,
+  std_cxx11::function<void (const MatrixFree<dim,Number> &,
                             OutVector &,
                             const InVector &,
                             const std::pair<unsigned int,
                             unsigned int> &)>
-  function = std_cxx1x::bind<void>(function_pointer,
-                                   std_cxx1x::cref(*owning_class),
-                                   std_cxx1x::_1,
-                                   std_cxx1x::_2,
-                                   std_cxx1x::_3,
-                                   std_cxx1x::_4);
+  function = std_cxx11::bind<void>(function_pointer,
+                                   std_cxx11::cref(*owning_class),
+                                   std_cxx11::_1,
+                                   std_cxx11::_2,
+                                   std_cxx11::_3,
+                                   std_cxx11::_4);
   cell_loop (function, dst, src);
 }
 
@@ -2553,19 +2552,19 @@ MatrixFree<dim,Number>::cell_loop
  OutVector      &dst,
  const InVector &src) const
 {
-  // here, use std_cxx1x::bind to hand a function handler with the appropriate
+  // here, use std_cxx11::bind to hand a function handler with the appropriate
   // argument to the other loop function
-  std_cxx1x::function<void (const MatrixFree<dim,Number> &,
+  std_cxx11::function<void (const MatrixFree<dim,Number> &,
                             OutVector &,
                             const InVector &,
                             const std::pair<unsigned int,
                             unsigned int> &)>
-  function = std_cxx1x::bind<void>(function_pointer,
-                                   std_cxx1x::ref(*owning_class),
-                                   std_cxx1x::_1,
-                                   std_cxx1x::_2,
-                                   std_cxx1x::_3,
-                                   std_cxx1x::_4);
+  function = std_cxx11::bind<void>(function_pointer,
+                                   std_cxx11::ref(*owning_class),
+                                   std_cxx11::_1,
+                                   std_cxx11::_2,
+                                   std_cxx11::_3,
+                                   std_cxx11::_4);
   cell_loop (function, dst, src);
 }
 

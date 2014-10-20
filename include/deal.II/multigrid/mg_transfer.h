@@ -1,5 +1,4 @@
 // ---------------------------------------------------------------------
-// $Id$
 //
 // Copyright (C) 2001 - 2013 by the deal.II authors
 //
@@ -33,7 +32,7 @@
 
 #include <deal.II/dofs/dof_handler.h>
 
-#include <deal.II/base/std_cxx1x/shared_ptr.h>
+#include <deal.II/base/std_cxx11/shared_ptr.h>
 
 
 DEAL_II_NAMESPACE_OPEN
@@ -135,13 +134,13 @@ public:
    * Initialize the constraints to be used in build_matrices().
    */
   void initialize_constraints (const ConstraintMatrix &constraints,
-			       const MGConstrainedDoFs &mg_constrained_dofs);
+                               const MGConstrainedDoFs &mg_constrained_dofs);
 
   /**
    * Reset the object to the state it had right after the default constructor.
    */
   void clear ();
-    
+
   /**
    * Actually build the prolongation
    * matrices for each level.
@@ -269,14 +268,14 @@ private:
   /**
    * Sparsity patterns for transfer matrices.
    */
-  std::vector<std_cxx1x::shared_ptr<typename internal::MatrixSelector<VECTOR>::Sparsity> >   prolongation_sparsities;
+  std::vector<std_cxx11::shared_ptr<typename internal::MatrixSelector<VECTOR>::Sparsity> >   prolongation_sparsities;
 
   /**
    * The actual prolongation matrix.  column indices belong to the dof
    * indices of the mother cell, i.e. the coarse level.  while row
    * indices belong to the child cell, i.e. the fine level.
    */
-  std::vector<std_cxx1x::shared_ptr<typename internal::MatrixSelector<VECTOR>::Matrix> > prolongation_matrices;
+  std::vector<std_cxx11::shared_ptr<typename internal::MatrixSelector<VECTOR>::Matrix> > prolongation_matrices;
 
   /**
    * Mapping for the copy_to_mg() and copy_from_mg() functions. Here only

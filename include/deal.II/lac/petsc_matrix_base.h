@@ -1,5 +1,4 @@
 // ---------------------------------------------------------------------
-// $Id$
 //
 // Copyright (C) 2004 - 2013 by the deal.II authors
 //
@@ -28,7 +27,7 @@
 #  include <deal.II/lac/vector.h>
 
 #  include <petscmat.h>
-#  include <deal.II/base/std_cxx1x/shared_ptr.h>
+#  include <deal.II/base/std_cxx11/shared_ptr.h>
 
 #  include <vector>
 #  include <cmath>
@@ -169,13 +168,13 @@ namespace PETScWrappers
          * accessor can access this data
          * if necessary.
          */
-        std_cxx1x::shared_ptr<const std::vector<size_type> > colnum_cache;
+        std_cxx11::shared_ptr<const std::vector<size_type> > colnum_cache;
 
         /**
          * Similar cache for the values
          * of this row.
          */
-        std_cxx1x::shared_ptr<const std::vector<PetscScalar> > value_cache;
+        std_cxx11::shared_ptr<const std::vector<PetscScalar> > value_cache;
 
         /**
          * Discard the old row caches

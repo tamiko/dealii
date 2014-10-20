@@ -1,5 +1,4 @@
 // ---------------------------------------------------------------------
-// $Id$
 //
 // Copyright (C) 2003 - 2013 by the deal.II authors
 //
@@ -18,7 +17,7 @@
 #define __deal2__fe_collection_h
 
 #include <deal.II/base/config.h>
-#include <deal.II/base/std_cxx1x/shared_ptr.h>
+#include <deal.II/base/std_cxx11/shared_ptr.h>
 #include <deal.II/fe/fe.h>
 #include <deal.II/fe/fe_values_extractors.h>
 #include <deal.II/fe/component_mask.h>
@@ -438,7 +437,7 @@ namespace hp
      * Array of pointers to the finite
      * elements stored by this collection.
      */
-    std::vector<std_cxx1x::shared_ptr<const FiniteElement<dim,spacedim> > > finite_elements;
+    std::vector<std_cxx11::shared_ptr<const FiniteElement<dim,spacedim> > > finite_elements;
   };
 
 

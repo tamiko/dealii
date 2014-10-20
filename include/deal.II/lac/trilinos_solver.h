@@ -1,5 +1,4 @@
 // ---------------------------------------------------------------------
-// $Id$
 //
 // Copyright (C) 2008 - 2014 by the deal.II authors
 //
@@ -22,7 +21,7 @@
 
 #ifdef DEAL_II_WITH_TRILINOS
 
-#  include <deal.II/base/std_cxx1x/shared_ptr.h>
+#  include <deal.II/base/std_cxx11/shared_ptr.h>
 #  include <deal.II/lac/exceptions.h>
 #  include <deal.II/lac/solver_control.h>
 #  include <deal.II/lac/vector.h>
@@ -243,7 +242,7 @@ namespace TrilinosWrappers
      * side vector and the solution vector, which is passed down to the
      * Trilinos solver.
      */
-    std_cxx1x::shared_ptr<Epetra_LinearProblem> linear_problem;
+    std_cxx11::shared_ptr<Epetra_LinearProblem> linear_problem;
 
     /**
      * A structure that contains the Trilinos solver and preconditioner
@@ -633,13 +632,13 @@ namespace TrilinosWrappers
      * side vector and the solution vector, which is passed down to the
      * Trilinos solver.
      */
-    std_cxx1x::shared_ptr<Epetra_LinearProblem> linear_problem;
+    std_cxx11::shared_ptr<Epetra_LinearProblem> linear_problem;
 
     /**
      * A structure that contains the Trilinos solver and preconditioner
      * objects.
      */
-    std_cxx1x::shared_ptr<Amesos_BaseSolver> solver;
+    std_cxx11::shared_ptr<Amesos_BaseSolver> solver;
 
     /**
      * Store a copy of the flags for this particular solver.

@@ -1,7 +1,6 @@
 // ---------------------------------------------------------------------
-// $Id$
 //
-// Copyright (C) 2006 - 2013 by the deal.II authors
+// Copyright (C) 2006 - 2014 by the deal.II authors
 //
 // This file is part of the deal.II library.
 //
@@ -20,7 +19,7 @@
 
 #include <deal.II/base/config.h>
 #include <deal.II/base/quadrature_lib.h>
-#include <deal.II/base/std_cxx1x/shared_ptr.h>
+#include <deal.II/base/std_cxx11/shared_ptr.h>
 #include <deal.II/dofs/block_info.h>
 #include <deal.II/fe/fe_values.h>
 #include <deal.II/meshworker/local_results.h>
@@ -79,7 +78,7 @@ namespace MeshWorker
   {
   private:
     /// vector of FEValues objects
-    std::vector<std_cxx1x::shared_ptr<FEValuesBase<dim, spacedim> > > fevalv;
+    std::vector<std_cxx11::shared_ptr<FEValuesBase<dim, spacedim> > > fevalv;
   public:
     static const unsigned int dimension = dim;
     static const unsigned int space_dimension = spacedim;
@@ -125,7 +124,7 @@ namespace MeshWorker
     /**
      * Initialize the data vector and cache the selector.
      */
-    void initialize_data(const std_cxx1x::shared_ptr<VectorDataBase<dim,spacedim> > &data);
+    void initialize_data(const std_cxx11::shared_ptr<VectorDataBase<dim,spacedim> > &data);
 
     /**
      * Delete the data created by initialize().
@@ -136,8 +135,8 @@ namespace MeshWorker
      * Return a reference to the FiniteElement that was used to
      * initialize this object.
      */
-    const FiniteElement<dim, spacedim>& finite_element() const;
-      
+    const FiniteElement<dim, spacedim> &finite_element() const;
+
     /// This is true if we are assembling for multigrid
     bool multigrid;
     /// Access to finite element
@@ -202,7 +201,7 @@ namespace MeshWorker
      * The global data vector used to compute function values in
      * quadrature points.
      */
-    std_cxx1x::shared_ptr<VectorDataBase<dim, spacedim> > global_data;
+    std_cxx11::shared_ptr<VectorDataBase<dim, spacedim> > global_data;
 
     /**
      * The memory used by this object.
@@ -210,11 +209,11 @@ namespace MeshWorker
     std::size_t memory_consumption () const;
 
   private:
-      /**
-       * The pointer to the (system) element used for initialization.
-       */
-      SmartPointer<const FiniteElement<dim, spacedim>, IntegrationInfo<dim, spacedim> > fe_pointer;
-      
+    /**
+     * The pointer to the (system) element used for initialization.
+     */
+    SmartPointer<const FiniteElement<dim, spacedim>, IntegrationInfo<dim, spacedim> > fe_pointer;
+
     /**
      * Use the finite element functions in #global_data and fill the
      * vectors #values, #gradients and #hessians with values according
@@ -325,7 +324,7 @@ namespace MeshWorker
     void initialize(const FiniteElement<dim, spacedim> &el,
                     const Mapping<dim, spacedim> &mapping,
                     const AnyData &data,
-		    const VECTOR& dummy,
+                    const VECTOR &dummy,
                     const BlockInfo *block_info = 0);
     /**
      * @deprecated Use AnyData instead of NamedData.
@@ -490,9 +489,9 @@ namespace MeshWorker
      */
     MeshWorker::VectorSelector face_selector;
 
-    std_cxx1x::shared_ptr<MeshWorker::VectorDataBase<dim, spacedim> > cell_data;
-    std_cxx1x::shared_ptr<MeshWorker::VectorDataBase<dim, spacedim> > boundary_data;
-    std_cxx1x::shared_ptr<MeshWorker::VectorDataBase<dim, spacedim> > face_data;
+    std_cxx11::shared_ptr<MeshWorker::VectorDataBase<dim, spacedim> > cell_data;
+    std_cxx11::shared_ptr<MeshWorker::VectorDataBase<dim, spacedim> > boundary_data;
+    std_cxx11::shared_ptr<MeshWorker::VectorDataBase<dim, spacedim> > face_data;
     /* @} */
 
     /**
@@ -575,7 +574,7 @@ namespace MeshWorker
     :
     fevalv(0),
     multigrid(false),
-    global_data(std_cxx1x::shared_ptr<VectorDataBase<dim, sdim> >(new VectorDataBase<dim, sdim>))
+    global_data(std_cxx11::shared_ptr<VectorDataBase<dim, sdim> >(new VectorDataBase<dim, sdim>))
   {}
 
 
@@ -600,14 +599,14 @@ namespace MeshWorker
         const FESubfaceValues<dim,sdim> *ps = dynamic_cast<const FESubfaceValues<dim,sdim>*>(&p);
 
         if (pc != 0)
-          fevalv[i] = std_cxx1x::shared_ptr<FEValuesBase<dim,sdim> > (
+          fevalv[i] = std_cxx11::shared_ptr<FEValuesBase<dim,sdim> > (
                         new FEValues<dim,sdim> (pc->get_mapping(), pc->get_fe(),
                                                 pc->get_quadrature(), pc->get_update_flags()));
         else if (pf != 0)
-          fevalv[i] = std_cxx1x::shared_ptr<FEValuesBase<dim,sdim> > (
+          fevalv[i] = std_cxx11::shared_ptr<FEValuesBase<dim,sdim> > (
                         new FEFaceValues<dim,sdim> (pf->get_mapping(), pf->get_fe(), pf->get_quadrature(), pf->get_update_flags()));
         else if (ps != 0)
-          fevalv[i] = std_cxx1x::shared_ptr<FEValuesBase<dim,sdim> > (
+          fevalv[i] = std_cxx11::shared_ptr<FEValuesBase<dim,sdim> > (
                         new FESubfaceValues<dim,sdim> (ps->get_mapping(), ps->get_fe(), ps->get_quadrature(), ps->get_update_flags()));
         else
           Assert(false, ExcInternalError());
@@ -630,7 +629,7 @@ namespace MeshWorker
     if (block_info == 0 || block_info->local().size() == 0)
       {
         fevalv.resize(1);
-        fevalv[0] = std_cxx1x::shared_ptr<FEValuesBase<dim,sdim> > (
+        fevalv[0] = std_cxx11::shared_ptr<FEValuesBase<dim,sdim> > (
                       new FEVALUES (mapping, el, quadrature, flags));
       }
     else
@@ -638,7 +637,7 @@ namespace MeshWorker
         fevalv.resize(el.n_base_elements());
         for (unsigned int i=0; i<fevalv.size(); ++i)
           {
-            fevalv[i] = std_cxx1x::shared_ptr<FEValuesBase<dim,sdim> > (
+            fevalv[i] = std_cxx11::shared_ptr<FEValuesBase<dim,sdim> > (
                           new FEVALUES (mapping, el.base_element(i), quadrature, flags));
           }
       }
@@ -653,7 +652,7 @@ namespace MeshWorker
     Assert (fe_pointer !=0, ExcNotInitialized());
     return *fe_pointer;
   }
-  
+
   template <int dim, int spacedim>
   inline const FEValuesBase<dim, spacedim> &
   IntegrationInfo<dim,spacedim>::fe_values() const
@@ -798,14 +797,14 @@ namespace MeshWorker
     const FiniteElement<dim,sdim> &el,
     const Mapping<dim,sdim> &mapping,
     const AnyData &data,
-    const VECTOR& dummy,
+    const VECTOR &dummy,
     const BlockInfo *block_info)
   {
     initialize(el, mapping, block_info);
-    std_cxx1x::shared_ptr<VectorData<VECTOR, dim, sdim> > p;
-    VectorDataBase<dim,sdim>* pp;
-    
-    p = std_cxx1x::shared_ptr<VectorData<VECTOR, dim, sdim> >(new VectorData<VECTOR, dim, sdim> (cell_selector));
+    std_cxx11::shared_ptr<VectorData<VECTOR, dim, sdim> > p;
+    VectorDataBase<dim,sdim> *pp;
+
+    p = std_cxx11::shared_ptr<VectorData<VECTOR, dim, sdim> >(new VectorData<VECTOR, dim, sdim> (cell_selector));
     // Public member function of parent class was not found without
     // explicit cast
     pp = &*p;
@@ -813,13 +812,13 @@ namespace MeshWorker
     cell_data = p;
     cell.initialize_data(p);
 
-    p = std_cxx1x::shared_ptr<VectorData<VECTOR, dim, sdim> >(new VectorData<VECTOR, dim, sdim> (boundary_selector));
+    p = std_cxx11::shared_ptr<VectorData<VECTOR, dim, sdim> >(new VectorData<VECTOR, dim, sdim> (boundary_selector));
     pp = &*p;
     pp->initialize(data);
     boundary_data = p;
     boundary.initialize_data(p);
 
-    p = std_cxx1x::shared_ptr<VectorData<VECTOR, dim, sdim> >(new VectorData<VECTOR, dim, sdim> (face_selector));
+    p = std_cxx11::shared_ptr<VectorData<VECTOR, dim, sdim> >(new VectorData<VECTOR, dim, sdim> (face_selector));
     pp = &*p;
     pp->initialize(data);
     face_data = p;
@@ -839,19 +838,19 @@ namespace MeshWorker
     const BlockInfo *block_info)
   {
     initialize(el, mapping, block_info);
-    std_cxx1x::shared_ptr<VectorData<VECTOR, dim, sdim> > p;
+    std_cxx11::shared_ptr<VectorData<VECTOR, dim, sdim> > p;
 
-    p = std_cxx1x::shared_ptr<VectorData<VECTOR, dim, sdim> >(new VectorData<VECTOR, dim, sdim> (cell_selector));
+    p = std_cxx11::shared_ptr<VectorData<VECTOR, dim, sdim> >(new VectorData<VECTOR, dim, sdim> (cell_selector));
     p->initialize(data);
     cell_data = p;
     cell.initialize_data(p);
 
-    p = std_cxx1x::shared_ptr<VectorData<VECTOR, dim, sdim> >(new VectorData<VECTOR, dim, sdim> (boundary_selector));
+    p = std_cxx11::shared_ptr<VectorData<VECTOR, dim, sdim> >(new VectorData<VECTOR, dim, sdim> (boundary_selector));
     p->initialize(data);
     boundary_data = p;
     boundary.initialize_data(p);
 
-    p = std_cxx1x::shared_ptr<VectorData<VECTOR, dim, sdim> >(new VectorData<VECTOR, dim, sdim> (face_selector));
+    p = std_cxx11::shared_ptr<VectorData<VECTOR, dim, sdim> >(new VectorData<VECTOR, dim, sdim> (face_selector));
     p->initialize(data);
     face_data = p;
     face.initialize_data(p);
@@ -870,19 +869,19 @@ namespace MeshWorker
     const BlockInfo *block_info)
   {
     initialize(el, mapping, block_info);
-    std_cxx1x::shared_ptr<MGVectorData<VECTOR, dim, sdim> > p;
+    std_cxx11::shared_ptr<MGVectorData<VECTOR, dim, sdim> > p;
 
-    p = std_cxx1x::shared_ptr<MGVectorData<VECTOR, dim, sdim> >(new MGVectorData<VECTOR, dim, sdim> (cell_selector));
+    p = std_cxx11::shared_ptr<MGVectorData<VECTOR, dim, sdim> >(new MGVectorData<VECTOR, dim, sdim> (cell_selector));
     p->initialize(data);
     cell_data = p;
     cell.initialize_data(p);
 
-    p = std_cxx1x::shared_ptr<MGVectorData<VECTOR, dim, sdim> >(new MGVectorData<VECTOR, dim, sdim> (boundary_selector));
+    p = std_cxx11::shared_ptr<MGVectorData<VECTOR, dim, sdim> >(new MGVectorData<VECTOR, dim, sdim> (boundary_selector));
     p->initialize(data);
     boundary_data = p;
     boundary.initialize_data(p);
 
-    p = std_cxx1x::shared_ptr<MGVectorData<VECTOR, dim, sdim> >(new MGVectorData<VECTOR, dim, sdim> (face_selector));
+    p = std_cxx11::shared_ptr<MGVectorData<VECTOR, dim, sdim> >(new MGVectorData<VECTOR, dim, sdim> (face_selector));
     p->initialize(data);
     face_data = p;
     face.initialize_data(p);

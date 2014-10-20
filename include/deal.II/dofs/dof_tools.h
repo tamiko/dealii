@@ -1,5 +1,4 @@
 // ---------------------------------------------------------------------
-// $Id$
 //
 // Copyright (C) 1999 - 2014 by the deal.II authors
 //
@@ -219,7 +218,7 @@ namespace DoFTools
   };
 
   /**
-   * @name Auxiliary functions
+   * @name Functions to support code that generically uses both DoFHandler and hp::DoFHandler
    * @{
    */
   /**
@@ -346,7 +345,7 @@ namespace DoFTools
    */
 
   /**
-   * @name Sparsity Pattern Generation
+   * @name Sparsity pattern generation
    * @{
    */
 
@@ -649,9 +648,11 @@ namespace DoFTools
                               const Table<2,Coupling> &int_mask,
                               const Table<2,Coupling> &flux_mask);
 
-  //@}
   /**
-   * @name Hanging Nodes
+   * @}
+   */
+  /**
+   * @name Hanging nodes and other constraints
    * @{
    */
 
@@ -700,11 +701,112 @@ namespace DoFTools
   void
   make_hanging_node_constraints (const DH         &dof_handler,
                                  ConstraintMatrix &constraints);
+
+  /**
+   * This function is used when different variables in a problem are
+   * discretized on different grids, where one grid is strictly coarser than
+   * the other. An example are optimization problems where the control
+   * variable is often discretized on a coarser mesh than the state variable.
+   *
+   * The function's result can be stated as follows mathematically: Let ${\cal
+   * T}_0$ and ${\cal T}_1$ be two meshes where ${\cal T}_1$ results from
+   * ${\cal T}_0$ strictly by refining or leaving alone the cells of ${\cal
+   * T}_0$. Using the same finite element on both, there are function spaces
+   * ${\cal V}_0$ and ${\cal V}_1$ associated with these meshes. Then every
+   * function $v_0 \in {\cal V}_0$ can of course also be represented exactly
+   * in ${\cal V}_1$ since by construction ${\cal V}_0 \subset {\cal
+   * V}_1$. However, not every function in ${\cal V}_1$ can be expressed as a
+   * linear combination of the shape functions of ${\cal V}_0$. The functions
+   * that can be represented lie in a homogenous subspace of ${\cal V}_1$
+   * (namely, ${\cal V}_0$, of course) and this subspace can be represented by
+   * a linear constraint of the form $CV=0$ where $V$ is the vector of nodal
+   * values of functions $v\in {\cal V}_1$. In other words, every function
+   * $v_h=\sum_j V_j \varphi_j^{(1)} \in {\cal V}_1$ that also satisfies
+   * $v_h\in {\cal V}_0$ automatically satisfies $CV=0$. This function
+   * computes the matrix $C$ in the form of a ConstraintMatrix object.
+   *
+   * The construction of these constraints is done as follows: for
+   * each of the degrees of freedom (i.e. shape functions) on the
+   * coarse grid, we compute its representation on the fine grid,
+   * i.e. how the linear combination of shape functions on the fine
+   * grid looks like that resembles the shape function on the coarse
+   * grid. From this information, we can then compute the constraints
+   * which have to hold if a solution of a linear equation on the fine
+   * grid shall be representable on the coarse grid. The exact
+   * algorithm how these constraints can be computed is rather
+   * complicated and is best understood by reading the source code,
+   * which contains many comments.
+   *
+   * The use of this function is as follows: it accepts as parameters two DoF
+   * Handlers, the first of which refers to the coarse grid and the second of
+   * which is the fine grid. On both, a finite element is represented by the
+   * DoF handler objects, which will usually have several vector components,
+   * which may belong to different base elements. The second and fourth
+   * parameter of this function therefore state which vector component on the
+   * coarse grid shall be used to restrict the stated component on the fine
+   * grid. The finite element used for the respective components on the two
+   * grids needs to be the same. An example may clarify this: consider an
+   * optimization problem with controls $q$ discretized on a coarse mesh and a
+   * state variable $u$ (and corresponding Lagrange multiplier $\lambda$)
+   * discretized on the fine mesh. These are discretized using piecewise
+   * constant discontinuous, continuous linear, and continuous linear
+   * elements, respectively. Only the parameter $q$ is represented on the
+   * coarse grid, thus the DoFHandler object on the coarse grid represents
+   * only one variable, discretized using piecewise constant discontinuous
+   * elements. Then, the parameter denoting the vector component on the coarse
+   * grid would be zero (the only possible choice, since the variable on the
+   * coarse grid is scalar). If the ordering of variables in the fine mesh
+   * FESystem is $u, q, \lambda$, then the fourth argument of the function
+   * corresponding to the vector component would be one (corresponding to the
+   * variable $q$; zero would be $u$, two would be $\lambda$).
+   *
+   * The function also requires an object of type IntergridMap representing
+   * how to get from the coarse mesh cells to the corresponding cells on the
+   * fine mesh. This could in principle be generated by the function itself
+   * from the two DoFHandler objects, but since it is probably available
+   * anyway in programs that use different meshes, the function simply takes
+   * it as an argument.
+   *
+   * The computed constraints are entered into a variable of type
+   * ConstraintMatrix; previous contents are not deleted.
+   */
+  template <int dim, int spacedim>
+  void
+  compute_intergrid_constraints (const DoFHandler<dim,spacedim>                &coarse_grid,
+                                 const unsigned int                             coarse_component,
+                                 const DoFHandler<dim,spacedim>                &fine_grid,
+                                 const unsigned int                             fine_component,
+                                 const InterGridMap<DoFHandler<dim,spacedim> > &coarse_to_fine_grid_map,
+                                 ConstraintMatrix                              &constraints);
+
+
+  /**
+   * This function generates a matrix such that when a vector of data
+   * with as many elements as there are degrees of freedom of this
+   * component on the coarse grid is multiplied to this matrix, we
+   * obtain a vector with as many elements as there are global
+   * degrees of freedom on the fine grid. All the elements of the
+   * other vector components of the finite element fields on the fine grid
+   * are not touched.
+   *
+   * The output of this function is a compressed format that can be
+   * given to the @p reinit functions of the SparsityPattern ad
+   * SparseMatrix classes.
+   */
+  template <int dim, int spacedim>
+  void
+  compute_intergrid_transfer_representation (const DoFHandler<dim,spacedim>                         &coarse_grid,
+                                             const unsigned int                                      coarse_component,
+                                             const DoFHandler<dim,spacedim>                         &fine_grid,
+                                             const unsigned int                                      fine_component,
+                                             const InterGridMap<DoFHandler<dim,spacedim> >          &coarse_to_fine_grid_map,
+                                             std::vector<std::map<types::global_dof_index, float> > &transfer_representation);
+
   //@}
 
 
   /**
-   * @name Periodic Boundary Conditions
+   * @name Periodic boundary conditions
    * @{
    */
 
@@ -1075,6 +1177,14 @@ namespace DoFTools
                                  const unsigned int     component = 0);
 
   /**
+   * @}
+   */
+  /**
+   * @name Identifying subsets of degrees of freedom with particular properties
+   * @{
+   */
+
+  /**
    * Extract the indices of the degrees of freedom belonging to
    * certain vector components of a vector-valued finite element. The
    * @p component_mask defines which components or blocks of an
@@ -1288,7 +1398,49 @@ namespace DoFTools
                                          const std::set<types::boundary_id> &boundary_indicators = std::set<types::boundary_id>());
 
   /**
-   * @name Hanging Nodes
+   * Extract a vector that represents the constant modes of the
+   * DoFHandler for the components chosen by <tt>component_mask</tt>
+   * (see @ref GlossComponentMask).  The constant modes on a
+   * discretization are the null space of a Laplace operator on the
+   * selected components with Neumann boundary conditions applied. The
+   * null space is a necessary ingredient for obtaining a good AMG
+   * preconditioner when using the class
+   * TrilinosWrappers::PreconditionAMG.  Since the ML AMG package only
+   * works on algebraic properties of the respective matrix, it has no
+   * chance to detect whether the matrix comes from a scalar or a
+   * vector valued problem. However, a near null space supplies
+   * exactly the needed information about the components placement of vector
+   * components within the matrix. The null space (or rather, the constant
+   * modes) is provided by the finite element underlying the given DoFHandler
+   * and for most elements, the null space will consist of as many vectors as
+   * there are true arguments in <tt>component_mask</tt> (see @ref
+   * GlossComponentMask), each of which will be one in one vector component
+   * and zero in all others. However, the representation of the constant
+   * function for e.g. FE_DGP is different (the first component on each
+   * element one, all other components zero), and some scalar elements may
+   * even have two constant modes (FE_Q_DG0). Therefore, we store this object
+   * in a vector of vectors, where the outer vector contains the collection of
+   * the actual constant modes on the DoFHandler. Each inner vector has as
+   * many components as there are (locally owned) degrees of freedom in the
+   * selected components. Note that any matrix associated with this null space
+   * must have been constructed using the same <tt>component_mask</tt>
+   * argument, since the numbering of DoFs is done relative to the selected
+   * dofs, not to all dofs.
+   *
+   * The main reason for this program is the use of the null space
+   * with the AMG preconditioner.
+   */
+  template <class DH>
+  void
+  extract_constant_modes (const DH                        &dof_handler,
+                          const ComponentMask             &component_mask,
+                          std::vector<std::vector<bool> > &constant_modes);
+
+  /**
+   * @}
+   */
+  /**
+   * @name Hanging nodes
    * @{
    */
 
@@ -1495,7 +1647,7 @@ namespace DoFTools
                                           const types::subdomain_id subdomain);
   // @}
   /**
-   * @name Dof indices for patches
+   * @name DoF indices on patches of cells
    *
    * Create structures containing a large set of degrees of freedom
    * for small patches of cells. The resulting objects can be used in
@@ -1507,9 +1659,9 @@ namespace DoFTools
   /**
    * Create an incidence matrix that for every cell on a given level
    * of a multilevel DoFHandler flags which degrees of freedom are
-   * associated with the corresponding cell. This data structure is
+   * associated with the corresponding cell. This data structure is a
    * matrix with as many rows as there are cells on a given level, as
-   * many rows as there are degrees of freedom on this level, and
+   * many columns as there are degrees of freedom on this level, and
    * entries that are either true or false. This data structure is
    * conveniently represented by a SparsityPattern object.
    *
@@ -1526,9 +1678,9 @@ namespace DoFTools
   /**
    * Create an incidence matrix that for every vertex on a given level
    * of a multilevel DoFHandler flags which degrees of freedom are
-   * associated with the adjacent cells. This data structure is matrix
+   * associated with the adjacent cells. This data structure is a matrix
    * with as many rows as there are vertices on a given level, as many
-   * rows as there are degrees of freedom on this level, and entries
+   * columns as there are degrees of freedom on this level, and entries
    * that are either true or false. This data structure is
    * conveniently represented by a SparsityPattern object.  The
    * sparsity pattern may be empty when entering this function and
@@ -1578,10 +1730,13 @@ namespace DoFTools
    * of a multilevel DoFHandler flags which degrees of freedom are
    * associated with children of this cell. This data structure is
    * conveniently represented by a SparsityPattern object.
-
-   * Create a sparsity pattern which in each row lists the degrees of
-   * freedom associated to the cells which are the children of the
-   * same cell. The sparsity pattern may be empty when entering this
+   *
+   * The function thus creates a sparsity pattern which in each row
+   * (with rows corresponding to the cells on this level) lists the degrees of
+   * freedom associated to the cells that are the children of this
+   * cell. The DoF indices used here are level dof indices of a multilevel
+   * hierarchy, i.e., they may be associated with children that are
+   * not themselves active. The sparsity pattern may be empty when entering this
    * function and will be reinitialized to the correct size.
    *
    * The function has some boolean arguments (listed below)
@@ -1643,61 +1798,13 @@ namespace DoFTools
                          const unsigned int level,
                          const bool interior_dofs_only = false);
 
-  //@}
   /**
-   * Extract a vector that represents the constant modes of the
-   * DoFHandler for the components chosen by <tt>component_mask</tt>
-   * (see @ref GlossComponentMask).  The constant modes on a
-   * discretization are the null space of a Laplace operator on the
-   * selected components with Neumann boundary conditions applied. The
-   * null space is a necessary ingredient for obtaining a good AMG
-   * preconditioner when using the class
-   * TrilinosWrappers::PreconditionAMG.  Since the ML AMG package only
-   * works on algebraic properties of the respective matrix, it has no
-   * chance to detect whether the matrix comes from a scalar or a
-   * vector valued problem. However, a near null space supplies
-   * exactly the needed information about the components placement of vector
-   * components within the matrix. The null space (or rather, the constant
-   * modes) is provided by the finite element underlying the given DoFHandler
-   * and for most elements, the null space will consist of as many vectors as
-   * there are true arguments in <tt>component_mask</tt> (see @ref
-   * GlossComponentMask), each of which will be one in one vector component
-   * and zero in all others. However, the representation of the constant
-   * function for e.g. FE_DGP is different (the first component on each
-   * element one, all other components zero), and some scalar elements may
-   * even have two constant modes (FE_Q_DG0). Therefore, we store this object
-   * in a vector of vectors, where the outer vector contains the collection of
-   * the actual constant modes on the DoFHandler. Each inner vector has as
-   * many components as there are (locally owned) degrees of freedom in the
-   * selected components. Note that any matrix associated with this null space
-   * must have been constructed using the same <tt>component_mask</tt>
-   * argument, since the numbering of DoFs is done relative to the selected
-   * dofs, not to all dofs.
-   *
-   * The main reason for this program is the use of the null space
-   * with the AMG preconditioner.
+   * @}
    */
-  template <class DH>
-  void
-  extract_constant_modes (const DH                        &dof_handler,
-                          const ComponentMask             &component_mask,
-                          std::vector<std::vector<bool> > &constant_modes);
-
   /**
-   * For each active cell of a DoFHandler or hp::DoFHandler, extract
-   * the active finite element index and fill the vector given as
-   * second argument. This vector is assumed to have as many entries
-   * as there are active cells.
-   *
-   * For non-hp DoFHandler objects given as first argument, the
-   * returned vector will consist of only zeros, indicating that all
-   * cells use the same finite element. For a hp::DoFHandler, the
-   * values may be different, though.
+   * @name Counting degrees of freedom and related functions
+   * @{
    */
-  template <class DH>
-  void
-  get_active_fe_indices (const DH                  &dof_handler,
-                         std::vector<unsigned int> &active_fe_indices);
 
   /**
    * Count how many degrees of freedom out of the total number belong
@@ -1779,135 +1886,111 @@ namespace DoFTools
                             std::vector<types::global_dof_index> &dofs_per_component,
                             std::vector<unsigned int>  target_component) DEAL_II_DEPRECATED;
 
-  /**
-   * This function can be used when different variables shall be
-   * discretized on different grids, where one grid is coarser than
-   * the other. This idea might seem nonsensical at first, but has
-   * reasonable applications in inverse (parameter estimation)
-   * problems, where there might not be enough information to recover
-   * the parameter on the same grid as the state variable;
-   * furthermore, the smoothness properties of state variable and
-   * parameter might not be too much related, so using different grids
-   * might be an alternative to using stronger regularization of the
-   * problem.
-   *
-   * The basic idea of this function is explained in the
-   * following. Let us, for convenience, denote by ``parameter grid''
-   * the coarser of the two grids, and by ``state grid'' the finer of
-   * the two. We furthermore assume that the finer grid can be
-   * obtained by refinement of the coarser one, i.e. the fine grid is
-   * at least as much refined as the coarse grid at each point of the
-   * domain. Then, each shape function on the coarse grid can be
-   * represented as a linear combination of shape functions on the
-   * fine grid (assuming identical ansatz spaces). Thus, if we
-   * discretize as usual, using shape functions on the fine grid, we
-   * can consider the restriction that the parameter variable shall in
-   * fact be discretized by shape functions on the coarse grid as a
-   * constraint. These constraints are linear and happen to have the
-   * form managed by the ``ConstraintMatrix'' class.
-   *
-   * The construction of these constraints is done as follows: for
-   * each of the degrees of freedom (i.e. shape functions) on the
-   * coarse grid, we compute its representation on the fine grid,
-   * i.e. how the linear combination of shape functions on the fine
-   * grid looks like that resembles the shape function on the coarse
-   * grid. From this information, we can then compute the constraints
-   * which have to hold if a solution of a linear equation on the fine
-   * grid shall be representable on the coarse grid. The exact
-   * algorithm how these constraints can be computed is rather
-   * complicated and is best understood by reading the source code,
-   * which contains many comments.
-   *
-   * Before explaining the use of this function, we would like to
-   * state that the total number of degrees of freedom used for the
-   * discretization is not reduced by the use of this function,
-   * i.e. even though we discretize one variable on a coarser grid,
-   * the total number of degrees of freedom is that of the fine
-   * grid. This seems to be counter-productive, since it does not give
-   * us a benefit from using a coarser grid. The reason why it may be
-   * useful to choose this approach nonetheless is three-fold: first,
-   * as stated above, there might not be enough information to recover
-   * a parameter on a fine grid, i.e. we chose to discretize it on the
-   * coarse grid not to save DoFs, but for other reasons. Second, the
-   * ``ConstraintMatrix'' includes the constraints into the linear
-   * system of equations, by which constrained nodes become dummy
-   * nodes; we may therefore exclude them from the linear algebra, for
-   * example by sorting them to the back of the DoF numbers and simply
-   * calling the solver for the upper left block of the matrix which
-   * works on the non-constrained nodes only, thus actually realizing
-   * the savings in numerical effort from the reduced number of actual
-   * degrees of freedom. The third reason is that for some or other
-   * reason we have chosen to use two different grids, it may be
-   * actually quite difficult to write a function that assembles the
-   * system matrix for finite element spaces on different grids; using
-   * the approach of constraints as with this function allows to use
-   * standard techniques when discretizing on only one grid (the finer
-   * one) without having to take care of the fact that one or several
-   * of the variable actually belong to different grids.
-   *
-   * The use of this function is as follows: it accepts as parameters
-   * two DoF Handlers, the first of which refers to the coarse grid
-   * and the second of which is the fine grid. On both, a finite
-   * element is represented by the DoF handler objects, which will
-   * usually have several components, which may belong to different
-   * finite elements. The second and fourth parameter of this function
-   * therefore state which variable on the coarse grid shall be used
-   * to restrict the stated component on the fine grid. Of course, the
-   * finite elements used for the respective components on the two
-   * grids need to be the same. An example may clarify this: consider
-   * the parameter estimation mentioned briefly above; there, on the
-   * fine grid the whole discretization is done, thus the variables
-   * are ``u'', ``q'', and the Lagrange multiplier ``lambda'', which
-   * are discretized using continuous linear, piecewise constant
-   * discontinuous, and continuous linear elements, respectively. Only
-   * the parameter ``q'' shall be represented on the coarse grid, thus
-   * the DoFHandler object on the coarse grid represents only one
-   * variable, discretized using piecewise constant discontinuous
-   * elements. Then, the parameter denoting the component on the
-   * coarse grid would be zero (the only possible choice, since the
-   * variable on the coarse grid is scalar), and one on the fine grid
-   * (corresponding to the variable ``q''; zero would be ``u'', two
-   * would be ``lambda''). Furthermore, an object of type IntergridMap
-   * is needed; this could in principle be generated by the function
-   * itself from the two DoFHandler objects, but since it is probably
-   * available anyway in programs that use this function, we shall use
-   * it instead of re-generating it. Finally, the computed constraints
-   * are entered into a variable of type ConstraintMatrix; the
-   * constraints are added, i.e. previous contents which may have, for
-   * example, be obtained from hanging nodes, are not deleted, so that
-   * you only need one object of this type.
-   */
-  template <int dim, int spacedim>
-  void
-  compute_intergrid_constraints (const DoFHandler<dim,spacedim>              &coarse_grid,
-                                 const unsigned int                  coarse_component,
-                                 const DoFHandler<dim,spacedim>              &fine_grid,
-                                 const unsigned int                  fine_component,
-                                 const InterGridMap<DoFHandler<dim,spacedim> > &coarse_to_fine_grid_map,
-                                 ConstraintMatrix                   &constraints);
-
 
   /**
-   * This function generates a matrix such that when a vector of data
-   * with as many elements as there are degrees of freedom of this
-   * component on the coarse grid is multiplied to this matrix, we
-   * obtain a vector with as many elements as there are global
-   * degrees of freedom on the fine grid. All the elements of the
-   * other components of the finite element fields on the fine grid
-   * are not touched.
+   * For each active cell of a DoFHandler or hp::DoFHandler, extract
+   * the active finite element index and fill the vector given as
+   * second argument. This vector is assumed to have as many entries
+   * as there are active cells.
    *
-   * The output of this function is a compressed format that can be
-   * given to the @p reinit functions of the SparsityPattern ad
-   * SparseMatrix classes.
+   * For non-hp DoFHandler objects given as first argument, the
+   * returned vector will consist of only zeros, indicating that all
+   * cells use the same finite element. For a hp::DoFHandler, the
+   * values may be different, though.
    */
-  template <int dim, int spacedim>
+  template <class DH>
   void
-  compute_intergrid_transfer_representation (const DoFHandler<dim,spacedim>              &coarse_grid,
-                                             const unsigned int                  coarse_component,
-                                             const DoFHandler<dim,spacedim>              &fine_grid,
-                                             const unsigned int                  fine_component,
-                                             const InterGridMap<DoFHandler<dim,spacedim> > &coarse_to_fine_grid_map,
-                                             std::vector<std::map<types::global_dof_index, float> > &transfer_representation);
+  get_active_fe_indices (const DH                  &dof_handler,
+                         std::vector<unsigned int> &active_fe_indices);
+
+  /**
+   * Count how many degrees of freedom live on a set of cells (i.e., a patch)
+   * described by the argument.
+   *
+   * Patches are often used in defining error estimators that require the
+   * solution of a local problem on the patch surrounding each of the cells of
+   * the mesh. You can get a list of cells that form the patch around a given
+   * cell using GridTools::get_patch_around_cell(). This function is then
+   * useful in setting up the size of the linear system used to solve the local
+   * problem on the patch around a cell. The function
+   * DoFTools::get_dofs_on_patch() will then help to make the
+   * connection between global degrees of freedom and the local ones.
+   *
+   * @tparam Container A type that is either DoFHandler or hp::DoFHandler.
+   *   In C++, the compiler can not determine the type of <code>DH</code>
+   *   from the function call. You need to specify it as an explicit template
+   *   argument following the function name.
+   * @param patch[in] A collection of cells within an object of type DH
+   * @return The number of degrees of freedom associated with the cells of this patch.
+   *
+   * @note In the context of a parallel distributed computation, it only makes
+   * sense to call this function on patches around locally owned cells. This is because the
+   * neighbors of locally owned cells are either locally owned themselves, or
+   * ghost cells. For both, we know that these are in fact the real cells of
+   * the complete, parallel triangulation. We can also query the degrees of
+   * freedom on these. In other words, this function can only work if all
+   * cells in the patch are either locally owned or ghost cells.
+   *
+   * @author Arezou Ghesmati, Wolfgang Bangerth, 2014
+   */
+  template <class DH>
+  unsigned int
+  count_dofs_on_patch (const std::vector<typename DH::active_cell_iterator> &patch);
+
+  /**
+   * Return the set of degrees of freedom that live on a set of
+   * cells (i.e., a patch) described by the argument.
+   *
+   * Patches are often used in defining error estimators that require the
+   * solution of a local problem on the patch surrounding each of the cells of
+   * the mesh. You can get a list of cells that form the patch around a given
+   * cell using GridTools::get_patch_around_cell(). While DoFTools::count_dofs_on_patch()
+   * can be used to determine the size of these local problems, so that one can assemble
+   * the local system and then solve it, it is still necessary to provide a mapping
+   * between the global indices of the degrees of freedom that live on the patch
+   * and a local enumeration. This function provides such a local enumeration
+   * by returning the set of degrees of freedom that live on the patch.
+   *
+   * Since this set is returned in the form of a std::vector, one can also think
+   * of it as a mapping
+   * @code
+   *   i -> global_dof_index
+   * @endcode
+   * where <code>i</code> is an index into the returned vector (i.e., a
+   * the <i>local</i> index of a degree of freedom on the patch) and
+   * <code>global_dof_index</code> is the global index of a degree of freedom
+   * located on the patch. The array returned has size equal to
+   * DoFTools::count_dofs_on_patch().
+   *
+   * @note The array returned is sorted by global DoF index. Consequently, if
+   * one considers the index into this array a local DoF index, then the local
+   * system that results retains the block structure of the global system.
+   *
+   * @tparam Container A type that is either DoFHandler or hp::DoFHandler.
+   *   In C++, the compiler can not determine the type of <code>DH</code>
+   *   from the function call. You need to specify it as an explicit template
+   *   argument following the function name.
+   * @param patch[in] A collection of cells within an object of type DH
+   * @return A list of those global degrees of freedom located on the
+   *   patch, as defined above.
+   *
+   * @note In the context of a parallel distributed computation, it only makes
+   * sense to call this function on patches around locally owned cells. This is because the
+   * neighbors of locally owned cells are either locally owned themselves, or
+   * ghost cells. For both, we know that these are in fact the real cells of
+   * the complete, parallel triangulation. We can also query the degrees of
+   * freedom on these. In other words, this function can only work if all
+   * cells in the patch are either locally owned or ghost cells.
+   *
+   * @author Arezou Ghesmati, Wolfgang Bangerth, 2014
+   */
+  template <class DH>
+  std::vector<types::global_dof_index>
+  get_dofs_on_patch (const std::vector<typename DH::active_cell_iterator> &patch);
+
+  /**
+   * @}
+   */
 
   /**
    * Create a mapping from degree of freedom indices to the index of

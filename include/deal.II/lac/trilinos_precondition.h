@@ -1,5 +1,4 @@
 // ---------------------------------------------------------------------
-// $Id$
 //
 // Copyright (C) 2008 - 2014 by the deal.II authors
 //
@@ -23,7 +22,7 @@
 #ifdef DEAL_II_WITH_TRILINOS
 
 #  include <deal.II/base/subscriptor.h>
-#  include <deal.II/base/std_cxx1x/shared_ptr.h>
+#  include <deal.II/base/std_cxx11/shared_ptr.h>
 
 #  include <deal.II/lac/trilinos_vector_base.h>
 #  include <deal.II/lac/parallel_vector.h>
@@ -36,7 +35,7 @@
 #  include <Epetra_Map.h>
 
 #  include <Teuchos_ParameterList.hpp>
-#  include <Epetra_Operator.h>
+#  include <Epetra_RowMatrix.h>
 #  include <Epetra_Vector.h>
 
 // forward declarations
@@ -170,7 +169,7 @@ namespace TrilinosWrappers
      * This is a pointer to the preconditioner object that is used when
      * applying the preconditioner.
      */
-    std_cxx1x::shared_ptr<Epetra_Operator> preconditioner;
+    std_cxx11::shared_ptr<Epetra_Operator> preconditioner;
 
     /**
      * Internal communication pattern in case the matrix needs to be copied
@@ -186,7 +185,7 @@ namespace TrilinosWrappers
      * Internal Trilinos map in case the matrix needs to be copied from
      * deal.II format.
      */
-    std_cxx1x::shared_ptr<Epetra_Map>   vector_distributor;
+    std_cxx11::shared_ptr<Epetra_Map>   vector_distributor;
   };
 
 
@@ -1339,8 +1338,8 @@ namespace TrilinosWrappers
                       const unsigned int                     smoother_sweeps = 2,
                       const unsigned int                     smoother_overlap = 0,
                       const bool                             output_details = false,
-                      const char*                            smoother_type = "Chebyshev",
-                      const char*                            coarse_type = "Amesos-KLU");
+                      const char                            *smoother_type = "Chebyshev",
+                      const char                            *coarse_type = "Amesos-KLU");
 
       /**
        * Determines whether the AMG preconditioner should be optimized for
@@ -1447,13 +1446,13 @@ namespace TrilinosWrappers
        *   <li>  "IFPACK-Block Chebyshev" </li>
        * </ul>
        */
-      const char* smoother_type;
+      const char *smoother_type;
 
       /**
        * Determines which solver to use on the coarsest level. The same
        * settings as for the smoother type are possible.
        */
-      const char* coarse_type;
+      const char *coarse_type;
     };
 
     /**
@@ -1467,8 +1466,29 @@ namespace TrilinosWrappers
      * linear system with the given matrix. The function uses the matrix
      * format specified in TrilinosWrappers::SparseMatrix.
      */
-    void initialize (const SparseMatrix                    &matrix,
+    void initialize (const SparseMatrix   &matrix,
                      const AdditionalData &additional_data = AdditionalData());
+
+    /**
+     * Let Trilinos compute a multilevel hierarchy for the solution of a
+     * linear system with the given matrix. As opposed to the other initialize
+     * function above, this function uses an abstract interface to an object
+     * of type Epetra_RowMatrix which allows a user to pass quite general
+     * objects to the ML preconditioner.
+     *
+     * This initialization routine is useful in cases where the operator to be
+     * preconditioned is not a TrilinosWrappers::SparseMatrix object but still
+     * allows to get a copy of the entries in each of the locally owned matrix
+     * rows (method ExtractMyRowCopy) and implements a matrix-vector product
+     * (methods Multiply or Apply). An example are operators which provide
+     * faster matrix-vector multiplications than possible with matrix entries
+     * (matrix-free methods). These implementations can be beneficially
+     * combined with Chebyshev smoothers that only perform matrix-vector
+     * products. The interface class Epetra_RowMatrix is very flexible to
+     * enable this kind of implementation.
+     */
+    void initialize (const Epetra_RowMatrix &matrix,
+                     const AdditionalData   &additional_data = AdditionalData());
 
     /**
      * Let Trilinos compute a multilevel hierarchy for the solution of a
@@ -1483,6 +1503,16 @@ namespace TrilinosWrappers
      * case a vector-valued problem ought to be solved.
      */
     void initialize (const SparseMatrix           &matrix,
+                     const Teuchos::ParameterList &ml_parameters);
+
+    /**
+     * Let Trilinos compute a multilevel hierarchy for the solution of a
+     * linear system with the given matrix. As opposed to the other initialize
+     * function above, this function uses an abstract interface to an object
+     * of type Epetra_RowMatrix which allows a user to pass quite general
+     * objects to the ML preconditioner.
+     */
+    void initialize (const Epetra_RowMatrix       &matrix,
                      const Teuchos::ParameterList &ml_parameters);
 
     /**
@@ -1526,7 +1556,7 @@ namespace TrilinosWrappers
     /**
      * A copy of the deal.II matrix into Trilinos format.
      */
-    std_cxx1x::shared_ptr<SparseMatrix> trilinos_matrix;
+    std_cxx11::shared_ptr<SparseMatrix> trilinos_matrix;
   };
 
 

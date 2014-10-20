@@ -1,5 +1,4 @@
 // ---------------------------------------------------------------------
-// $Id$
 //
 // Copyright (C) 2013 by the deal.II authors
 //
@@ -18,8 +17,7 @@
  * @page changes_between_8_0_and_8_1 Changes between Version 8.0 and 8.1
 
 <p>
-This is the list of changes made between the release of
-deal.II version 8.0.0 and that of 8.1.0.
+This is the list of changes made between the deal.II releases listed above.
 All entries are signed with the names of the author.
 </p>
 

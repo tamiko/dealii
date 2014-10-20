@@ -1,5 +1,4 @@
 // ---------------------------------------------------------------------
-// $Id$
 //
 // Copyright (C) 2009 - 2013 by the deal.II authors
 //
@@ -18,8 +17,7 @@
  * @page changes_between_6_2_0_and_6_2_1 Changes between Version 6.2.0 and 6.2.1
 
 <p>
-This is the list of changes made between the release of
-deal.II version 6.2.0 and version 6.2.1:
+This is the list of changes made between the deal.II releases listed above.
 </p>
 
 

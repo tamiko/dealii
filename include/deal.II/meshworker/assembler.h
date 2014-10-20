@@ -1,5 +1,4 @@
 // ---------------------------------------------------------------------
-// $Id$
 //
 // Copyright (C) 2010 - 2013 by the deal.II authors
 //
@@ -1140,11 +1139,11 @@ namespace MeshWorker
                     {
                       if (mg_constrained_dofs->set_boundary_values())
                         {
-                          if ((!mg_constrained_dofs->at_refinement_edge_boundary(level1, jglobal) &&
-                               !mg_constrained_dofs->at_refinement_edge_boundary(level2, kglobal))
+                          if ((!mg_constrained_dofs->is_boundary_index(level1, jglobal) &&
+                               !mg_constrained_dofs->is_boundary_index(level2, kglobal))
                               ||
-                              (mg_constrained_dofs->at_refinement_edge_boundary(level1, jglobal) &&
-                               mg_constrained_dofs->at_refinement_edge_boundary(level2, kglobal) &&
+                              (mg_constrained_dofs->is_boundary_index(level1, jglobal) &&
+                               mg_constrained_dofs->is_boundary_index(level2, kglobal) &&
                                jglobal == kglobal))
                             global.add(jglobal, kglobal, local(j,k));
                         }
@@ -1205,11 +1204,11 @@ namespace MeshWorker
                     {
                       if (mg_constrained_dofs->set_boundary_values())
                         {
-                          if ((!mg_constrained_dofs->at_refinement_edge_boundary(level1, jglobal) &&
-                               !mg_constrained_dofs->at_refinement_edge_boundary(level2, kglobal))
+                          if ((!mg_constrained_dofs->is_boundary_index(level1, jglobal) &&
+                               !mg_constrained_dofs->is_boundary_index(level2, kglobal))
                               ||
-                              (mg_constrained_dofs->at_refinement_edge_boundary(level1, jglobal) &&
-                               mg_constrained_dofs->at_refinement_edge_boundary(level2, kglobal) &&
+                              (mg_constrained_dofs->is_boundary_index(level1, jglobal) &&
+                               mg_constrained_dofs->is_boundary_index(level2, kglobal) &&
                                jglobal == kglobal))
                             global.add(jglobal, kglobal, local(k,j));
                         }

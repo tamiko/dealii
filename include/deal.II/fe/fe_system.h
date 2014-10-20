@@ -1,5 +1,4 @@
 // ---------------------------------------------------------------------
-// $Id$
 //
 // Copyright (C) 1999 - 2014 by the deal.II authors
 //
@@ -705,7 +704,7 @@ private:
    * pointers to the underlying base finite elements. The last one of these
    * copies around will then delete the pointer to the base elements.
    */
-  std::vector<std::pair<std_cxx1x::shared_ptr<const FiniteElement<dim,spacedim> >,
+  std::vector<std::pair<std_cxx11::shared_ptr<const FiniteElement<dim,spacedim> >,
       unsigned int> >
       base_elements;
 

@@ -1,5 +1,4 @@
 // ---------------------------------------------------------------------
-// $Id$
 //
 // Copyright (C) 2006 - 2013 by the deal.II authors
 //
@@ -19,7 +18,7 @@
 #define __deal2__mesh_worker_local_results_h
 
 #include <deal.II/base/config.h>
-#include <deal.II/base/std_cxx1x/function.h>
+#include <deal.II/base/std_cxx11/function.h>
 #include <deal.II/base/geometry_info.h>
 #include <deal.II/lac/matrix_block.h>
 #include <deal.II/lac/block_vector.h>

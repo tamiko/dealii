@@ -1,5 +1,4 @@
 ## ---------------------------------------------------------------------
-## $Id$
 ##
 ## Copyright (C) 2012 - 2014 by the deal.II authors
 ##
@@ -119,6 +118,7 @@ ENABLE_IF_SUPPORTED(DEAL_II_CXX_FLAGS "-wd21")
 ENABLE_IF_SUPPORTED(DEAL_II_CXX_FLAGS "-wd2536")
 
 
+#
 # Also disable the following warnings that we frequently
 # trigger writing dimension independent code:
 #   -w111 statement is unreachable
@@ -130,11 +130,11 @@ ENABLE_IF_SUPPORTED(DEAL_II_CXX_FLAGS "-wd2536")
 #         that is executed only for one specific dimension
 #   -w280 selector expression is constant
 #         When writing 'switch(dim)'
+#
 ENABLE_IF_SUPPORTED(DEAL_II_CXX_FLAGS "-wd111")
 ENABLE_IF_SUPPORTED(DEAL_II_CXX_FLAGS "-wd128")
 ENABLE_IF_SUPPORTED(DEAL_II_CXX_FLAGS "-wd185")
 ENABLE_IF_SUPPORTED(DEAL_II_CXX_FLAGS "-wd280")
-
 
 
 IF(DEAL_II_STATIC_EXECUTABLE)

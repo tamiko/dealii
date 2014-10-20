@@ -1,7 +1,6 @@
 // ---------------------------------------------------------------------
-// $Id$
 //
-// Copyright (C) 1998 - 2013 by the deal.II authors
+// Copyright (C) 1998 - 2014 by the deal.II authors
 //
 // This file is part of the deal.II library.
 //
@@ -23,7 +22,8 @@
 #include <deal.II/base/exceptions.h>
 #include <deal.II/base/smartpointer.h>
 #include <deal.II/base/index_set.h>
-#include <deal.II/base/std_cxx1x/shared_ptr.h>
+#include <deal.II/base/iterator_range.h>
+#include <deal.II/base/std_cxx11/shared_ptr.h>
 #include <deal.II/dofs/block_info.h>
 #include <deal.II/dofs/dof_iterator_selector.h>
 #include <deal.II/dofs/number_cache.h>
@@ -67,10 +67,11 @@ namespace internal
 
 /**
  * Manage the distribution and numbering of the degrees of freedom for
- * non-multigrid algorithms. The purpose of this class is first discussed
- * in the step-2 tutorial program.
+ * non-multigrid algorithms. This class satisfies the requirements outlined in
+ * @ref GlossMeshAsAContainer "Meshes as containers". It is first used in the
+ * step-2 tutorial program.
  *
- * For each vertex, line, quad, etc, we store a list of the indices of degrees
+ * For each vertex, line, quad, etc, this class stores a list of the indices of degrees
  * of freedom living on this object. These indices refer to the unconstrained
  * degrees of freedom, i.e. constrained degrees of freedom are numbered in the
  * same way as unconstrained ones, and are only later eliminated.  This leads
@@ -371,8 +372,11 @@ public:
   virtual void distribute_dofs (const FiniteElement<dim,spacedim> &fe);
 
   /**
-   * Distribute multigrid degrees of freedom similar
-   * to distribute_dofs() but on each level.
+   * Distribute level degrees of freedom on each level for geometric
+   * multigrid. The active DoFs need to be distributed using distribute_dofs()
+   * before calling this function and the @p fe needs to be identical to the
+   * finite element passed to distribute_dofs().
+   *
    * This replaces the functionality of the old MGDoFHandler.
    */
   virtual void distribute_mg_dofs (const FiniteElement<dim, spacedim> &fe);
@@ -388,13 +392,23 @@ public:
   bool has_level_dofs() const;
 
   /**
-   * This function returns whether
-   * this DoFHandler has active
-   * DoFs or in other words if
-   * distribute_dofs() has been
-   * called.
+   * This function returns whether this DoFHandler has active
+   * DoFs. This is equivalent to asking whether (i) distribute_dofs()
+   * has been called and (ii) the finite element for which degrees of
+   * freedom have been distributed actually has degrees of freedom
+   * (which is not the case for FE_Nothing, for example).
+   *
+   * If this object is based on a
+   * parallel::distributed::Triangulation, then the current function
+   * returns true if <i>any</i> partition of the parallel DoFHandler
+   * object has any degrees of freedom. In other words, the function
+   * returns true even if the Triangulation does not own any active
+   * cells on the current MPI process, but at least one process owns
+   * cells and at least this one process has any degrees of freedom
+   * associated with it.
    */
   bool has_active_dofs() const;
+
   /**
    * After distribute_dofs() with
    * an FESystem element, the block
@@ -631,7 +645,126 @@ public:
    */
   level_cell_iterator end_mg () const;
 
+  /*@}*/
 
+  /**
+   *  @name Cell iterator functions returning ranges of iterators
+   */
+
+  /**
+   * Return an iterator range that contains all cells (active or not)
+   * that make up this DoFHandler. Such a range is useful to
+   * initialize range-based for loops as supported by C++11. See the
+   * example in the documentation of active_cell_iterators().
+   *
+   * @return The half open range <code>[this->begin(), this->end())</code>
+   *
+   * @ingroup CPP11
+   */
+  IteratorRange<cell_iterator>        cell_iterators () const;
+
+  /**
+   * Return an iterator range that contains all active cells
+   * that make up this DoFHandler. Such a range is useful to
+   * initialize range-based for loops as supported by C++11,
+   * see also @ref CPP11 "C++11 standard".
+   *
+   * Range-based for loops are useful in that they require much less
+   * code than traditional loops (see
+   * <a href="http://en.wikipedia.org/wiki/C%2B%2B11#Range-based_for_loop">here</a>
+   * for a discussion of how they work). An example is that without
+   * range-based for loops, one often writes code such as the following:
+   * @code
+   *   DoFHandler<dim> dof_handler;
+   *   ...
+   *   typename DoFHandler<dim>::active_cell_iterator
+   *     cell = dof_handler.begin_active(),
+   *     endc = dof_handler.end();
+   *   for (; cell!=endc; ++cell)
+   *     {
+   *       fe_values.reinit (cell);
+   *       ...do the local integration on 'cell'...;
+   *     }
+   * @endcode
+   * Using C++11's range-based for loops, this is now entirely
+   * equivalent to the following:
+   * @code
+   *   DoFHandler<dim> dof_handler;
+   *   ...
+   *   for (auto cell : dof_handler.active_cell_iterators())
+   *     {
+   *       fe_values.reinit (cell);
+   *       ...do the local integration on 'cell'...;
+   *     }
+   * @endcode
+   * To use this feature, you need a compiler that supports C++11.
+   *
+   * @return The half open range <code>[this->begin_active(), this->end())</code>
+   *
+   * @ingroup CPP11
+   */
+  IteratorRange<active_cell_iterator> active_cell_iterators () const;
+
+  /**
+   * Return an iterator range that contains all cells (active or not)
+   * that make up this DoFHandler in their level-cell form. Such a range is useful to
+   * initialize range-based for loops as supported by C++11. See the
+   * example in the documentation of active_cell_iterators().
+   *
+   * @return The half open range <code>[this->begin_mg(), this->end_mg())</code>
+   *
+   * @ingroup CPP11
+   */
+  IteratorRange<level_cell_iterator>  mg_cell_iterators () const;
+
+  /**
+   * Return an iterator range that contains all cells (active or not)
+   * that make up the given level of this DoFHandler. Such a range is useful to
+   * initialize range-based for loops as supported by C++11. See the
+   * example in the documentation of active_cell_iterators().
+   *
+   * @param[in] level A given level in the refinement hierarchy of this
+   *   triangulation.
+   * @return The half open range <code>[this->begin(level), this->end(level))</code>
+   *
+   * @pre level must be less than this->n_levels().
+   *
+   * @ingroup CPP11
+   */
+  IteratorRange<cell_iterator>        cell_iterators_on_level (const unsigned int level) const;
+
+  /**
+   * Return an iterator range that contains all active cells
+   * that make up the given level of this DoFHandler. Such a range is useful to
+   * initialize range-based for loops as supported by C++11. See the
+   * example in the documentation of active_cell_iterators().
+   *
+   * @param[in] level A given level in the refinement hierarchy of this
+   *   triangulation.
+   * @return The half open range <code>[this->begin_active(level), this->end(level))</code>
+   *
+   * @pre level must be less than this->n_levels().
+   *
+   * @ingroup CPP11
+   */
+  IteratorRange<active_cell_iterator> active_cell_iterators_on_level (const unsigned int level) const;
+
+  /**
+   * Return an iterator range that contains all cells (active or not)
+   * that make up the given level of this DoFHandler in their level-cell form.
+   * Such a range is useful to
+   * initialize range-based for loops as supported by C++11. See the
+   * example in the documentation of active_cell_iterators().
+   *
+   * @param[in] level A given level in the refinement hierarchy of this
+   *   triangulation.
+   * @return The half open range <code>[this->begin_mg(level), this->end_mg(level))</code>
+   *
+   * @pre level must be less than this->n_levels().
+   *
+   * @ingroup CPP11
+   */
+  IteratorRange<level_cell_iterator> mg_cell_iterators_on_level (const unsigned int level) const;
   //@}
 
   /*---------------------------------------*/
@@ -944,21 +1077,35 @@ public:
                   << ", but this level is empty.");
 
 
-protected:
+private:
   /**
-   * The object containing
+   * Copy constructor. I can see no reason
+   * why someone might want to use it, so
+   * I don't provide it. Since this class
+   * has pointer members, making it private
+   * prevents the compiler to provide it's
+   * own, incorrect one if anyone chose to
+   * copy such an object.
+   */
+  DoFHandler (const DoFHandler &);
+
+  /**
+   * Copy operator. I can see no reason
+   * why someone might want to use it, so
+   * I don't provide it. Since this class
+   * has pointer members, making it private
+   * prevents the compiler to provide it's
+   * own, incorrect one if anyone chose to
+   * copy such an object.
+   */
+  DoFHandler &operator = (const DoFHandler &);
+
+
+  /**
+   * An object containing
    * information on the block structure.
    */
   BlockInfo block_info_object;
-
-  /**
-   * Array to store the indices for
-   * degrees of freedom located at
-   * vertices.
-   */
-  std::vector<types::global_dof_index>      vertex_dofs;
-
-
 
   /**
    * Address of the triangulation to
@@ -987,7 +1134,7 @@ protected:
    * of freedom should be distributed and
    * renumbered.
    */
-  std_cxx1x::shared_ptr<dealii::internal::DoFHandler::Policy::PolicyBase<dim,spacedim> > policy;
+  std_cxx11::shared_ptr<dealii::internal::DoFHandler::Policy::PolicyBase<dim,spacedim> > policy;
 
   /**
    * A structure that contains all
@@ -1003,33 +1150,9 @@ protected:
   dealii::internal::DoFHandler::NumberCache number_cache;
 
   /**
-   * Datastructure like number_cache, but for each Multigrid level.
+   * Data structure like number_cache, but for each multigrid level.
    */
   std::vector<dealii::internal::DoFHandler::NumberCache> mg_number_cache;
-
-private:
-
-  /**
-   * Copy constructor. I can see no reason
-   * why someone might want to use it, so
-   * I don't provide it. Since this class
-   * has pointer members, making it private
-   * prevents the compiler to provide it's
-   * own, incorrect one if anyone chose to
-   * copy such an object.
-   */
-  DoFHandler (const DoFHandler &);
-
-  /**
-   * Copy operator. I can see no reason
-   * why someone might want to use it, so
-   * I don't provide it. Since this class
-   * has pointer members, making it private
-   * prevents the compiler to provide it's
-   * own, incorrect one if anyone chose to
-   * copy such an object.
-   */
-  DoFHandler &operator = (const DoFHandler &);
 
   /**
    * A data structure that is used to store the DoF indices associated with
@@ -1136,6 +1259,19 @@ private:
   void set_dof_index (const unsigned int obj_level, const unsigned int obj_index, const unsigned int fe_index, const unsigned int local_index, const types::global_dof_index global_index) const;
 
   /**
+   * Array to store the indices for
+   * degrees of freedom located at
+   * vertices.
+   */
+  std::vector<types::global_dof_index> vertex_dofs;
+
+  /**
+   * An array to store the indices for level degrees of freedom located
+   * at vertices.
+   */
+  std::vector<MGVertexDoFs> mg_vertex_dofs;
+
+  /**
    * Space to store the DoF numbers
    * for the different
    * levels. Analogous to the
@@ -1157,8 +1293,6 @@ private:
   dealii::internal::DoFHandler::DoFFaces<dim> *faces;
 
   dealii::internal::DoFHandler::DoFFaces<dim> *mg_faces;
-
-  std::vector<MGVertexDoFs> mg_vertex_dofs;
 
   /**
    * Make accessor objects friends.

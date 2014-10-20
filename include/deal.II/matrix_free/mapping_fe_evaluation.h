@@ -1,5 +1,4 @@
 // ---------------------------------------------------------------------
-// $Id$
 //
 // Copyright (C) 2011 - 2014 by the deal.II authors
 //
@@ -88,14 +87,14 @@ public:
    * quadrature points are accessible, as no finite element data is actually
    * used).
    */
-  const FEValues<dim>& get_fe_values () const;
+  const FEValues<dim> &get_fe_values () const;
 
   /**
    * Return a vector of inverse transpose Jacobians. For compatibility with
    * FEEvaluation, it returns tensors of vectorized arrays, even though all
    * components are equal.
    */
-  const AlignedVector<Tensor<2,dim,VectorizedArray<Number> > >&
+  const AlignedVector<Tensor<2,dim,VectorizedArray<Number> > > &
   get_inverse_jacobians() const;
 
   /**
@@ -103,7 +102,7 @@ public:
    * (JxW). For compatibility with FEEvaluation, it returns tensors of
    * vectorized arrays, even though all components are equal.
    */
-  const AlignedVector<VectorizedArray<Number> >&
+  const AlignedVector<VectorizedArray<Number> > &
   get_JxW_values() const;
 
   /**
@@ -111,7 +110,7 @@ public:
    * cell. For compatibility with FEEvaluation, it returns tensors of
    * vectorized arrays, even though all components are equal.
    */
-  const AlignedVector<Point<dim,VectorizedArray<Number> > >&
+  const AlignedVector<Point<dim,VectorizedArray<Number> > > &
   get_quadrature_points() const;
 
   /**
@@ -119,13 +118,13 @@ public:
    * cell. For compatibility with FEEvaluation, it returns tensors of
    * vectorized arrays, even though all components are equal.
    */
-  const AlignedVector<Tensor<1,dim,VectorizedArray<Number> > >&
+  const AlignedVector<Tensor<1,dim,VectorizedArray<Number> > > &
   get_normal_vectors() const;
 
   /**
    * Return a reference to 1D quadrature underlying this object.
    */
-  const Quadrature<1>&
+  const Quadrature<1> &
   get_quadrature () const;
 
 private:
@@ -246,7 +245,7 @@ MappingFEEvaluation<dim,Number>::get_cell() const
 
 template <int dim, typename Number>
 inline
-const FEValues<dim>&
+const FEValues<dim> &
 MappingFEEvaluation<dim,Number>::get_fe_values() const
 {
   return fe_values;
@@ -256,7 +255,7 @@ MappingFEEvaluation<dim,Number>::get_fe_values() const
 
 template <int dim, typename Number>
 inline
-const AlignedVector<Tensor<2,dim,VectorizedArray<Number> > >&
+const AlignedVector<Tensor<2,dim,VectorizedArray<Number> > > &
 MappingFEEvaluation<dim,Number>::get_inverse_jacobians() const
 {
   return inverse_jacobians;
@@ -266,7 +265,7 @@ MappingFEEvaluation<dim,Number>::get_inverse_jacobians() const
 
 template <int dim, typename Number>
 inline
-const AlignedVector<Tensor<1,dim,VectorizedArray<Number> > >&
+const AlignedVector<Tensor<1,dim,VectorizedArray<Number> > > &
 MappingFEEvaluation<dim,Number>::get_normal_vectors() const
 {
   return normal_vectors;
@@ -276,7 +275,7 @@ MappingFEEvaluation<dim,Number>::get_normal_vectors() const
 
 template <int dim, typename Number>
 inline
-const AlignedVector<Point<dim,VectorizedArray<Number> > >&
+const AlignedVector<Point<dim,VectorizedArray<Number> > > &
 MappingFEEvaluation<dim,Number>::get_quadrature_points() const
 {
   return quadrature_points;
@@ -286,7 +285,7 @@ MappingFEEvaluation<dim,Number>::get_quadrature_points() const
 
 template <int dim, typename Number>
 inline
-const AlignedVector<VectorizedArray<Number> >&
+const AlignedVector<VectorizedArray<Number> > &
 MappingFEEvaluation<dim,Number>::get_JxW_values() const
 {
   return jxw_values;
@@ -296,7 +295,7 @@ MappingFEEvaluation<dim,Number>::get_JxW_values() const
 
 template <int dim, typename Number>
 inline
-const Quadrature<1>&
+const Quadrature<1> &
 MappingFEEvaluation<dim,Number>::get_quadrature() const
 {
   return quadrature_1d;

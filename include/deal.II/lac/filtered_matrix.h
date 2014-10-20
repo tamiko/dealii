@@ -1,5 +1,4 @@
 // ---------------------------------------------------------------------
-// $Id$
 //
 // Copyright (C) 2001 - 2013 by the deal.II authors
 //
@@ -617,7 +616,7 @@ private:
    * pattern used for this
    * matrix.
    */
-  std_cxx1x::shared_ptr<PointerMatrixBase<VECTOR> > matrix;
+  std_cxx11::shared_ptr<PointerMatrixBase<VECTOR> > matrix;
 
   /**
    * Sorted list of pairs denoting

@@ -1,5 +1,4 @@
 // ---------------------------------------------------------------------
-// $Id$
 //
 // Copyright (C) 1998 - 2013 by the deal.II authors
 //
@@ -21,7 +20,7 @@
 #include <deal.II/base/config.h>
 #include <deal.II/base/exceptions.h>
 #include <deal.II/base/subscriptor.h>
-#include <deal.II/base/std_cxx1x/shared_ptr.h>
+#include <deal.II/base/std_cxx11/shared_ptr.h>
 
 #include <boost/property_tree/ptree_fwd.hpp>
 #include <boost/serialization/split_member.hpp>
@@ -1785,7 +1784,7 @@ public:
    * In <tt>XML</tt> format, the output starts with one root element
    * <tt>ParameterHandler</tt> in order to get a valid XML document
    * and all subsections under it.
-   * 
+   *
    * In <tt>Text</tt> format, the output contains the same information but
    * in a format so that the resulting file can be input into a latex
    * document such as a manual for the code for which this object handles
@@ -1825,7 +1824,7 @@ public:
    * the higher subsection elements are printed. In <tt>XML</tt> format
    * this is required to get a valid XML document and output starts
    * with one root element <tt>ParameterHandler</tt>.
-   * 
+   *
    * In most cases, you will not want to use this function directly, but
    * have it called recursively by the previous function.
    */
@@ -1934,7 +1933,7 @@ private:
    * A list of patterns that are used to describe the parameters of this
    * object. The are indexed by nodes in the property tree.
    */
-  std::vector<std_cxx1x::shared_ptr<const Patterns::PatternBase> > patterns;
+  std::vector<std_cxx11::shared_ptr<const Patterns::PatternBase> > patterns;
 
   /**
    * Mangle a string so that it doesn't contain any special characters or
@@ -2435,7 +2434,7 @@ ParameterHandler::load (Archive &ar, const unsigned int)
 
   patterns.clear ();
   for (unsigned int j=0; j<descriptions.size(); ++j)
-    patterns.push_back (std_cxx1x::shared_ptr<const Patterns::PatternBase>(Patterns::pattern_factory(descriptions[j])));
+    patterns.push_back (std_cxx11::shared_ptr<const Patterns::PatternBase>(Patterns::pattern_factory(descriptions[j])));
 }
 
 

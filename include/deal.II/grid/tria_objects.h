@@ -1,5 +1,4 @@
 // ---------------------------------------------------------------------
-// $Id$
 //
 // Copyright (C) 2006 - 2013 by the deal.II authors
 //
@@ -206,7 +205,7 @@ namespace internal
        * Store manifold ids. This field
        * stores the manifold id of each object, which
        * is a number between 0 and
-       * numbers::invalid_manifold_id-1. 
+       * numbers::invalid_manifold_id-1.
        */
       std::vector<types::manifold_id> manifold_id;
 
@@ -941,6 +940,84 @@ namespace internal
     {
       return line_orientations[cell * GeometryInfo<2>::faces_per_cell
                                + face];
+    }
+
+
+//----------------------------------------------------------------------//
+
+    template <class G>
+    template <int dim, int spacedim>
+    dealii::TriaRawIterator<dealii::TriaAccessor<G::dimension,dim,spacedim> >
+    TriaObjects<G>::next_free_single_object (const dealii::Triangulation<dim,spacedim> &tria)
+    {
+      // TODO: Think of a way to ensure that we are using the correct triangulation, i.e. the one containing *this.
+
+      int pos=next_free_single,
+          last=used.size()-1;
+      if (!reverse_order_next_free_single)
+        {
+          // first sweep forward, only use really single slots, do not use
+          // pair slots
+          for (; pos<last; ++pos)
+            if (!used[pos])
+              if (used[++pos])
+                {
+                  // this was a single slot
+                  pos-=1;
+                  break;
+                }
+          if (pos>=last)
+            {
+              reverse_order_next_free_single=true;
+              next_free_single=used.size()-1;
+              pos=used.size()-1;
+            }
+          else
+            next_free_single=pos+1;
+        }
+      else
+        {
+          // second sweep, use all slots, even
+          // in pairs
+          for (; pos>=0; --pos)
+            if (!used[pos])
+              break;
+          if (pos>0)
+            next_free_single=pos-1;
+          else
+            // no valid single object anymore
+            return dealii::TriaRawIterator<dealii::TriaAccessor<G::dimension,dim,spacedim> >(&tria, -1, -1);
+        }
+
+      return dealii::TriaRawIterator<dealii::TriaAccessor<G::dimension,dim,spacedim> >(&tria, 0, pos);
+    }
+
+
+
+    template <class G>
+    template <int dim, int spacedim>
+    dealii::TriaRawIterator<dealii::TriaAccessor<G::dimension,dim,spacedim> >
+    TriaObjects<G>::next_free_pair_object (const dealii::Triangulation<dim,spacedim> &tria)
+    {
+      // TODO: Think of a way to ensure that we are using the correct triangulation, i.e. the one containing *this.
+
+      int pos=next_free_pair,
+          last=used.size()-1;
+      for (; pos<last; ++pos)
+        if (!used[pos])
+          if (!used[++pos])
+            {
+              // this was a pair slot
+              pos-=1;
+              break;
+            }
+      if (pos>=last)
+        // no free slot
+        return dealii::TriaRawIterator<dealii::TriaAccessor<G::dimension,dim,spacedim> >(&tria, -1, -1);
+      else
+        next_free_pair=pos+2;
+
+      return dealii::TriaRawIterator<dealii::TriaAccessor<G::dimension,dim,spacedim> >(&tria, 0, pos);
     }
 
 

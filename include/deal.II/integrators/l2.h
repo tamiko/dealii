@@ -1,5 +1,4 @@
 // ---------------------------------------------------------------------
-// $Id$
 //
 // Copyright (C) 2010 - 2013 by the deal.II authors
 //
@@ -103,7 +102,7 @@ namespace LocalIntegrators
       AssertDimension(M.m(), n_dofs);
       AssertDimension(M.n(), n_dofs);
       AssertDimension(weights.size(), fe.n_quadrature_points);
-      
+
       for (unsigned int k=0; k<fe.n_quadrature_points; ++k)
         {
           const double dx = fe.JxW(k) * weights[k];

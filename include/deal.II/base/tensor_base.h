@@ -1,5 +1,4 @@
 // ---------------------------------------------------------------------
-// $Id$
 //
 // Copyright (C) 1998 - 2013 by the deal.II authors
 //
@@ -1473,9 +1472,9 @@ operator / (const Tensor<1,dim> &t,
 template <int dim>
 inline
 Tensor<1,dim,std::complex<double> >
-  operator * (const Tensor<1,dim>        &t,
-	      const std::complex<double>  factor)
-{                                  
+operator * (const Tensor<1,dim>        &t,
+            const std::complex<double>  factor)
+{
   Tensor<1,dim,std::complex<double> > tt (false);
   for (unsigned int d=0; d<dim; ++d)
     tt[d] = t[d] * factor;
@@ -1493,9 +1492,9 @@ Tensor<1,dim,std::complex<double> >
 template <int dim>
 inline
 Tensor<1,dim,std::complex<double> >
-  operator * (const std::complex<double>  factor,
-	      const Tensor<1,dim>        &t)
-{                                  
+operator * (const std::complex<double>  factor,
+            const Tensor<1,dim>        &t)
+{
   Tensor<1,dim,std::complex<double> > tt (false);
   for (unsigned int d=0; d<dim; ++d)
     tt[d] = t[d] * factor;

@@ -1,7 +1,6 @@
 // ---------------------------------------------------------------------
-// $Id$
 //
-// Copyright (C) 2004 - 2013 by the deal.II authors
+// Copyright (C) 2004 - 2014 by the deal.II authors
 //
 // This file is part of the deal.II library.
 //
@@ -437,6 +436,8 @@ namespace PETScWrappers
     /**
      * Return if the vector contains ghost
      * elements.
+     *
+     * @see @ref GlossGhostedVector "vectors with ghost elements"
      */
     bool has_ghost_elements() const;
 
@@ -1328,7 +1329,7 @@ namespace PETScWrappers
         // ghost elements whose
         // position we can get from
         // an index set
-        PetscInt begin, end, i;
+        PetscInt begin, end;
         ierr = VecGetOwnershipRange (vector, &begin, &end);
         AssertThrow (ierr == 0, ExcPETScError(ierr));
 
@@ -1344,7 +1345,7 @@ namespace PETScWrappers
         ierr = VecGetArray(locally_stored_elements, &ptr);
         AssertThrow (ierr == 0, ExcPETScError(ierr));
 
-        for (i = 0; i < n_idx; i++)
+        for (PetscInt i=0; i<n_idx; ++i)
           {
             const unsigned int index = *(indices_begin+i);
             if ( index>=static_cast<unsigned int>(begin)
@@ -1386,7 +1387,7 @@ namespace PETScWrappers
         ierr = VecGetArray(vector, &ptr);
         AssertThrow (ierr == 0, ExcPETScError(ierr));
 
-        for (PetscInt i = 0; i < n_idx; i++)
+        for (PetscInt i=0; i<n_idx; ++i)
           {
             const unsigned int index = *(indices_begin+i);
 

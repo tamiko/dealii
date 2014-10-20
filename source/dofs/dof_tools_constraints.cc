@@ -1,7 +1,6 @@
 // ---------------------------------------------------------------------
-// $Id$
 //
-// Copyright (C) 1999 - 2013 by the deal.II authors
+// Copyright (C) 1999 - 2014 by the deal.II authors
 //
 // This file is part of the deal.II library.
 //
@@ -14,7 +13,6 @@
 //
 // ---------------------------------------------------------------------
 
-#include <deal.II/base/multithread_info.h>
 #include <deal.II/base/thread_management.h>
 #include <deal.II/base/table.h>
 #include <deal.II/base/template_constraints.h>
@@ -307,11 +305,11 @@ namespace DoFTools
       ensure_existence_of_master_dof_mask (const FiniteElement<dim,spacedim> &fe1,
                                            const FiniteElement<dim,spacedim> &fe2,
                                            const FullMatrix<double> &face_interpolation_matrix,
-                                           std_cxx1x::shared_ptr<std::vector<bool> > &master_dof_mask)
+                                           std_cxx11::shared_ptr<std::vector<bool> > &master_dof_mask)
       {
-        if (master_dof_mask == std_cxx1x::shared_ptr<std::vector<bool> >())
+        if (master_dof_mask == std_cxx11::shared_ptr<std::vector<bool> >())
           {
-            master_dof_mask = std_cxx1x::shared_ptr<std::vector<bool> >
+            master_dof_mask = std_cxx11::shared_ptr<std::vector<bool> >
                               (new std::vector<bool> (fe1.dofs_per_face));
             select_master_dofs_for_face_restriction (fe1,
                                                      fe2,
@@ -332,11 +330,11 @@ namespace DoFTools
       void
       ensure_existence_of_face_matrix (const FiniteElement<dim,spacedim> &fe1,
                                        const FiniteElement<dim,spacedim> &fe2,
-                                       std_cxx1x::shared_ptr<FullMatrix<double> > &matrix)
+                                       std_cxx11::shared_ptr<FullMatrix<double> > &matrix)
       {
-        if (matrix == std_cxx1x::shared_ptr<FullMatrix<double> >())
+        if (matrix == std_cxx11::shared_ptr<FullMatrix<double> >())
           {
-            matrix = std_cxx1x::shared_ptr<FullMatrix<double> >
+            matrix = std_cxx11::shared_ptr<FullMatrix<double> >
                      (new FullMatrix<double> (fe2.dofs_per_face,
                                               fe1.dofs_per_face));
             fe1.get_face_interpolation_matrix (fe2,
@@ -354,11 +352,11 @@ namespace DoFTools
       ensure_existence_of_subface_matrix (const FiniteElement<dim,spacedim> &fe1,
                                           const FiniteElement<dim,spacedim> &fe2,
                                           const unsigned int        subface,
-                                          std_cxx1x::shared_ptr<FullMatrix<double> > &matrix)
+                                          std_cxx11::shared_ptr<FullMatrix<double> > &matrix)
       {
-        if (matrix == std_cxx1x::shared_ptr<FullMatrix<double> >())
+        if (matrix == std_cxx11::shared_ptr<FullMatrix<double> >())
           {
-            matrix = std_cxx1x::shared_ptr<FullMatrix<double> >
+            matrix = std_cxx11::shared_ptr<FullMatrix<double> >
                      (new FullMatrix<double> (fe2.dofs_per_face,
                                               fe1.dofs_per_face));
             fe1.get_subface_interpolation_matrix (fe2,
@@ -377,7 +375,7 @@ namespace DoFTools
       void
       ensure_existence_of_split_face_matrix (const FullMatrix<double> &face_interpolation_matrix,
                                              const std::vector<bool> &master_dof_mask,
-                                             std_cxx1x::shared_ptr<std::pair<FullMatrix<double>,FullMatrix<double> > > &split_matrix)
+                                             std_cxx11::shared_ptr<std::pair<FullMatrix<double>,FullMatrix<double> > > &split_matrix)
       {
         AssertDimension (master_dof_mask.size(), face_interpolation_matrix.m());
         Assert (std::count (master_dof_mask.begin(), master_dof_mask.end(), true) ==
@@ -385,10 +383,10 @@ namespace DoFTools
                 ExcInternalError());
 
         if (split_matrix ==
-            std_cxx1x::shared_ptr<std::pair<FullMatrix<double>,FullMatrix<double> > >())
+            std_cxx11::shared_ptr<std::pair<FullMatrix<double>,FullMatrix<double> > >())
           {
             split_matrix
-              = std_cxx1x::shared_ptr<std::pair<FullMatrix<double>,FullMatrix<double> > >
+              = std_cxx11::shared_ptr<std::pair<FullMatrix<double>,FullMatrix<double> > >
                 (new std::pair<FullMatrix<double>,FullMatrix<double> >());
 
             const unsigned int n_master_dofs = face_interpolation_matrix.n();
@@ -1126,10 +1124,10 @@ namespace DoFTools
       // different (or the same) finite elements. we compute them only
       // once, namely the first time they are needed, and then just reuse
       // them
-      Table<2,std_cxx1x::shared_ptr<FullMatrix<double> > >
+      Table<2,std_cxx11::shared_ptr<FullMatrix<double> > >
       face_interpolation_matrices (n_finite_elements (dof_handler),
                                    n_finite_elements (dof_handler));
-      Table<3,std_cxx1x::shared_ptr<FullMatrix<double> > >
+      Table<3,std_cxx11::shared_ptr<FullMatrix<double> > >
       subface_interpolation_matrices (n_finite_elements (dof_handler),
                                       n_finite_elements (dof_handler),
                                       GeometryInfo<dim>::max_children_per_face);
@@ -1138,14 +1136,14 @@ namespace DoFTools
       // master and slave parts, and for which the master part is inverted.
       // these two matrices are derived from the face interpolation matrix
       // as described in the @ref hp_paper "hp paper"
-      Table<2,std_cxx1x::shared_ptr<std::pair<FullMatrix<double>,FullMatrix<double> > > >
+      Table<2,std_cxx11::shared_ptr<std::pair<FullMatrix<double>,FullMatrix<double> > > >
       split_face_interpolation_matrices (n_finite_elements (dof_handler),
                                          n_finite_elements (dof_handler));
 
       // finally, for each pair of finite elements, have a mask that states
       // which of the degrees of freedom on the coarse side of a refined
       // face will act as master dofs.
-      Table<2,std_cxx1x::shared_ptr<std::vector<bool> > >
+      Table<2,std_cxx11::shared_ptr<std::vector<bool> > >
       master_dof_masks (n_finite_elements (dof_handler),
                         n_finite_elements (dof_handler));
 
@@ -2337,21 +2335,21 @@ namespace DoFTools
 
         WorkStream::run(coarse_grid.begin_active(),
                         coarse_grid.end(),
-                        std_cxx1x::bind(&compute_intergrid_weights_3<dim,spacedim>,
-                                        std_cxx1x::_1,
-                                        std_cxx1x::_2,
-                                        std_cxx1x::_3,
+                        std_cxx11::bind(&compute_intergrid_weights_3<dim,spacedim>,
+                                        std_cxx11::_1,
+                                        std_cxx11::_2,
+                                        std_cxx11::_3,
                                         coarse_component,
-                                        std_cxx1x::cref(coarse_grid.get_fe()),
-                                        std_cxx1x::cref(coarse_to_fine_grid_map),
-                                        std_cxx1x::cref(parameter_dofs),
-                                        std_cxx1x::cref(weight_mapping)),
-                        std_cxx1x::bind(&copy_intergrid_weights_3<dim,spacedim>,
-                                        std_cxx1x::_1,
+                                        std_cxx11::cref(coarse_grid.get_fe()),
+                                        std_cxx11::cref(coarse_to_fine_grid_map),
+                                        std_cxx11::cref(parameter_dofs),
+                                        std_cxx11::cref(weight_mapping)),
+                        std_cxx11::bind(&copy_intergrid_weights_3<dim,spacedim>,
+                                        std_cxx11::_1,
                                         coarse_component,
-                                        std_cxx1x::cref(coarse_grid.get_fe()),
-                                        std_cxx1x::cref(weight_mapping),
-                                        std_cxx1x::ref(weights)),
+                                        std_cxx11::cref(coarse_grid.get_fe()),
+                                        std_cxx11::cref(weight_mapping),
+                                        std_cxx11::ref(weights)),
                         scratch,
                         copy_data);
       }

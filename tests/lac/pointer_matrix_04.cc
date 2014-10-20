@@ -1,5 +1,4 @@
 // ---------------------------------------------------------------------
-// $Id: pointer_matrix_01.cc 2014-03-14 dilangov $
 //
 // Copyright (C) 2006 - 2013 by the deal.II authors
 //

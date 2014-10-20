@@ -1,5 +1,4 @@
 // ---------------------------------------------------------------------
-// $Id$
 //
 // Copyright (C) 1998 - 2014 by the deal.II authors
 //
@@ -563,11 +562,11 @@ namespace VectorTools
    */
   template<typename VECTOR, typename DH>
   void
-  interpolate_based_on_material_id(const Mapping<DH::dimension, DH::space_dimension>&                          mapping,
-                                   const DH&                                                                   dof_handler,
-                                   const std::map< types::material_id, const Function<DH::space_dimension,double>* >& function_map,
-                                   VECTOR&                                                                     dst,
-                                   const ComponentMask&                                                        component_mask = ComponentMask());
+  interpolate_based_on_material_id(const Mapping<DH::dimension, DH::space_dimension>                          &mapping,
+                                   const DH                                                                   &dof_handler,
+                                   const std::map< types::material_id, const Function<DH::space_dimension,double>* > &function_map,
+                                   VECTOR                                                                     &dst,
+                                   const ComponentMask                                                        &component_mask = ComponentMask());
 
   /**
    * Gives the interpolation of a
@@ -1103,48 +1102,51 @@ namespace VectorTools
 
 
   /**
-   * Project a function to the boundary
-   * of the domain, using the given
-   * quadrature formula for the faces. If
-   * the @p boundary_values contained
-   * values before, the new ones are
-   * added, or the old one overwritten if
-   * a node of the boundary part to be
-   * projected on already was in the
-   * variable.
+   * Project a function or a set of functions to the boundary
+   * of the domain. In other words, compute the solution of the following problem:
+   * Find $u_h \in V_h$ (where $V_h$ is the finite element space represented
+   * by the DoFHandler argument of this function) so that
+   * @f{align*}
+   *   \int_{\Gamma} \varphi_i u_h = \sum_{k \in {\cal K}} \int_{\Gamma_k} \varphi_i f_k,
+   *   \qquad \forall \varphi_i \in V_h
+   * @f}
+   * where $\Gamma = \bigcup_{k \in {\cal K}} \Gamma_k$, $\Gamma_k \subset \partial\Omega$,
+   * $\cal K$ is the set of indices and $f_k$ the corresponding boundary functions
+   * represented in the function map argument @p boundary_values to this
+   * function, and the integrals are evaluated by quadrature. This problem has a
+   * non-unique solution in the interior, but it is well defined for the degrees
+   * of freedom on the part of the boundary, $\Gamma$, for which we do the
+   * integration. The values of $u_h|_\Gamma$, i.e., the nodal values of the degrees
+   * of freedom of this function along the boundary, are then what is computed by
+   * this function.
    *
-   * If @p component_mapping is empty, it
-   * is assumed that the number of
-   * components of @p boundary_function
-   * matches that of the finite element
-   * used by @p dof.
-   *
-   * In 1d, projection equals
-   * interpolation. Therefore,
-   * interpolate_boundary_values is
-   * called.
-   *
-   * @arg @p boundary_values: the result
-   * of this function, a map containing
-   * all indices of degrees of freedom at
-   * the boundary (as covered by the
-   * boundary parts in @p
-   * boundary_functions) and the computed
-   * dof value for this degree of
-   * freedom.
-   *
-   * @arg @p component_mapping: if the
-   * components in @p boundary_functions
-   * and @p dof do not coincide, this
-   * vector allows them to be
-   * remapped. If the vector is not
-   * empty, it has to have one entry for
-   * each component in @p dof. This entry
-   * is the component number in @p
-   * boundary_functions that should be
-   * used for this component in @p
-   * dof. By default, no remapping is
-   * applied.
+   * @param mapping The mapping that will be used in the transformations necessary to
+   *   integrate along the boundary.
+   * @param dof The DoFHandler that describes the finite element space and the numbering
+   *   of degrees of freedom.
+   * @param boundary_functions A map from boundary indicators to pointers to functions
+   *   that describe the desired values on those parts of the boundary marked
+   *   with this boundary indicator (see @ref GlossBoundaryIndicator "Boundary indicator").
+   *   The projection happens on only those parts of the boundary whose indicators
+   *   are represented in this map.
+   * @param q The face quadrature used in the integration necessary to compute the
+   *   mass matrix and right hand side of the projection.
+   * @param boundary_values The result of this function. It is a map containing
+   *   all indices of degrees of freedom at the boundary (as covered by the
+   *   boundary parts in @p boundary_functions) and the computed
+   *   dof value for this degree of freedom.  If @p boundary_values contained
+   *   values before, the new ones are added, or the old ones overwritten if
+   *   a node of the boundary part to be projected on was already in this
+   *   map.
+   * @param component_mapping It is sometimes convenient to project a vector-valued
+   *   function onto only parts of a finite element space (for example, to project
+   *   a function with <code>dim</code> components onto the velocity components of a
+   *   <code>dim+1</code> component DoFHandler for a Stokes problem). To allow for
+   *   this, this argument allows components to be remapped. If the vector is not
+   *   empty, it has to have one entry for each vector component of the finite element
+   *   used in @p dof. This entry is the component number in @p boundary_functions
+   *   that should be used for this component in @p dof. By default, no remapping is
+   *   applied.
    */
   template <int dim, int spacedim>
   void project_boundary_values (const Mapping<dim, spacedim>       &mapping,
@@ -1517,7 +1519,7 @@ namespace VectorTools
    * once.
    *
    * The forth parameter describes the boundary function that is used for
-   * computing these constraints. 
+   * computing these constraints.
    *
    * The mapping argument is used to compute the boundary points where the
    * function needs to request the normal vector $\vec n$ from the boundary
@@ -1716,7 +1718,7 @@ namespace VectorTools
                                                typename FunctionMap<spacedim>::type &function_map,
                                                ConstraintMatrix      &constraints,
                                                const Mapping<dim, spacedim>    &mapping = StaticMappingQ1<dim>::mapping);
-  
+
   /**
    * Same as above for homogeneous tangential-flux constraints.
    *
@@ -1842,10 +1844,19 @@ namespace VectorTools
 
   /**
    * Create a right hand side
-   * vector for a point source at point @p p
-   * for vector-valued finite elements.
-   * Prior content of the
-   * given @p rhs_vector vector is
+   * vector for a point source at point @p p. This variation of the function
+   * is meant for vector-valued problems with exactly dim components (it will
+   * also work for problems with more than dim components, and in this case
+   * simply consider only the first dim components of the shape functions).
+   * It computes a right hand side that corresponds to a forcing function that
+   * is equal to a delta function times a given direction.
+   * In other words, it creates a vector $F$ so that
+   * $F_i = \int_\Omega [\mathbf d \delta(x-p)] \cdot \phi_i(x) dx$.
+   * Note here that $\phi_i$ is a vector-valued function. $\mathbf d$ is
+   * the given direction of the source term $\mathbf d \delta(x-p)$ and
+   * corresponds to the @p direction argument to be passed to this function.
+   *
+   * Prior content of the given @p rhs_vector vector is
    * deleted.
    *
    * See the general documentation of this
@@ -1855,7 +1866,7 @@ namespace VectorTools
   void create_point_source_vector(const Mapping<dim,spacedim>    &mapping,
                                   const DoFHandler<dim,spacedim> &dof,
                                   const Point<spacedim>          &p,
-                                  const Point<dim>               &orientation,
+                                  const Point<dim>               &direction,
                                   Vector<double>                 &rhs_vector);
 
   /**
@@ -1867,7 +1878,7 @@ namespace VectorTools
   template <int dim, int spacedim>
   void create_point_source_vector(const DoFHandler<dim,spacedim> &dof,
                                   const Point<spacedim>          &p,
-                                  const Point<dim>               &orientation,
+                                  const Point<dim>               &direction,
                                   Vector<double>                 &rhs_vector);
 
   /**
@@ -1878,7 +1889,7 @@ namespace VectorTools
   void create_point_source_vector(const hp::MappingCollection<dim,spacedim> &mapping,
                                   const hp::DoFHandler<dim,spacedim>        &dof,
                                   const Point<spacedim>                     &p,
-                                  const Point<dim>                          &orientation,
+                                  const Point<dim>                          &direction,
                                   Vector<double>                            &rhs_vector);
 
   /**
@@ -1894,7 +1905,7 @@ namespace VectorTools
   template <int dim, int spacedim>
   void create_point_source_vector(const hp::DoFHandler<dim,spacedim> &dof,
                                   const Point<spacedim>              &p,
-                                  const Point<dim>                   &orientation,
+                                  const Point<dim>                   &direction,
                                   Vector<double>                     &rhs_vector);
 
   /**

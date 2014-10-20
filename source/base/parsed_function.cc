@@ -1,7 +1,6 @@
 // ---------------------------------------------------------------------
-// $Id$
 //
-// Copyright (C) 2007 - 2013 by the deal.II authors
+// Copyright (C) 2007 - 2014 by the deal.II authors
 //
 // This file is part of the deal.II library.
 //
@@ -82,7 +81,7 @@ namespace Functions
                       "`if(x>0, 1, -1)' where the expression evaluates to the second "
                       "argument if the first argument is true, and to the third argument "
                       "otherwise. For a full overview of possible expressions accepted "
-                      "see the documentation of the fparser library."
+                      "see the documentation of the muparser library at http://muparser.beltoforion.de/."
                       "\n\n"
                       "If the function you are describing represents a vector-valued "
                       "function with multiple components, then separate the expressions "
@@ -128,7 +127,7 @@ namespace Functions
     constants["pi"] = numbers::PI;
     constants["Pi"] = numbers::PI;
 
-    unsigned int nn = (Utilities::split_string_list(vnames)).size();
+    const unsigned int nn = (Utilities::split_string_list(vnames)).size();
     switch (nn)
       {
       case dim:
@@ -140,7 +139,13 @@ namespace Functions
         function_object.initialize(vnames, expression, constants, true);
         break;
       default:
-        AssertThrow(false, ExcMessage("Not the correct size. Check your code."));
+        AssertThrow(false,
+                    ExcMessage("The list of variables specified is <" + vnames
+                               + "> which is a list of length "
+                               + Utilities::int_to_string(nn)
+                               + " but it has to be a list of length equal to"
+                               + " either dim (for a time-independent function)"
+                               + " or dim+1 (for a time-dependent function)."));
       }
   }
 

@@ -1,7 +1,6 @@
 // ---------------------------------------------------------------------
-// $Id$
 //
-// Copyright (C) 2008 - 2013 by the deal.II authors
+// Copyright (C) 2008 - 2014 by the deal.II authors
 //
 // This file is part of the deal.II library.
 //
@@ -23,7 +22,7 @@
 #ifdef DEAL_II_WITH_TRILINOS
 
 #include <deal.II/base/utilities.h>
-#  include <deal.II/base/std_cxx1x/shared_ptr.h>
+#  include <deal.II/base/std_cxx11/shared_ptr.h>
 #  include <deal.II/base/subscriptor.h>
 #  include <deal.II/lac/exceptions.h>
 #  include <deal.II/lac/vector.h>
@@ -158,20 +157,6 @@ namespace TrilinosWrappers
                       int,
                       << "An error with error number " << arg1
                       << " occurred while calling a Trilinos function");
-
-      /**
-       * Exception
-       */
-      DeclException3 (ExcAccessToNonLocalElement,
-                      size_type, size_type, size_type,
-                      << "You tried to access element " << arg1
-                      << " of a distributed vector, but this element is not stored "
-                      << "on the current processor. Note: The elements stored "
-                      << "on the current processor are within the range "
-                      << arg2 << " through " << arg3
-                      << " but Trilinos vectors need not store contiguous "
-                      << "ranges on each processor, and not every element in "
-                      << "this range may in fact be stored locally.");
 
     private:
       /**
@@ -435,6 +420,8 @@ namespace TrilinosWrappers
     /**
      * Return if the vector contains ghost elements. This answer is true if
      * there are ghost elements on at least one process.
+     *
+     * @see @ref GlossGhostedVector "vectors with ghost elements"
      */
     bool has_ghost_elements() const;
 
@@ -504,13 +491,24 @@ namespace TrilinosWrappers
 
     /**
      * Provide access to a given element, both read and write.
+     *
+     * When using a vector distributed with MPI, this operation only makes
+     * sense for elements that are actually present on the calling
+     * processor. Otherwise, an exception is thrown. This is different from
+     * the <code>el()</code> function below that always succeeds (but returns
+     * zero on non-local elements).
      */
     reference
     operator () (const size_type index);
 
     /**
-     * Provide read-only access to an element. This is equivalent to the
-     * <code>el()</code> command.
+     * Provide read-only access to an element.
+     *
+     * When using a vector distributed with MPI, this operation only makes
+     * sense for elements that are actually present on the calling
+     * processor. Otherwise, an exception is thrown. This is different from
+     * the <code>el()</code> function below that always succeeds (but returns
+     * zero on non-local elements).
      */
     TrilinosScalar
     operator () (const size_type index) const;
@@ -524,8 +522,7 @@ namespace TrilinosWrappers
     operator [] (const size_type index);
 
     /**
-     * Provide read-only access to an element. This is equivalent to the
-     * <code>el()</code> command.
+     * Provide read-only access to an element.
      *
      * Exactly the same as operator().
      */
@@ -553,8 +550,10 @@ namespace TrilinosWrappers
     /**
      * Return the value of the vector entry <i>i</i>. Note that this function
      * does only work properly when we request a data stored on the local
-     * processor. The function will throw an exception in case the elements
-     * sits on another process.
+     * processor. In case the elements sits on another process, this function
+     * returns 0 which might or might not be appropriate in a given
+     * situation. If you rely on consistent results, use the access functions
+     * () or [] that throw an assertion in case a non-local element is used.
      */
     TrilinosScalar el (const size_type index) const;
 
@@ -794,7 +793,7 @@ namespace TrilinosWrappers
 
     /**
      *  Output of vector in user-defined format in analogy to the
-     *  dealii::Vector<number> class.
+     *  dealii::Vector class.
      */
     void print (const char *format = 0) const;
 
@@ -858,12 +857,17 @@ namespace TrilinosWrappers
     /**
      * Exception
      */
-    DeclException3 (ExcAccessToNonlocalElement,
-                    size_type, size_type, size_type,
+    DeclException4 (ExcAccessToNonLocalElement,
+                    size_type, size_type, size_type, size_type,
                     << "You tried to access element " << arg1
-                    << " of a distributed vector, but only entries "
-                    << arg2 << " through " << arg3
-                    << " are stored locally and can be accessed.");
+                    << " of a distributed vector, but this element is not stored "
+                    << "on the current processor. Note: There are "
+                    << arg2 << " elements stored "
+                    << "on the current processor from within the range "
+                    << arg3 << " through " << arg4
+                    << " but Trilinos vectors need not store contiguous "
+                    << "ranges on each processor, and not every element in "
+                    << "this range may in fact be stored locally.");
 
 
   private:
@@ -898,14 +902,14 @@ namespace TrilinosWrappers
      * object requires an existing Epetra_Map for
      * storing data when setting it up.
      */
-    std_cxx1x::shared_ptr<Epetra_FEVector> vector;
+    std_cxx11::shared_ptr<Epetra_FEVector> vector;
 
     /**
      * A vector object in Trilinos to be used for collecting the non-local
      * elements if the vector was constructed with an additional IndexSet
      * describing ghost elements.
      */
-    std_cxx1x::shared_ptr<Epetra_MultiVector> nonlocal_vector;
+    std_cxx11::shared_ptr<Epetra_MultiVector> nonlocal_vector;
 
     /**
      * Make the reference class a friend.
@@ -1223,10 +1227,6 @@ namespace TrilinosWrappers
   VectorBase &
   VectorBase::operator = (const TrilinosScalar s)
   {
-    // if we have ghost values, do not allow
-    // writing to this vector at all.
-    Assert (!has_ghost_elements(), ExcGhostsPresent());
-
     Assert (numbers::is_finite(s), ExcNumberNotFinite());
 
     const int ierr = vector->PutScalar(s);
@@ -1383,10 +1383,10 @@ namespace TrilinosWrappers
             // use pre-allocated vector for non-local entries if it exists for
             // addition operation
             const TrilinosWrappers::types::int_type my_row = nonlocal_vector->Map().LID(static_cast<TrilinosWrappers::types::int_type>(row));
-            Assert(my_row != -1, 
+            Assert(my_row != -1,
                    ExcMessage("Attempted to write into off-processor vector entry "
                               "that has not be specified as being writable upon "
-                               "initialization"));
+                              "initialization"));
             (*nonlocal_vector)[0][my_row] += values[i];
             compressed = false;
           }
@@ -1709,17 +1709,16 @@ namespace TrilinosWrappers
 
     Assert (numbers::is_finite(s), ExcNumberNotFinite());
 
-    if(local_size() == v.local_size())
-    {
-      const int ierr = vector->Update(1., *(v.vector), s);
-      AssertThrow (ierr == 0, ExcTrilinosError(ierr));
-    }
+    if (local_size() == v.local_size())
+      {
+        const int ierr = vector->Update(1., *(v.vector), s);
+        AssertThrow (ierr == 0, ExcTrilinosError(ierr));
+      }
     else
-    {
-      VectorBase tmp = v;
-      tmp *= s;
-      this->add(tmp, true);
-    }
+      {
+        (*this) *= s;
+        this->add(v, true);
+      }
   }
 
 
@@ -1738,18 +1737,18 @@ namespace TrilinosWrappers
     Assert (numbers::is_finite(s), ExcNumberNotFinite());
     Assert (numbers::is_finite(a), ExcNumberNotFinite());
 
-    if(local_size() == v.local_size())
-    {
-      const int ierr = vector->Update(a, *(v.vector), s);
-      AssertThrow (ierr == 0, ExcTrilinosError(ierr));
-    }
+    if (local_size() == v.local_size())
+      {
+        const int ierr = vector->Update(a, *(v.vector), s);
+        AssertThrow (ierr == 0, ExcTrilinosError(ierr));
+      }
     else
-    {
-      (*this)*=s;
-      VectorBase tmp = v;
-      tmp *= a;
-      this->add(tmp, true);
-    }
+      {
+        (*this) *= s;
+        VectorBase tmp = v;
+        tmp *= a;
+        this->add(tmp, true);
+      }
   }
 
 
@@ -1772,26 +1771,26 @@ namespace TrilinosWrappers
     Assert (numbers::is_finite(s), ExcNumberNotFinite());
     Assert (numbers::is_finite(a), ExcNumberNotFinite());
     Assert (numbers::is_finite(b), ExcNumberNotFinite());
-    
-    if(local_size() == v.local_size() && local_size() == w.local_size())
-    {
-      const int ierr = vector->Update(a, *(v.vector), b, *(w.vector), s);
-      AssertThrow (ierr == 0, ExcTrilinosError(ierr));
-    }
+
+    if (local_size() == v.local_size() && local_size() == w.local_size())
+      {
+        const int ierr = vector->Update(a, *(v.vector), b, *(w.vector), s);
+        AssertThrow (ierr == 0, ExcTrilinosError(ierr));
+      }
     else
-    {
-      (*this)*=s;
       {
-        VectorBase tmp = v;
-        tmp *= a;
-        this->add(tmp, true);
+        (*this)*=s;
+        {
+          VectorBase tmp = v;
+          tmp *= a;
+          this->add(tmp, true);
+        }
+        {
+          VectorBase tmp = w;
+          tmp *= b;
+          this->add(tmp, true);
+        }
       }
-      {
-        VectorBase tmp = w;
-        tmp *= b;
-        this->add(tmp, true);
-      }
-    }
   }
 
 
@@ -1820,39 +1819,39 @@ namespace TrilinosWrappers
     Assert (numbers::is_finite(b), ExcNumberNotFinite());
     Assert (numbers::is_finite(c), ExcNumberNotFinite());
 
-    if(local_size() == v.local_size()
-       && local_size() == w.local_size()
-       && local_size() == x.local_size())
-    {
-      // Update member can only
-      // input two other vectors so
-      // do it in two steps
-      const int ierr = vector->Update(a, *(v.vector), b, *(w.vector), s);
-      AssertThrow (ierr == 0, ExcTrilinosError(ierr));
-      
-      const int jerr = vector->Update(c, *(x.vector), 1.);
-      Assert (jerr == 0, ExcTrilinosError(jerr));
-      (void)jerr; // removes -Wunused-parameter warning in optimized mode
-    }
+    if (local_size() == v.local_size()
+        && local_size() == w.local_size()
+        && local_size() == x.local_size())
+      {
+        // Update member can only
+        // input two other vectors so
+        // do it in two steps
+        const int ierr = vector->Update(a, *(v.vector), b, *(w.vector), s);
+        AssertThrow (ierr == 0, ExcTrilinosError(ierr));
+
+        const int jerr = vector->Update(c, *(x.vector), 1.);
+        Assert (jerr == 0, ExcTrilinosError(jerr));
+        (void)jerr; // removes -Wunused-parameter warning in optimized mode
+      }
     else
-    {
-      (*this)*=s;
       {
-        VectorBase tmp = v;
-        tmp *= a;
-        this->add(tmp, true);
+        (*this)*=s;
+        {
+          VectorBase tmp = v;
+          tmp *= a;
+          this->add(tmp, true);
+        }
+        {
+          VectorBase tmp = w;
+          tmp *= b;
+          this->add(tmp, true);
+        }
+        {
+          VectorBase tmp = x;
+          tmp *= c;
+          this->add(tmp, true);
+        }
       }
-      {
-        VectorBase tmp = w;
-        tmp *= b;
-        this->add(tmp, true);
-      }
-      {
-        VectorBase tmp = x;
-        tmp *= c;
-        this->add(tmp, true);
-      }
-    }
   }
 
 

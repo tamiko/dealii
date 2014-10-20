@@ -1,7 +1,6 @@
 // ---------------------------------------------------------------------
-// $Id$
 //
-// Copyright (C) 2006 - 2013 by the deal.II authors
+// Copyright (C) 2006 - 2014 by the deal.II authors
 //
 // This file is part of the deal.II library.
 //
@@ -20,7 +19,7 @@
 
 #include <deal.II/base/config.h>
 #include <deal.II/base/quadrature_lib.h>
-#include <deal.II/base/std_cxx1x/shared_ptr.h>
+#include <deal.II/base/std_cxx11/shared_ptr.h>
 #include <deal.II/dofs/block_info.h>
 #include <deal.II/fe/fe_values.h>
 #include <deal.II/meshworker/local_results.h>
@@ -31,6 +30,8 @@ DEAL_II_NAMESPACE_OPEN
 namespace MeshWorker
 {
   template <int dim, class DOFINFO> class DoFInfoBox;
+
+
   /**
    * A class containing information on geometry and degrees of freedom
    * of a mesh object.
@@ -84,8 +85,8 @@ namespace MeshWorker
      * if the info object was
      * initialized with a cell.
      */
-
     unsigned int face_number;
+
     /**
      * The number of the current
      * subface on the current
@@ -177,6 +178,7 @@ namespace MeshWorker
      * active data.
      */
     bool level_cell;
+
   private:
     /**
      * Standard constructor, not setting any block indices. Use of
@@ -187,6 +189,7 @@ namespace MeshWorker
 
     /// Set up local block indices
     void set_block_indices ();
+
     /// Fill index vector with active indices
     template <class DHCellIterator>
     void get_indices(const DHCellIterator &c);
@@ -278,6 +281,7 @@ namespace MeshWorker
      * face is available.
      */
     bool interior_face_available[GeometryInfo<dim>::faces_per_cell];
+
     /**
      * A set of flags, indicating
      * whether data on an exterior
@@ -296,6 +300,8 @@ namespace MeshWorker
 
   template <int dim, int spacedim, typename number>
   DoFInfo<dim,spacedim,number>::DoFInfo(const DoFHandler<dim,spacedim> &dof_handler)
+    :
+    level_cell (false)
   {
     std::vector<types::global_dof_index> aux(1);
     aux[0] = dof_handler.get_fe().dofs_per_cell;
@@ -459,7 +465,7 @@ namespace MeshWorker
   inline void
   DoFInfoBox<dim, DOFINFO>::reset ()
   {
-      cell_valid = false;
+    cell_valid = false;
     for (unsigned int i=0; i<GeometryInfo<dim>::faces_per_cell; ++i)
       {
         interior_face_available[i] = false;

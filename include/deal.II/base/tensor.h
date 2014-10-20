@@ -1,5 +1,4 @@
 // ---------------------------------------------------------------------
-// $Id$
 //
 // Copyright (C) 1998 - 2013 by the deal.II authors
 //
@@ -1758,8 +1757,8 @@ Number determinant (const Tensor<2,dim,Number> &t)
 template <int dim, typename Number>
 Number trace (const Tensor<2,dim,Number> &d)
 {
-  Number t=0;
-  for (unsigned int i=0; i<dim; ++i)
+  Number t=d[0][0];
+  for (unsigned int i=1; i<dim; ++i)
     t += d[i][i];
   return t;
 }
@@ -2102,10 +2101,10 @@ operator / (const Tensor<rank,dim> &t,
  * @relates Tensor
  */
 template <int rank, int dim>
-  inline
-  Tensor<rank,dim,std::complex<double> >
-  operator * (const std::complex<double>  factor,
-	      const Tensor<rank,dim>     &t)
+inline
+Tensor<rank,dim,std::complex<double> >
+operator * (const std::complex<double>  factor,
+            const Tensor<rank,dim>     &t)
 {
   Tensor<rank,dim,std::complex<double> > tt;
   for (unsigned int d=0; d<dim; ++d)
@@ -2122,10 +2121,10 @@ template <int rank, int dim>
  * @relates Tensor
  */
 template <int rank, int dim>
-  inline
-  Tensor<rank,dim,std::complex<double> >
-  operator * (const Tensor<rank,dim>     &t,
-	      const std::complex<double>  factor)
+inline
+Tensor<rank,dim,std::complex<double> >
+operator * (const Tensor<rank,dim>     &t,
+            const std::complex<double>  factor)
 {
   Tensor<rank,dim,std::complex<double> > tt;
   for (unsigned int d=0; d<dim; ++d)

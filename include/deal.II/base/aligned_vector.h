@@ -1,5 +1,4 @@
 // ---------------------------------------------------------------------
-// $Id$
 //
 // Copyright (C) 2011 - 2014 by the deal.II authors
 //
@@ -19,7 +18,7 @@
 #define __deal2__aligned_vector_h
 
 #include <deal.II/base/config.h>
-#include <deal.II/base/std_cxx1x/type_traits.h>
+#include <deal.II/base/std_cxx11/type_traits.h>
 #include <deal.II/base/exceptions.h>
 #include <deal.II/base/memory_consumption.h>
 #include <deal.II/base/parallel.h>
@@ -326,8 +325,8 @@ namespace internal
       // (void*) to silence compiler warning for virtual classes (they will
       // never arrive here because they are non-trivial).
 
-      if (std_cxx1x::is_trivial<T>::value == true)
-        std::memcpy ((void*)(destination_+begin), source_+begin,
+      if (std_cxx11::is_trivial<T>::value == true)
+        std::memcpy ((void *)(destination_+begin), source_+begin,
                      (end-begin)*sizeof(T));
       else if (copy_only_ == false)
         for (std::size_t i=begin; i<end; ++i)
@@ -377,14 +376,14 @@ namespace internal
       // do not use memcmp for long double because on some systems it does not
       // completely fill its memory and may lead to false positives in
       // e.g. valgrind
-      if (std_cxx1x::is_trivial<T>::value == true &&
+      if (std_cxx11::is_trivial<T>::value == true &&
           types_are_equal<T,long double>::value == false)
         {
           const unsigned char zero [sizeof(T)] = {};
           // cast element to (void*) to silence compiler warning for virtual
           // classes (they will never arrive here because they are
           // non-trivial).
-          if (std::memcmp(zero, (void*)&element, sizeof(T)) == 0)
+          if (std::memcmp(zero, (void *)&element, sizeof(T)) == 0)
             trivial_element = true;
         }
       if (size < minimum_parallel_grain_size)
@@ -405,8 +404,8 @@ namespace internal
       // element to (void*) to silence compiler warning for virtual
       // classes (they will never arrive here because they are
       // non-trivial).
-      if (std_cxx1x::is_trivial<T>::value == true && trivial_element)
-        std::memset ((void*)(destination_+begin), 0, (end-begin)*sizeof(T));
+      if (std_cxx11::is_trivial<T>::value == true && trivial_element)
+        std::memset ((void *)(destination_+begin), 0, (end-begin)*sizeof(T));
       else
         // initialize memory and set
         for (std::size_t i=begin; i<end; ++i)
@@ -476,7 +475,7 @@ AlignedVector<T>::AlignedVector (const AlignedVector<T> &vec)
 
 template < class T >
 inline
-AlignedVector<T>&
+AlignedVector<T> &
 AlignedVector<T>::operator = (const AlignedVector<T> &vec)
 {
   resize(0);
@@ -505,7 +504,7 @@ AlignedVector<T>::resize (const size_type size_in,
                           const T        &init)
 {
   const size_type old_size = size();
-  if (std_cxx1x::is_trivial<T>::value == false && size_in < old_size)
+  if (std_cxx11::is_trivial<T>::value == false && size_in < old_size)
     {
       // call destructor on fields that are released
       while (_end_data != _data+size_in)
@@ -558,7 +557,7 @@ AlignedVector<T>::reserve (const size_type size_alloc)
       if (_end_data != _data)
         {
           dealii::internal::AlignedVectorMove<T>(new_data, new_data + old_size,
-						 _data);
+                                                 _data);
 #if DEAL_II_COMPILER_VECTORIZATION_LEVEL > 0
           _mm_free(new_data);
 #else
@@ -579,7 +578,7 @@ AlignedVector<T>::clear ()
 {
   if (_data != 0)
     {
-      if (std_cxx1x::is_trivial<T>::value == false)
+      if (std_cxx11::is_trivial<T>::value == false)
         while (_end_data != _data)
           (--_end_data)->~T();
 
@@ -604,7 +603,7 @@ AlignedVector<T>::push_back (const T in_data)
   Assert (_end_data <= _end_allocated, ExcInternalError());
   if (_end_data == _end_allocated)
     reserve (std::max(2*capacity(),static_cast<size_type>(16)));
-  if (std_cxx1x::is_trivial<T>::value == false)
+  if (std_cxx11::is_trivial<T>::value == false)
     new (_end_data) T;
   *_end_data++ = in_data;
 }
@@ -646,7 +645,7 @@ AlignedVector<T>::insert_back (ForwardIterator begin,
   reserve (old_size + (end-begin));
   for ( ; begin != end; ++begin, ++_end_data)
     {
-      if (std_cxx1x::is_trivial<T>::value == false)
+      if (std_cxx11::is_trivial<T>::value == false)
         new (_end_data) T;
       *_end_data = *begin;
     }
@@ -807,7 +806,7 @@ typename AlignedVector<T>::size_type
 AlignedVector<T>::memory_consumption () const
 {
   size_type memory = sizeof(*this);
-  for (const T* t = _data ; t != _end_data; ++t)
+  for (const T *t = _data ; t != _end_data; ++t)
     memory += dealii::MemoryConsumption::memory_consumption(*t);
   memory += sizeof(T) * (_end_allocated-_end_data);
   return memory;
@@ -829,7 +828,7 @@ bool operator == (const AlignedVector<T> &lhs,
   if (lhs.size() != rhs.size())
     return false;
   for (typename AlignedVector<T>::const_iterator lit = lhs.begin(),
-         rit = rhs.begin(); lit != lhs.end(); ++lit, ++rit)
+       rit = rhs.begin(); lit != lhs.end(); ++lit, ++rit)
     if (*lit != *rit)
       return false;
   return true;

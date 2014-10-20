@@ -1,5 +1,4 @@
 // ---------------------------------------------------------------------
-// $Id$
 //
 // Copyright (C) 2000 - 2014 by the deal.II authors
 //
@@ -20,6 +19,7 @@
 
 
 #include <deal.II/base/config.h>
+#include <deal.II/base/subscriptor.h>
 #include <deal.II/base/exceptions.h>
 #include <deal.II/base/geometry_info.h>
 #include <deal.II/base/tensor.h>
@@ -79,7 +79,7 @@ namespace FETools
    * @author Guido Kanschat, 2006
    */
   template <int dim, int spacedim=dim>
-  class FEFactoryBase
+  class FEFactoryBase : public Subscriptor
   {
   public:
     /**
@@ -113,20 +113,20 @@ namespace FETools
    * @author Guido Kanschat, 2006
    */
   template <class FE>
-  class FEFactory : public FEFactoryBase<FE::dimension,FE::dimension>
+  class FEFactory : public FEFactoryBase<FE::dimension,FE::space_dimension>
   {
   public:
     /**
      * Create a FiniteElement and return a pointer to it.
      */
-    virtual FiniteElement<FE::dimension,FE::dimension> *
+    virtual FiniteElement<FE::dimension,FE::space_dimension> *
     get (const unsigned int degree) const;
 
     /**
      * Create a FiniteElement from a quadrature formula (currently only
      * implemented for FE_Q) and return a pointer to it.
      */
-    virtual FiniteElement<FE::dimension,FE::dimension> *
+    virtual FiniteElement<FE::dimension,FE::space_dimension> *
     get (const Quadrature<1> &quad) const;
   };
 
@@ -707,15 +707,15 @@ namespace FETools
    * other:
    *
    * - It interpolates directly from every cell of @p dof1 to the
-   *   corresponding cell of @dof2 using the interpolation matrix of the
+   *   corresponding cell of `dof2` using the interpolation matrix of the
    *   finite element spaces used on these cells and provided by
    *   the finite element objects involved. This step is done using the
    *   FETools::interpolate() function.
-   * - It then performs a loop over all non-active cells of @dof2. If
+   * - It then performs a loop over all non-active cells of `dof2`. If
    *   such a non-active cell has at least one active child, then we
    *   call the children of this cell a "patch". We then interpolate
    *   from the children of this patch to the patch, using the finite
-   *   element space associated with @p dof2 and immediately interpolate
+   *   element space associated with `dof2` and immediately interpolate
    *   back to the children. In essence, this information throws away
    *   all information in the solution vector that lives on a scale
    *   smaller than the patch cell.
@@ -810,7 +810,7 @@ namespace FETools
   template <int dim>
   void
   hierarchic_to_lexicographic_numbering (unsigned int degree,
-					 std::vector<unsigned int> &h2l);
+                                         std::vector<unsigned int> &h2l);
 
   template <int dim>
   void
@@ -875,8 +875,16 @@ namespace FETools
    * function, use the add_fe_name() function.  This function does not work if
    * one wants to get a codimension 1 finite element.
    */
+  template <int dim, int spacedim>
+  FiniteElement<dim, spacedim> *
+  get_fe_by_name (const std::string &name);
+
+
+  /**
+   * @deprecated Use get_fe_by_name() with two template parameters instead
+   */
   template <int dim>
-  FiniteElement<dim, dim> *
+  FiniteElement<dim,dim> *
   get_fe_from_name (const std::string &name);
 
 
@@ -1031,7 +1039,7 @@ namespace FETools
 namespace FETools
 {
   template <class FE>
-  FiniteElement<FE::dimension, FE::dimension> *
+  FiniteElement<FE::dimension, FE::space_dimension> *
   FEFactory<FE>::get (const unsigned int degree) const
   {
     return new FE(degree);

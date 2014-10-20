@@ -1,6 +1,5 @@
 
 // ---------------------------------------------------------------------
-// $Id$
 //
 // Copyright (C) 2013 by the deal.II authors
 //
@@ -21,8 +20,7 @@
 
 #include <deal.II/base/config.h>
 #include <deal.II/base/thread_management.h>
-#include <deal.II/base/std_cxx1x/function.h>
-#include <deal.II/dofs/dof_handler.h>
+#include <deal.II/base/std_cxx11/function.h>
 #include <boost/unordered_map.hpp>
 #include <boost/unordered_set.hpp>
 
@@ -109,7 +107,7 @@ namespace GraphColoring
     std::vector<std::vector<Iterator> >
     create_partitioning(const Iterator &begin,
                         const typename identity<Iterator>::type &end,
-                        const std_cxx1x::function<std::vector<types::global_dof_index> (const Iterator &)> &get_conflict_indices)
+                        const std_cxx11::function<std::vector<types::global_dof_index> (const Iterator &)> &get_conflict_indices)
     {
       // Number of iterators.
       unsigned int n_iterators = 0;
@@ -212,7 +210,7 @@ namespace GraphColoring
     template <typename Iterator>
     void
     make_dsatur_coloring(std::vector<Iterator> &partition,
-                         const std_cxx1x::function<std::vector<types::global_dof_index> (const Iterator &)> &get_conflict_indices,
+                         const std_cxx11::function<std::vector<types::global_dof_index> (const Iterator &)> &get_conflict_indices,
                          std::vector<std::vector<Iterator> > &partition_coloring)
     {
       partition_coloring.clear ();
@@ -512,7 +510,7 @@ namespace GraphColoring
   std::vector<std::vector<Iterator> >
   make_graph_coloring(const Iterator &begin,
                       const typename identity<Iterator>::type &end,
-                      const std_cxx1x::function<std::vector<types::global_dof_index> (const typename identity<Iterator>::type &)> &get_conflict_indices)
+                      const std_cxx11::function<std::vector<types::global_dof_index> (const typename identity<Iterator>::type &)> &get_conflict_indices)
   {
     Assert (begin != end, ExcMessage ("GraphColoring is not prepared to deal with empty ranges!"));
 

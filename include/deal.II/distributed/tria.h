@@ -1,5 +1,4 @@
 // ---------------------------------------------------------------------
-// $Id$
 //
 // Copyright (C) 2008 - 2014 by the deal.II authors
 //
@@ -24,8 +23,8 @@
 #include <deal.II/base/template_constraints.h>
 #include <deal.II/grid/tria.h>
 
-#include <deal.II/base/std_cxx1x/function.h>
-#include <deal.II/base/std_cxx1x/tuple.h>
+#include <deal.II/base/std_cxx11/function.h>
+#include <deal.II/base/std_cxx11/tuple.h>
 
 #include <set>
 #include <vector>
@@ -88,7 +87,11 @@ namespace internal
       typedef p4est_quadrant_t     quadrant;
       typedef p4est_topidx_t       topidx;
       typedef p4est_locidx_t       locidx;
+#if DEAL_II_P4EST_VERSION_GTE(0,3,4,3)
+      typedef p4est_connect_type_t balance_type;
+#else
       typedef p4est_balance_type_t balance_type;
+#endif
       typedef p4est_ghost_t        ghost;
     };
 
@@ -101,7 +104,11 @@ namespace internal
       typedef p8est_quadrant_t     quadrant;
       typedef p4est_topidx_t       topidx;
       typedef p4est_locidx_t       locidx;
+#if DEAL_II_P4EST_VERSION_GTE(0,3,4,3)
+      typedef p8est_connect_type_t balance_type;
+#else
       typedef p8est_balance_type_t balance_type;
+#endif
       typedef p8est_ghost_t        ghost;
     };
 
@@ -168,11 +175,12 @@ namespace parallel
      * load-balanced, fully distributed mesh. Use of this class is
      * explained in step-40, step-32, the @ref distributed documentation
      * module, as well as the @ref distributed_paper . See there for more
-     * information.
+     * information. This class satisfies the requirements outlined in
+     * @ref GlossMeshAsAContainer "Meshes as containers".
      *
      * @note This class does not support anisotropic refinement, because
      * it relies on the p4est library that does not support this. Attempts
-     * to refine cells anisotropically will result in errors. 
+     * to refine cells anisotropically will result in errors.
      * @note There is currently no support for distributing 1d triangulations.
      *
      *
@@ -224,7 +232,7 @@ namespace parallel
      * into the function. C++ provides a nice mechanism for this that is best
      * explained using an example:
      * @code
-     *     #include <deal.II/base/std_cxx1x/bind.h>
+     *     #include <deal.II/base/std_cxx11/bind.h>
      *
      *     template <int dim>
      *     void set_boundary_indicators (parallel::distributed::Triangulation<dim> &triangulation)
@@ -240,13 +248,13 @@ namespace parallel
      *       ... create the coarse mesh ...
      *
      *       coarse_grid.signals.post_refinement.connect
-     *         (std_cxx1x::bind (&set_boundary_indicators<dim>,
-     *                           std_cxx1x::ref(coarse_grid)));
+     *         (std_cxx11::bind (&set_boundary_indicators<dim>,
+     *                           std_cxx11::ref(coarse_grid)));
      *
      *     }
      * @endcode
      *
-     * What the call to <code>std_cxx1x::bind</code> does is to produce an object that
+     * What the call to <code>std_cxx11::bind</code> does is to produce an object that
      * can be called like a function with no arguments. It does so by taking the
      * address of a function that does, in fact, take an argument but permanently fix
      * this one argument to a reference to the coarse grid triangulation. After each
@@ -262,7 +270,7 @@ namespace parallel
      * function has been declared as a (non-static, but possibly private) member
      * function of the <code>MyClass</code> class, then the following will work:
      * @code
-     *     #include <deal.II/base/std_cxx1x/bind.h>
+     *     #include <deal.II/base/std_cxx11/bind.h>
      *
      *     template <int dim>
      *     void
@@ -280,9 +288,9 @@ namespace parallel
      *       ... create the coarse mesh ...
      *
      *       coarse_grid.signals.post_refinement.connect
-     *         (std_cxx1x::bind (&MyGeometry<dim>::set_boundary_indicators,
-     *                           std_cxx1x::cref(*this),
-     *                           std_cxx1x::ref(coarse_grid)));
+     *         (std_cxx11::bind (&MyGeometry<dim>::set_boundary_indicators,
+     *                           std_cxx11::cref(*this),
+     *                           std_cxx11::ref(coarse_grid)));
      *     }
      * @endcode
      * Here, like any other member function, <code>set_boundary_indicators</code>
@@ -309,24 +317,24 @@ namespace parallel
     class Triangulation : public dealii::Triangulation<dim,spacedim>
     {
     public:
-     /**
-      * A typedef that is used to to identify cell iterators. The
-      * concept of iterators is discussed at length in the
-      * @ref Iterators "iterators documentation module".
-      *
-      * The current typedef identifies cells in a triangulation. You
-      * can find the exact type it refers to in the base class's own
-      * typedef, but it should be TriaIterator<CellAccessor<dim,spacedim> >. The
-      * TriaIterator class works like a pointer that when you
-      * dereference it yields an object of type CellAccessor.
-      * CellAccessor is a class that identifies properties that
-      * are specific to cells in a triangulation, but it is derived
-      * (and consequently inherits) from TriaAccessor that describes
-      * what you can ask of more general objects (lines, faces, as
-      * well as cells) in a triangulation.
-      *
-      * @ingroup Iterators
-      */
+      /**
+       * A typedef that is used to to identify cell iterators. The
+       * concept of iterators is discussed at length in the
+       * @ref Iterators "iterators documentation module".
+       *
+       * The current typedef identifies cells in a triangulation. You
+       * can find the exact type it refers to in the base class's own
+       * typedef, but it should be TriaIterator<CellAccessor<dim,spacedim> >. The
+       * TriaIterator class works like a pointer that when you
+       * dereference it yields an object of type CellAccessor.
+       * CellAccessor is a class that identifies properties that
+       * are specific to cells in a triangulation, but it is derived
+       * (and consequently inherits) from TriaAccessor that describes
+       * what you can ask of more general objects (lines, faces, as
+       * well as cells) in a triangulation.
+       *
+       * @ingroup Iterators
+       */
       typedef typename dealii::Triangulation<dim,spacedim>::cell_iterator        cell_iterator;
 
       /**
@@ -607,7 +615,23 @@ namespace parallel
        */
       enum CellStatus
       {
-        CELL_PERSIST, CELL_REFINE, CELL_COARSEN, CELL_INVALID
+        /**
+         * The cell will not be refined or coarsened and might or might
+         * not move to a different processor.
+         */
+        CELL_PERSIST,
+        /**
+         * The cell will be or was refined.
+         */
+        CELL_REFINE,
+        /**
+         * The children of this cell will be or were coarsened into this cell.
+         */
+        CELL_COARSEN,
+        /**
+         * Invalid status. Will not occur for the user.
+         */
+        CELL_INVALID
       };
 
       /**
@@ -624,21 +648,51 @@ namespace parallel
        * Callers need to store the return value.  It specifies an
        * offset of the position at which data can later be retrieved
        * during a call to notify_ready_to_unpack().
+       *
+       * The CellStatus argument in the callback function will tell you if the
+       * given cell will be coarsened, refined, or will persist as is (this
+       * can be different than the coarsen and refine flags set by you). If it
+       * is
+       *
+       * - CELL_PERIST: the cell won't be refined/coarsened, but might be
+       *   moved to a different processor
+       * - CELL_REFINE: this cell will be refined into 4/8 cells, you can not
+       *   access the children (because they don't exist yet)
+       * - CELL_COARSEN: the children of this cell will be coarsened into the
+       *   given cell (you can access the active children!)
+       *
+       * When unpacking the data with notify_ready_to_unpack() you can access
+       * the children of the cell if the status is CELL_REFINE but not for
+       * CELL_COARSEN. As a consequence you need to handle coarsening while
+       * packing and refinement during unpacking.
+       *
+       * @note The two functions can also be used for serialization of data
+       * using save() and load() in the same way. Then the status will always
+       * be CELL_PERSIST.
        */
       unsigned int
       register_data_attach (const std::size_t size,
-                            const std_cxx1x::function<void (const cell_iterator &,
+                            const std_cxx11::function<void (const cell_iterator &,
                                                             const CellStatus,
                                                             void *)> &pack_callback);
 
       /**
-       * The given function is called for each new active cell and
-       * supplies a pointer to the data saved with
-       * register_data_attach().
+       * The supplied callback function is called for each newly locally owned
+       * cell and corresponding data saved with register_data_attach().  This
+       * function needs to be called after execute_coarsening_and_refinement()
+       * with the offset returned by register_data_attach().
+       *
+       * The CellStatus will indicate if the cell was refined, coarsened, or
+       * persisted unchanged. The cell_iterator will either by an active,
+       * locally owned cell (if the cell was not refined), or the immediate
+       * parent if it was refined during
+       * execute_coarsening_and_refinement(). Therefore, contrary to during
+       * register_data_attach(), you can now access the children if the status
+       * is CELL_REFINE but no longer for callbacks with status CELL_COARSEN.
        */
       void
       notify_ready_to_unpack (const unsigned int offset,
-                              const std_cxx1x::function<void (const cell_iterator &,
+                              const std_cxx11::function<void (const cell_iterator &,
                                                               const CellStatus,
                                                               const void *)> &unpack_callback);
 
@@ -767,7 +821,7 @@ namespace parallel
        */
       unsigned int n_attached_deserialize;
 
-      typedef  std_cxx1x::function<
+      typedef  std_cxx11::function<
       void(typename Triangulation<dim,spacedim>::cell_iterator, CellStatus, void *)
       > pack_callback_t;
 

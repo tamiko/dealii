@@ -1,5 +1,4 @@
 // ---------------------------------------------------------------------
-// $Id$
 //
 // Copyright (C) 2008 - 2013 by the deal.II authors
 //
@@ -30,7 +29,7 @@
 #  include <cmath>
 #  include <memory>
 
-#  include <deal.II/base/std_cxx1x/shared_ptr.h>
+#  include <deal.II/base/std_cxx11/shared_ptr.h>
 
 #  include <Epetra_FECrsGraph.h>
 #  include <Epetra_Map.h>
@@ -150,7 +149,7 @@ namespace TrilinosWrappers
        * performance, we keep a shared pointer to these entries so that more
        * than one accessor can access this data if necessary.
        */
-      std_cxx1x::shared_ptr<const std::vector<size_type> > colnum_cache;
+      std_cxx11::shared_ptr<const std::vector<size_type> > colnum_cache;
 
       /**
        * Discard the old row caches (they may still be used by other
@@ -1092,20 +1091,20 @@ namespace TrilinosWrappers
      * Pointer to the user-supplied Epetra Trilinos mapping of the matrix
      * columns that assigns parts of the matrix to the individual processes.
      */
-    std_cxx1x::shared_ptr<Epetra_Map> column_space_map;
+    std_cxx11::shared_ptr<Epetra_Map> column_space_map;
 
     /**
      * A sparsity pattern object in Trilinos to be used for finite element
      * based problems which allows for adding non-local elements to the
      * pattern.
      */
-    std_cxx1x::shared_ptr<Epetra_FECrsGraph> graph;
+    std_cxx11::shared_ptr<Epetra_FECrsGraph> graph;
 
     /**
      * A sparsity pattern object for the non-local part of the sparsity
      * pattern that is going to be sent to the owning processor. Only used when the particular constructor or reinit method with writable_rows argument is set
      */
-    std_cxx1x::shared_ptr<Epetra_CrsGraph> nonlocal_graph;
+    std_cxx11::shared_ptr<Epetra_CrsGraph> nonlocal_graph;
 
     friend class SparseMatrix;
     friend class SparsityPatternIterators::Accessor;
@@ -1424,7 +1423,7 @@ namespace TrilinosWrappers
       }
     else
       ierr = graph->InsertGlobalIndices
-        (1, (TrilinosWrappers::types::int_type *)&row, n_cols, col_index_ptr);
+             (1, (TrilinosWrappers::types::int_type *)&row, n_cols, col_index_ptr);
 
     AssertThrow (ierr >= 0, ExcTrilinosError(ierr));
   }

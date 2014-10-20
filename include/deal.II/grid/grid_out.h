@@ -1,5 +1,4 @@
 // ---------------------------------------------------------------------
-// $Id$
 //
 // Copyright (C) 1999 - 2013 by the deal.II authors
 //
@@ -679,7 +678,7 @@ namespace GridOutFlags
 
     /// The factor determining the vertical distance between levels (default = 0.3)
     float level_height_factor;
-      
+
     /**
      * Cell labeling (fixed order).
      *

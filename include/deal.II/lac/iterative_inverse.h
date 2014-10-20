@@ -1,5 +1,4 @@
 // ---------------------------------------------------------------------
-// $Id$
 //
 // Copyright (C) 1999 - 2013 by the deal.II authors
 //
@@ -34,7 +33,7 @@ DEAL_II_NAMESPACE_OPEN
  * order to approximate the action of the inverse matrix.
  *
  * Krylov space methods like SolverCG or SolverBicgstab
- * become inefficient if soution down to machine accuracy is
+ * become inefficient if solution down to machine accuracy is
  * needed. This is due to the fact, that round-off errors spoil the
  * orthogonality of the vector sequences. Therefore, a nested
  * iteration of two methods is proposed: The outer method is
@@ -118,12 +117,12 @@ private:
   /**
    * The matrix in use.
    */
-  std_cxx1x::shared_ptr<PointerMatrixBase<VECTOR> > matrix;
+  std_cxx11::shared_ptr<PointerMatrixBase<VECTOR> > matrix;
 
   /**
    * The preconditioner to use.
    */
-  std_cxx1x::shared_ptr<PointerMatrixBase<VECTOR> > preconditioner;
+  std_cxx11::shared_ptr<PointerMatrixBase<VECTOR> > preconditioner;
 };
 
 
@@ -135,8 +134,8 @@ IterativeInverse<VECTOR>::initialize(const MATRIX &m, const PRECONDITION &p)
 {
   // dummy variable
   VECTOR *v = 0;
-  matrix = std_cxx1x::shared_ptr<PointerMatrixBase<VECTOR> > (new_pointer_matrix_base(m, *v));
-  preconditioner = std_cxx1x::shared_ptr<PointerMatrixBase<VECTOR> > (new_pointer_matrix_base(p, *v));
+  matrix = std_cxx11::shared_ptr<PointerMatrixBase<VECTOR> > (new_pointer_matrix_base(m, *v));
+  preconditioner = std_cxx11::shared_ptr<PointerMatrixBase<VECTOR> > (new_pointer_matrix_base(p, *v));
 }
 
 

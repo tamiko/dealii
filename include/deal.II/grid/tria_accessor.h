@@ -1,5 +1,4 @@
 // ---------------------------------------------------------------------
-// $Id$
 //
 // Copyright (C) 1998 - 2014 by the deal.II authors
 //
@@ -37,6 +36,7 @@ template <typename Accessor> class TriaIterator;
 template <typename Accessor> class TriaActiveIterator;
 
 template <int dim, int spacedim> class Boundary;
+template <int dim, int spacedim> class Manifold;
 
 
 namespace internal
@@ -1190,7 +1190,7 @@ public:
    * get_manifold() internally.
    */
   const Boundary<dim,spacedim> &get_boundary () const;
-    
+
   /**
    * Return a constant reference to the manifold object used for this object.
    *
@@ -1200,7 +1200,7 @@ public:
    * involves querying both the manifold or boundary indicators. See there
    * for more information.
    */
-  const Boundary<dim,spacedim> &get_manifold () const;
+  const Manifold<dim,spacedim> &get_manifold () const;
 
   /**
    * @}
@@ -1268,8 +1268,8 @@ public:
 
   /**
    * @}
-   */    
-    
+   */
+
 
   /**
    * @name User data
@@ -1538,18 +1538,42 @@ public:
   double minimum_vertex_distance () const;
 
   /**
-   * Center of the object. The center of an
-   * object is defined to be the average of
-   * the locations of the vertices, which
-   * is also where the (dim-)linear mapping
-   * places the midpoint of the unit cell
-   * in real space.  However, this may not
-   * be the barycenter of the object and it
-   * may also not be the true center of an
-   * object if higher order mappings are
-   * used.
+   * Returns a point belonging to the Manifold<dim,spacedim> where
+   * this object lives, given its parametric coordinates on the
+   * reference #structdim cell. This function queries the underlying
+   * manifold object, and can be used to obtain the exact geometrical
+   * location of arbitrary points on this object.
+   *
+   * Notice that the argument @p coordinates are the coordinates on
+   * the <emph>reference cell</emph>, given in reference
+   * coordinates. In other words, the argument provides a weighting
+   * between the different vertices. For example, for lines, calling
+   * this function with argument Point<1>(.5), is equivalent to asking
+   * the line for its center.
    */
-  Point<spacedim> center () const;
+  Point<spacedim> intermediate_point(const Point<structdim> &coordinates) const;
+
+  /**
+   * Center of the object. The center of an object is defined to be
+   * the average of the locations of the vertices. If required, the
+   * user may ask this function to return the average of the point
+   * according to the underlyinging Manifold object, by setting to
+   * true the optional parameter @p respect_manifold.
+   *
+   * When the geometry of a TriaAccessor is not flat, or when part of
+   * the bounding objects of this TriaAccessor are not flat, the
+   * result given by the TriaAccessor::center() function may not be
+   * accurate enough, even when parameter @p respect_manifold is set
+   * to true. If you find this to be case, than you can further refine
+   * the computation of the center by setting to true the second
+   * additional parameter @p use_laplace_transformation, which will
+   * force this function to compute the location of the center by
+   * solving a linear elasticity problem with Dirichlet boundary
+   * conditions set to the location of the bounding vertices and the
+   * centers of the bounding lines and quads.
+   */
+  Point<spacedim> center (const bool respect_manifold=false,
+                          const bool use_laplace_transformation=false) const;
 
   /**
    * Barycenter of the object.
@@ -1557,12 +1581,32 @@ public:
   Point<spacedim> barycenter () const;
 
   /**
-   * Volume of the object.  Here, the
-   * volume is defined to be confined by
-   * the (dim-)linear mapping of the unit
-   * cell.  No information about the actual
-   * geometric boundary of the domain is
-   * used.
+   * Compute the dim-dimensional measure of the object. For a
+   * dim-dimensional cell in dim-dimensional space, this equals its
+   * volume. On the other hand, for a 2d cell in 3d space, or if the
+   * current object pointed to is a 2d face of a 3d cell in 3d space,
+   * then the function computes the area the object occupies. For a
+   * one-dimensional object, return its length.
+   *
+   * The function only computes the measure of cells, faces or edges
+   * assumed to be represented by (bi-/tri-)linear mappings. In other
+   * words, it only takes into account the locations of the vertices
+   * that bound the current object but not how the interior of the
+   * object may actually be mapped. In most simple cases, this is
+   * exactly what you want. However, for objects that are not
+   * "straight", e.g. 2d cells embedded in 3d space as part of a
+   * triangulation of a curved domain, two-dimensional faces of 3d
+   * cells that are not just parallelograms, or for faces that are at
+   * the boundary of a domain that is not just bounded by straight
+   * line segments or planes, this function only computes the
+   * dim-dimensional measure of a (bi-/tri-)linear interpolation of
+   * the "real" object as defined by the manifold or boundary object
+   * describing the real geometry of the object in question. If you
+   * want to consider the "real" geometry, you will need to compute
+   * the measure by integrating a function equal to one over the
+   * object, which after applying quadrature equals the summing the
+   * JxW values returned by the FEValues or FEFaceValues object you
+   * will want to use for the integral.
    */
   double measure () const;
 
@@ -2105,7 +2149,7 @@ public:
 
   /**
    * Return the manifold indicator of this
-   * object. 
+   * object.
    *
    * @see @ref GlossManifoldIndicator "Glossary entry on manifold indicators"
    */
@@ -2284,7 +2328,7 @@ public:
    *
    * @see @ref GlossManifoldIndicator "Glossary entry on manifold indicators"
    */
-    
+
   void
   set_all_manifold_ids (const types::manifold_id);
   /**

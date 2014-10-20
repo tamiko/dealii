@@ -1,5 +1,4 @@
 // ---------------------------------------------------------------------
-// $Id$
 //
 // Copyright (C) 2011 - 2013 by the deal.II authors
 //
@@ -153,7 +152,7 @@ namespace parallel
                             const MPI_Comm  communicator)
     {
       // set up parallel partitioner with index sets and communicator
-      std_cxx1x::shared_ptr<const Utilities::MPI::Partitioner> new_partitioner
+      std_cxx11::shared_ptr<const Utilities::MPI::Partitioner> new_partitioner
       (new Utilities::MPI::Partitioner (locally_owned_indices,
                                         ghost_indices, communicator));
       reinit (new_partitioner);
@@ -168,7 +167,7 @@ namespace parallel
     {
       // set up parallel partitioner with index sets and communicator
       IndexSet ghost_indices(locally_owned_indices.size());
-      std_cxx1x::shared_ptr<const Utilities::MPI::Partitioner> new_partitioner
+      std_cxx11::shared_ptr<const Utilities::MPI::Partitioner> new_partitioner
       (new Utilities::MPI::Partitioner (locally_owned_indices,
                                         ghost_indices, communicator));
       reinit (new_partitioner);
@@ -178,7 +177,7 @@ namespace parallel
 
     template <typename Number>
     void
-    Vector<Number>::reinit (const std_cxx1x::shared_ptr<const Utilities::MPI::Partitioner> &partitioner_in)
+    Vector<Number>::reinit (const std_cxx11::shared_ptr<const Utilities::MPI::Partitioner> &partitioner_in)
     {
       clear_mpi_requests();
       partitioner = partitioner_in;

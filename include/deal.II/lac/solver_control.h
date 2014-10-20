@@ -1,5 +1,4 @@
 // ---------------------------------------------------------------------
-// $Id$
 //
 // Copyright (C) 1998 - 2014 by the deal.II authors
 //
@@ -31,18 +30,18 @@ class ParameterHandler;
 /*@{*/
 
 /**
- * Control class for iterative solvers.
+ * Control class to determine convergence of iterative solvers.
  *
  * Used by iterative methods to determine whether the iteration should
- * be continued. To this respect, the virtual function <tt>check()</tt> is
+ * be continued. To this end, the virtual function <tt>check()</tt> is
  * called in each iteration with the current iteration step and the
  * value indicating convergence (usually the residual).
  *
- * After the iteration has terminated, the functions @p last_value and
- * @p last_step can be used to obtain information about the final state
+ * After the iteration has terminated, the functions last_value() and
+ * last_step() can be used to obtain information about the final state
  * of the iteration.
  *
- * <tt>check()</tt> can be replaced in derived classes to allow for more
+ * check() can be replaced in derived classes to allow for more
  * sophisticated tests.
  *
  *
@@ -107,21 +106,21 @@ public:
     {
       out << "Iterative method reported convergence failure in step "
           << last_step << ". The residual in the last step was " << last_residual
-	  << ".\n\n"
-	  << "This error message can indicate that you have simply not allowed "
-	  << "a sufficiently large number of iterations for your iterative solver "
-	  << "to converge. This often happens when you increase the size of your "
-	  << "problem. In such cases, the last residual will likely still be very "
-	  << "small, and you can make the error go away by increasing the allowed "
-	  << "number of iterations when setting up the SolverControl object that "
-	  << "determines the maximal number of iterations you allow."
-	  << "\n\n"
-	  << "The other situation where this error may occur is when your matrix "
-	  << "is not invertible (e.g., your matrix has a null-space), or if you "
-	  << "try to apply the wrong solver to a matrix (e.g., using CG for a "
-	  << "matrix that is not symmetric or not positive definite). In these "
-	  << "cases, the residual in the last iteration is likely going to be large."
-	  << std::endl;
+          << ".\n\n"
+          << "This error message can indicate that you have simply not allowed "
+          << "a sufficiently large number of iterations for your iterative solver "
+          << "to converge. This often happens when you increase the size of your "
+          << "problem. In such cases, the last residual will likely still be very "
+          << "small, and you can make the error go away by increasing the allowed "
+          << "number of iterations when setting up the SolverControl object that "
+          << "determines the maximal number of iterations you allow."
+          << "\n\n"
+          << "The other situation where this error may occur is when your matrix "
+          << "is not invertible (e.g., your matrix has a null-space), or if you "
+          << "try to apply the wrong solver to a matrix (e.g., using CG for a "
+          << "matrix that is not symmetric or not positive definite). In these "
+          << "cases, the residual in the last iteration is likely going to be large."
+          << std::endl;
     }
 
     /**

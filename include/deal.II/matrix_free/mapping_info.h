@@ -1,5 +1,4 @@
 // ---------------------------------------------------------------------
-// $Id$
 //
 // Copyright (C) 2011 - 2014 by the deal.II authors
 //
@@ -90,7 +89,7 @@ namespace internal
       static UpdateFlags
       compute_update_flags (const UpdateFlags                        update_flags,
                             const std::vector<dealii::hp::QCollection<1> >  &quad =
-                            std::vector<dealii::hp::QCollection<1> >());
+                              std::vector<dealii::hp::QCollection<1> >());
 
       /**
        * Returns the type of a given cell as detected during initialization.

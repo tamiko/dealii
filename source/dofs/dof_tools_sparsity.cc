@@ -1,7 +1,6 @@
 // ---------------------------------------------------------------------
-// $Id$
 //
-// Copyright (C) 1999 - 2013 by the deal.II authors
+// Copyright (C) 1999 - 2014 by the deal.II authors
 //
 // This file is part of the deal.II library.
 //
@@ -14,7 +13,6 @@
 //
 // ---------------------------------------------------------------------
 
-#include <deal.II/base/multithread_info.h>
 #include <deal.II/base/thread_management.h>
 #include <deal.II/base/quadrature_lib.h>
 #include <deal.II/base/table.h>
@@ -619,8 +617,8 @@ namespace DoFTools
                           (neighbor->subdomain_id() != cell->subdomain_id()))
                         {
                           constraints.add_entries_local_to_global
-                            (dofs_on_other_cell, dofs_on_this_cell,
-                             sparsity, keep_constrained_dofs);
+                          (dofs_on_other_cell, dofs_on_this_cell,
+                           sparsity, keep_constrained_dofs);
                           if (neighbor->subdomain_id() != cell->subdomain_id())
                             constraints.add_entries_local_to_global
                             (dofs_on_other_cell, sparsity, keep_constrained_dofs);

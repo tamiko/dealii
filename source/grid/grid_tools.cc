@@ -1,5 +1,4 @@
 // ---------------------------------------------------------------------
-// $Id$
 //
 // Copyright (C) 2001 - 2014 by the deal.II authors
 //
@@ -14,7 +13,7 @@
 //
 // ---------------------------------------------------------------------
 
-#include <deal.II/base/std_cxx1x/array.h>
+#include <deal.II/base/std_cxx11/array.h>
 #include <deal.II/base/quadrature_lib.h>
 #include <deal.II/grid/tria.h>
 #include <deal.II/distributed/tria.h>
@@ -23,7 +22,6 @@
 #include <deal.II/grid/tria_boundary.h>
 #include <deal.II/grid/grid_generator.h>
 #include <deal.II/grid/grid_tools.h>
-#include <deal.II/grid/intergrid_map.h>
 #include <deal.II/lac/sparsity_pattern.h>
 #include <deal.II/lac/sparsity_tools.h>
 #include <deal.II/lac/compressed_sparsity_pattern.h>
@@ -903,8 +901,8 @@ next_cell:
     // Find closest vertex and determine
     // all adjacent cells
     std::vector<active_cell_iterator> adjacent_cells_tmp
-    = find_cells_adjacent_to_vertex(container,
-                                    find_closest_vertex(container, p));
+      = find_cells_adjacent_to_vertex(container,
+                                      find_closest_vertex(container, p));
 
     // Make sure that we have found
     // at least one cell adjacent to vertex.
@@ -1483,46 +1481,8 @@ next_cell:
                               const Triangulation<dim, spacedim> &triangulation_2,
                               Triangulation<dim, spacedim>       &result)
   {
-    Assert (have_same_coarse_mesh (triangulation_1, triangulation_2),
-            ExcMessage ("The two input triangulations are not derived from "
-                        "the same coarse mesh as required."));
-
-    // first copy triangulation_1, and
-    // then do as many iterations as
-    // there are levels in
-    // triangulation_2 to refine
-    // additional cells. since this is
-    // the maximum number of
-    // refinements to get from the
-    // coarse grid to triangulation_2,
-    // it is clear that this is also
-    // the maximum number of
-    // refinements to get from any cell
-    // on triangulation_1 to
-    // triangulation_2
-    result.clear ();
-    result.copy_triangulation (triangulation_1);
-    for (unsigned int iteration=0; iteration<triangulation_2.n_levels();
-         ++iteration)
-      {
-        InterGridMap<Triangulation<dim, spacedim> > intergrid_map;
-        intergrid_map.make_mapping (result, triangulation_2);
-
-        bool any_cell_flagged = false;
-        for (typename Triangulation<dim, spacedim>::active_cell_iterator
-             result_cell = result.begin_active();
-             result_cell != result.end(); ++result_cell)
-          if (intergrid_map[result_cell]->has_children())
-            {
-              any_cell_flagged = true;
-              result_cell->set_refine_flag ();
-            }
-
-        if (any_cell_flagged == false)
-          break;
-        else
-          result.execute_coarsening_and_refinement();
-      }
+    // this function is deprecated. call the function that replaced it
+    GridGenerator::create_union_triangulation (triangulation_1, triangulation_2, result);
   }
 
 
@@ -2090,6 +2050,50 @@ next_cell:
 
 
 
+  template <class Container>
+  std::vector<typename Container::active_cell_iterator>
+  get_patch_around_cell(const typename Container::active_cell_iterator &cell)
+  {
+    Assert (cell->is_locally_owned(),
+            ExcMessage ("This function only makes sense if the cell for "
+                        "which you are asking for a patch, is locally "
+                        "owned."));
+
+    std::vector<typename Container::active_cell_iterator> patch;
+    patch.push_back (cell);
+    for (unsigned int face_number=0; face_number<GeometryInfo<Container::dimension>::faces_per_cell; ++face_number)
+      if (cell->face(face_number)->at_boundary()==false)
+        {
+          if (cell->neighbor(face_number)->has_children() == false)
+            patch.push_back (cell->neighbor(face_number));
+          else
+            // the neighbor is refined. in 2d/3d, we can simply ask for the children
+            // of the neighbor because they can not be further refined and,
+            // consequently, the children is active
+            if (Container::dimension > 1)
+              {
+                for (unsigned int subface=0; subface<cell->face(face_number)->n_children(); ++subface)
+                  patch.push_back (cell->neighbor_child_on_subface (face_number, subface));
+              }
+            else
+              {
+                // in 1d, we need to work a bit harder: iterate until we find
+                // the child by going from cell to child to child etc
+                typename Container::cell_iterator neighbor
+                  = cell->neighbor (face_number);
+                while (neighbor->has_children())
+                  neighbor = neighbor->child(1-face_number);
+
+                Assert (neighbor->neighbor(1-face_number) == cell, ExcInternalError());
+                patch.push_back (neighbor);
+              }
+        }
+    return patch;
+  }
+
+
+
+
   template <template <int,int> class Container, int dim, int spacedim>
 #ifndef _MSC_VER
   std::map<typename Container<dim-1,spacedim>::cell_iterator,
@@ -2101,108 +2105,8 @@ next_cell:
                              Container<dim-1,spacedim>     &surface_mesh,
                              const std::set<types::boundary_id> &boundary_ids)
   {
-// This function works using the following assumption:
-//    Triangulation::create_triangulation(...) will create cells that preserve
-//    the order of cells passed in using the CellData argument; also,
-//    that it will not reorder the vertices.
-
-    std::map<typename Container<dim-1,spacedim>::cell_iterator,
-        typename Container<dim,spacedim>::face_iterator>
-        surface_to_volume_mapping;
-
-    const unsigned int boundary_dim = dim-1; //dimension of the boundary mesh
-
-    // First create surface mesh and mapping
-    // from only level(0) cells of volume_mesh
-    std::vector<typename Container<dim,spacedim>::face_iterator>
-    mapping;  // temporary map for level==0
-
-
-    std::vector< bool > touched (get_tria(volume_mesh).n_vertices(), false);
-    std::vector< CellData< boundary_dim > > cells;
-    std::vector< Point<spacedim> >      vertices;
-
-    std::map<unsigned int,unsigned int> map_vert_index; //volume vertex indices to surf ones
-
-    unsigned int v_index;
-    CellData< boundary_dim > c_data;
-
-    for (typename Container<dim,spacedim>::cell_iterator
-         cell = volume_mesh.begin(0);
-         cell != volume_mesh.end(0);
-         ++cell)
-      for (unsigned int i=0; i < GeometryInfo<dim>::faces_per_cell; ++i)
-        {
-          const typename Container<dim,spacedim>::face_iterator
-          face = cell->face(i);
-
-          if ( face->at_boundary()
-               &&
-               (boundary_ids.empty() ||
-                ( boundary_ids.find(face->boundary_indicator()) != boundary_ids.end())) )
-            {
-              for (unsigned int j=0;
-                   j<GeometryInfo<boundary_dim>::vertices_per_cell; ++j)
-                {
-                  v_index = face->vertex_index(j);
-
-                  if ( !touched[v_index] )
-                    {
-                      vertices.push_back(face->vertex(j));
-                      map_vert_index[v_index] = vertices.size() - 1;
-                      touched[v_index] = true;
-                    }
-
-                  c_data.vertices[j] = map_vert_index[v_index];
-                  c_data.material_id = static_cast<types::material_id>(face->boundary_indicator());
-                }
-
-              cells.push_back(c_data);
-              mapping.push_back(face);
-            }
-        }
-
-    // create level 0 surface triangulation
-    Assert (cells.size() > 0, ExcMessage ("No boundary faces selected"));
-    const_cast<Triangulation<dim-1,spacedim>&>(get_tria(surface_mesh))
-    .create_triangulation (vertices, cells, SubCellData());
-
-    // Make the actual mapping
-    for (typename Container<dim-1,spacedim>::active_cell_iterator
-         cell = surface_mesh.begin(0);
-         cell!=surface_mesh.end(0); ++cell)
-      surface_to_volume_mapping[cell] = mapping.at(cell->index());
-
-    do
-      {
-        bool changed = false;
-
-        for (typename Container<dim-1,spacedim>::active_cell_iterator
-            cell = surface_mesh.begin_active(); cell!=surface_mesh.end(); ++cell)
-          if (surface_to_volume_mapping[cell]->has_children() == true )
-            {
-              cell->set_refine_flag ();
-              changed = true;
-            }
-
-        if (changed)
-          {
-            const_cast<Triangulation<dim-1,spacedim>&>(get_tria(surface_mesh))
-            .execute_coarsening_and_refinement();
-
-            for (typename Container<dim-1,spacedim>::cell_iterator
-                surface_cell = surface_mesh.begin(); surface_cell!=surface_mesh.end(); ++surface_cell)
-              for (unsigned int c=0; c<surface_cell->n_children(); c++)
-                if (surface_to_volume_mapping.find(surface_cell->child(c)) == surface_to_volume_mapping.end())
-                  surface_to_volume_mapping[surface_cell->child(c)]
-                    = surface_to_volume_mapping[surface_cell]->child(c);
-          }
-        else
-          break;
-      }
-    while (true);
-
-    return surface_to_volume_mapping;
+    // this function is deprecated. call the one that replaced it
+    return GridGenerator::extract_boundary_mesh (volume_mesh, surface_mesh, boundary_ids);
   }
 
 
@@ -2251,7 +2155,7 @@ next_cell:
 
   template<> struct OrientationLookupTable<1>
   {
-    typedef std_cxx1x::array<unsigned int, GeometryInfo<1>::vertices_per_face> MATCH_T;
+    typedef std_cxx11::array<unsigned int, GeometryInfo<1>::vertices_per_face> MATCH_T;
     static inline std::bitset<3> lookup (const MATCH_T &)
     {
       // The 1D case is trivial
@@ -2261,7 +2165,7 @@ next_cell:
 
   template<> struct OrientationLookupTable<2>
   {
-    typedef std_cxx1x::array<unsigned int, GeometryInfo<2>::vertices_per_face> MATCH_T;
+    typedef std_cxx11::array<unsigned int, GeometryInfo<2>::vertices_per_face> MATCH_T;
     static inline std::bitset<3> lookup (const MATCH_T &matching)
     {
       // In 2D matching faces (=lines) results in two cases: Either
@@ -2282,7 +2186,7 @@ next_cell:
 
   template<> struct OrientationLookupTable<3>
   {
-    typedef std_cxx1x::array<unsigned int, GeometryInfo<3>::vertices_per_face> MATCH_T;
+    typedef std_cxx11::array<unsigned int, GeometryInfo<3>::vertices_per_face> MATCH_T;
     static inline std::bitset<3> lookup (const MATCH_T &matching)
     {
       // The full fledged 3D case. *Yay*
@@ -2327,7 +2231,7 @@ next_cell:
 
     // Do a full matching of the face vertices:
 
-    std_cxx1x::
+    std_cxx11::
     array<unsigned int, GeometryInfo<dim>::vertices_per_face> matching;
 
     std::set<unsigned int> face2_vertices;
@@ -2550,8 +2454,6 @@ next_cell:
       }
 #endif
   }
-
-
 
 } /* namespace GridTools */
 

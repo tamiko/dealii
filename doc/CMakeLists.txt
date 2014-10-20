@@ -1,5 +1,4 @@
 ## ---------------------------------------------------------------------
-## $Id$
 ##
 ## Copyright (C) 2012 - 2013 by the deal.II Authors
 ##
@@ -61,7 +60,7 @@ ENDIF()
 
 SET(_destination)
 INSTALL(FILES
-  ${CMAKE_SOURCE_DIR}/README
+  ${CMAKE_SOURCE_DIR}/README.md
   ${CMAKE_SOURCE_DIR}/LICENSE
   DESTINATION ${_foo}
   COMPONENT library

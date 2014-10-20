@@ -1,5 +1,4 @@
 // ---------------------------------------------------------------------
-// $Id$
 //
 // Copyright (C) 2008 - 2013 by the deal.II authors
 //
@@ -22,7 +21,7 @@
 
 #ifdef DEAL_II_WITH_TRILINOS
 
-#  include <deal.II/base/std_cxx1x/shared_ptr.h>
+#  include <deal.II/base/std_cxx11/shared_ptr.h>
 #  include <deal.II/base/subscriptor.h>
 #  include <deal.II/base/index_set.h>
 #  include <deal.II/lac/full_matrix.h>
@@ -163,12 +162,12 @@ namespace TrilinosWrappers
        * performance, we keep a shared pointer to these entries so that more
        * than one accessor can access this data if necessary.
        */
-      std_cxx1x::shared_ptr<std::vector<size_type> > colnum_cache;
+      std_cxx11::shared_ptr<std::vector<size_type> > colnum_cache;
 
       /**
        * Cache for the values of this row.
        */
-      std_cxx1x::shared_ptr<std::vector<TrilinosScalar> > value_cache;
+      std_cxx11::shared_ptr<std::vector<TrilinosScalar> > value_cache;
     };
 
     /**
@@ -1848,26 +1847,26 @@ namespace TrilinosWrappers
      * Pointer to the user-supplied Epetra Trilinos mapping of the matrix
      * columns that assigns parts of the matrix to the individual processes.
      */
-    std_cxx1x::shared_ptr<Epetra_Map> column_space_map;
+    std_cxx11::shared_ptr<Epetra_Map> column_space_map;
 
     /**
      * A sparse matrix object in Trilinos to be used for finite element based
      * problems which allows for assembling into non-local elements.  The
      * actual type, a sparse matrix, is set in the constructor.
      */
-    std_cxx1x::shared_ptr<Epetra_FECrsMatrix> matrix;
+    std_cxx11::shared_ptr<Epetra_FECrsMatrix> matrix;
 
     /**
      * A sparse matrix object in Trilinos to be used for collecting the
      * non-local elements if the matrix was constructed from a Trilinos
      * sparsity pattern with the respective option.
      */
-    std_cxx1x::shared_ptr<Epetra_CrsMatrix> nonlocal_matrix;
+    std_cxx11::shared_ptr<Epetra_CrsMatrix> nonlocal_matrix;
 
     /**
      * An export object used to communicate the nonlocal matrix.
      */
-    std_cxx1x::shared_ptr<Epetra_Export>    nonlocal_matrix_exporter;
+    std_cxx11::shared_ptr<Epetra_Export>    nonlocal_matrix_exporter;
 
     /**
      * Trilinos doesn't allow to mix additions to matrix entries and
@@ -2412,6 +2411,8 @@ namespace TrilinosWrappers
                      const TrilinosScalar *values,
                      const bool            elide_zero_values)
   {
+    AssertIndexRange(row, this->m());
+
     int ierr;
     if (last_action == Add)
       {
@@ -2641,6 +2642,7 @@ namespace TrilinosWrappers
                      const bool            elide_zero_values,
                      const bool            /*col_indices_are_sorted*/)
   {
+    AssertIndexRange(row, this->m());
     int ierr;
     if (last_action == Insert)
       {
@@ -2766,7 +2768,7 @@ namespace TrilinosWrappers
                   << (row_partitioner().MyGID(static_cast<TrilinosWrappers::types::int_type>(row)) == false ? "(nonlocal part)" : "")
                   << " has the following indices:" << std::endl;
         std::vector<TrilinosWrappers::types::int_type> indices;
-        const Epetra_CrsGraph* graph =
+        const Epetra_CrsGraph *graph =
           (nonlocal_matrix.get() != 0 &&
            row_partitioner().MyGID(static_cast<TrilinosWrappers::types::int_type>(row)) == false) ?
           &nonlocal_matrix->Graph() : &matrix->Graph();

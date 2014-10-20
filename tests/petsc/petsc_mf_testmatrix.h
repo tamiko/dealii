@@ -1,4 +1,3 @@
-// $Id: petsc_mf_testmatrix.h 30045 2013-07-18 19:18:00Z maier $
 
 #include "../tests.h"
 #include <deal.II/base/exceptions.h>

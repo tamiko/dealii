@@ -1,5 +1,4 @@
 // ---------------------------------------------------------------------
-// $Id$
 //
 // Copyright (C) 2003 - 2013 by the deal.II authors
 //
@@ -22,7 +21,7 @@
 #include <deal.II/lac/sparse_matrix.h>
 #include <deal.II/multigrid/mg_base.h>
 #include <deal.II/base/mg_level_object.h>
-#include <deal.II/base/std_cxx1x/shared_ptr.h>
+#include <deal.II/base/std_cxx11/shared_ptr.h>
 
 DEAL_II_NAMESPACE_OPEN
 
@@ -83,7 +82,7 @@ namespace mg
      */
     std::size_t memory_consumption () const;
   private:
-    MGLevelObject<std_cxx1x::shared_ptr<PointerMatrixBase<VECTOR> > > matrices;
+    MGLevelObject<std_cxx11::shared_ptr<PointerMatrixBase<VECTOR> > > matrices;
   };
 
 }
@@ -223,7 +222,7 @@ namespace mg
   {
     matrices.resize(p.min_level(), p.max_level());
     for (unsigned int level=p.min_level(); level <= p.max_level(); ++level)
-      matrices[level] = std_cxx1x::shared_ptr<PointerMatrixBase<VECTOR> > (new_pointer_matrix_base(p[level], VECTOR()));
+      matrices[level] = std_cxx11::shared_ptr<PointerMatrixBase<VECTOR> > (new_pointer_matrix_base(p[level], VECTOR()));
   }
 
 

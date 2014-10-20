@@ -1,5 +1,4 @@
 // ---------------------------------------------------------------------
-// $Id$
 //
 // Copyright (C) 1999 - 2014 by the deal.II authors
 //
@@ -22,7 +21,7 @@
 #include <deal.II/base/config.h>
 #include <deal.II/numerics/data_out_dof_data.h>
 
-#include <deal.II/base/std_cxx1x/shared_ptr.h>
+#include <deal.II/base/std_cxx11/shared_ptr.h>
 
 DEAL_II_NAMESPACE_OPEN
 
@@ -44,7 +43,7 @@ namespace internal
                     const unsigned int n_subdivisions,
                     const std::vector<unsigned int> &n_postprocessor_outputs,
                     const Mapping<dim,spacedim> &mapping,
-                    const std::vector<std_cxx1x::shared_ptr<dealii::hp::FECollection<dim,spacedim> > > &finite_elements,
+                    const std::vector<std_cxx11::shared_ptr<dealii::hp::FECollection<dim,spacedim> > > &finite_elements,
                     const UpdateFlags update_flags,
                     const std::vector<std::vector<unsigned int> > &cell_to_patch_index_map);
 
@@ -148,7 +147,7 @@ namespace internal
  * this pair of functions and they return a non-active cell, then an exception
  * will be thrown.
  *
- * @precondition This class only makes sense if the first template
+ * @pre This class only makes sense if the first template
  * argument, <code>dim</code> equals the dimension of the
  * DoFHandler type given as the second template argument, i.e., if
  * <code>dim == DH::dimension</code>. This redundancy is a historical

@@ -1,5 +1,4 @@
 // ---------------------------------------------------------------------
-// $Id$
 //
 // Copyright (C) 1998 - 2013 by the deal.II authors
 //
@@ -17,7 +16,6 @@
 #include <deal.II/base/memory_consumption.h>
 #include <deal.II/base/multithread_info.h>
 #include <deal.II/base/quadrature.h>
-// #include <deal.II/base/table.h>
 #include <deal.II/lac/vector.h>
 #include <deal.II/lac/block_vector.h>
 #include <deal.II/lac/parallel_vector.h>
@@ -801,24 +799,22 @@ namespace FEValuesViews
                   const dealii::Tensor<1, spacedim> *shape_gradient_ptr =
                     &shape_gradients[snc][0];
 
-                  switch (shape_function_data[shape_function].single_nonzero_component_index)
-                    {
-                    case 0:
-                    {
-                      for (unsigned int q_point = 0;
-                           q_point < n_quadrature_points; ++q_point)
-                        curls[q_point][0] -= value * (*shape_gradient_ptr++)[1];
-
-                      break;
-                    }
-
-                    default:
-                      for (unsigned int q_point = 0;
-                           q_point < n_quadrature_points; ++q_point)
-                        curls[q_point][0] += value * (*shape_gradient_ptr)[0];
-                    }
+                  Assert (shape_function_data[shape_function].single_nonzero_component >= 0,
+                          ExcInternalError());
+                  // we're in 2d, so the formula for the curl is simple:
+                  if (shape_function_data[shape_function].single_nonzero_component_index == 0)
+                    for (unsigned int q_point = 0;
+                         q_point < n_quadrature_points; ++q_point)
+                      curls[q_point][0] -= value * (*shape_gradient_ptr++)[1];
+                  else
+                    for (unsigned int q_point = 0;
+                         q_point < n_quadrature_points; ++q_point)
+                      curls[q_point][0] += value * (*shape_gradient_ptr++)[0];
                 }
               else
+                // we have multiple non-zero components in the shape functions. not
+                // all of them must necessarily be within the 2-component window
+                // this FEValuesViews::Vector object considers, however.
                 {
                   if (shape_function_data[shape_function].is_nonzero_shape_function_component[0])
                     {
@@ -888,17 +884,26 @@ namespace FEValuesViews
                       break;
                     }
 
-                    default:
+                    case 2:
+                    {
                       for (unsigned int q_point = 0;
                            q_point < n_quadrature_points; ++q_point)
                         {
                           curls[q_point][0] += value * (*shape_gradient_ptr)[1];
                           curls[q_point][1] -= value * (*shape_gradient_ptr++)[0];
                         }
+                      break;
+                    }
+
+                    default:
+                      Assert (false, ExcInternalError());
                     }
                 }
 
               else
+                // we have multiple non-zero components in the shape functions. not
+                // all of them must necessarily be within the 3-component window
+                // this FEValuesViews::Vector object considers, however.
                 {
                   if (shape_function_data[shape_function].is_nonzero_shape_function_component[0])
                     {
@@ -960,38 +965,37 @@ namespace FEValuesViews
 
       for (unsigned int shape_function=0;
            shape_function<dofs_per_cell; ++shape_function)
-        if (shape_function_data[shape_function].is_nonzero_shape_function_component)
-          {
-            const int snc = shape_function_data[shape_function].single_nonzero_component;
+        {
+          const int snc = shape_function_data[shape_function].single_nonzero_component;
 
-            if (snc == -2)
-              // shape function is zero for the selected components
-              continue;
+          if (snc == -2)
+            // shape function is zero for the selected components
+            continue;
 
-            const double value = dof_values(shape_function);
-            if (value == 0.)
-              continue;
+          const double value = dof_values(shape_function);
+          if (value == 0.)
+            continue;
 
-            if (snc != -1)
-              {
-                const unsigned int comp =
-                  shape_function_data[shape_function].single_nonzero_component_index;
-                const dealii::Tensor<2,spacedim> *shape_hessian_ptr =
-                  &shape_hessians[snc][0];
-                for (unsigned int q_point=0; q_point<n_quadrature_points; ++q_point)
-                  laplacians[q_point][comp] += value * trace(*shape_hessian_ptr++);
-              }
-            else
-              for (unsigned int d=0; d<spacedim; ++d)
-                if (shape_function_data[shape_function].is_nonzero_shape_function_component[d])
-                  {
-                    const dealii::Tensor<2,spacedim> *shape_hessian_ptr =
-                      &shape_hessians[shape_function_data[shape_function].
-                                      row_index[d]][0];
-                    for (unsigned int q_point=0; q_point<n_quadrature_points; ++q_point)
-                      laplacians[q_point][d] += value * trace(*shape_hessian_ptr++);
-                  }
-          }
+          if (snc != -1)
+            {
+              const unsigned int comp =
+                shape_function_data[shape_function].single_nonzero_component_index;
+              const dealii::Tensor<2,spacedim> *shape_hessian_ptr =
+                &shape_hessians[snc][0];
+              for (unsigned int q_point=0; q_point<n_quadrature_points; ++q_point)
+                laplacians[q_point][comp] += value * trace(*shape_hessian_ptr++);
+            }
+          else
+            for (unsigned int d=0; d<spacedim; ++d)
+              if (shape_function_data[shape_function].is_nonzero_shape_function_component[d])
+                {
+                  const dealii::Tensor<2,spacedim> *shape_hessian_ptr =
+                    &shape_hessians[shape_function_data[shape_function].
+                                    row_index[d]][0];
+                  for (unsigned int q_point=0; q_point<n_quadrature_points; ++q_point)
+                    laplacians[q_point][d] += value * trace(*shape_hessian_ptr++);
+                }
+        }
     }
 
 
@@ -1762,10 +1766,12 @@ public:
   /// @p get_interpolated_dof_values
   /// of the iterator with the
   /// given arguments.
-//  virtual
-//  void
-//  get_interpolated_dof_values (const IndexSet &in,
-//                               Vector<double> &out) const = 0;
+#ifndef PETSC_USE_COMPLEX
+  virtual
+  void
+  get_interpolated_dof_values (const IndexSet &in,
+                               Vector<double> &out) const = 0;
+#endif
 };
 
 
@@ -1831,10 +1837,12 @@ public:
   /// @p get_interpolated_dof_values
   /// of the iterator with the
   /// given arguments.
-//  virtual
-//  void
-//  get_interpolated_dof_values (const IndexSet &in,
-//                               Vector<double> &out) const;
+#ifndef PETSC_USE_COMPLEX
+  virtual
+  void
+  get_interpolated_dof_values (const IndexSet &in,
+                               Vector<double> &out) const;
+#endif
 
 private:
   /**
@@ -1934,10 +1942,12 @@ public:
   /// @p get_interpolated_dof_values
   /// of the iterator with the
   /// given arguments.
-//  virtual
-//  void
-//  get_interpolated_dof_values (const IndexSet &in,
-//                               Vector<double> &out) const;
+#ifndef PETSC_USE_COMPLEX
+  virtual
+  void
+  get_interpolated_dof_values (const IndexSet &in,
+                               Vector<double> &out) const;
+#endif
 
 private:
   /**
@@ -1995,22 +2005,23 @@ FEValuesBase<dim,spacedim>::CellIterator<CI>::n_dofs_for_dof_handler () const
 
 #include "fe_values.impl.1.inst"
 
+#ifndef PETSC_USE_COMPLEX
+template <int dim, int spacedim>
+template <typename CI>
+void
+FEValuesBase<dim,spacedim>::CellIterator<CI>::
+get_interpolated_dof_values (const IndexSet &in,
+                             Vector<double> &out) const
+{
+  Assert (cell->has_children() == false, ExcNotImplemented());
 
-//template <int dim, int spacedim>
-//template <typename CI>
-//void
-//FEValuesBase<dim,spacedim>::CellIterator<CI>::
-//get_interpolated_dof_values (const IndexSet &in,
-//                             Vector<double> &out) const
-//{
-//  Assert (cell->has_children() == false, ExcNotImplemented());
-//
-//  std::vector<types::global_dof_index> dof_indices (cell->get_fe().dofs_per_cell);
-//  cell->get_dof_indices (dof_indices);
-//
-//  for (unsigned int i=0; i<cell->get_fe().dofs_per_cell; ++i)
-//    out[i] = (in.is_element (dof_indices[i]) ? 1 : 0);
-//}
+  std::vector<types::global_dof_index> dof_indices (cell->get_fe().dofs_per_cell);
+  cell->get_dof_indices (dof_indices);
+
+  for (unsigned int i=0; i<cell->get_fe().dofs_per_cell; ++i)
+    out[i] = (in.is_element (dof_indices[i]) ? 1 : 0);
+}
+#endif
 
 
 /* ---------------- FEValuesBase<dim,spacedim>::TriaCellIterator --------- */
@@ -2056,16 +2067,16 @@ FEValuesBase<dim,spacedim>::TriaCellIterator::n_dofs_for_dof_handler () const
 
 #include "fe_values.impl.2.inst"
 
-
-//template <int dim, int spacedim>
-//void
-//FEValuesBase<dim,spacedim>::TriaCellIterator::
-//get_interpolated_dof_values (const IndexSet &,
-//                             Vector<double> &) const
-//{
-//  Assert (false, ExcMessage (message_string));
-//}
-
+#ifndef PETSC_USE_COMPLEX
+template <int dim, int spacedim>
+void
+FEValuesBase<dim,spacedim>::TriaCellIterator::
+get_interpolated_dof_values (const IndexSet &,
+                             Vector<double> &) const
+{
+  Assert (false, ExcMessage (message_string));
+}
+#endif
 
 
 /* --------------------- FEValuesData ----------------- */
@@ -2243,9 +2254,18 @@ namespace internal
                       const bool quadrature_points_fastest  = false,
                       const unsigned int component_multiple = 1)
   {
+    // initialize with zero
+    for (unsigned int i=0; i<values.size(); ++i)
+      std::fill_n (values[i].begin(), values[i].size(),
+                   typename VectorType::value_type());
+
+    // see if there the current cell has DoFs at all, and if not
+    // then there is nothing else to do.
     const unsigned int dofs_per_cell = fe.dofs_per_cell;
-    const unsigned int n_quadrature_points = dofs_per_cell > 0 ?
-                                             shape_values.n_cols() : 0;
+    if (dofs_per_cell == 0)
+      return;
+
+    const unsigned int n_quadrature_points = shape_values.n_cols();
     const unsigned int n_components = fe.n_components();
 
     // Assert that we can write all components into the result vectors
@@ -2262,11 +2282,6 @@ namespace internal
         for (unsigned int i=0; i<values.size(); ++i)
           AssertDimension (values[i].size(), result_components);
       }
-
-    // initialize with zero
-    for (unsigned int i=0; i<values.size(); ++i)
-      std::fill_n (values[i].begin(), values[i].size(),
-                   typename VectorType::value_type());
 
     // add up contributions of trial functions.  now check whether the shape
     // function is primitive or not. if it is, then set its only non-zero
@@ -2370,9 +2385,19 @@ namespace internal
                            const bool quadrature_points_fastest  = false,
                            const unsigned int component_multiple = 1)
   {
+    // initialize with zero
+    for (unsigned int i=0; i<derivatives.size(); ++i)
+      std::fill_n (derivatives[i].begin(), derivatives[i].size(),
+                   Tensor<order,spacedim,Number>());
+
+    // see if there the current cell has DoFs at all, and if not
+    // then there is nothing else to do.
     const unsigned int dofs_per_cell = fe.dofs_per_cell;
-    const unsigned int n_quadrature_points = dofs_per_cell > 0 ?
-                                             shape_derivatives[0].size() : 0;
+    if (dofs_per_cell == 0)
+      return;
+
+
+    const unsigned int n_quadrature_points = shape_derivatives[0].size();
     const unsigned int n_components = fe.n_components();
 
     // Assert that we can write all components into the result vectors
@@ -2389,11 +2414,6 @@ namespace internal
         for (unsigned int i=0; i<derivatives.size(); ++i)
           AssertDimension (derivatives[i].size(), result_components);
       }
-
-    // initialize with zero
-    for (unsigned int i=0; i<derivatives.size(); ++i)
-      std::fill_n (derivatives[i].begin(), derivatives[i].size(),
-                   Tensor<order,spacedim,Number>());
 
     // add up contributions of trial functions.  now check whether the shape
     // function is primitive or not. if it is, then set its only non-zero
@@ -2486,9 +2506,19 @@ namespace internal
                           const bool quadrature_points_fastest  = false,
                           const unsigned int component_multiple = 1)
   {
+    // initialize with zero
+    for (unsigned int i=0; i<laplacians.size(); ++i)
+      std::fill_n (laplacians[i].begin(), laplacians[i].size(),
+                   typename VectorType::value_type());
+
+    // see if there the current cell has DoFs at all, and if not
+    // then there is nothing else to do.
     const unsigned int dofs_per_cell = fe.dofs_per_cell;
-    const unsigned int n_quadrature_points = dofs_per_cell > 0 ?
-                                             shape_hessians[0].size() : 0;
+    if (dofs_per_cell == 0)
+      return;
+
+
+    const unsigned int n_quadrature_points = shape_hessians[0].size();
     const unsigned int n_components = fe.n_components();
 
     // Assert that we can write all components into the result vectors
@@ -2505,11 +2535,6 @@ namespace internal
         for (unsigned int i=0; i<laplacians.size(); ++i)
           AssertDimension (laplacians[i].size(), result_components);
       }
-
-    // initialize with zero
-    for (unsigned int i=0; i<laplacians.size(); ++i)
-      std::fill_n (laplacians[i].begin(), laplacians[i].size(),
-                   typename VectorType::value_type());
 
     // add up contributions of trial functions.  now check whether the shape
     // function is primitive or not. if it is, then set its only non-zero
@@ -2609,7 +2634,7 @@ void FEValuesBase<dim,spacedim>::get_function_values (
   // avoid allocation when the local size is small enough
   if (dofs_per_cell <= 100)
     {
-	  number dof_values[100];
+      number dof_values[100];
       for (unsigned int i=0; i<dofs_per_cell; ++i)
         dof_values[i] = get_vector_element (fe_function, indices[i]);
       internal::do_function_values(&dof_values[0], this->shape_values, values);
@@ -2666,7 +2691,7 @@ void FEValuesBase<dim,spacedim>::get_function_values (
   VectorSlice<std::vector<Vector<number> > > val(values);
   if (indices.size() <= 100)
     {
-	  number dof_values[100];
+      number dof_values[100];
       for (unsigned int i=0; i<dofs_per_cell; ++i)
         dof_values[i] = get_vector_element (fe_function, indices[i]);
       internal::do_function_values(&dof_values[0], this->shape_values, *fe,
@@ -2704,7 +2729,7 @@ void FEValuesBase<dim,spacedim>::get_function_values (
 
   if (indices.size() <= 100)
     {
-	  number dof_values[100];
+      number dof_values[100];
       for (unsigned int i=0; i<indices.size(); ++i)
         dof_values[i] = get_vector_element (fe_function, indices[i]);
       internal::do_function_values(&dof_values[0], this->shape_values, *fe,
@@ -3235,8 +3260,8 @@ maybe_invalidate_previous_present_cell (const typename Triangulation<dim,spacedi
           invalidate_present_cell();
           tria_listener =
             cell->get_triangulation().signals.any_change.connect
-            (std_cxx1x::bind (&FEValuesBase<dim,spacedim>::invalidate_present_cell,
-                              std_cxx1x::ref(static_cast<FEValuesBase<dim,spacedim>&>(*this))));
+            (std_cxx11::bind (&FEValuesBase<dim,spacedim>::invalidate_present_cell,
+                              std_cxx11::ref(static_cast<FEValuesBase<dim,spacedim>&>(*this))));
         }
     }
   else
@@ -3246,8 +3271,8 @@ maybe_invalidate_previous_present_cell (const typename Triangulation<dim,spacedi
       // changes
       tria_listener =
         cell->get_triangulation().signals.post_refinement.connect
-        (std_cxx1x::bind (&FEValuesBase<dim,spacedim>::invalidate_present_cell,
-                          std_cxx1x::ref(static_cast<FEValuesBase<dim,spacedim>&>(*this))));
+        (std_cxx11::bind (&FEValuesBase<dim,spacedim>::invalidate_present_cell,
+                          std_cxx11::ref(static_cast<FEValuesBase<dim,spacedim>&>(*this))));
     }
 }
 

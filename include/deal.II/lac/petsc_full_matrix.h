@@ -1,5 +1,4 @@
 // ---------------------------------------------------------------------
-// $Id$
 //
 // Copyright (C) 2004 - 2013 by the deal.II authors
 //
@@ -50,7 +49,7 @@ namespace PETScWrappers
   class FullMatrix : public MatrixBase
   {
   public:
-    
+
     /**
      * Declare type for container size.
      */

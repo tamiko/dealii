@@ -1,5 +1,4 @@
 // ---------------------------------------------------------------------
-// $Id$
 //
 // Copyright (C) 2009 - 2014 by the deal.II authors
 //
@@ -236,12 +235,12 @@ protected:
   typename Mapping<1,spacedim>::InternalDataBase *
   get_face_data (const UpdateFlags,
                  const Mapping<1,spacedim> &mapping,
-                 const Quadrature<0>& quadrature) const ;
+                 const Quadrature<0> &quadrature) const ;
 
   typename Mapping<1,spacedim>::InternalDataBase *
   get_subface_data (const UpdateFlags,
                     const Mapping<1,spacedim> &mapping,
-                    const Quadrature<0>& quadrature) const ;
+                    const Quadrature<0> &quadrature) const ;
 
   virtual void
   fill_fe_values (const Mapping<1,spacedim>                           &mapping,
