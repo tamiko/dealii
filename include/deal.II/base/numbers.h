@@ -318,7 +318,7 @@ namespace numbers
   typename NumberTraits<number>::real_type
   NumberTraits<number>::abs (const number &x)
   {
-    return std::fabs(x);
+    return std::fabs((double)x);
   }
 
 
