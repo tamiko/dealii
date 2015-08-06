@@ -1974,7 +1974,7 @@ protected:
                     const unsigned int                                            offset,
                     const typename Mapping<dim,spacedim>::InternalDataBase       &mapping_internal,
                     const InternalDataBase                                       &fe_internal,
-                    internal::FEValues::FiniteElementRelatedData<dim,spacedim>   &data) const;
+                    dealii::internal::FEValues::FiniteElementRelatedData<dim, spacedim>   &data) const;
 
   /**
    * Given the pattern of nonzero components for each shape function, compute
@@ -2057,8 +2057,8 @@ protected:
                   const Quadrature<dim>                                     &quadrature,
                   const typename Mapping<dim,spacedim>::InternalDataBase    &mapping_internal,
                   const typename Mapping<dim,spacedim>::InternalDataBase    &fe_internal,
-                  const internal::FEValues::MappingRelatedData<dim,spacedim> &mapping_data,
-                  internal::FEValues::FiniteElementRelatedData<dim,spacedim> &output_data,
+                  const dealii::internal::FEValues::MappingRelatedData<dim, spacedim> &mapping_data,
+                  dealii::internal::FEValues::FiniteElementRelatedData<dim, spacedim> &output_data,
                   const CellSimilarity::Similarity                           cell_similarity) const = 0;
 
   virtual
@@ -2069,8 +2069,8 @@ protected:
                        const Quadrature<dim-1>                                   &quadrature,
                        const typename Mapping<dim,spacedim>::InternalDataBase    &mapping_internal,
                        const typename Mapping<dim,spacedim>::InternalDataBase    &fe_internal,
-                       const internal::FEValues::MappingRelatedData<dim,spacedim> &mapping_data,
-                       internal::FEValues::FiniteElementRelatedData<dim,spacedim> &output_data) const = 0;
+                       const dealii::internal::FEValues::MappingRelatedData<dim, spacedim> &mapping_data,
+                       dealii::internal::FEValues::FiniteElementRelatedData<dim, spacedim> &output_data) const = 0;
 
   virtual
   void
@@ -2081,8 +2081,8 @@ protected:
                           const Quadrature<dim-1>                                   &quadrature,
                           const typename Mapping<dim,spacedim>::InternalDataBase    &mapping_internal,
                           const typename Mapping<dim,spacedim>::InternalDataBase    &fe_internal,
-                          const internal::FEValues::MappingRelatedData<dim,spacedim> &mapping_data,
-                          internal::FEValues::FiniteElementRelatedData<dim,spacedim> &output_data) const = 0;
+                          const dealii::internal::FEValues::MappingRelatedData<dim, spacedim> &mapping_data,
+                          dealii::internal::FEValues::FiniteElementRelatedData<dim, spacedim> &output_data) const = 0;
 
   friend class InternalDataBase;
   friend class FEValuesBase<dim,spacedim>;

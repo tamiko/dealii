@@ -88,6 +88,7 @@ VERBOSE_INCLUDE(${CMAKE_SOURCE_DIR}/cmake/setup_cached_variables.cmake)
 # Now, set the project and set up the rest:
 #
 PROJECT(deal.II CXX C)
+ADD_DEFINITIONS(-DBOOST_ALL_NO_LIB)
 ENABLE_LANGUAGE_OPTIONAL(Fortran)
 
 VERBOSE_INCLUDE(${CMAKE_SOURCE_DIR}/cmake/setup_deal_ii.cmake)

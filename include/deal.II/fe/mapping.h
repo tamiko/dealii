@@ -791,7 +791,7 @@ private:
                   const CellSimilarity::Similarity                           cell_similarity,
                   const Quadrature<dim>                                     &quadrature,
                   const InternalDataBase                                    &internal_data,
-                  internal::FEValues::MappingRelatedData<dim,spacedim>      &output_data) const = 0;
+                  dealii::internal::FEValues::MappingRelatedData<dim,spacedim>      &output_data) const = 0;
 
   /**
    * This function is the equivalent to Mapping::fill_fe_values(),
@@ -824,7 +824,7 @@ private:
                        const unsigned int                                         face_no,
                        const Quadrature<dim-1>                                   &quadrature,
                        const InternalDataBase                                    &internal_data,
-                       internal::FEValues::MappingRelatedData<dim,spacedim>      &output_data) const = 0;
+                       dealii::internal::FEValues::MappingRelatedData<dim,spacedim>      &output_data) const = 0;
 
   /**
    * This function is the equivalent to Mapping::fill_fe_values(),
@@ -861,7 +861,7 @@ private:
                           const unsigned int                                         subface_no,
                           const Quadrature<dim-1>                                   &quadrature,
                           const InternalDataBase                                    &internal_data,
-                          internal::FEValues::MappingRelatedData<dim,spacedim>      &output_data) const = 0;
+                          dealii::internal::FEValues::MappingRelatedData<dim, spacedim>      &output_data) const = 0;
 
   /**
    * Give class @p FEValues access to the private <tt>get_...data</tt> and
