@@ -226,9 +226,8 @@ namespace Step13
       // vertex matches the evaluation point. If this is the case, then
       // extract the point value, set a flag that we have found the point of
       // interest, and exit the loop.
-      typename DoFHandler<dim>::active_cell_iterator
-      cell = dof_handler.begin_active(),
-      endc = dof_handler.end();
+      auto cell = dof_handler.begin_active();
+      const auto endc = dof_handler.end();
       bool evaluation_point_found = false;
       for (; (cell!=endc) && !evaluation_point_found; ++cell)
         for (unsigned int vertex=0;
@@ -1144,10 +1143,7 @@ namespace Step13
       std::vector<double>  rhs_values (n_q_points);
       std::vector<types::global_dof_index> local_dof_indices (dofs_per_cell);
 
-      typename DoFHandler<dim>::active_cell_iterator
-      cell = this->dof_handler.begin_active(),
-      endc = this->dof_handler.end();
-      for (; cell!=endc; ++cell)
+      for (auto cell : this->dof_handler.active_cell_iterators())
         {
           cell_rhs = 0;
           fe_values.reinit (cell);
@@ -1351,16 +1347,17 @@ namespace Step13
     for (unsigned int i=1; i<dim; ++i)
       q += std::sin(10*p(i)+5*p(0)*p(0));
     const double u = std::exp(q);
-    double t1 = 1,
-           t2 = 0,
-           t3 = 0;
+    double t1 = 1;
+    double t2 = 0;
+    double t3 = 0;
     for (unsigned int i=1; i<dim; ++i)
       {
-        t1 += std::cos(10*p(i)+5*p(0)*p(0)) * 10 * p(0);
-        t2 += 10*std::cos(10*p(i)+5*p(0)*p(0)) -
-              100*std::sin(10*p(i)+5*p(0)*p(0)) * p(0)*p(0);
-        t3 += 100*std::cos(10*p(i)+5*p(0)*p(0))*std::cos(10*p(i)+5*p(0)*p(0)) -
-              100*std::sin(10*p(i)+5*p(0)*p(0));
+        t1 += std::cos(10*p(i)+5*p(0)*p(0)) * 10 * p(0); //
+        t2 += 10*std::cos(10*p(i)+5*p(0)*p(0)) - //
+              100*std::sin(10*p(i)+5*p(0)*p(0)) * p(0)*p(0); //
+        t3 += 100*std::cos(10*p(i)+5*p(0)*p(0))* //
+                std::cos(10*p(i)+5*p(0)*p(0)) - //
+              100*std::sin(10*p(i)+5*p(0)*p(0)); //
       };
     t1 = t1*t1;
 
@@ -1405,12 +1402,10 @@ namespace Step13
         // annoying, but could be shortened by a typedef, if so desired.
         solver.solve_problem ();
 
-        for (typename std::list<Evaluation::EvaluationBase<dim> *>::const_iterator
-             i = postprocessor_list.begin();
-             i != postprocessor_list.end(); ++i)
+        for (const auto &i : postprocessor_list)
           {
-            (*i)->set_refinement_cycle (step);
-            solver.postprocess (**i);
+            i->set_refinement_cycle(step);
+            solver.postprocess(*i);
           };
 
 
