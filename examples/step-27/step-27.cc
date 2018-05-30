@@ -139,7 +139,7 @@ namespace Step27
     RightHandSide () : Function<dim> () {}
 
     virtual double value (const Point<dim>   &p,
-                          const unsigned int  component) const;
+                          const unsigned int  component) const override;
   };
 
 
@@ -474,7 +474,7 @@ namespace Step27
       const std::string filename = "solution-" +
                                    Utilities::int_to_string (cycle, 2) +
                                    ".vtk";
-      std::ofstream output (filename.c_str());
+      std::ofstream output (filename);
       data_out.write_vtk (output);
     }
 

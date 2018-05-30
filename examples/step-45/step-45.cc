@@ -31,6 +31,10 @@
 //   object with periodicity constraints
 // - <code>StokesProblem<dim>::run()</code>: To supply a distributed triangulation with
 //   periodicity information.
+//
+// The rest of the program is identical to step-22, so let us skip this part
+// and only show these two functions in the following. (The full program can be
+// found in the "Plain program" section below, though.)
 
 
 // @cond SKIP
@@ -112,10 +116,10 @@ namespace Step45
     BoundaryValues () : Function<dim>(dim+1) {}
 
     virtual double value (const Point<dim>   &p,
-                          const unsigned int  component = 0) const;
+                          const unsigned int  component = 0) const override;
 
     virtual void vector_value (const Point<dim> &p,
-                               Vector<double>   &value) const;
+                               Vector<double>   &value) const override;
   };
 
 
@@ -149,10 +153,10 @@ namespace Step45
     RightHandSide () : Function<dim>(dim+1) {}
 
     virtual double value (const Point<dim>   &p,
-                          const unsigned int  component = 0) const;
+                          const unsigned int  component = 0) const override;
 
     virtual void vector_value (const Point<dim> &p,
-                               Vector<double>   &value) const;
+                               Vector<double>   &value) const override;
 
   };
 
@@ -489,6 +493,9 @@ namespace Step45
                      mpi_communicator);
   }
 
+// The rest of the program is then again identical to step-22. We will omit
+// it here now, but as before, you can find these parts in the "Plain program"
+// section below.
 
 // @cond SKIP
   template <int dim>
@@ -691,7 +698,7 @@ namespace Step45
         pvtu_master_filename = ("solution-" +
                                 Utilities::int_to_string (refinement_cycle, 2) +
                                 ".pvtu");
-        std::ofstream pvtu_master (pvtu_master_filename.c_str());
+        std::ofstream pvtu_master (pvtu_master_filename);
         data_out.write_pvtu_record (pvtu_master, filenames);
       }
   }

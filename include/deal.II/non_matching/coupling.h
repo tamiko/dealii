@@ -17,15 +17,16 @@
 #define dealii_non_matching_coupling
 
 #include <deal.II/base/config.h>
+
 #include <deal.II/base/quadrature.h>
 
-#include <deal.II/grid/grid_tools_cache.h>
+#include <deal.II/dofs/dof_handler.h>
 
 #include <deal.II/fe/component_mask.h>
-#include <deal.II/fe/mapping_q1.h>
 #include <deal.II/fe/fe.h>
+#include <deal.II/fe/mapping_q1.h>
 
-#include <deal.II/dofs/dof_handler.h>
+#include <deal.II/grid/grid_tools_cache.h>
 
 #include <deal.II/lac/constraint_matrix.h>
 
@@ -84,18 +85,25 @@ namespace NonMatching
    * An exception is thrown if you use an immersed
    * parallel::distributed::Triangulation<dim1,spacedim>.
    *
+   * See the tutorial program step-60 for an example on how to use this
+   * function.
+   *
    * @author Luca Heltai, 2018
    */
-  template<int dim0, int dim1, int spacedim, typename Sparsity>
-  void create_coupling_sparsity_pattern(const DoFHandler<dim0, spacedim> &space_dh,
-                                        const DoFHandler<dim1, spacedim> &immersed_dh,
-                                        const Quadrature<dim1>           &quad,
-                                        Sparsity                         &sparsity,
-                                        const ConstraintMatrix           &constraints = ConstraintMatrix(),
-                                        const ComponentMask              &space_comps = ComponentMask(),
-                                        const ComponentMask              &immersed_comps = ComponentMask(),
-                                        const Mapping<dim0, spacedim>    &space_mapping = StaticMappingQ1<dim0,spacedim>::mapping,
-                                        const Mapping<dim1, spacedim>    &immersed_mapping = StaticMappingQ1<dim1, spacedim>::mapping);
+  template <int dim0, int dim1, int spacedim, typename Sparsity>
+  void
+  create_coupling_sparsity_pattern(
+    const DoFHandler<dim0, spacedim> &space_dh,
+    const DoFHandler<dim1, spacedim> &immersed_dh,
+    const Quadrature<dim1> &          quad,
+    Sparsity &                        sparsity,
+    const ConstraintMatrix &          constraints    = ConstraintMatrix(),
+    const ComponentMask &             space_comps    = ComponentMask(),
+    const ComponentMask &             immersed_comps = ComponentMask(),
+    const Mapping<dim0, spacedim> &   space_mapping =
+      StaticMappingQ1<dim0, spacedim>::mapping,
+    const Mapping<dim1, spacedim> &immersed_mapping =
+      StaticMappingQ1<dim1, spacedim>::mapping);
 
   /**
    * Same as above, but takes an additional GridTools::Cache object, instead of
@@ -105,16 +113,19 @@ namespace NonMatching
    *
    * @author Luca Heltai, 2018
    */
-  template<int dim0, int dim1, int spacedim, typename Sparsity>
-  void create_coupling_sparsity_pattern(const GridTools::Cache<dim0, spacedim> &cache,
-                                        const DoFHandler<dim0, spacedim> &space_dh,
-                                        const DoFHandler<dim1, spacedim> &immersed_dh,
-                                        const Quadrature<dim1>           &quad,
-                                        Sparsity                         &sparsity,
-                                        const ConstraintMatrix           &constraints = ConstraintMatrix(),
-                                        const ComponentMask              &space_comps = ComponentMask(),
-                                        const ComponentMask              &immersed_comps = ComponentMask(),
-                                        const Mapping<dim1, spacedim>    &immersed_mapping = StaticMappingQ1<dim1, spacedim>::mapping);
+  template <int dim0, int dim1, int spacedim, typename Sparsity>
+  void
+  create_coupling_sparsity_pattern(
+    const GridTools::Cache<dim0, spacedim> &cache,
+    const DoFHandler<dim0, spacedim> &      space_dh,
+    const DoFHandler<dim1, spacedim> &      immersed_dh,
+    const Quadrature<dim1> &                quad,
+    Sparsity &                              sparsity,
+    const ConstraintMatrix &                constraints    = ConstraintMatrix(),
+    const ComponentMask &                   space_comps    = ComponentMask(),
+    const ComponentMask &                   immersed_comps = ComponentMask(),
+    const Mapping<dim1, spacedim> &         immersed_mapping =
+      StaticMappingQ1<dim1, spacedim>::mapping);
 
 
   /**
@@ -157,18 +168,25 @@ namespace NonMatching
    * An exception is thrown if you use an immersed
    * parallel::distributed::Triangulation<dim1,spacedim>.
    *
+   * See the tutorial program step-60 for an example on how to use this
+   * function.
+   *
    * @author Luca Heltai, 2018
    */
-  template<int dim0, int dim1, int spacedim, typename Matrix>
-  void create_coupling_mass_matrix(const DoFHandler<dim0, spacedim> &space_dh,
-                                   const DoFHandler<dim1, spacedim> &immersed_dh,
-                                   const Quadrature<dim1>           &quad,
-                                   Matrix                           &matrix,
-                                   const ConstraintMatrix           &constraints = ConstraintMatrix(),
-                                   const ComponentMask              &space_comps = ComponentMask(),
-                                   const ComponentMask              &immersed_comps = ComponentMask(),
-                                   const Mapping<dim0, spacedim>    &space_mapping = StaticMappingQ1<dim0,spacedim>::mapping,
-                                   const Mapping<dim1, spacedim>    &immersed_mapping = StaticMappingQ1<dim1, spacedim>::mapping);
+  template <int dim0, int dim1, int spacedim, typename Matrix>
+  void
+  create_coupling_mass_matrix(
+    const DoFHandler<dim0, spacedim> &space_dh,
+    const DoFHandler<dim1, spacedim> &immersed_dh,
+    const Quadrature<dim1> &          quad,
+    Matrix &                          matrix,
+    const ConstraintMatrix &          constraints    = ConstraintMatrix(),
+    const ComponentMask &             space_comps    = ComponentMask(),
+    const ComponentMask &             immersed_comps = ComponentMask(),
+    const Mapping<dim0, spacedim> &   space_mapping =
+      StaticMappingQ1<dim0, spacedim>::mapping,
+    const Mapping<dim1, spacedim> &immersed_mapping =
+      StaticMappingQ1<dim1, spacedim>::mapping);
 
   /**
    * Same as above, but takes an additional GridTools::Cache object, instead of
@@ -178,17 +196,20 @@ namespace NonMatching
    *
    * @author Luca Heltai, 2018
    */
-  template<int dim0, int dim1, int spacedim, typename Matrix>
-  void create_coupling_mass_matrix(const GridTools::Cache<dim0, spacedim> &cache,
-                                   const DoFHandler<dim0, spacedim>       &space_dh,
-                                   const DoFHandler<dim1, spacedim>       &immersed_dh,
-                                   const Quadrature<dim1>                 &quad,
-                                   Matrix                                 &matrix,
-                                   const ConstraintMatrix                 &constraints = ConstraintMatrix(),
-                                   const ComponentMask                    &space_comps = ComponentMask(),
-                                   const ComponentMask                    &immersed_comps = ComponentMask(),
-                                   const Mapping<dim1, spacedim>          &immersed_mapping = StaticMappingQ1<dim1, spacedim>::mapping);
-}
+  template <int dim0, int dim1, int spacedim, typename Matrix>
+  void
+  create_coupling_mass_matrix(
+    const GridTools::Cache<dim0, spacedim> &cache,
+    const DoFHandler<dim0, spacedim> &      space_dh,
+    const DoFHandler<dim1, spacedim> &      immersed_dh,
+    const Quadrature<dim1> &                quad,
+    Matrix &                                matrix,
+    const ConstraintMatrix &                constraints    = ConstraintMatrix(),
+    const ComponentMask &                   space_comps    = ComponentMask(),
+    const ComponentMask &                   immersed_comps = ComponentMask(),
+    const Mapping<dim1, spacedim> &         immersed_mapping =
+      StaticMappingQ1<dim1, spacedim>::mapping);
+} // namespace NonMatching
 DEAL_II_NAMESPACE_CLOSE
 
 #endif

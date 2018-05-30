@@ -128,7 +128,7 @@ namespace Step23
     FE_Q<dim>            fe;
     DoFHandler<dim>      dof_handler;
 
-    ConstraintMatrix constraints;
+    ConstraintMatrix     constraints;
 
     SparsityPattern      sparsity_pattern;
     SparseMatrix<double> mass_matrix;
@@ -140,9 +140,10 @@ namespace Step23
     Vector<double>       old_solution_u, old_solution_v;
     Vector<double>       system_rhs;
 
-    double time_step, time;
-    unsigned int timestep_number;
-    const double theta;
+    double               time_step;
+    double               time;
+    unsigned int         timestep_number;
+    const double         theta;
   };
 
 
@@ -165,7 +166,7 @@ namespace Step23
     InitialValuesU () : Function<dim>() {}
 
     virtual double value (const Point<dim>   &p,
-                          const unsigned int  component = 0) const;
+                          const unsigned int  component = 0) const override;
   };
 
 
@@ -176,7 +177,7 @@ namespace Step23
     InitialValuesV () : Function<dim>() {}
 
     virtual double value (const Point<dim>   &p,
-                          const unsigned int  component = 0) const;
+                          const unsigned int  component = 0) const override;
   };
 
 
@@ -212,7 +213,7 @@ namespace Step23
     RightHandSide () : Function<dim>() {}
 
     virtual double value (const Point<dim>   &p,
-                          const unsigned int  component = 0) const;
+                          const unsigned int  component = 0) const override;
   };
 
 
@@ -237,7 +238,7 @@ namespace Step23
     BoundaryValuesU () : Function<dim>() {}
 
     virtual double value (const Point<dim>   &p,
-                          const unsigned int  component = 0) const;
+                          const unsigned int  component = 0) const override;
   };
 
 
@@ -250,7 +251,7 @@ namespace Step23
     BoundaryValuesV () : Function<dim>() {}
 
     virtual double value (const Point<dim>   &p,
-                          const unsigned int  component = 0) const;
+                          const unsigned int  component = 0) const override;
   };
 
 
@@ -459,7 +460,7 @@ namespace Step23
     const std::string filename = "solution-" +
                                  Utilities::int_to_string (timestep_number, 3) +
                                  ".gnuplot";
-    std::ofstream output (filename.c_str());
+    std::ofstream output (filename);
     data_out.write_gnuplot (output);
   }
 
@@ -581,7 +582,7 @@ namespace Step23
         // that this time the matrix on the left is the mass matrix (which we
         // copy again in order to be able to apply boundary conditions, and
         // the right hand side is $MV^{n-1} - k\left[ \theta A U^n +
-        // (1-\theta) AU^{n-1}\right]$ plus forcing terms. %Boundary values
+        // (1-\theta) AU^{n-1}\right]$ plus forcing terms. Boundary values
         // are applied in the same way as before, except that now we have to
         // use the BoundaryValuesV class:
         laplace_matrix.vmult (system_rhs, solution_u);

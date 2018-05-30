@@ -107,7 +107,7 @@ namespace Step16
   {
   public:
     LaplaceIntegrator();
-    virtual void cell(MeshWorker::DoFInfo<dim> &dinfo, MeshWorker::IntegrationInfo<dim> &info) const;
+    virtual void cell(MeshWorker::DoFInfo<dim> &dinfo, MeshWorker::IntegrationInfo<dim> &info) const override;
   };
 
 
@@ -279,7 +279,7 @@ namespace Step16
     constraints.clear ();
     DoFTools::make_hanging_node_constraints (dof_handler, constraints);
 
-    std::set<types::boundary_id>          dirichlet_boundary_ids;
+    std::set<types::boundary_id>          dirichlet_boundary_ids = { 0 };
     Functions::ZeroFunction<dim>          homogeneous_dirichlet_bc;
     const typename FunctionMap<dim>::type dirichlet_boundary_functions
     = { { types::boundary_id(0), &homogeneous_dirichlet_bc } };

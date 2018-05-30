@@ -565,12 +565,12 @@ namespace Step18
     virtual
     void
     vector_value (const Point<dim> &p,
-                  Vector<double>   &values) const;
+                  Vector<double>   &values) const override;
 
     virtual
     void
     vector_value_list (const std::vector<Point<dim> > &points,
-                       std::vector<Vector<double> >   &value_list) const;
+                       std::vector<Vector<double> >   &value_list) const override;
   };
 
 
@@ -653,12 +653,12 @@ namespace Step18
     virtual
     void
     vector_value (const Point<dim> &p,
-                  Vector<double>   &values) const;
+                  Vector<double>   &values) const override;
 
     virtual
     void
     vector_value_list (const std::vector<Point<dim> > &points,
-                       std::vector<Vector<double> >   &value_list) const;
+                       std::vector<Vector<double> >   &value_list) const override;
 
   private:
     const double velocity;
@@ -819,30 +819,8 @@ namespace Step18
               cell->face(f)->set_boundary_id (3);
           }
 
-    // In order to make sure that new vertices are placed correctly on
-    // mesh refinement, we have to associate objects describing those
-    // parts of the boundary that do not consist of straight
-    // parts. Corresponding to the cylinder shell generator function
-    // used above, there are classes that can be used to describe the
-    // geometry of cylinders. The library implements both boundary
-    // classes as well as manifold classes, where also the interior
-    // part of mesh is refined according to the geometrical
-    // description. For this example, we use a single cylindrical
-    // manifold both for the interior part and for the boundary
-    // parts. Note that the manifold object need to live as long as
-    // the triangulation does; we can achieve this by making the
-    // objects static, which means that they live as long as the
-    // program runs:
-    static const CylindricalManifold<dim> cylindrical_manifold (2);
-
-    // We tell the triangulation to reset all its manifold indicators
-    // to 0, and then attach the cylindrical manifold to it:
-    triangulation.set_all_manifold_ids(0);
-    triangulation.set_manifold (0, cylindrical_manifold);
-
     // Once all this is done, we can refine the mesh once globally:
     triangulation.refine_global (1);
-
 
     // As the final step, we need to set up a clean state of the data that we
     // store in the quadrature points on all cells that are treated on the
@@ -1355,7 +1333,7 @@ namespace Step18
 
     // With the so-completed filename, let us open a file and write the data
     // we have generated into it:
-    std::ofstream output (filename.c_str());
+    std::ofstream output (filename);
     data_out.write_vtu (output);
 
     // The record files must be written only once and not by each processor,
@@ -1375,7 +1353,7 @@ namespace Step18
         visit_master_filename = ("solution-" +
                                  Utilities::int_to_string(timestep_no,4) +
                                  ".visit");
-        std::ofstream visit_master (visit_master_filename.c_str());
+        std::ofstream visit_master (visit_master_filename);
         DataOutBase::write_visit_record (visit_master, filenames);
 
         // Similarly, we write the paraview .pvtu:
@@ -1383,7 +1361,7 @@ namespace Step18
         pvtu_master_filename = ("solution-" +
                                 Utilities::int_to_string(timestep_no,4) +
                                 ".pvtu");
-        std::ofstream pvtu_master (pvtu_master_filename.c_str());
+        std::ofstream pvtu_master (pvtu_master_filename);
         data_out.write_pvtu_record (pvtu_master, filenames);
 
         // Finally, we write the paraview record, that references all .pvtu files and

@@ -142,10 +142,10 @@ namespace Step38
     Solution () : Function<dim>() {}
 
     virtual double value (const Point<dim>   &p,
-                          const unsigned int  component = 0) const;
+                          const unsigned int  component = 0) const override;
 
     virtual Tensor<1,dim> gradient (const Point<dim>   &p,
-                                    const unsigned int  component = 0) const;
+                                    const unsigned int  component = 0) const override;
 
   };
 
@@ -207,7 +207,7 @@ namespace Step38
     RightHandSide () : Function<dim>() {}
 
     virtual double value (const Point<dim>   &p,
-                          const unsigned int  component = 0) const;
+                          const unsigned int  component = 0) const override;
   };
 
   template <>
@@ -306,10 +306,7 @@ namespace Step38
   // polygon) but not when, as here, the manifold has curvature. So for things
   // to work properly, we need to attach a manifold object to our (surface)
   // triangulation, in much the same way as we've already done in 1d for the
-  // boundary. We create such an object (with indefinite, <code>static</code>,
-  // lifetime) at the top of the function and attach it to the triangulation
-  // for all cells with boundary indicator zero that will be created
-  // henceforth.
+  // boundary. We create such an object and attach it to the triangulation.
   //
   // The final step in creating the mesh is to refine it a number of
   // times. The rest of the function is the same as in previous tutorial
@@ -317,8 +314,6 @@ namespace Step38
   template <int spacedim>
   void LaplaceBeltramiProblem<spacedim>::make_grid_and_dofs ()
   {
-    static SphericalManifold<dim,spacedim> surface_description;
-
     {
       Triangulation<spacedim> volume_mesh;
       GridGenerator::half_hyper_ball(volume_mesh);
@@ -330,7 +325,7 @@ namespace Step38
                                             boundary_ids);
     }
     triangulation.set_all_manifold_ids(0);
-    triangulation.set_manifold (0, surface_description);
+    triangulation.set_manifold (0, SphericalManifold<dim,spacedim>());
 
     triangulation.refine_global(4);
 
@@ -501,7 +496,7 @@ namespace Step38
     std::string filename ("solution-");
     filename += static_cast<char>('0'+spacedim);
     filename += "d.vtk";
-    std::ofstream output (filename.c_str());
+    std::ofstream output (filename);
     data_out.write_vtk (output);
   }
 

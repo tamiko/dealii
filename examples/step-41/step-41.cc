@@ -123,7 +123,7 @@ namespace Step41
     RightHandSide () : Function<dim>() {}
 
     virtual double value (const Point<dim>   &p,
-                          const unsigned int  component = 0) const;
+                          const unsigned int  component = 0) const override;
   };
 
   template <int dim>
@@ -145,7 +145,7 @@ namespace Step41
     BoundaryValues () : Function<dim>() {}
 
     virtual double value (const Point<dim>   &p,
-                          const unsigned int  component = 0) const;
+                          const unsigned int  component = 0) const override;
   };
 
   template <int dim>
@@ -169,7 +169,7 @@ namespace Step41
     Obstacle () : Function<dim>() {}
 
     virtual double value (const Point<dim>   &p,
-                          const unsigned int  component = 0) const;
+                          const unsigned int  component = 0) const override;
   };
 
   template <int dim>
@@ -601,9 +601,9 @@ namespace Step41
 
     data_out.build_patches ();
 
-    std::ofstream output_vtk ((std::string("output_") +
-                               Utilities::int_to_string (iteration, 3) +
-                               ".vtk").c_str ());
+    std::ofstream output_vtk (std::string("output_") +
+                              Utilities::int_to_string (iteration, 3) +
+                              ".vtk");
     data_out.write_vtk (output_vtk);
   }
 

@@ -141,10 +141,10 @@ namespace Step51
     Solution () : Function<dim>() {}
 
     virtual double value (const Point<dim>   &p,
-                          const unsigned int  component = 0) const;
+                          const unsigned int  component = 0) const override;
 
     virtual Tensor<1,dim> gradient (const Point<dim>   &p,
-                                    const unsigned int  component = 0) const;
+                                    const unsigned int  component = 0) const override;
   };
 
 
@@ -201,7 +201,7 @@ namespace Step51
     SolutionAndGradient () : Function<dim>(dim) {}
 
     virtual void vector_value (const Point<dim>   &p,
-                               Vector<double>     &v) const;
+                               Vector<double>     &v) const override;
   };
 
   template <int dim>
@@ -227,7 +227,7 @@ namespace Step51
   public:
     ConvectionVelocity() : TensorFunction<1,dim>() {}
 
-    virtual Tensor<1,dim> value (const Point<dim> &p) const;
+    virtual Tensor<1,dim> value (const Point<dim> &p) const override;
   };
 
 
@@ -272,7 +272,7 @@ namespace Step51
     RightHandSide () : Function<dim>() {}
 
     virtual double value (const Point<dim>   &p,
-                          const unsigned int  component = 0) const;
+                          const unsigned int  component = 0) const override;
 
   private:
     const ConvectionVelocity<dim> convection_velocity;
@@ -1204,7 +1204,7 @@ namespace Step51
     filename += "-q" + Utilities::int_to_string(fe.degree,1);
     filename += "-" + Utilities::int_to_string(cycle,2);
     filename += ".vtk";
-    std::ofstream output (filename.c_str());
+    std::ofstream output (filename);
 
     DataOut<dim> data_out;
 
@@ -1235,7 +1235,7 @@ namespace Step51
     face_out += "-q" + Utilities::int_to_string(fe.degree,1);
     face_out += "-" + Utilities::int_to_string(cycle,2);
     face_out += ".vtk";
-    std::ofstream face_output (face_out.c_str());
+    std::ofstream face_output (face_out);
 
 // The <code>DataOutFaces</code> class works analogously to the <code>DataOut</code>
 // class when we have a <code>DoFHandler</code> that defines the solution on

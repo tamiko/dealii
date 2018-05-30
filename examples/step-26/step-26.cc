@@ -133,7 +133,7 @@ namespace Step26
     {}
 
     virtual double value (const Point<dim> &p,
-                          const unsigned int component = 0) const;
+                          const unsigned int component = 0) const override;
 
   private:
     const double period;
@@ -177,7 +177,7 @@ namespace Step26
   {
   public:
     virtual double value (const Point<dim>  &p,
-                          const unsigned int component = 0) const;
+                          const unsigned int component = 0) const override;
   };
 
 
@@ -309,7 +309,7 @@ namespace Step26
     const std::string filename = "solution-"
                                  + Utilities::int_to_string(timestep_number, 3) +
                                  ".vtk";
-    std::ofstream output(filename.c_str());
+    std::ofstream output(filename);
     data_out.write_vtk(output);
   }
 

@@ -91,7 +91,7 @@ namespace Step12
     BoundaryValues () {}
     virtual void value_list (const std::vector<Point<dim> > &points,
                              std::vector<double> &values,
-                             const unsigned int component=0) const;
+                             const unsigned int component=0) const override;
   };
 
   // Given the flow direction, the inflow boundary of the unit square
@@ -571,7 +571,7 @@ namespace Step12
     {
       const std::string filename = "grid-" + std::to_string(cycle) + ".eps";
       deallog << "Writing grid to <" << filename << ">" << std::endl;
-      std::ofstream eps_output (filename.c_str());
+      std::ofstream eps_output (filename);
 
       GridOut grid_out;
       grid_out.write_eps (triangulation, eps_output);
@@ -581,7 +581,7 @@ namespace Step12
     {
       const std::string filename = "sol-" + std::to_string(cycle) + ".gnuplot";
       deallog << "Writing solution to <" << filename << ">" << std::endl;
-      std::ofstream gnuplot_output (filename.c_str());
+      std::ofstream gnuplot_output (filename);
 
       DataOut<dim> data_out;
       data_out.attach_dof_handler (dof_handler);

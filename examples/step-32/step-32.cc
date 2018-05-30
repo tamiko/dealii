@@ -154,10 +154,10 @@ namespace Step32
       TemperatureInitialValues () : Function<dim>(1) {}
 
       virtual double value (const Point<dim>   &p,
-                            const unsigned int  component = 0) const;
+                            const unsigned int  component = 0) const override;
 
       virtual void vector_value (const Point<dim> &p,
-                                 Vector<double>   &value) const;
+                                 Vector<double>   &value) const override;
     };
 
 
@@ -1032,13 +1032,13 @@ namespace Step32
     ParameterHandler prm;
     BoussinesqFlowProblem<dim>::Parameters::declare_parameters (prm);
 
-    std::ifstream parameter_file (parameter_filename.c_str());
+    std::ifstream parameter_file (parameter_filename);
 
     if (!parameter_file)
       {
         parameter_file.close ();
 
-        std::ofstream parameter_out (parameter_filename.c_str());
+        std::ofstream parameter_out (parameter_filename);
         prm.print_parameters (parameter_out,
                               ParameterHandler::Text);
 
@@ -3155,15 +3155,15 @@ namespace Step32
     void
     evaluate_vector_field
     (const DataPostprocessorInputs::Vector<dim> &inputs,
-     std::vector<Vector<double> >               &computed_quantities) const;
+     std::vector<Vector<double> >               &computed_quantities) const override;
 
-    virtual std::vector<std::string> get_names () const;
+    virtual std::vector<std::string> get_names () const override;
 
     virtual
     std::vector<DataComponentInterpretation::DataComponentInterpretation>
-    get_data_component_interpretation () const;
+    get_data_component_interpretation () const override;
 
-    virtual UpdateFlags get_needed_update_flags () const;
+    virtual UpdateFlags get_needed_update_flags () const override;
 
   private:
     const unsigned int partition;
@@ -3404,7 +3404,7 @@ namespace Step32
                                   Utilities::int_to_string
                                   (triangulation.locally_owned_subdomain(), 4) +
                                   ".vtu");
-    std::ofstream output (filename.c_str());
+    std::ofstream output (filename);
     data_out.write_vtu (output);
 
 
@@ -3428,14 +3428,14 @@ namespace Step32
         pvtu_master_filename = ("solution-" +
                                 Utilities::int_to_string (out_index, 5) +
                                 ".pvtu");
-        std::ofstream pvtu_master (pvtu_master_filename.c_str());
+        std::ofstream pvtu_master (pvtu_master_filename);
         data_out.write_pvtu_record (pvtu_master, filenames);
 
         const std::string
         visit_master_filename = ("solution-" +
                                  Utilities::int_to_string (out_index, 5) +
                                  ".visit");
-        std::ofstream visit_master (visit_master_filename.c_str());
+        std::ofstream visit_master (visit_master_filename);
         DataOutBase::write_visit_record (visit_master, filenames);
       }
 

@@ -283,11 +283,11 @@ namespace Step42
 
       virtual
       double value (const Point<dim> &p,
-                    const unsigned int component = 0) const;
+                    const unsigned int component = 0) const override;
 
       virtual
       void vector_value (const Point<dim> &p,
-                         Vector<double> &values) const;
+                         Vector<double> &values) const override;
     };
 
     template <int dim>
@@ -323,11 +323,11 @@ namespace Step42
       BoundaryValues ();
 
       virtual double value (const Point<dim> &p,
-                            const unsigned int component = 0) const;
+                            const unsigned int component = 0) const override;
 
       virtual
       void vector_value (const Point<dim> &p,
-                         Vector<double> &values) const;
+                         Vector<double> &values) const override;
     };
 
 
@@ -375,11 +375,11 @@ namespace Step42
 
       virtual
       double value (const Point<dim> &p,
-                    const unsigned int component = 0) const;
+                    const unsigned int component = 0) const override;
 
       virtual
       void vector_value (const Point<dim> &p,
-                         Vector<double> &values) const;
+                         Vector<double> &values) const override;
 
     private:
       const double z_surface;
@@ -478,7 +478,7 @@ namespace Step42
       nx(0),
       ny(0)
     {
-      std::ifstream f(name.c_str());
+      std::ifstream f(name);
       AssertThrow (f, ExcMessage (std::string("Can't read from file <") +
                                   name + ">!"));
 
@@ -563,11 +563,11 @@ namespace Step42
 
       virtual
       double value (const Point<dim> &p,
-                    const unsigned int component = 0) const;
+                    const unsigned int component = 0) const override;
 
       virtual
       void vector_value (const Point<dim> &p,
-                         Vector<double> &values) const;
+                         Vector<double> &values) const override;
 
     private:
       const BitmapFile<dim> input_obstacle;
@@ -2055,7 +2055,7 @@ namespace Step42
       (output_dir + filename_base + "-"
        + Utilities::int_to_string(triangulation.locally_owned_subdomain(), 4));
 
-    std::ofstream output_vtu((filename + ".vtu").c_str());
+    std::ofstream output_vtu((filename + ".vtu"));
     data_out.write_vtu(output_vtu);
     pcout << output_dir + filename_base << ".pvtu" << std::endl;
 
@@ -2068,10 +2068,10 @@ namespace Step42
                               Utilities::int_to_string(i, 4) +
                               ".vtu");
 
-        std::ofstream pvtu_master_output((output_dir + filename_base + ".pvtu").c_str());
+        std::ofstream pvtu_master_output((output_dir + filename_base + ".pvtu"));
         data_out.write_pvtu_record(pvtu_master_output, filenames);
 
-        std::ofstream visit_master_output((output_dir + filename_base + ".visit").c_str());
+        std::ofstream visit_master_output((output_dir + filename_base + ".visit"));
         DataOutBase::write_visit_record(visit_master_output, filenames);
       }
 
@@ -2187,8 +2187,8 @@ namespace Step42
 
         solve_newton();
 
-        output_results((std::string("solution-") +
-                        Utilities::int_to_string(current_refinement_cycle, 2)).c_str());
+        output_results(std::string("solution-") +
+                       Utilities::int_to_string(current_refinement_cycle, 2));
 
         computing_timer.print_summary();
         computing_timer.reset();

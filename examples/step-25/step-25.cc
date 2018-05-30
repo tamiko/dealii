@@ -156,7 +156,7 @@ namespace Step25
     ExactSolution (const unsigned int n_components = 1,
                    const double time = 0.) : Function<dim>(n_components, time) {}
     virtual double value (const Point<dim> &p,
-                          const unsigned int component = 0) const;
+                          const unsigned int component = 0) const override;
   };
 
   template <int dim>
@@ -227,7 +227,7 @@ namespace Step25
     {}
 
     virtual double value (const Point<dim> &p,
-                          const unsigned int component = 0) const;
+                          const unsigned int component = 0) const override;
   };
 
   template <int dim>
@@ -579,7 +579,7 @@ namespace Step25
                                   Utilities::int_to_string (timestep_number, 3) +
                                   ".vtk";
 
-    std::ofstream output (filename.c_str());
+    std::ofstream output (filename);
     data_out.write_vtk (output);
   }
 

@@ -17,16 +17,17 @@
 // Check that we can catch some standard PETSc error codes and print
 // appropriate exception messages to the screen.
 
-#include "../tests.h"
 #include <deal.II/lac/exceptions.h>
 
 #include <petscconf.h>
 #include <petscsys.h>
-#include <petscerror.h>
 
 #include <vector>
 
-int main (int argc, char **argv)
+#include "../tests.h"
+
+int
+main(int argc, char **argv)
 {
   Utilities::MPI::MPI_InitFinalize mpi_initialization(argc, argv, 1);
 

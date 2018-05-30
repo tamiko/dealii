@@ -68,16 +68,11 @@ ENDIF()
 
 IF(DEAL_II_ALLOW_PLATFORM_INTROSPECTION)
   #
-  # Take care that the following tests are rerun if CMAKE_REQUIRED_FLAGS
-  # changes..
+  # Take care that the following tests are rerun if the
+  # CMAKE_REQUIRED_FLAGS changes..
   #
-  IF(NOT "${CMAKE_REQUIRED_FLAGS}" STREQUAL "${DEAL_II_CHECK_CPU_FEATURES_SAVED}")
-    UNSET(DEAL_II_HAVE_SSE2 CACHE)
-    UNSET(DEAL_II_HAVE_AVX CACHE)
-    UNSET(DEAL_II_HAVE_AVX512 CACHE)
-  ENDIF()
-  SET(DEAL_II_CHECK_CPU_FEATURES_SAVED
-    "${CMAKE_REQUIRED_FLAGS}" CACHE INTERNAL "" FORCE
+  UNSET_IF_CHANGED(CHECK_CPU_FEATURES_FLAGS_SAVED "${CMAKE_REQUIRED_FLAGS}"
+    DEAL_II_HAVE_SSE2 DEAL_II_HAVE_AVX DEAL_II_HAVE_AVX512
     )
 
   CHECK_CXX_SOURCE_RUNS(
@@ -221,36 +216,26 @@ ENDIF()
 
 
 #
-# OpenMP 4.0 can be used for vectorization (supported by gcc-4.9.1 and
-# later). Only the vectorization instructions
-# are allowed, the threading must be done through TBB.
+# OpenMP 4.0 can be used for vectorization. Only the vectorization
+# instructions are allowed, the threading must be done through TBB.
 #
 
-# Pick up the correct candidate keyword for the current compiler:
-SET(_keyword "")
+#
+# Choosing the right compiler flag is a bit of a mess:
+#
 IF(CMAKE_CXX_COMPILER_ID MATCHES "Intel")
-  IF(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER "15" )
+  IF("${CMAKE_CXX_COMPILER_VERSION}" VERSION_GREATER "15" )
     SET(_keyword "qopenmp")
-  ELSEIF(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER "14" )
+  ELSEIF("${CMAKE_CXX_COMPILER_VERSION}" VERSION_GREATER "14" )
     SET(_keyword "openmp")
   ENDIF()
-
 ELSEIF(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-  # clang-3.6.1 or newer, or XCode version 6.3, or newer.
-  IF( ( CMAKE_CXX_COMPILER_VERSION VERSION_GREATER "3.6"
-        AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS "5.0" )
-      OR CMAKE_CXX_COMPILER_VERSION VERSION_GREATER "6.2")
-    SET(_keyword "openmp")
-  ENDIF()
-
+  SET(_keyword "openmp")
 ELSE()
   SET(_keyword "fopenmp")
-
 ENDIF()
 
-IF(NOT "${_keyword}" STREQUAL "")
-  CHECK_CXX_COMPILER_FLAG("-${_keyword}-simd" DEAL_II_HAVE_OPENMP_SIMD)
-ENDIF()
+CHECK_CXX_COMPILER_FLAG("-${_keyword}-simd" DEAL_II_HAVE_OPENMP_SIMD)
 
 SET(DEAL_II_OPENMP_SIMD_PRAGMA " ")
 IF(DEAL_II_HAVE_OPENMP_SIMD)

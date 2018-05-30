@@ -312,11 +312,11 @@ namespace Step35
       Velocity (const double initial_time = 0.0);
 
       virtual double value (const Point<dim> &p,
-                            const unsigned int component = 0) const;
+                            const unsigned int component = 0) const override;
 
       virtual void value_list (const std::vector< Point<dim> > &points,
                                std::vector<double> &values,
-                               const unsigned int component = 0) const;
+                               const unsigned int component = 0) const override;
     };
 
 
@@ -363,11 +363,11 @@ namespace Step35
       Pressure (const double initial_time = 0.0);
 
       virtual double value (const Point<dim> &p,
-                            const unsigned int component = 0) const;
+                            const unsigned int component = 0) const override;
 
       virtual void value_list (const std::vector< Point<dim> > &points,
                                std::vector<double> &values,
-                               const unsigned int component = 0) const;
+                               const unsigned int component = 0) const override;
     };
 
     template <int dim>
@@ -709,7 +709,7 @@ namespace Step35
 
     {
       std::string filename = "nsbench2.inp";
-      std::ifstream file (filename.c_str());
+      std::ifstream file (filename);
       Assert (file, ExcFileNotOpen (filename.c_str()));
       grid_in.read_ucd (file);
     }
@@ -1354,9 +1354,9 @@ namespace Step35
                               DataOut<dim>::type_dof_data,
                               component_interpretation);
     data_out.build_patches (deg + 1);
-    std::ofstream output (("solution-" +
-                           Utilities::int_to_string (step, 5) +
-                           ".vtk").c_str());
+    std::ofstream output ("solution-" +
+                          Utilities::int_to_string (step, 5) +
+                          ".vtk");
     data_out.write_vtk (output);
   }
 

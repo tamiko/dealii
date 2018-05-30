@@ -101,7 +101,7 @@
  *       <td>step-3</td>
  *       <td> Actually solve Laplace's
  *       problem. Object-orientation. Assembling matrices and
- *       vectors. %Boundary values.
+ *       vectors. Boundary values.
  *       </td></tr>
  *
  *   <tr valign="top">
@@ -303,7 +303,7 @@
  *
  *   <tr valign="top">
  *       <td>step-34</td>
- *       <td> %Boundary element methods (BEM) of low order: Exterior irrotational
+ *       <td> Boundary element methods (BEM) of low order: Exterior irrotational
  *       flow. The ParsedFunction class.
  *       </td></tr>
  *
@@ -424,6 +424,19 @@
  *   <tr valign="top">
  *       <td>step-57</td>
  *       <td> Incompressible, stationary Navier Stokes equations.
+ *       </td></tr>
+ *
+ *   <tr valign="top">
+ *       <td>step-59</td>
+ *       <td> Solving a Poisson problem discretized with an interior penalty DG
+ *       method and a multilevel preconditioner in a matrix-free fashion using
+ *       a massively parallel implementation.
+ *
+ *   <tr valign="top">
+ *       <td>step-60</td>
+ *       <td> Distributed Lagrange multipliers for the solution of
+ *       Poisson problems in complex domains with constraints defined
+ *       on non-matching grids.
  *       </td></tr>
  *
  * </table>
@@ -556,9 +569,11 @@
  *     </td>
  *     <td>
  *       step-32,
+ *       step-37,
  *       step-40,
  *       step-42,
- *       step-55
+ *       step-55,
+ *       step-59
  *     </td>
  *   </tr>
  *
@@ -575,7 +590,8 @@
  *       step-35,
  *       step-36,
  *       step-42,
- *       step-44
+ *       step-44,
+ *       step-60
  *     </td>
  *   </tr>
  *
@@ -585,7 +601,8 @@
  *     <td>
  *       step-10,
  *       step-11,
- *       step-32
+ *       step-32,
+ *       step-60
  *     </td>
  *   </tr>
  *
@@ -623,7 +640,8 @@
  *       step-21,
  *       step-39,
  *       step-46,
- *       step-51
+ *       step-51,
+ *       step-59
  *     </td>
  *   </tr>
  *
@@ -649,7 +667,7 @@
  *   </tr>
  *
  *   <tr valign="top">
- *     <td> %Boundary element methods, curved manifolds
+ *     <td> Boundary element methods, curved manifolds
  *     </td>
  *     <td>
  *       step-32,
@@ -664,7 +682,8 @@
  *     <td> Periodic boundary conditions
  *     </td>
  *     <td>
- *       step-45
+ *       step-45,
+ *       step-59
  *     </td>
  *   </tr>
  *
@@ -673,7 +692,8 @@
  *     </td>
  *     <td>
  *       step-37,
- *       step-48
+ *       step-48,
+ *       step-59
  *     </td>
  *   </tr>
  *
@@ -684,6 +704,14 @@
  *       step-49,
  *       step-53,
  *       step-54
+ *     </td>
+ *   </tr>
+ *
+ *   <tr valign="top">
+ *     <td> Non matching algorithms
+ *     </td>
+ *     <td>
+ *       step-60
  *     </td>
  *   </tr>
  *
@@ -721,7 +749,8 @@
  *       step-41,
  *       step-42,
  *       step-43,
- *       step-56
+ *       step-56,
+ *       step-59
  *     </td>
  *   </tr>
  *
@@ -735,7 +764,8 @@
  *       step-37,
  *       step-40,
  *       step-42,
- *       step-55
+ *       step-55,
+ *       step-59
  *     </td>
  *   </tr>
  *
@@ -751,7 +781,8 @@
  *       step-43,
  *       step-55,
  *       step-56,
- *       step-57
+ *       step-57,
+ *       step-60
  *     </td>
  *   </tr>
  *
@@ -782,7 +813,10 @@
  *   <tr valign="top">
  *     <td> Linear operators
  *     </td>
- *     <td>step-44</td>
+ *     <td>
+ *       step-44,
+ *       step-60
+ *     </td>
  *   </tr>
  *
  * </table>

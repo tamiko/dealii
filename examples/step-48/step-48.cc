@@ -250,7 +250,7 @@ namespace Step48
     ExactSolution (const unsigned int n_components = 1,
                    const double time = 0.) : Function<dim>(n_components, time) {}
     virtual double value (const Point<dim> &p,
-                          const unsigned int component = 0) const;
+                          const unsigned int component = 0) const override;
   };
 
   template <int dim>
@@ -486,9 +486,9 @@ namespace Step48
     const std::string filename =
       "solution-" + Utilities::int_to_string (timestep_number, 3);
 
-    std::ofstream output ((filename +
-                           "." + Utilities::int_to_string (Utilities::MPI::
-                                                           this_mpi_process(MPI_COMM_WORLD),4) + ".vtu").c_str());
+    std::ofstream output (filename +
+                          "." + Utilities::int_to_string (Utilities::MPI::
+                                                          this_mpi_process(MPI_COMM_WORLD),4) + ".vtu");
     data_out.write_vtu (output);
 
     if (Utilities::MPI::this_mpi_process(MPI_COMM_WORLD) == 0)
@@ -502,7 +502,7 @@ namespace Step48
                                Utilities::int_to_string (i, 4) +
                                ".vtu");
 
-        std::ofstream master_output ((filename + ".pvtu").c_str());
+        std::ofstream master_output ((filename + ".pvtu"));
         data_out.write_pvtu_record (master_output, filenames);
       }
   }
