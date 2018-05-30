@@ -4,6 +4,8 @@
 # not require return types to be on a separate line.
 #
 
+PenaltyBreakBeforeFirstCallParameter: 90
+
 AccessModifierOffset: -2
 
 AlignAfterOpenBracket: Align
@@ -47,14 +49,13 @@ BreakBeforeBinaryOperators: None
 BreakBeforeBraces: Custom
 BreakBeforeInheritanceComma: false
 BreakBeforeTernaryOperators: false
-BreakConstructorInitializers: AfterColon
+BreakConstructorInitializersBeforeComma: true
 BreakStringLiterals: false
 
 ColumnLimit: 80
 
 CompactNamespaces: false
 
-ConstructorInitializerAllOnOneLineOrOnePerLine: true
 ConstructorInitializerIndentWidth: 2
 
 ContinuationIndentWidth: 2
