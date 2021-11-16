@@ -714,7 +714,11 @@ namespace WorkStream
         TBBCopier<Iterator, ScratchData, CopyData> copier_filter(copier);
 
         // now create a pipeline from these stages
+#    ifdef DEAL_II_TBB_WITH_ONEAPI
+        tbb::parallel_pipeline assembly_line;
+#    else
         tbb::pipeline assembly_line;
+#    endif
         assembly_line.add_filter(iterator_range_to_item_stream);
         assembly_line.add_filter(worker_filter);
         assembly_line.add_filter(copier_filter);

@@ -20,14 +20,9 @@
 #include <cstdlib> // for std::getenv
 #include <thread>
 
-#ifdef DEAL_II_WITH_TBB
-#  ifdef DEAL_II_TBB_WITH_ONEAPI
-#    include <tbb/task_arena.h>
-#  else
-#    include <tbb/task_scheduler_init.h>
-#  endif
+#if defined(DEAL_II_WITH_TBB) && (!defined(DEAL_II_TBB_WITH_ONEAPI))
+#  include <tbb/task_scheduler_init.h>
 #endif
-
 
 #ifdef DEAL_II_WITH_TASKFLOW
 DEAL_II_DISABLE_EXTRA_DIAGNOSTICS
@@ -96,11 +91,15 @@ MultithreadInfo::set_thread_limit(const unsigned int max_threads)
     n_max_threads = n_cores();
 
 #ifdef DEAL_II_WITH_TBB
+#  ifdef DEAL_II_TBB_WITH_ONEAPI
+  task_arena = std::make_unique<tbb::task_arena>(n_max_threads);
+#  else
   // Initialize the scheduler and destroy the old one before doing so
   static tbb::task_scheduler_init dummy(tbb::task_scheduler_init::deferred);
   if (dummy.is_active())
     dummy.terminate();
   dummy.initialize(n_max_threads);
+#  endif
 #endif
 
 #ifdef DEAL_II_WITH_TASKFLOW
@@ -147,6 +146,26 @@ MultithreadInfo::initialize_multithreading()
   done = true;
 }
 
+
+
+#ifdef DEAL_II_WITH_TBB
+tbb::task_arena &
+MultithreadInfo::get_tbb_task_arena()
+{
+  // This should not trigger in normal user code, because we initialize the
+  // Executor in the static DoOnce struct at the end of this file unless you
+  // ask for the Executor before this static object gets constructed.
+  Assert(
+    task_arena.get() != nullptr,
+    ExcMessage(
+      "Please initialize multithreading using MultithreadInfo::set_thread_limit() first."));
+  return *(task_arena.get());
+}
+std::unique_ptr<tbb::task_arena> MultithreadInfo::task_arena = nullptr;
+#endif
+
+
+
 #ifdef DEAL_II_WITH_TASKFLOW
 tf::Executor &
 MultithreadInfo::get_taskflow_executor()
@@ -164,7 +183,11 @@ MultithreadInfo::get_taskflow_executor()
 std::unique_ptr<tf::Executor> MultithreadInfo::executor = nullptr;
 #endif
 
+
+
 unsigned int MultithreadInfo::n_max_threads = numbers::invalid_unsigned_int;
+
+
 
 namespace
 {

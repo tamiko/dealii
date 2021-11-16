@@ -25,6 +25,10 @@
 
 #  include <memory>
 
+#if defined(DEAL_II_WITH_TBB) && defined(DEAL_II_TBB_WITH_ONEAPI)
+#    include <tbb/task_arena.h>
+#endif
+
 // forward declaration from <taskflow/taskflow.hpp>
 namespace tf
 {
@@ -120,6 +124,19 @@ public:
   static void
   initialize_multithreading();
 
+#  ifdef DEAL_II_WITH_TBB
+#    ifdef DEAL_II_TBB_WITH_ONEAPI
+  /**
+   * Return a reference to the global task_arena from tbb.
+   *
+   * The task_arena is set to use n_threads() worker threads that you can
+   * control using set_thread_limit() and the DEAL_II_NUM_THREADS
+   * environment variable.
+   */
+  static tbb::task_arena &
+  get_tbb_task_arena();
+#    endif
+#  endif
 
 #  ifdef DEAL_II_WITH_TASKFLOW
   /**
@@ -138,6 +155,14 @@ private:
    * Variable representing the maximum number of threads.
    */
   static unsigned int n_max_threads;
+
+#  ifdef DEAL_II_WITH_TBB
+  /**
+   * Store a tbb task_arena that is constructed with N workers (from
+   * set_thread_limit).
+   */
+  static std::unique_ptr<tbb::task_arena> task_arena;
+#  endif
 
 #  ifdef DEAL_II_WITH_TASKFLOW
   /**
