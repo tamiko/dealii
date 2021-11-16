@@ -1,0 +1,3 @@
+Fixed: deal.II now supports Intel TBB version 2021.X with the news OneAPI API
+<br>
+(Matthias Maier, 2021/11/16)
