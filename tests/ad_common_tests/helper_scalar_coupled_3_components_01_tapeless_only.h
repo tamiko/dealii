@@ -229,7 +229,7 @@ test_tensor_vector_scalar_coupled()
 
   const unsigned int this_mpi_process =
     Utilities::MPI::this_mpi_process(MPI_COMM_WORLD);
-  ConditionalOStream pcout(deallog.get_console(), this_mpi_process == 0);
+  ConditionalOStream pcout(std::cout, this_mpi_process == 0);
 
   pcout << "*** Test variables: Tensor + Vector + Scalar (coupled), "
         << "dim = " << Utilities::to_string(dim) << ", "

@@ -116,8 +116,7 @@ SeventhProblem<dim>::SeventhProblem(unsigned int prob_number)
                          settings)
   , second_dof_handler(second_triangulation)
   , second_fe(2)
-  , pcout(deallog.get_file_stream(),
-          (Utilities::MPI::this_mpi_process(mpi_communicator) == 0))
+  , pcout(std::cout, (Utilities::MPI::this_mpi_process(mpi_communicator) == 0))
   , prob_number(prob_number)
 {}
 
@@ -303,7 +302,7 @@ SeventhProblem<dim>::run(unsigned int cycle)
 void
 seventh_grid()
 {
-  ConditionalOStream pcout(deallog.get_file_stream(),
+  ConditionalOStream pcout(std::cout,
                            (Utilities::MPI::this_mpi_process(MPI_COMM_WORLD) ==
                             0));
 
@@ -324,7 +323,6 @@ main(int argc, char *argv[])
 {
   Utilities::MPI::MPI_InitFinalize mpi_initialization(argc, argv, 1);
   MPILogInitAll                    log;
-  deallog.depth_file(0);
 
   seventh_grid();
 }

@@ -171,7 +171,7 @@ namespace Step27
     , triangulation(mpi_communicator)
     , dof_handler(triangulation)
     , max_degree(dim <= 2 ? 7 : 5)
-    , pcout(deallog.get_file_stream(),
+    , pcout(std::cout,
             (Utilities::MPI::this_mpi_process(mpi_communicator) == 0))
   {
     for (unsigned int degree = 2; degree <= max_degree; ++degree)

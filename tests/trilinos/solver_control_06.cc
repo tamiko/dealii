@@ -129,10 +129,7 @@ Test_Solver_Output::Test_Solver_Output()
   , dof_handler(triangulation)
   , fe(1)
   , pcout(std::cout, (Utilities::MPI::this_mpi_process(mpi_comm) == 0))
-  ,
-  // pcout(deallog.get_file_stream(),
-  //       (Utilities::MPI::this_mpi_process(mpi_comm) == 0)),
-  timer(mpi_comm, pcout, TimerOutput::never, TimerOutput::wall_times)
+  , timer(mpi_comm, pcout, TimerOutput::never, TimerOutput::wall_times)
 {}
 
 Test_Solver_Output::~Test_Solver_Output()

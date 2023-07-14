@@ -380,8 +380,7 @@ namespace Step37
                       dim>::construct_multigrid_hierarchy)
     , fe(degree_finite_element)
     , dof_handler(triangulation)
-    , pcout(deallog.get_file_stream(),
-            Utilities::MPI::this_mpi_process(MPI_COMM_WORLD) == 0)
+    , pcout(std::cout, Utilities::MPI::this_mpi_process(MPI_COMM_WORLD) == 0)
   {}
 
 

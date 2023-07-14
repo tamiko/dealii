@@ -1977,8 +1977,7 @@ namespace Euler_DG
   // and initialize the time and time step to zero.
   template <int dim>
   EulerProblem<dim>::EulerProblem()
-    : pcout(deallog.get_file_stream(),
-            Utilities::MPI::this_mpi_process(MPI_COMM_WORLD) == 0)
+    : pcout(std::cout, Utilities::MPI::this_mpi_process(MPI_COMM_WORLD) == 0)
 #ifdef DEAL_II_WITH_P4EST
     , triangulation(MPI_COMM_WORLD)
 #endif
