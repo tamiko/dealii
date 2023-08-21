@@ -91,9 +91,9 @@ namespace internal
       const FiniteElement<dim, dim> &fe_in,
       const FiniteElement<dim, dim> &fe,
       const unsigned int             base_element_number,
-      ElementType &                  element_type,
-      std::vector<unsigned int> &    scalar_lexicographic,
-      std::vector<unsigned int> &    lexicographic_numbering)
+      ElementType                   &element_type,
+      std::vector<unsigned int>     &scalar_lexicographic,
+      std::vector<unsigned int>     &lexicographic_numbering)
     {
       element_type = tensor_general;
 
@@ -215,7 +215,7 @@ namespace internal
     template <typename Number>
     template <int dim, int spacedim, int dim_q>
     inline ShapeInfo<Number>::ShapeInfo(
-      const Quadrature<dim_q> &           quad,
+      const Quadrature<dim_q>            &quad,
       const FiniteElement<dim, spacedim> &fe_in,
       const unsigned int                  base_element_number)
       : element_type(tensor_general)
@@ -234,7 +234,7 @@ namespace internal
     template <typename Number>
     template <int dim, int spacedim, int dim_q>
     void
-    ShapeInfo<Number>::reinit(const Quadrature<dim_q> &           quad_in,
+    ShapeInfo<Number>::reinit(const Quadrature<dim_q>            &quad_in,
                               const FiniteElement<dim, spacedim> &fe_in,
                               const unsigned int base_element_number)
     {
@@ -1067,10 +1067,10 @@ namespace internal
 
       const auto n_q_points_1d   = univariate_shape_data.n_q_points_1d;
       const auto fe_degree       = univariate_shape_data.fe_degree;
-      auto &     shape_values    = univariate_shape_data.shape_values;
-      auto &     shape_gradients = univariate_shape_data.shape_gradients;
-      auto &     shape_hessians  = univariate_shape_data.shape_hessians;
-      auto &     shape_gradients_collocation =
+      auto      &shape_values    = univariate_shape_data.shape_values;
+      auto      &shape_gradients = univariate_shape_data.shape_gradients;
+      auto      &shape_hessians  = univariate_shape_data.shape_hessians;
+      auto      &shape_gradients_collocation =
         univariate_shape_data.shape_gradients_collocation;
       auto &shape_hessians_collocation =
         univariate_shape_data.shape_hessians_collocation;
@@ -1203,7 +1203,7 @@ namespace internal
         return false;
 
       const auto fe_degree    = univariate_shape_data.fe_degree;
-      auto &     shape_values = univariate_shape_data.shape_values;
+      auto      &shape_values = univariate_shape_data.shape_values;
 
       const double zero_tol =
         std::is_same_v<Number, double> == true ? 1e-12 : 1e-7;

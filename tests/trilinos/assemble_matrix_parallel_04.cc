@@ -126,15 +126,15 @@ private:
   void
   local_assemble(
     const FilteredIterator<typename DoFHandler<dim>::active_cell_iterator>
-      &                           cell,
+                                 &cell,
     Assembly::Scratch::Data<dim> &scratch,
-    Assembly::Copy::Data &        data);
+    Assembly::Copy::Data         &data);
   void
   copy_local_to_global(const Assembly::Copy::Data &data);
 
   std::vector<types::global_dof_index>
   get_conflict_indices(
-    FilteredIterator<typename DoFHandler<dim>::active_cell_iterator> const
+    const FilteredIterator<typename DoFHandler<dim>::active_cell_iterator>
       &cell) const;
 
   parallel::distributed::Triangulation<dim> triangulation;
@@ -228,7 +228,7 @@ LaplaceProblem<dim>::~LaplaceProblem()
 template <int dim>
 std::vector<types::global_dof_index>
 LaplaceProblem<dim>::get_conflict_indices(
-  FilteredIterator<typename DoFHandler<dim>::active_cell_iterator> const &cell)
+  const FilteredIterator<typename DoFHandler<dim>::active_cell_iterator> &cell)
   const
 {
   std::vector<types::global_dof_index> local_dof_indices(
@@ -273,7 +273,7 @@ LaplaceProblem<dim>::setup_system()
     begin,
     end,
     static_cast<std::function<std::vector<types::global_dof_index>(
-      FilteredIterator<typename DoFHandler<dim>::active_cell_iterator> const
+      const FilteredIterator<typename DoFHandler<dim>::active_cell_iterator>
         &)>>(std::bind(&LaplaceProblem<dim>::get_conflict_indices,
                        this,
                        std::placeholders::_1)));
@@ -316,7 +316,7 @@ void
 LaplaceProblem<dim>::local_assemble(
   const FilteredIterator<typename DoFHandler<dim>::active_cell_iterator> &cell,
   Assembly::Scratch::Data<dim> &scratch,
-  Assembly::Copy::Data &        data)
+  Assembly::Copy::Data         &data)
 {
   const unsigned int dofs_per_cell = cell->get_fe().dofs_per_cell;
 

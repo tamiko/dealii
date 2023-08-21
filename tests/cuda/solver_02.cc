@@ -35,7 +35,7 @@ test(Utilities::CUDA::Handle &cuda_handle)
   // Create the matrix on the host.
   dealii::SparsityPattern                sparsity_pattern;
   dealii::SparseMatrix<double>           matrix;
-  unsigned int const                     size = 30;
+  const unsigned int                     size = 30;
   std::vector<std::vector<unsigned int>> column_indices(size);
   for (unsigned int i = 0; i < size; ++i)
     {
@@ -76,7 +76,7 @@ test(Utilities::CUDA::Handle &cuda_handle)
 
   LinearAlgebra::CUDAWrappers::Vector<double> solution_dev(size);
   const std::array<std::string, 3>            solver_names{
-    {"Cholesky", "LU_dense", "LU_host"}};
+               {"Cholesky", "LU_dense", "LU_host"}};
 
   for (auto solver_type : solver_names)
     {

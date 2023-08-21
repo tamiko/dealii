@@ -364,7 +364,7 @@ namespace internal
        * Constructor that initializes the data fields using the reinit method.
        */
       template <int dim, int spacedim, int dim_q>
-      ShapeInfo(const Quadrature<dim_q> &           quad,
+      ShapeInfo(const Quadrature<dim_q>            &quad,
                 const FiniteElement<dim, spacedim> &fe,
                 const unsigned int                  base_element = 0);
 
@@ -378,7 +378,7 @@ namespace internal
        */
       template <int dim, int spacedim, int dim_q>
       void
-      reinit(const Quadrature<dim_q> &           quad,
+      reinit(const Quadrature<dim_q>            &quad,
              const FiniteElement<dim, spacedim> &fe_dim,
              const unsigned int                  base_element = 0);
 

@@ -125,15 +125,15 @@ private:
   void
   local_assemble(
     const FilteredIterator<typename DoFHandler<dim>::active_cell_iterator>
-      &                           cell,
+                                 &cell,
     Assembly::Scratch::Data<dim> &scratch,
-    Assembly::Copy::Data &        data);
+    Assembly::Copy::Data         &data);
   void
   copy_local_to_global(const Assembly::Copy::Data &data);
 
   std::vector<types::global_dof_index>
   get_conflict_indices(
-    FilteredIterator<typename DoFHandler<dim>::active_cell_iterator> const
+    const FilteredIterator<typename DoFHandler<dim>::active_cell_iterator>
       &cell) const;
 
   parallel::distributed::Triangulation<dim> triangulation;
@@ -227,7 +227,7 @@ LaplaceProblem<dim>::~LaplaceProblem()
 template <int dim>
 std::vector<types::global_dof_index>
 LaplaceProblem<dim>::get_conflict_indices(
-  FilteredIterator<typename DoFHandler<dim>::active_cell_iterator> const &cell)
+  const FilteredIterator<typename DoFHandler<dim>::active_cell_iterator> &cell)
   const
 {
   std::vector<types::global_dof_index> local_dof_indices(
@@ -269,7 +269,7 @@ LaplaceProblem<dim>::setup_system()
     begin,
     end,
     static_cast<std::function<std::vector<types::global_dof_index>(
-      FilteredIterator<typename DoFHandler<dim>::active_cell_iterator> const
+      const FilteredIterator<typename DoFHandler<dim>::active_cell_iterator>
         &)>>(std::bind(&LaplaceProblem<dim>::get_conflict_indices,
                        this,
                        std::placeholders::_1)));
@@ -288,14 +288,14 @@ LaplaceProblem<dim>::setup_system()
     IndexSet                          relevant_set;
     DoFTools::extract_locally_relevant_dofs(dof_handler, relevant_set);
     // TODO: currently no Trilinos version is capable of doing this...
-    //#if DEAL_II_TRILINOS_VERSION_GTE(11,14,0)
+    // #if DEAL_II_TRILINOS_VERSION_GTE(11,14,0)
     // Cannot pre-build sparsity pattern, Trilinos must provide it...
     // csp.reinit(locally_owned, locally_owned, MPI_COMM_WORLD);
-    //#else
+    // #else
     // OK, Trilinos not new enough - use exactly the same as
     // assemble_matrix_parallel_02.cc
     csp.reinit(locally_owned, locally_owned, relevant_set, MPI_COMM_WORLD);
-    //#endif
+    // #endif
     DoFTools::make_sparsity_pattern(dof_handler, csp, constraints, false);
     csp.compress();
     test_matrix.reinit(csp);
@@ -310,7 +310,7 @@ void
 LaplaceProblem<dim>::local_assemble(
   const FilteredIterator<typename DoFHandler<dim>::active_cell_iterator> &cell,
   Assembly::Scratch::Data<dim> &scratch,
-  Assembly::Copy::Data &        data)
+  Assembly::Copy::Data         &data)
 {
   const unsigned int dofs_per_cell = cell->get_fe().dofs_per_cell;
 

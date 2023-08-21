@@ -65,7 +65,7 @@ namespace Assembly
     struct Data
     {
       Data(const hp::FECollection<dim> &fe,
-           const hp::QCollection<dim> & quadrature)
+           const hp::QCollection<dim>  &quadrature)
         : hp_fe_values(fe,
                        quadrature,
                        update_values | update_gradients |
@@ -135,14 +135,14 @@ private:
 
   void
   local_assemble(const typename DoFHandler<dim>::active_cell_iterator &cell,
-                 Assembly::Scratch::Data<dim> &                        scratch,
-                 Assembly::Copy::Data &                                data);
+                 Assembly::Scratch::Data<dim>                         &scratch,
+                 Assembly::Copy::Data                                 &data);
   void
   copy_local_to_global(const Assembly::Copy::Data &data);
 
   std::vector<types::global_dof_index>
   get_conflict_indices(
-    typename DoFHandler<dim>::active_cell_iterator const &cell) const;
+    typename const DoFHandler<dim>::active_cell_iterator &cell) const;
 
   Triangulation<dim> triangulation;
 
@@ -254,7 +254,7 @@ LaplaceProblem<dim>::~LaplaceProblem()
 template <int dim>
 std::vector<types::global_dof_index>
 LaplaceProblem<dim>::get_conflict_indices(
-  typename DoFHandler<dim>::active_cell_iterator const &cell) const
+  typename const DoFHandler<dim>::active_cell_iterator &cell) const
 {
   std::vector<types::global_dof_index> local_dof_indices(
     cell->get_fe().dofs_per_cell);
@@ -308,7 +308,7 @@ LaplaceProblem<dim>::setup_system()
     dof_handler.begin_active(),
     dof_handler.end(),
     static_cast<std::function<std::vector<types::global_dof_index>(
-      typename DoFHandler<dim>::active_cell_iterator const &)>>(
+      typename const DoFHandler<dim>::active_cell_iterator &)>>(
       std::bind(&LaplaceProblem<dim>::get_conflict_indices,
                 this,
                 std::placeholders::_1)));
@@ -329,8 +329,8 @@ template <int dim>
 void
 LaplaceProblem<dim>::local_assemble(
   const typename DoFHandler<dim>::active_cell_iterator &cell,
-  Assembly::Scratch::Data<dim> &                        scratch,
-  Assembly::Copy::Data &                                data)
+  Assembly::Scratch::Data<dim>                         &scratch,
+  Assembly::Copy::Data                                 &data)
 {
   const unsigned int dofs_per_cell = cell->get_fe().dofs_per_cell;
 

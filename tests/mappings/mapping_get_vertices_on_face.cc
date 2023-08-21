@@ -28,7 +28,7 @@ template <int dim>
 std::vector<Point<dim>>
 get_vertices(const typename Triangulation<dim>::cell_iterator &cell,
              const typename Triangulation<dim>::face_iterator &face,
-             const Mapping<dim> &                              mapping)
+             const Mapping<dim>                               &mapping)
 {
   std::vector<Point<dim>> vertices(face->n_vertices());
 
@@ -54,15 +54,15 @@ test_vertex_order()
   for (const auto &cell : tria.active_cell_iterators())
     for (unsigned int f = 0; f < cell->n_faces(); ++f)
       {
-        auto const &vertices_detour =
+        const auto &vertices_detour =
           get_vertices(cell, cell->face(f), mapping);
-        auto const &vertices = mapping.get_vertices(cell, f);
+        const auto &vertices = mapping.get_vertices(cell, f);
 
         AssertDimension(vertices_detour.size(), vertices.size());
 
         for (unsigned int i = 0; i < vertices.size(); ++i)
           {
-            auto const diff = vertices[i] - vertices_detour[i];
+            const auto diff = vertices[i] - vertices_detour[i];
             AssertThrow(diff.norm() < 1e-12, ExcMessage("Vertices differ!"));
           }
       }
