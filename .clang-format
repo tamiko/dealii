@@ -157,6 +157,8 @@ PenaltyBreakBeforeFirstCallParameter: 90
 
 PointerAlignment: Right
 
+QualifierAlignment: Left
+
 ReflowComments: true
 CommentPragmas: '( \| |\*--|<li>|@ref | @p |@param |@name |@returns |@warning |@ingroup |@author |@date |@related |@relates |@relatesalso |@deprecated |@image |@return |@brief |@attention |@copydoc |@addtogroup |@todo |@tparam |@see |@note |@skip |@skipline |@until |@line |@dontinclude |@include)'
 
@@ -175,7 +177,7 @@ SpacesInContainerLiterals: false
 SpacesInParentheses: false
 SpacesInSquareBrackets: false
 
-Standard: Cpp11
+Standard: c++20
 
 TabWidth: 2
 
