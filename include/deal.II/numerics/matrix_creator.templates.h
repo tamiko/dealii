@@ -982,7 +982,7 @@ namespace MatrixCreator
   {
     template <int dim, int spacedim, typename number>
     void static inline create_boundary_mass_matrix_1(
-      typename const DoFHandler<dim, spacedim>::active_cell_iterator &cell,
+      const typename DoFHandler<dim, spacedim>::active_cell_iterator &cell,
       const MatrixCreator::internal::AssemblerBoundary::Scratch &,
       MatrixCreator::internal::AssemblerBoundary::
         CopyData<dim, spacedim, number>  &copy_data,
@@ -1381,7 +1381,7 @@ namespace MatrixCreator
       dof.begin_active(),
       dof.end(),
       [&mapping, &fe, &q, &boundary_functions, coefficient, &component_mapping](
-        typename const DoFHandler<dim, spacedim>::active_cell_iterator &cell,
+        const typename DoFHandler<dim, spacedim>::active_cell_iterator &cell,
         const MatrixCreator::internal::AssemblerBoundary::Scratch &scratch_data,
         MatrixCreator::internal::AssemblerBoundary::
           CopyData<dim, spacedim, number> &copy_data) {
@@ -1415,7 +1415,7 @@ namespace MatrixCreator
     template <int dim, int spacedim, typename number>
     void
     create_hp_boundary_mass_matrix_1(
-      typename const DoFHandler<dim, spacedim>::active_cell_iterator &cell,
+      const typename DoFHandler<dim, spacedim>::active_cell_iterator &cell,
       const MatrixCreator::internal::AssemblerBoundary::Scratch &,
       MatrixCreator::internal::AssemblerBoundary ::
         CopyData<dim, spacedim, number>          &copy_data,
@@ -1857,7 +1857,7 @@ namespace MatrixCreator
        &boundary_functions,
        coefficient,
        &component_mapping](
-        typename const DoFHandler<dim, spacedim>::active_cell_iterator &cell,
+        const typename DoFHandler<dim, spacedim>::active_cell_iterator &cell,
         const MatrixCreator::internal::AssemblerBoundary::Scratch &scratch_data,
         MatrixCreator::internal::AssemblerBoundary ::
           CopyData<dim, spacedim, number> &copy_data) {
